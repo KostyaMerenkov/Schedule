@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "106372275715",
+    "project_id": "schedule-4c151",
+    "storage_bucket": "schedule-4c151.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:106372275715:android:9ec772feea251a7de67836",
+        "android_client_info": {
+          "package_name": "ru.students.dvfu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "106372275715-5g70hm8eosmmah3o427j57kl1k6ga1cd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.students.dvfu",
+            "certificate_hash": "686be155b7bf47f57f0fdd2d41155aba226b5595"
+          }
+        },
+        {
+          "client_id": "106372275715-8ijjnah88j72s0725q2kv0dr3ikn9nig.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuj0dkBp236hQeYxgXuGuBnTUfPW-rxFU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "106372275715-8ijjnah88j72s0725q2kv0dr3ikn9nig.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
