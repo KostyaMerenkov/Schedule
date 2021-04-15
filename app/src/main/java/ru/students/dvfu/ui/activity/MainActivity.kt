@@ -1,6 +1,8 @@
 package ru.students.dvfu.ui.activity
 
 import android.content.Intent
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -45,18 +47,15 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         hvb = NavHeaderMainBinding.bind(hv)
 
 
+
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         mAuth = FirebaseAuth.getInstance()
         val currentUser = mAuth.currentUser
         putUserInfoToNavBar(currentUser!!)
-
         vb.logout.setOnClickListener {
-            mAuth.signOut()
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
+            presenter.logOutClicked(mAuth)
         }
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
@@ -105,4 +104,16 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
 
     }
+
+    override fun signOut() {
+        if(mAuth.currentUser?.isAnonymous == true) {
+            mAuth.currentUser?.delete()
+        }
+        mAuth.signOut()
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+
 }

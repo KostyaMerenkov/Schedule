@@ -1,4 +1,4 @@
-package ru.students.dvfu.ui.home
+package ru.students.dvfu.ui.day
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

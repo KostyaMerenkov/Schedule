@@ -6,8 +6,8 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="@string/menu_home" />
+            android:icon="@android:drawable/ic_menu_day"
+            android:title="Day calendar" />
         <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_menu_gallery"
@@ -16,15 +16,57 @@
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="@string/menu_slideshow" />
+        <item android:title="ADMIN">
+            <menu>
+                <item
+                    android:id="@+id/nav_admin_users"
+                    android:icon="@android:drawable/ic_partial_secure"
+                    android:title="Users" />
+                <item
+                    android:id="@+id/nav_admin_appliances"
+                    android:icon="@android:drawable/ic_dialog_dialer"
+                    android:title="Appliances" />
+            </menu>
+        </item>
     </group>
 
 
+    <item
+        android:id="@+id/footer_spacer_1"
+        android:checkable="false"
+        android:enabled="false"
+        android:orderInCategory="200"
+        android:title="" />
+    <item
+        android:id="@+id/footer_spacer_2"
+        android:checkable="false"
+        android:enabled="false"
+        android:orderInCategory="200"
+        android:title="" />
+    <item
+        android:id="@+id/footer_spacer_3"
+        android:checkable="false"
+        android:enabled="false"
+        android:orderInCategory="200"
+        android:title="" />
 
 
+    <item android:title="TODO">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@android:drawable/ic_menu_preferences"
+                android:title="@string/action_settings" />
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_logout"
+                android:title="@string/logout" />
+        </menu>
+    </item>
 
-<!--    <item-->
-<!--        android:id="@+id/nav_info"-->
-<!--        android:icon="@android:drawable/ic_menu_info_details"-->
-<!--        android:title="@string/info" />-->
+    <!--    <item-->
+    <!--        android:id="@+id/nav_info"-->
+    <!--        android:icon="@android:drawable/ic_menu_info_details"-->
+    <!--        android:title="@string/info" />-->
 
 </menu>

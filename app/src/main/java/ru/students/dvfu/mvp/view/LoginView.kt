@@ -12,6 +12,6 @@ interface LoginView: MvpView {
     fun startGoogleLogin()
     fun startGuestLogin()
     fun startMainActivity()
-    fun firebaseAuthWithGoogle(idToken: String)
 
+    fun showSuccessToast(email: String)
 }

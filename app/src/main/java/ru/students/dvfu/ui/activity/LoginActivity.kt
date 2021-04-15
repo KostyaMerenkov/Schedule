@@ -87,9 +87,7 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
 
     override fun startMainActivity() {
         setProgressVisibility(false)
-        auth.currentUser?.email?.let {
-            Toast.makeText(applicationContext, "Successful login in $it", Toast.LENGTH_SHORT).show()
-        } ?:  Toast.makeText(applicationContext, "Successful guest login", Toast.LENGTH_SHORT).show()
+        presenter.successfulSignIn(auth.currentUser?.email)
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
@@ -119,16 +117,14 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
         }
     }
 
-    override fun firebaseAuthWithGoogle(idToken: String) {
+    private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("SignInActivity", "signInWithCredential:success")
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    startMainActivity()
                 } else {
                     // If sign in fails, display a message to the user.
                     setProgressVisibility(false)
@@ -138,6 +134,10 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
                     TODO("DIALOG WINDOW WITH ERROR")
                 }
             }
+    }
+
+    override fun showSuccessToast(email: String) {
+        Toast.makeText(applicationContext, "Successful login in $email", Toast.LENGTH_SHORT).show()
     }
 
     fun toastAuthFailed() {
