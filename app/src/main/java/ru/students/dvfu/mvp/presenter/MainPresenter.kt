@@ -7,8 +7,10 @@ import ru.students.dvfu.mvp.view.MainView
 
 class MainPresenter(private val mainView: MainView): MvpPresenter<MainView>() {
     fun logOutClicked(mAuth: FirebaseAuth) {
+        if(mAuth.currentUser?.isAnonymous == true) {
+            mAuth.currentUser?.delete()
+        }
         mainView.signOut()
-        //TODO("Проверка пользователя. Если гость, то удалить профиль и выйти")
     }
 
 }

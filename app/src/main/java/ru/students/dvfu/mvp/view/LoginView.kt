@@ -12,6 +12,5 @@ interface LoginView: MvpView {
     fun startGoogleLogin()
     fun startGuestLogin()
     fun startMainActivity()
-
     fun showSuccessToast(email: String)
 }
