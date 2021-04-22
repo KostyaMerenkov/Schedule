@@ -18,6 +18,7 @@ import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
 import ru.students.dvfu.R
 import ru.students.dvfu.databinding.ActivityLoginBinding
+import ru.students.dvfu.mvp.model.FirebaseUsersRepo
 import ru.students.dvfu.mvp.presenter.LoginPresenter
 import ru.students.dvfu.mvp.view.LoginView
 
@@ -25,7 +26,7 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
 
     private var TAG = "LoginActivity"
 
-    private val presenter by moxyPresenter { LoginPresenter(this) }
+    private val presenter by moxyPresenter { LoginPresenter(this, FirebaseUsersRepo()) }
     private var vb: ActivityLoginBinding? = null
 
     private lateinit var auth: FirebaseAuth
@@ -87,7 +88,7 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
 
     override fun startMainActivity() {
         setProgressVisibility(false)
-        presenter.successfulSignIn(auth.currentUser?.email)
+        presenter.successfulSignIn(auth.currentUser!!)
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
@@ -178,7 +179,5 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
             )
         }
     }
-
-
 
 }

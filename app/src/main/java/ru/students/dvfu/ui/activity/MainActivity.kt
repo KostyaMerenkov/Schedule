@@ -1,13 +1,9 @@
 package ru.students.dvfu.ui.activity
 
 import android.content.Intent
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
@@ -29,7 +25,6 @@ import ru.students.dvfu.databinding.NavHeaderMainBinding
 import ru.students.dvfu.mvp.presenter.MainPresenter
 import ru.students.dvfu.mvp.view.MainView
 
-
 class MainActivity : MvpAppCompatActivity(), MainView {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -46,15 +41,12 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         val hv: View = vb.navView.getHeaderView(0)
         hvb = NavHeaderMainBinding.bind(hv)
 
-
-
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         mAuth = FirebaseAuth.getInstance()
-        val currentUser = mAuth.currentUser
-        putUserInfoToNavBar(currentUser!!)
-        vb.logout.setOnClickListener {
+        if (!mAuth.currentUser!!.isAnonymous) putUserInfoToNavBar(mAuth.currentUser!!)
+        else hvb.userEmail.setOnClickListener {
             presenter.logOutClicked(mAuth)
         }
 
@@ -66,12 +58,17 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
 
+        vb.navView.menu.findItem(R.id.logout).setOnMenuItemClickListener {
+            presenter.logOutClicked(mAuth)
+            return@setOnMenuItemClickListener true
+        }
+
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
+                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.rv_users
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -85,7 +82,6 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
@@ -94,26 +90,19 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         currentUser.photoUrl?.let {
             Glide.with(this).load(it).circleCrop().into(hvb.userAvatar)
         }
-
         currentUser.displayName?.let {
             hvb.userName.text = it
         }
         currentUser.email?.let {
             hvb.userEmail.text = currentUser.email
         }
-
-
     }
 
     override fun signOut() {
-        if(mAuth.currentUser?.isAnonymous == true) {
-            mAuth.currentUser?.delete()
-        }
         mAuth.signOut()
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
     }
-
 
 }

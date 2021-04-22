@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_menu"
     tools:showIn="navigation_view">
 
     <group android:checkableBehavior="single">
@@ -30,35 +31,14 @@
         </item>
     </group>
 
-
-    <item
-        android:id="@+id/footer_spacer_1"
-        android:checkable="false"
-        android:enabled="false"
-        android:orderInCategory="200"
-        android:title="" />
-    <item
-        android:id="@+id/footer_spacer_2"
-        android:checkable="false"
-        android:enabled="false"
-        android:orderInCategory="200"
-        android:title="" />
-    <item
-        android:id="@+id/footer_spacer_3"
-        android:checkable="false"
-        android:enabled="false"
-        android:orderInCategory="200"
-        android:title="" />
-
-
-    <item android:title="TODO">
+    <item android:title="Utils">
         <menu>
             <item
                 android:id="@+id/nav_share"
                 android:icon="@android:drawable/ic_menu_preferences"
                 android:title="@string/action_settings" />
             <item
-                android:id="@+id/nav_logout"
+                android:id="@+id/logout"
                 android:icon="@drawable/ic_logout"
                 android:title="@string/logout" />
         </menu>
