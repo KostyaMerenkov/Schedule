@@ -12,20 +12,25 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_gallery"
+        android:id="@+id/nav_week"
         android:name="ru.students.dvfu.ui.gallery.GalleryFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_gallery" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
+        android:id="@+id/nav_month"
         android:name="ru.students.dvfu.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
 
     <fragment
-        android:id="@+id/nav_admin_users"
+        android:id="@+id/nav_users"
         android:name="ru.students.dvfu.ui.fragment.UsersFragment"
         android:label="@string/menu_users"
         tools:layout="@layout/fragment_users" />
+    <fragment
+        android:id="@+id/nav_appliances"
+        android:name="ru.students.dvfu.ui.fragment.AppliancesFragment"
+        android:label="fragment_appliances"
+        tools:layout="@layout/fragment_appliances" />
 </navigation>

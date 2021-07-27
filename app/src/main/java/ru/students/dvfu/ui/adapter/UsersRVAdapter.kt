@@ -4,45 +4,36 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import ru.students.dvfu.mvp.presenter.list.IUserListPresenter
-import ru.students.dvfu.mvp.view.list.UserItemView
 import ru.students.dvfu.databinding.ItemUserBinding
+import ru.students.dvfu.model.userdata.User
+import ru.students.dvfu.model.userdata.entities.Role
 
-class UsersRVAdapter(val presenter: IUserListPresenter,
-                     //val imageLoader: IImageLoader<ImageView>
-                     ) : RecyclerView.Adapter<UsersRVAdapter.ViewHolder>() {
+class UsersRVAdapter() : RecyclerView.Adapter<UsersRVAdapter.RecyclerItemViewHolder>() {
+
+    private var data: List<User> = arrayListOf()
+
+    fun setData(data: List<User>) {
+        this.data = data
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        ViewHolder(ItemUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)).apply {
-            itemView.setOnClickListener { presenter.itemClickListener?.invoke(this) }
-        }
+        RecyclerItemViewHolder(ItemUserBinding.inflate(LayoutInflater.from(parent.context),
+            parent, false))
 
-    override fun getItemCount() = presenter.getCount()
+    override fun onBindViewHolder(holder: RecyclerItemViewHolder, position: Int) {
+        holder.bind(data[position])
+    }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) = presenter.bindView(holder.apply { pos = position })
+    override fun getItemCount(): Int = data.count()
 
-    inner class ViewHolder(private val vb: ItemUserBinding) : RecyclerView.ViewHolder(vb.root),
-        UserItemView {
-        override var pos = -1
-
-//        override fun setLogin(text: String) = with(vb) {
-//            tvLogin.text = text
-//        }
-
-        override fun setName(name: String) {
-            vb.tvName.text = name
-        }
-
-        override fun setEmail(email: String) {
-            vb.tvEmail.text = email
-        }
-
-        override fun setRole(role: String) {
-            vb.tvRole.text = role
-        }
-
-        override fun loadAvatar(url: String): Unit = with(vb) {
-            Glide.with(itemView).load(url).circleCrop().into(ivAvatar)
+    inner class RecyclerItemViewHolder(private val vb: ItemUserBinding) : RecyclerView.ViewHolder(vb.root) {
+        fun bind(data: User) {
+            vb.tvName.text = data.name
+            vb.tvEmail.text = data.email
+            vb.tvRole.text = Role.values()[data.role].name
+            with(vb) {
+                Glide.with(itemView).load(data.avatar).circleCrop().into(ivAvatar) }
         }
     }
 }
