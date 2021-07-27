@@ -24,9 +24,6 @@ import com.google.firebase.auth.AuthResult
 
 import com.google.android.gms.tasks.OnSuccessListener
 
-
-
-
 class LoginActivity() : AppCompatActivity() {
     private var TAG = "LoginActivity"
     private lateinit var vb: ActivityLoginBinding
@@ -48,7 +45,6 @@ class LoginActivity() : AppCompatActivity() {
         vb.microsoftSignInButton.setOnClickListener {
             setProgressVisibility(true)
             startMicrosoftLogin()
-            TODO("microsoft login")
         }
         vb.googleSignInButton.setOnClickListener {
             setProgressVisibility(true)
@@ -81,12 +77,10 @@ class LoginActivity() : AppCompatActivity() {
                     // The OAuth ID token can also be retrieved:
                     // authResult.getCredential().getIdToken().
                 }
-                .addOnFailureListener {
-                    Snackbar.make(
-                        vb.loginLayout,
-                        "Не удалось выполнить вход через Microsoft: " + it.message,
-                        Snackbar.LENGTH_LONG
-                    ).show()
+                .addOnFailureListener { e->
+                    showToast(e.message!!)
+                    logError(e.message!!)
+                    setProgressVisibility(false)
                 }
         } else {
             // There's no pending result so you need to start the sign-in flow.
@@ -94,37 +88,49 @@ class LoginActivity() : AppCompatActivity() {
                 .addOnSuccessListener { authResult ->
                     // User is signed in.
                     // IdP data available in
-                    Snackbar.make(
-                        vb.loginLayout,
-                        "Успешный вход через Microsoft!",
-                        Snackbar.LENGTH_LONG
-                    ).show()
+                    showSuccessToast(authResult.user!!.email!!)
                     authResult.additionalUserInfo?.profile?.toString()?.let {
                         Log.d("PROFILE",
                             it
                         )
                     }
-                    authResult.user?.email?.let {
-                        Log.d("LOGIN",
-                            it
+                    authResult.user?.providerData.let {
+                        Log.d("PROVIDER_DATA",
+                            it.toString()
                         )
                     }
-                    authResult.credential
-                    FirebaseAuth.getInstance().signOut()
+                    authResult.user?.metadata.let {
+                        Log.d("META_DATA",
+                            it.toString()
+                        )
+                    }
+                    authResult.credential?.let {
+                        Log.d("META_DATA",
+                            it.toString()
+                        )
+                    }
+                    startMainActivity()
+                    //FirebaseAuth.getInstance().signOut()
                         // The OAuth access token can also be retrieved:
                         // authResult.getCredential().getAccessToken().
                         // The OAuth ID token can also be retrieved:
                         // authResult.getCredential().getIdToken().
                     }
                 }
-                .addOnFailureListener {
-                    Snackbar.make(
-                        vb.loginLayout,
-                        "Не удалось выполнить вход через Microsoft: " + it.message,
-                        Snackbar.LENGTH_LONG
-                    ).show()
+                .addOnFailureListener { e->
+                    showToast(e.message!!)
+                    logError(e.message!!)
+                    setProgressVisibility(false)
                 }
         }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    }
+
+    private fun logError(e: String) {
+        Log.d("Error!", e)
+    }
 
     private fun setProgressVisibility(visibility: Boolean) {
         if (visibility) vb.progressBar.visibility = View.VISIBLE
