@@ -7,30 +7,30 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="ru.students.dvfu.ui.day.DayCalendarFragment"
+        android:name="ru.dvfu.appliances.ui.day.DayCalendarFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_week"
-        android:name="ru.students.dvfu.ui.gallery.GalleryFragment"
+        android:name="ru.dvfu.appliances.ui.gallery.GalleryFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_gallery" />
 
     <fragment
         android:id="@+id/nav_month"
-        android:name="ru.students.dvfu.ui.slideshow.SlideshowFragment"
+        android:name="ru.dvfu.appliances.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
 
     <fragment
         android:id="@+id/nav_users"
-        android:name="ru.students.dvfu.ui.fragment.UsersFragment"
+        android:name="ru.dvfu.appliances.ui.fragment.UsersFragment"
         android:label="@string/menu_users"
         tools:layout="@layout/fragment_users" />
     <fragment
         android:id="@+id/nav_appliances"
-        android:name="ru.students.dvfu.ui.fragment.AppliancesFragment"
+        android:name="ru.dvfu.appliances.ui.fragment.AppliancesFragment"
         android:label="fragment_appliances"
         tools:layout="@layout/fragment_appliances" />
 </navigation>
