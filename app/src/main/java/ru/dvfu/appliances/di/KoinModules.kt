@@ -4,6 +4,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.FirestoreDatabase
+import ru.dvfu.appliances.model.viewmodels.MainViewModel
 import ru.dvfu.appliances.ui.activity.AppliancesViewModel
 import ru.dvfu.appliances.ui.activity.UsersViewModel
 
@@ -15,6 +16,7 @@ import ru.dvfu.appliances.ui.activity.UsersViewModel
 //}
 
 val application = module {
+    viewModel { MainViewModel() }
     single<Repository> { FirestoreDatabase() }
 }
 

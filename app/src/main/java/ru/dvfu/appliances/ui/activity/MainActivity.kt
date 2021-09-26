@@ -1,28 +1,135 @@
 package ru.dvfu.appliances.ui.activity
 
-import android.content.Intent
+import BooksScreen
+import Drawer
+import HomeScreen
+import MoviesScreen
+import MusicScreen
+import ProfileScreen
+import SettingsScreen
 import android.os.Bundle
-import android.view.Menu
-import android.view.View
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import com.bumptech.glide.Glide
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.navigation.NavigationView
-import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.databinding.ActivityMainBinding
-import ru.dvfu.appliances.databinding.NavHeaderMainBinding
+import ru.dvfu.appliances.ui.components.NavDrawerItem
+
+/**
+ * Main activity for the app.
+ */
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MainScreen()
+        }
+    }
+}
 
 
+@Composable
+fun MainScreen() {
+    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
+    val scope = rememberCoroutineScope()
+    val navController = rememberNavController()
+    // If you want the drawer from the right side, uncomment the following
+    // CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = { TopBar(scope, scaffoldState, navController) },
+        drawerBackgroundColor = colorResource(id = R.color.design_default_color_primary),
+        // scrimColor = Color.Red,  // Color for the fade background when you open/close the drawer
+        drawerContent = {
+            Drawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
+        },
+    ) {
+        Navigation(navController = navController)
+    }
+    // }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    MainScreen()
+}
+
+@Composable
+fun Navigation(navController: NavHostController) {
+    NavHost(navController, startDestination = NavDrawerItem.Home.route) {
+        composable(NavDrawerItem.Home.route) {
+            HomeScreen()
+        }
+        composable(NavDrawerItem.Music.route) {
+            MusicScreen()
+        }
+        composable(NavDrawerItem.Movies.route) {
+            MoviesScreen()
+        }
+        composable(NavDrawerItem.Books.route) {
+            BooksScreen()
+        }
+        composable(NavDrawerItem.Profile.route) {
+            ProfileScreen()
+        }
+        composable(NavDrawerItem.Settings.route) {
+            SettingsScreen()
+        }
+    }
+}
+
+@Composable
+fun TopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavHostController) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    /*when(navBackStackEntry?.destination?.route) {
+        NavDrawerItem.Home.title -> "",
+        NavDrawerItem.Music.title,
+        NavDrawerItem.Movies.title,
+        NavDrawerItem.Books.title,
+        NavDrawerItem.Profile.title,
+        NavDrawerItem.Settings.title
+    }*/
+    TopAppBar(
+        title = { navBackStackEntry?.destination?.route?.let { Text(text = it, fontSize = 18.sp) } },
+        navigationIcon = {
+            IconButton(onClick = {
+                scope.launch {
+                    scaffoldState.drawerState.open()
+                }
+            }) {
+                Icon(Icons.Filled.Menu, "")
+            }
+        },
+        backgroundColor = colorResource(id = R.color.design_default_color_primary),
+        contentColor = Color.White
+    )
+}
+
+@Preview(showBackground = false)
+@Composable
+fun TopBarPreview() {
+    val scope = rememberCoroutineScope()
+    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
+    val navController = rememberNavController()
+    TopBar(scope = scope, scaffoldState = scaffoldState, navController = navController, )
+}
+
+
+/*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -105,4 +212,4 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-}
+}*/
