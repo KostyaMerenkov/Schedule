@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -14,23 +15,22 @@ import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import moxy.MvpAppCompatActivity
-import moxy.ktx.moxyPresenter
+import com.google.firebase.auth.OAuthProvider
 import ru.students.dvfu.R
 import ru.students.dvfu.databinding.ActivityLoginBinding
-import ru.students.dvfu.mvp.model.FirebaseUsersRepo
-import ru.students.dvfu.mvp.presenter.LoginPresenter
-import ru.students.dvfu.mvp.view.LoginView
+import com.google.android.gms.tasks.OnFailureListener
 
-class LoginActivity : MvpAppCompatActivity(), LoginView {
+import com.google.firebase.auth.AuthResult
 
+import com.google.android.gms.tasks.OnSuccessListener
+
+class LoginActivity() : AppCompatActivity() {
     private var TAG = "LoginActivity"
-
-    private val presenter by moxyPresenter { LoginPresenter(this, FirebaseUsersRepo()) }
-    private var vb: ActivityLoginBinding? = null
+    private lateinit var vb: ActivityLoginBinding
 
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var provider: OAuthProvider.Builder
 
     companion object {
         private const val RC_SIGN_IN = 120
@@ -39,23 +39,105 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         vb = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(vb?.root)
+        setContentView(vb.root)
         auth = FirebaseAuth.getInstance();
 
-        vb?.googleSignInButton?.setOnClickListener {
-            presenter.googleAuthClicked()
+        vb.microsoftSignInButton.setOnClickListener {
+            setProgressVisibility(true)
+            startMicrosoftLogin()
         }
-        vb?.guestSignInButton?.setOnClickListener {
-            presenter.guestAuthClicked(auth)
+        vb.googleSignInButton.setOnClickListener {
+            setProgressVisibility(true)
+            startGoogleLogin()
+        }
+        vb.guestSignInButton.setOnClickListener {
+            setProgressVisibility(true)
+            startGuestLogin()
         }
     }
 
-    override fun setProgressVisibility(visibility: Boolean) {
-        if (visibility) vb?.progressBar?.visibility = View.VISIBLE
-        else vb?.progressBar?.visibility = View.INVISIBLE
+    private fun startMicrosoftLogin() {
+        provider = OAuthProvider.newBuilder("microsoft.com");
+        val scopes: ArrayList<String> = arrayListOf(
+            //("mail.read"),
+            ("calendars.read")
+        )
+        provider.scopes = scopes
+
+        val pendingResultTask: Task<AuthResult>? = auth.pendingAuthResult
+        if (pendingResultTask != null) {
+            // There's something already here! Finish the sign-in for your user.
+            pendingResultTask
+                .addOnSuccessListener {
+                    // User is signed in.
+                    // IdP data available in
+                    // authResult.getAdditionalUserInfo().getProfile().
+                    // The OAuth access token can also be retrieved:
+                    // authResult.getCredential().getAccessToken().
+                    // The OAuth ID token can also be retrieved:
+                    // authResult.getCredential().getIdToken().
+                }
+                .addOnFailureListener { e->
+                    showToast(e.message!!)
+                    logError(e.message!!)
+                    setProgressVisibility(false)
+                }
+        } else {
+            // There's no pending result so you need to start the sign-in flow.
+            auth.startActivityForSignInWithProvider( /* activity= */this, provider.build())
+                .addOnSuccessListener { authResult ->
+                    // User is signed in.
+                    // IdP data available in
+                    showSuccessToast(authResult.user!!.email!!)
+                    authResult.additionalUserInfo?.profile?.toString()?.let {
+                        Log.d("PROFILE",
+                            it
+                        )
+                    }
+                    authResult.user?.providerData.let {
+                        Log.d("PROVIDER_DATA",
+                            it.toString()
+                        )
+                    }
+                    authResult.user?.metadata.let {
+                        Log.d("META_DATA",
+                            it.toString()
+                        )
+                    }
+                    authResult.credential?.let {
+                        Log.d("META_DATA",
+                            it.toString()
+                        )
+                    }
+                    startMainActivity()
+                    //FirebaseAuth.getInstance().signOut()
+                        // The OAuth access token can also be retrieved:
+                        // authResult.getCredential().getAccessToken().
+                        // The OAuth ID token can also be retrieved:
+                        // authResult.getCredential().getIdToken().
+                    }
+                }
+                .addOnFailureListener { e->
+                    showToast(e.message!!)
+                    logError(e.message!!)
+                    setProgressVisibility(false)
+                }
+        }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
-    override fun startGoogleLogin() {
+    private fun logError(e: String) {
+        Log.d("Error!", e)
+    }
+
+    private fun setProgressVisibility(visibility: Boolean) {
+        if (visibility) vb.progressBar.visibility = View.VISIBLE
+        else vb.progressBar.visibility = View.INVISIBLE
+    }
+
+    private fun startGoogleLogin() {
         // Configure GOOGLE sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -68,7 +150,7 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
 
-    override fun startGuestLogin() {
+    private fun startGuestLogin() {
         setProgressVisibility(true)
         auth.signInAnonymously()
             .addOnCompleteListener(this) { task ->
@@ -86,13 +168,24 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
             }
     }
 
-    override fun startMainActivity() {
+    private fun startMainActivity() {
         setProgressVisibility(false)
-        presenter.successfulSignIn(auth.currentUser!!)
+        //successfulSignIn(auth.currentUser!!)
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
     }
+
+//    private fun successfulSignIn(user: FirebaseUser) {
+//        if (user.isAnonymous) {
+//            showSuccessToast("Guest")
+//        } else if (firebaseUsersRepo.isUserInDatabase(user.uid)) {
+//            showSuccessToast(user.email!!)
+//        } else {
+//            firebaseUsersRepo.putUserToDatabase(user)
+//            showSuccessToast(user.email!!)
+//        }
+//    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -129,15 +222,14 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
                 } else {
                     // If sign in fails, display a message to the user.
                     setProgressVisibility(false)
-                    vb?.let { Snackbar.make(it.loginLayout, "Authentication Failed.", Snackbar.LENGTH_SHORT).show() };
-
+                    Snackbar.make(vb.loginLayout, "Authentication Failed.", Snackbar.LENGTH_SHORT).show()
                     Log.d("SignInActivity", "signInWithCredential:failure")
                     TODO("DIALOG WINDOW WITH ERROR")
                 }
             }
     }
 
-    override fun showSuccessToast(email: String) {
+    private fun showSuccessToast(email: String) {
         Toast.makeText(applicationContext, "Successful login in $email", Toast.LENGTH_SHORT).show()
     }
 

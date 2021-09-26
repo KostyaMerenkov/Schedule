@@ -10,21 +10,21 @@
             android:icon="@android:drawable/ic_menu_day"
             android:title="Day calendar" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="@string/menu_gallery" />
+            android:id="@+id/nav_week"
+            android:icon="@drawable/ic_week"
+            android:title="Week calendar" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/menu_slideshow" />
-        <item android:title="ADMIN">
+            android:id="@+id/nav_month"
+            android:icon="@drawable/ic_calendar"
+            android:title="Month calendar" />
+        <item android:title="Lists">
             <menu>
                 <item
-                    android:id="@+id/nav_admin_users"
+                    android:id="@+id/nav_users"
                     android:icon="@android:drawable/ic_partial_secure"
                     android:title="Users" />
                 <item
-                    android:id="@+id/nav_admin_appliances"
+                    android:id="@+id/nav_appliances"
                     android:icon="@android:drawable/ic_dialog_dialer"
                     android:title="Appliances" />
             </menu>
