@@ -1,3 +1,5 @@
+import ru.dvfu.appliances.Libs
+
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
@@ -12,13 +14,13 @@ android {
         viewBinding true
     }
 
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "ru.dvfu.appliances"
         minSdkVersion 26
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
 
@@ -53,16 +55,43 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
     implementation 'androidx.preference:preference-ktx:1.1.1'
 
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+    implementation Libs.Kotlin.stdlib
+    implementation Libs.Coroutines.android
+
+
+    implementation Libs.AndroidX.Activity.activityCompose
+    implementation Libs.AndroidX.coreKtx
+    implementation Libs.AndroidX.appcompat
+    implementation Libs.AndroidX.Lifecycle.livedata
+    implementation Libs.AndroidX.Lifecycle.viewModelCompose
+    implementation Libs.AndroidX.Navigation.fragment
+    implementation Libs.AndroidX.Navigation.uiKtx
+    implementation Libs.material
+
+    implementation Libs.AndroidX.Compose.layout
+    implementation Libs.AndroidX.Compose.material
+    implementation Libs.AndroidX.Compose.materialIconsExtended
+    implementation Libs.AndroidX.Compose.tooling
+    implementation Libs.AndroidX.Compose.uiUtil
+    implementation Libs.AndroidX.Compose.runtime
+    implementation Libs.AndroidX.Compose.runtimeLivedata
+    implementation Libs.AndroidX.Compose.viewBinding
+
+    implementation Libs.Accompanist.insets
+
+    debugImplementation Libs.AndroidX.Compose.uiTestManifest
+
+    androidTestImplementation Libs.junit
+    androidTestImplementation Libs.AndroidX.Test.core
+    androidTestImplementation Libs.AndroidX.Test.espressoCore
+    androidTestImplementation Libs.AndroidX.Test.rules
+    androidTestImplementation Libs.AndroidX.Test.Ext.junit
+    androidTestImplementation Libs.AndroidX.Compose.uiTest
+
     implementation 'devs.mulham.horizontalcalendar:horizontalcalendar:1.3.4'
     implementation 'androidx.annotation:annotation:1.2.0'
-
-    //Moxy
-    implementation "com.github.moxy-community:moxy:2.2.1"
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    kapt "com.github.moxy-community:moxy-compiler:2.1.2"
-    implementation "com.github.moxy-community:moxy-ktx:2.1.2"
-    implementation "com.github.moxy-community:moxy-androidx:2.1.2"
 
     //Glide
     implementation 'com.github.bumptech.glide:glide:4.12.0'
@@ -88,14 +117,14 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-firestore-ktx'
     // Also declare the dependency for the Google Play services library and specify its version
-    implementation 'com.google.android.gms:play-services-auth:19.0.0'
+    implementation 'com.google.android.gms:play-services-auth:19.2.0'
     // Realtime Database library
     implementation 'com.google.firebase:firebase-database'
     // Cloud Firestore library
     implementation 'com.google.firebase:firebase-firestore-ktx'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
