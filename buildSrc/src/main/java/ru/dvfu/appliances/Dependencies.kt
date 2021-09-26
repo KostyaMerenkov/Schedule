@@ -87,7 +87,6 @@ object Libs {
 }
 
 object Urls {
-    const val composeSnapshotRepo = "https://androidx.dev/snapshots/builds/" +
-        "${Libs.AndroidX.Compose.snapshot}/artifacts/repository/"
+    const val composeSnapshotRepo = "https://androidx.dev/snapshots/builds/${Libs.AndroidX.Compose.snapshot}/artifacts/repository/"
     const val accompanistSnapshotRepo = "https://oss.sonatype.org/content/repositories/snapshots"
 }

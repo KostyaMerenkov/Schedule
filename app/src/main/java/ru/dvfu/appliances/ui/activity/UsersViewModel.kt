@@ -5,10 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
-import ru.dvfu.appliances.model.repository.Repository
-import ru.dvfu.appliances.model.userdata.User
+import ru.dvfu.appliances.model.repository.DatabaseProvider
 
-class UsersViewModel(private val repository: Repository) : ViewModel() {
+class UsersViewModel(private val databaseProvider: DatabaseProvider) : ViewModel() {
 
     private val _usersMutableLiveData: MutableLiveData<List<User>> = MutableLiveData()
     private val _loadingMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
@@ -32,7 +31,7 @@ class UsersViewModel(private val repository: Repository) : ViewModel() {
         _loadingMutableLiveData.postValue(true)
         viewModelScope.coroutineContext.cancelChildren()
         viewModelScope.launch(Dispatchers.Default) {
-            _usersMutableLiveData.postValue(repository.getUsers())
+            _usersMutableLiveData.postValue(databaseProvider.getUsers())
             _loadingMutableLiveData.postValue(false)
         }
     }

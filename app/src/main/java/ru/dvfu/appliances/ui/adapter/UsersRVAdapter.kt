@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.dvfu.appliances.databinding.ItemUserBinding
-import ru.dvfu.appliances.model.userdata.User
 import ru.dvfu.appliances.model.userdata.entities.Role
 
 class UsersRVAdapter() : RecyclerView.Adapter<UsersRVAdapter.RecyclerItemViewHolder>() {

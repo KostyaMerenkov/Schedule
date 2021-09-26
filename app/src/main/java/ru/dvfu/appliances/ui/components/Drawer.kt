@@ -38,60 +38,60 @@ fun Drawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: N
     )
     Column(
         modifier = Modifier
-            .background(colorResource(id = R.color.design_default_color_primary))
-    ) {
-        // Header
-        Image(
-            Icons.Default.VerifiedUser,
-            contentDescription = "R.drawable.logo.toString()",
-            modifier = Modifier
-                .height(100.dp)
-                .fillMaxWidth()
-                .padding(10.dp)
-        )
-        // Space between
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(5.dp)
-        )
-        // List of navigation items
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
-        items.forEach { item ->
-            DrawerItem(item = item, selected = (currentRoute == item.route), onItemClick = {
-                navController.navigate(item.route) {
-                    // Pop up to the start destination of the graph to
-                    // avoid building up a large stack of destinations
-                    // on the back stack as users select items
-                    navController.graph.startDestinationRoute?.let { route ->
-                        popUpTo(route) {
-                            saveState = true
+            .background(colorResource(id = R.color.design_default_color_primary)), content = {
+            // Header
+            Image(
+                Icons.Default.VerifiedUser,
+                contentDescription = "R.drawable.logo.toString()",
+                modifier = Modifier
+                    .height(100.dp)
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            )
+            // Space between
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(5.dp)
+            )
+            // List of navigation items
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
+            items.forEach { item ->
+                DrawerItem(item = item, selected = (currentRoute == item.route), onItemClick = {
+                    navController.navigate(item.route) {
+                        // Pop up to the start destination of the graph to
+                        // avoid building up a large stack of destinations
+                        // on the back stack as users select items
+                        navController.graph.startDestinationRoute?.let { route ->
+                            popUpTo(route) {
+                                saveState = true
+                            }
                         }
+                        // Avoid multiple copies of the same destination when
+                        // reselecting the same item
+                        launchSingleTop = true
+                        // Restore state when reselecting a previously selected item
+                        restoreState = true
                     }
-                    // Avoid multiple copies of the same destination when
-                    // reselecting the same item
-                    launchSingleTop = true
-                    // Restore state when reselecting a previously selected item
-                    restoreState = true
-                }
-                // Close drawer
-                scope.launch {
-                    scaffoldState.drawerState.close()
-                }
-            })
+                    // Close drawer
+                    scope.launch {
+                        scaffoldState.drawerState.close()
+                    }
+                })
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = "Developed by John Codeos",
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(12.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
         }
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
-            text = "Developed by John Codeos",
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .padding(12.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-    }
+    )
 }
 
 @Preview(showBackground = true)

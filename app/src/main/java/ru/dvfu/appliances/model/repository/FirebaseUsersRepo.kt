@@ -6,7 +6,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import ru.dvfu.appliances.model.userdata.User
 import java.util.concurrent.Semaphore
 
 class FirebaseUsersRepo {

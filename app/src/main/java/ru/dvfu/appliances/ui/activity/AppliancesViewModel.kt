@@ -5,10 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
-import ru.dvfu.appliances.model.repository.Repository
+import ru.dvfu.appliances.model.repository.DatabaseProvider
 import ru.dvfu.appliances.model.userdata.entities.Appliance
 
-class AppliancesViewModel(private val repository: Repository) : ViewModel() {
+class AppliancesViewModel(private val databaseProvider: DatabaseProvider) : ViewModel() {
 
     private val _appliancesMutableLiveData: MutableLiveData<List<Appliance>> = MutableLiveData()
     private val _loadingMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
