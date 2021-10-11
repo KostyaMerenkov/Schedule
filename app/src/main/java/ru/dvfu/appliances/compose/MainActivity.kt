@@ -1,6 +1,6 @@
-package ru.dvfu.appliances.ui.activity
+package ru.dvfu.appliances.compose
 
-import BooksScreen
+import UsersScreen
 import Drawer
 import HomeScreen
 import MoviesScreen
@@ -16,14 +16,15 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.ui.components.NavDrawerItem
@@ -32,6 +33,8 @@ import ru.dvfu.appliances.ui.components.NavDrawerItem
  * Main activity for the app.
  */
 class MainActivity : ComponentActivity() {
+    @InternalCoroutinesApi
+    @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -41,6 +44,8 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@ExperimentalMaterialApi
+@InternalCoroutinesApi
 @Composable
 fun MainScreen() {
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -57,19 +62,23 @@ fun MainScreen() {
             Drawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
         },
     ) {
-        Navigation(navController = navController)
+        Navigation(navController = navController, scaffoldState = scaffoldState)
     }
     // }
 }
 
+@InternalCoroutinesApi
+@ExperimentalMaterialApi
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
     MainScreen()
 }
 
+@InternalCoroutinesApi
+@ExperimentalMaterialApi
 @Composable
-fun Navigation(navController: NavHostController) {
+fun Navigation(navController: NavHostController, scaffoldState: ScaffoldState) {
     NavHost(navController, startDestination = NavDrawerItem.Home.route) {
         composable(NavDrawerItem.Home.route) {
             HomeScreen()
@@ -81,10 +90,10 @@ fun Navigation(navController: NavHostController) {
             MoviesScreen()
         }
         composable(NavDrawerItem.Books.route) {
-            BooksScreen()
+            UsersScreen()
         }
         composable(NavDrawerItem.Profile.route) {
-            ProfileScreen()
+            ProfileScreen(navController, Modifier)
         }
         composable(NavDrawerItem.Settings.route) {
             SettingsScreen()

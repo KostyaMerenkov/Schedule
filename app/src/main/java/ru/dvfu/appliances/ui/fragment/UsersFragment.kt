@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.dvfu.appliances.databinding.FragmentUsersBinding
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.activity.UsersViewModel
 import ru.dvfu.appliances.ui.adapter.UsersRVAdapter
 

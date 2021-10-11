@@ -11,18 +11,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.Profile
 import ru.dvfu.appliances.ui.components.DrawerItem
 import ru.dvfu.appliances.ui.components.NavDrawerItem
 
@@ -180,7 +182,7 @@ fun MoviesScreenPreview() {
 
 
 @Composable
-fun BooksScreen() {
+fun UsersScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -201,32 +203,22 @@ fun BooksScreen() {
 @Preview(showBackground = true)
 @Composable
 fun BooksScreenPreview() {
-    BooksScreen()
+    UsersScreen()
 }
 
+@ExperimentalMaterialApi
+@InternalCoroutinesApi
 @Composable
-fun ProfileScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(id = R.color.design_default_color_primary))
-            .wrapContentSize(Alignment.Center)
-    ) {
-        Text(
-            text = "Profile View",
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 25.sp
-        )
-    }
+fun ProfileScreen(navController: NavHostController, modifier: Modifier.Companion) {
+    Profile(navController, modifier)
 }
 
+@InternalCoroutinesApi
+@ExperimentalMaterialApi
 @Preview(showBackground = true)
 @Composable
 fun ProfileScreenPreview() {
-    ProfileScreen()
+    ProfileScreen(rememberNavController(), Modifier)
 }
 
 @Composable

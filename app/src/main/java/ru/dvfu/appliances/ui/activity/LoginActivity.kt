@@ -20,6 +20,7 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.databinding.ActivityLoginBinding
 
 import com.google.firebase.auth.AuthResult
+import ru.dvfu.appliances.compose.MainActivity
 
 class LoginActivity() : AppCompatActivity() {
     private var TAG = "LoginActivity"

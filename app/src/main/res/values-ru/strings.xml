@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Yes">Yes</string>
+    <string name="No">No</string>
+    <string name="user_photo">Фотография пользователя</string>
+    <string name="back">Назад</string>
+    <string name="anonymous_user">Анонимный пользователь</string>
+</resources>

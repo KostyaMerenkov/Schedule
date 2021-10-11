@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.dvfu.appliances.databinding.ItemUserBinding
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.userdata.entities.Role
 
 class UsersRVAdapter() : RecyclerView.Adapter<UsersRVAdapter.RecyclerItemViewHolder>() {
@@ -28,11 +29,11 @@ class UsersRVAdapter() : RecyclerView.Adapter<UsersRVAdapter.RecyclerItemViewHol
 
     inner class RecyclerItemViewHolder(private val vb: ItemUserBinding) : RecyclerView.ViewHolder(vb.root) {
         fun bind(data: User) {
-            vb.tvName.text = data.name
+            vb.tvName.text = data.userName
             vb.tvEmail.text = data.email
             vb.tvRole.text = Role.values()[data.role].name
             with(vb) {
-                Glide.with(itemView).load(data.avatar).circleCrop().into(ivAvatar) }
+                Glide.with(itemView).load(data.userPic).circleCrop().into(ivAvatar) }
         }
     }
 }

@@ -6,6 +6,7 @@ import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.MainActivity
 
 class SplashScreen : AppCompatActivity() {
     private lateinit var mAuth: FirebaseAuth

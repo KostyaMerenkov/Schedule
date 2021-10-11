@@ -16,4 +16,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="menu_users">Users</string>
+    <string name="Yes">Yes</string>
+    <string name="No">No</string>
+    <string name="user_photo">User photo</string>
+    <string name="back">Back</string>
+    <string name="anonymous_user">Anonymous</string>
 </resources>

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import ru.dvfu.appliances.model.repository.DatabaseProvider
+import ru.dvfu.appliances.model.repository.entity.User
 
 class UsersViewModel(private val databaseProvider: DatabaseProvider) : ViewModel() {
 

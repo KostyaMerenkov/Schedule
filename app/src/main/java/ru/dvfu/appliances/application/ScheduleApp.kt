@@ -4,10 +4,7 @@ import android.app.Application
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
-import ru.dvfu.appliances.di.appliancesScreen
-import ru.dvfu.appliances.di.application
-import ru.dvfu.appliances.di.loginScreen
-import ru.dvfu.appliances.di.usersScreen
+import ru.dvfu.appliances.di.*
 
 class ScheduleApp: Application() {
 
@@ -19,7 +16,15 @@ class ScheduleApp: Application() {
             //inject Android context
             androidContext(this@ScheduleApp)
             //androidContext(applicationContext)
-            modules(listOf(application, loginScreen, usersScreen, appliancesScreen))
+            modules(listOf(
+                application,
+                loginScreen,
+                usersScreen,
+                appliancesScreen,
+                profileScreen,
+
+                )
+            )
         }
     }
 }
