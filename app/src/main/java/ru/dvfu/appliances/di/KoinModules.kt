@@ -12,21 +12,6 @@ import ru.dvfu.appliances.model.viewmodels.MainViewModel
 import ru.dvfu.appliances.ui.activity.AppliancesViewModel
 import ru.dvfu.appliances.ui.activity.UsersViewModel
 
-//fun injectDependencies() = loadModules
-
-//private val loadModules by lazy {
-//    // Функция библиотеки Koin
-//    loadKoinModules(listOf(application, usersScreen))
-//}
-
-
-
-
-
-
-
-
-
 val application = module {
     viewModel { MainViewModel() }
     single<DatabaseProvider> { CloudFirestoreDatabaseImpl() }
