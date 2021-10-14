@@ -32,7 +32,7 @@ class UsersViewModel(private val databaseProvider: DatabaseProvider) : ViewModel
         _loadingMutableLiveData.postValue(true)
         viewModelScope.coroutineContext.cancelChildren()
         viewModelScope.launch(Dispatchers.Default) {
-            _usersMutableLiveData.postValue(databaseProvider.getUsers())
+            //_usersMutableLiveData.postValue(databaseProvider.getUsers())
             _loadingMutableLiveData.postValue(false)
         }
     }

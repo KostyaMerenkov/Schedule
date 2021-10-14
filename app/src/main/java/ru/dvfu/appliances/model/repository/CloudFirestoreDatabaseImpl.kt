@@ -1,12 +1,17 @@
 package ru.dvfu.appliances.model.repository
 
+import android.util.Log
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.android.gms.tasks.Task
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.ProducerScope
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.launch
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.userdata.entities.Appliance
 import ru.dvfu.appliances.ui.Progress
@@ -49,45 +54,51 @@ class CloudFirestoreDatabaseImpl() : DatabaseProvider {
 //        return@fromCallable users
 //    }.subscribeOn(Schedulers.io())
 
-    override suspend fun getUsers(): List<User> {
-        val semaphore = Semaphore(0)
-        val users = ArrayList<User>()
-        cloudFirestore.collection("users").get().addOnSuccessListener { result ->
-            for (doc: QueryDocumentSnapshot in result) {
-                users.add(doc.toObject(User::class.java))
-            }
-            semaphore.release();
+    @ExperimentalCoroutinesApi
+    override suspend fun getUsers() = channelFlow {
+        val listeners = mutableListOf<ListenerRegistration>()
+        listeners.add(cloudFirestore.collection("users").addSnapshotListener(getUsersSuccessListener(this)))
+        awaitClose {
+            listeners.forEach { it.remove() }
         }
-        semaphore.acquire()
-        return users
     }
 
-
-//    override suspend fun getAppliances(): Single<ArrayList<Appliance>> = Single.fromCallable {
-//        val semaphore = Semaphore(0)
-//        val appliances = ArrayList<Appliance>()
-//        cloudFirestore.collection("users").get().addOnSuccessListener { result ->
-//            for (doc: QueryDocumentSnapshot in result) {
-//                appliances.add(doc.toObject(Appliance::class.java))
-//            }
-//            semaphore.release();
-//        }
-//        semaphore.acquire()
-//        return@fromCallable appliances
-//    }.subscribeOn(Schedulers.io())
-
-    override suspend fun getAppliances(): List<Appliance> {
-        val semaphore = Semaphore(0)
-        val appliances = ArrayList<Appliance>()
-        cloudFirestore.collection("appliances").get().addOnSuccessListener { result ->
-            for (doc: QueryDocumentSnapshot in result) {
-                appliances.add(doc.toObject(Appliance::class.java))
+    @ExperimentalCoroutinesApi
+    private suspend fun getUsersSuccessListener(scope: ProducerScope<List<User>>): EventListener<QuerySnapshot> =
+        EventListener<QuerySnapshot> { snapshots, error ->
+            if (error != null) {
+                Log.d("Schedule", "Get all users listener error", error)
+                return@EventListener
             }
-            semaphore.release();
+
+            if (snapshots != null) {
+                val users = snapshots.toObjects(User::class.java)
+                scope.trySend(users)
+            }
         }
-        semaphore.acquire()
-        return appliances
+
+    @ExperimentalCoroutinesApi
+    override suspend fun getAppliances() = channelFlow {
+        val listeners = mutableListOf<ListenerRegistration>()
+        listeners.add(cloudFirestore.collection("appliances").addSnapshotListener(getAppliancesSuccessListener(this)))
+        awaitClose {
+            listeners.forEach { it.remove() }
+        }
     }
+
+    @ExperimentalCoroutinesApi
+    private suspend fun getAppliancesSuccessListener(scope: ProducerScope<List<Appliance>>): EventListener<QuerySnapshot> =
+        EventListener<QuerySnapshot> { snapshots, error ->
+            if (error != null) {
+                Log.d("Schedule", "Get all appliances listener error", error)
+                return@EventListener
+            }
+
+            if (snapshots != null) {
+                val appliances = snapshots.toObjects(Appliance::class.java)
+                scope.trySend(appliances)
+            }
+        }
 
 
     override suspend fun addUser(user: User) {

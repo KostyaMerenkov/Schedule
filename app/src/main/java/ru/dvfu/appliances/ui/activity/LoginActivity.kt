@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -13,17 +14,28 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.OAuthProvider
+import com.google.firebase.auth.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.databinding.ActivityLoginBinding
-
-import com.google.firebase.auth.AuthResult
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import ru.dvfu.appliances.Logger
 import ru.dvfu.appliances.compose.MainActivity
+import ru.dvfu.appliances.model.UserMapper
+import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.viewmodels.LoginViewModel
+import ru.dvfu.appliances.ui.BaseViewState
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.concurrent.schedule
 
 class LoginActivity() : AppCompatActivity() {
     private var TAG = "LoginActivity"
+
+    private val viewModel: LoginViewModel by viewModel()
+    private val logger: Logger by inject()
     private lateinit var vb: ActivityLoginBinding
 
     private lateinit var auth: FirebaseAuth
@@ -38,8 +50,23 @@ class LoginActivity() : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         vb = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(vb.root)
-        auth = FirebaseAuth.getInstance();
 
+        lifecycleScope.launch {
+            viewModel.subscribe().collect { state ->
+                when (state) {
+                    is BaseViewState.Success<*> -> onSuccess(state.data as User?)
+                    is BaseViewState.Loading -> onLoading()
+                    is BaseViewState.Error -> handleError(state.error)
+                }
+            }
+        }
+
+        auth = FirebaseAuth.getInstance()
+
+        setListeners()
+    }
+
+    private fun setListeners() {
         vb.microsoftSignInButton.setOnClickListener {
             setProgressVisibility(true)
             startMicrosoftLogin()
@@ -52,6 +79,49 @@ class LoginActivity() : AppCompatActivity() {
             setProgressVisibility(true)
             startGuestLogin()
         }
+    }
+
+    private fun onLoading() {
+        setViews(true)
+    }
+
+    private fun setViews(isLoading: Boolean) {
+        if (isLoading) {
+            vb.progressBar.visibility = View.VISIBLE
+            //vb.warning.visibility = View.GONE
+        } else {
+            vb.progressBar.visibility = View.INVISIBLE
+        }
+        vb.googleSignInButton.isClickable = !isLoading
+        vb.guestSignInButton.isClickable = !isLoading
+    }
+
+    private fun onSuccess(user: User?) {
+        setViews(false)
+
+        if (user != null) {
+            //vb.progressAnimationView.playAnimation()
+            //Timer().schedule(2250) {
+                startMainActivity()
+            //}
+        }
+    }
+
+    private fun handleError(error: Throwable) {
+        setViews(false)
+        //vb.warning.visibility = View.VISIBLE
+        Toast.makeText(this, error.message, Toast.LENGTH_SHORT).show()
+        //vb.warning.setOnClickListener {
+        //    Toast.makeText(this, error.message, Toast.LENGTH_LONG).show()
+        //}
+        logger.log(error.message)
+    }
+
+    private fun startMainActivity() {
+        successfulSignIn(auth.currentUser!!)
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun startMicrosoftLogin() {
@@ -166,24 +236,19 @@ class LoginActivity() : AppCompatActivity() {
             }
     }
 
-    private fun startMainActivity() {
-        setProgressVisibility(false)
-        //successfulSignIn(auth.currentUser!!)
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish()
-    }
 
-//    private fun successfulSignIn(user: FirebaseUser) {
-//        if (user.isAnonymous) {
-//            showSuccessToast("Guest")
+
+    private fun successfulSignIn(user: FirebaseUser) {
+        if (user.isAnonymous) {
+            showSuccessToast("Guest")
 //        } else if (firebaseUsersRepo.isUserInDatabase(user.uid)) {
 //            showSuccessToast(user.email!!)
-//        } else {
-//            firebaseUsersRepo.putUserToDatabase(user)
-//            showSuccessToast(user.email!!)
-//        }
-//    }
+        } else {
+            //UserMapper.
+            //firebaseUsersRepo.putUserToDatabase(user)
+            showSuccessToast(user.email!!)
+        }
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

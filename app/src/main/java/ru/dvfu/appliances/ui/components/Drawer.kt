@@ -1,3 +1,4 @@
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -25,6 +26,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Profile
+import ru.dvfu.appliances.compose.Users
 import ru.dvfu.appliances.ui.components.DrawerItem
 import ru.dvfu.appliances.ui.components.NavDrawerItem
 
@@ -181,9 +183,13 @@ fun MoviesScreenPreview() {
 }
 
 
+@ExperimentalMaterialApi
+@InternalCoroutinesApi
+@ExperimentalAnimationApi
 @Composable
-fun UsersScreen() {
-    Column(
+fun UsersScreen(navController: NavHostController, modifier: Modifier.Companion) {
+    Users(navController, modifier)
+    /*Column(
         modifier = Modifier
             .fillMaxSize()
             .background(colorResource(id = R.color.design_default_color_primary))
@@ -197,13 +203,16 @@ fun UsersScreen() {
             textAlign = TextAlign.Center,
             fontSize = 25.sp
         )
-    }
+    }*/
 }
 
+@ExperimentalAnimationApi
+@InternalCoroutinesApi
+@ExperimentalMaterialApi
 @Preview(showBackground = true)
 @Composable
 fun BooksScreenPreview() {
-    UsersScreen()
+    UsersScreen(rememberNavController(), Modifier)
 }
 
 @ExperimentalMaterialApi
