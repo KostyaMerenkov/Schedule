@@ -11,6 +11,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -35,6 +36,7 @@ import ru.dvfu.appliances.ui.components.NavDrawerItem
  */
 
 class MainActivity : ComponentActivity() {
+    @ExperimentalFoundationApi
     @ExperimentalAnimationApi
     @InternalCoroutinesApi
     @ExperimentalMaterialApi
@@ -47,6 +49,7 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @InternalCoroutinesApi
@@ -71,6 +74,7 @@ fun MainScreen() {
     // }
 }
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
@@ -80,6 +84,7 @@ fun MainScreenPreview() {
     MainScreen()
 }
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
@@ -95,7 +100,7 @@ fun Navigation(navController: NavHostController, scaffoldState: ScaffoldState) {
         composable(NavDrawerItem.Movies.route) {
             MoviesScreen()
         }
-        composable(NavDrawerItem.Books.route) {
+        composable(NavDrawerItem.Users.route) {
             UsersScreen(navController, Modifier)
         }
         composable(NavDrawerItem.Profile.route) {

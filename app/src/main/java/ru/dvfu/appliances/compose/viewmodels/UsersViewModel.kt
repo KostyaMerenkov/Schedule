@@ -1,7 +1,10 @@
 package ru.dvfu.appliances.compose.viewmodels
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
@@ -16,7 +19,7 @@ class UsersViewModel(
 ) : ViewModel() {
 
     val usersList = MutableStateFlow(listOf<User>())
-    val isRefreshing = MutableStateFlow(true)
+    val isRefreshing = mutableStateOf(true)
 
     init {
         loadUsers()
@@ -33,6 +36,7 @@ class UsersViewModel(
         viewModelScope.launch {
             repository.getUsers().collect { users ->
                 usersList.value = users as List<User>
+                delay(2000)
                 isRefreshing.value = false
             }
         }

@@ -1,4 +1,5 @@
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -36,7 +37,7 @@ fun Drawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: N
         NavDrawerItem.Home,
         NavDrawerItem.Music,
         NavDrawerItem.Movies,
-        NavDrawerItem.Books,
+        NavDrawerItem.Users,
         NavDrawerItem.Profile,
         NavDrawerItem.Settings
     )
@@ -183,6 +184,7 @@ fun MoviesScreenPreview() {
 }
 
 
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @InternalCoroutinesApi
 @ExperimentalAnimationApi
@@ -206,6 +208,7 @@ fun UsersScreen(navController: NavHostController, modifier: Modifier.Companion) 
     }*/
 }
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @InternalCoroutinesApi
 @ExperimentalMaterialApi

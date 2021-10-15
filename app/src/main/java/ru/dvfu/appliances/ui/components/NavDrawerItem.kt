@@ -8,7 +8,7 @@ sealed class NavDrawerItem(var route: String, var icon: ImageVector, var title: 
     object Home : NavDrawerItem("home", Icons.Default.Cake, "Home")
     object Music : NavDrawerItem("music", Icons.Default.Cake, "Music")
     object Movies : NavDrawerItem("movies", Icons.Default.Cake, "Movies")
-    object Books : NavDrawerItem("books", Icons.Default.Cake, "Books")
+    object Users : NavDrawerItem("users", Icons.Default.Cake, "Users")
     object Profile : NavDrawerItem("profile", Icons.Default.Cake, "Profile")
     object Settings : NavDrawerItem("settings", Icons.Default.Cake, "Settings")
 }
