@@ -12,7 +12,7 @@ class ScheduleApp: Application() {
         super.onCreate()
         startKoin {
             // Koin Android logger
-            androidLogger(org.koin.core.logger.Level.NONE)
+            androidLogger()
             //inject Android context
             androidContext(this@ScheduleApp)
             //androidContext(applicationContext)

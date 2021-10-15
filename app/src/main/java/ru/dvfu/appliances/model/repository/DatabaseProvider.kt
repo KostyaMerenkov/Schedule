@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.model.repository
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.userdata.entities.Appliance
@@ -7,8 +8,8 @@ import ru.dvfu.appliances.ui.Progress
 
 interface DatabaseProvider {
     suspend fun addNewUser(user: User): StateFlow<Progress>
-    suspend fun getUsers(): List<User>
-    suspend fun getAppliances(): List<Appliance>
+    suspend fun getUsers(): Flow<List<User>>
+    suspend fun getAppliances(): Flow<List<Appliance>>
 
     suspend fun addUser(user: User)
     suspend fun addAppliance(appliance: Appliance)
