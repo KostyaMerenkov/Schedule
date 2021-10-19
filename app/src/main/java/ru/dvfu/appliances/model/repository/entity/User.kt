@@ -2,8 +2,6 @@ package ru.dvfu.appliances.model.repository.entity
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
-import ru.dvfu.appliances.model.userdata.entities.Appliance
-import ru.dvfu.appliances.model.userdata.entities.Role
 
 @Parcelize
 data class User(

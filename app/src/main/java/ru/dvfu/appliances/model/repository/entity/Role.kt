@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.model.userdata.entities
+package ru.dvfu.appliances.model.repository.entity
 
 enum class Role {
     GUEST, USER, SUPERUSER, ADMIN

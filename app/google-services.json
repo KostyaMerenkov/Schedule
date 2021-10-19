@@ -1,10 +1,56 @@
 {
   "project_info": {
     "project_number": "106372275715",
+    "firebase_url": "https://schedule-4c151-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "schedule-4c151",
     "storage_bucket": "schedule-4c151.appspot.com"
   },
   "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:106372275715:android:bfc8df343aceb58ce67836",
+        "android_client_info": {
+          "package_name": "ru.dvfu.appliances"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "106372275715-ah3k4mhsgsl8ioeldf329vrju02brdh3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "686be155b7bf47f57f0fdd2d41155aba226b5595"
+          }
+        },
+        {
+          "client_id": "106372275715-r9elkha68mkjc85lvbqgehnqprpqvf9q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "c1e2b37768b8c21bc2dc7313edb62e0438b4bcf3"
+          }
+        },
+        {
+          "client_id": "106372275715-8ijjnah88j72s0725q2kv0dr3ikn9nig.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuj0dkBp236hQeYxgXuGuBnTUfPW-rxFU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "106372275715-8ijjnah88j72s0725q2kv0dr3ikn9nig.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
     {
       "client_info": {
         "mobilesdk_app_id": "1:106372275715:android:9ec772feea251a7de67836",
@@ -19,6 +65,14 @@
           "android_info": {
             "package_name": "ru.students.dvfu",
             "certificate_hash": "686be155b7bf47f57f0fdd2d41155aba226b5595"
+          }
+        },
+        {
+          "client_id": "106372275715-erqkq10u9a3t9srbo58okk2t2rghqpj7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.students.dvfu",
+            "certificate_hash": "c1e2b37768b8c21bc2dc7313edb62e0438b4bcf3"
           }
         },
         {

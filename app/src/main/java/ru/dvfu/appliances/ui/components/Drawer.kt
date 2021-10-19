@@ -26,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.Appliances
 import ru.dvfu.appliances.compose.Profile
 import ru.dvfu.appliances.compose.Users
 import ru.dvfu.appliances.ui.components.DrawerItem
@@ -158,9 +159,14 @@ fun MusicScreenPreview() {
     MusicScreen()
 }
 
+@ExperimentalMaterialApi
+@InternalCoroutinesApi
+@ExperimentalAnimationApi
+@ExperimentalFoundationApi
 @Composable
-fun MoviesScreen() {
-    Column(
+fun AppliancesScreen(navController: NavHostController, modifier: Modifier.Companion) {
+    Appliances(navController, modifier)
+    /*Column(
         modifier = Modifier
             .fillMaxSize()
             .background(colorResource(id = R.color.design_default_color_primary))
@@ -174,13 +180,17 @@ fun MoviesScreen() {
             textAlign = TextAlign.Center,
             fontSize = 25.sp
         )
-    }
+    }*/
 }
 
+@ExperimentalFoundationApi
+@ExperimentalAnimationApi
+@InternalCoroutinesApi
+@ExperimentalMaterialApi
 @Preview(showBackground = true)
 @Composable
 fun MoviesScreenPreview() {
-    MoviesScreen()
+    AppliancesScreen(rememberNavController(), Modifier)
 }
 
 

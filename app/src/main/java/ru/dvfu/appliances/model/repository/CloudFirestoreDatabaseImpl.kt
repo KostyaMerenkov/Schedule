@@ -1,8 +1,6 @@
 package ru.dvfu.appliances.model.repository
 
 import android.util.Log
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.android.gms.tasks.Task
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,11 +9,9 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.launch
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.userdata.entities.Appliance
+import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.ui.Progress
-import java.util.concurrent.Semaphore
 
 class CloudFirestoreDatabaseImpl() : DatabaseProvider {
 

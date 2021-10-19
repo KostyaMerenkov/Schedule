@@ -18,11 +18,7 @@ class ScheduleApp: Application() {
             //androidContext(applicationContext)
             modules(listOf(
                 application,
-                loginScreen,
-                usersScreen,
-                appliancesScreen,
-                profileScreen,
-
+                mainActivity
                 )
             )
         }

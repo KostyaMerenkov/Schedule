@@ -1,24 +1,18 @@
 package ru.dvfu.appliances.compose
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,14 +25,11 @@ import coil.transform.CircleCropTransformation
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.compose.viewmodels.UsersViewModel
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.userdata.entities.Role
-import ru.dvfu.appliances.ui.BaseViewState
+import ru.dvfu.appliances.model.repository.entity.Role
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -50,7 +41,7 @@ fun Users(navController: NavController, modifier: Modifier = Modifier) {
     val viewModel = getViewModel<UsersViewModel>()
 
     val uiState by viewModel.uiState.collectAsState()
-    var refreshing by remember { viewModel.isRefreshing }
+    val refreshing by remember { viewModel.isRefreshing }
     //val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     /*LaunchedEffect(refreshing) {

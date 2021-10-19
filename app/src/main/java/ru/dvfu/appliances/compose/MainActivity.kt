@@ -3,7 +3,7 @@ package ru.dvfu.appliances.compose
 import UsersScreen
 import Drawer
 import HomeScreen
-import MoviesScreen
+import AppliancesScreen
 import MusicScreen
 import ProfileScreen
 import SettingsScreen
@@ -98,7 +98,7 @@ fun Navigation(navController: NavHostController, scaffoldState: ScaffoldState) {
             MusicScreen()
         }
         composable(NavDrawerItem.Movies.route) {
-            MoviesScreen()
+            AppliancesScreen(navController, Modifier)
         }
         composable(NavDrawerItem.Users.route) {
             UsersScreen(navController, Modifier)
