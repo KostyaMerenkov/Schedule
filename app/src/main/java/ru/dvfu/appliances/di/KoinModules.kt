@@ -4,35 +4,28 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ru.dvfu.appliances.Logger
+import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.compose.viewmodels.UsersViewModel
-import ru.dvfu.appliances.model.auth.AuthManager
-import ru.dvfu.appliances.model.auth.FirebaseAuthManagerImpl
-import ru.dvfu.appliances.model.repository.*
+import ru.dvfu.appliances.model.repository.CloudFirestoreDatabaseImpl
+import ru.dvfu.appliances.model.repository.DatabaseProvider
+import ru.dvfu.appliances.model.repository.FirebaseUserRepositoryImpl
+import ru.dvfu.appliances.model.repository.UserRepository
 import ru.dvfu.appliances.model.viewmodels.LoginViewModel
 import ru.dvfu.appliances.model.viewmodels.MainViewModel
-import ru.dvfu.appliances.ui.activity.AppliancesViewModel
 
 val application = module {
     viewModel { MainViewModel() }
+
     single<DatabaseProvider> { CloudFirestoreDatabaseImpl() }
-    single<AuthManager> { FirebaseAuthManagerImpl(androidContext()) }
-    single<UserRepository> { UserRepositoryImpl(get(), get()) }
-    //single<UserContentRepository> { UserContentRepositoryImpl(get()) }
+    single<UserRepository> { FirebaseUserRepositoryImpl(androidContext()) }
+
     single { Logger() }
 }
 
-val loginScreen = module {
-    viewModel {LoginViewModel(get(), get())}
-    single { UserRepositoryImpl(get(), get()) }
-}
-val usersScreen = module {
+val mainActivity = module {
+    viewModel { LoginViewModel(get(), get()) }
     viewModel { UsersViewModel(get()) }
-}
-
-val appliancesScreen = module {
-    viewModel { AppliancesViewModel(get()) }
-}
-val profileScreen = module {
+    viewModel { AppliancesViewModel(get(), get()) }
     viewModel { ProfileViewModel(get()) }
 }

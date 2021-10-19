@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.dvfu.appliances.databinding.ItemApplianceBinding
-import ru.dvfu.appliances.model.userdata.entities.Appliance
+import ru.dvfu.appliances.model.repository.entity.Appliance
 
 class AppliancesRVAdapter() : RecyclerView.Adapter<AppliancesRVAdapter.RecyclerItemViewHolder>() {
 

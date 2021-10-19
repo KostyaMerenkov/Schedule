@@ -1,8 +1,7 @@
 package ru.dvfu.appliances.model
 
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.userdata.entities.Appliance
-import ru.dvfu.appliances.model.userdata.entities.Role
+import ru.dvfu.appliances.model.repository.entity.Role
 
 class UserMapper {
 
