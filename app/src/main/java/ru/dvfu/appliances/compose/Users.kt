@@ -59,6 +59,7 @@ fun Users(navController: NavController, modifier: Modifier = Modifier) {
 
     ) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
+            item { Spacer(modifier.size(4.dp)) }
             val myUsers = users
             for(role in Role.values().reversed()) {
                 val role_users = mutableListOf<User>()
@@ -73,12 +74,6 @@ fun Users(navController: NavController, modifier: Modifier = Modifier) {
                     )
                 }
             }
-            /*items(users) {
-                ItemUser(
-                    user = it,
-                    userClicked = {*//*TODO*//* }
-                )
-            }*/
         }
 
         /*Crossfade(uiState, animationSpec = tween(500)) { animatedUiState ->
@@ -103,24 +98,24 @@ fun Users(navController: NavController, modifier: Modifier = Modifier) {
 
 @Composable
 fun Header(role: String) {
-    Text(role, modifier = Modifier.padding(2.dp).padding(start = 2.dp))
+    Text(role, modifier = Modifier.padding(2.dp).padding(start = 6.dp))
 }
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
 fun ItemUser(user: User, userClicked: (User) -> Unit) {
-    MyCard(modifier = Modifier.padding(4.dp)) {
+    MyCard(modifier = Modifier.combinedClickable(
+        onClick = { userClicked(user) },
+        onLongClick = {  },
+    )) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .height(75.dp)
+                .requiredHeight(80.dp)
                 .fillMaxWidth()
-                .padding(5.dp).combinedClickable(
-                    onClick = { userClicked(user) },
-                    onLongClick = {  },
-                )
+                .padding(10.dp)
         ) {
             if (user.userPic.isNullOrEmpty()) {
                 Icon(

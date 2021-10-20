@@ -8,7 +8,6 @@ import ru.dvfu.appliances.ui.BaseViewState
 
 class ProfileViewModel(
     private val userRepository: UserRepository,
-    //private val repository: UserContentRepository
 ) : ViewModel() {
 
     /*init {

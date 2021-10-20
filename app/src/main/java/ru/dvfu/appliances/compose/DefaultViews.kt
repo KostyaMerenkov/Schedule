@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -30,7 +31,7 @@ fun MyCardNoPadding(content: @Composable () -> Unit) {
 
 @Composable
 fun MyCard(modifier: Modifier, content: @Composable () -> Unit) {
-    Card(elevation = 8.dp, modifier = modifier.fillMaxWidth().padding(4.dp), content = content)
+    Card(elevation = 8.dp, modifier = modifier.fillMaxWidth().padding(4.dp), content = content, shape = RoundedCornerShape(12 .dp))
 }
 
 /*
