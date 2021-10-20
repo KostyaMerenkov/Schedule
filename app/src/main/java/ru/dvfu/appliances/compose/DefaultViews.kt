@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,7 +32,25 @@ fun MyCardNoPadding(content: @Composable () -> Unit) {
 
 @Composable
 fun MyCard(modifier: Modifier, content: @Composable () -> Unit) {
-    Card(elevation = 8.dp, modifier = modifier.fillMaxWidth().padding(4.dp), content = content)
+    Card(elevation = 8.dp, modifier = modifier.fillMaxWidth().padding(4.dp), content = content, shape = RoundedCornerShape(12 .dp))
+}
+
+@Composable
+fun SubtitleWithIcon(modifier: Modifier = Modifier, icon: ImageVector, text: String) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.size(8.dp))
+        Icon(
+            icon,
+            contentDescription = text,
+            //tint = pr,
+            modifier = Modifier.size(30.dp)
+        )
+        Spacer(Modifier.size(8.dp))
+        Text(text)
+    }
 }
 
 /*

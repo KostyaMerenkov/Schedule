@@ -59,9 +59,10 @@ fun Appliances(navController: NavController, modifier: Modifier = Modifier) {
     SwipeRefresh(
         state = rememberSwipeRefreshState(refreshing),
         onRefresh = { viewModel.refresh() },
-
+        modifier = Modifier.fillMaxSize(),
         ) {
-        Scaffold(floatingActionButton = { if (user!!.role >= Role.ADMIN.ordinal) AppliancesFab(navController) }) {
+        Scaffold(floatingActionButton = { if (user!!.role >= Role.ADMIN.ordinal) AppliancesFab(navController) },
+            modifier = Modifier.fillMaxSize(),) {
             LazyVerticalGrid(modifier = Modifier.fillMaxSize(),
                 cells = GridCells.Fixed(2),) {
                 items (appliances) {
@@ -97,8 +98,7 @@ fun Appliances(navController: NavController, modifier: Modifier = Modifier) {
 @Composable
 fun AppliancesFab(navController: NavController) {
     FloatingActionButton(
-        modifier = Modifier
-            .animateContentSize(),
+        modifier = Modifier.animateContentSize().padding(bottom = 15.dp),
         onClick = { },
     ) {
         Icon(

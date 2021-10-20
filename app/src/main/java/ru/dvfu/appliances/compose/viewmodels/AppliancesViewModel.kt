@@ -29,7 +29,7 @@ class AppliancesViewModel(private val repository: DatabaseProvider,
 
     fun refresh() = loadAppliances()
 
-    val user = userRepository.currentUser
+    val user = userRepository.currentUserFromDB
 
     private fun loadAppliances() {
         isRefreshing.value = true
