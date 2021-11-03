@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.ui.components
+package ru.dvfu.appliances.compose.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

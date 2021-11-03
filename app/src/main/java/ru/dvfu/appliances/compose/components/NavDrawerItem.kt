@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.ui.components
+package ru.dvfu.appliances.compose.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -15,4 +15,9 @@ sealed class NavDrawerItem(val route: String, val icon: ImageVector, val title: 
     object Settings : NavDrawerItem(MainDestinations.SETTINGS_ROUTE, Icons.Default.Settings, "Settings")
 }
 
-val ALL_DRAWER_ITEMS = listOf(NavDrawerItem.Home, NavDrawerItem.Users, NavDrawerItem.Appliances, NavDrawerItem.Settings)
+val ALL_DRAWER_ITEMS = listOf(
+    NavDrawerItem.Home,
+    NavDrawerItem.Users,
+    NavDrawerItem.Appliances,
+    NavDrawerItem.Settings
+)

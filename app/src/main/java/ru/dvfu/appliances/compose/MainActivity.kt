@@ -26,7 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.ui.components.NavDrawerItem
+import ru.dvfu.appliances.compose.components.NavDrawerItem
 
 /**
  * Main activity for the app.

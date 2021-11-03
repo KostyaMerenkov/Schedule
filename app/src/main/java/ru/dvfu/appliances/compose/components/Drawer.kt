@@ -29,8 +29,8 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Appliances
 import ru.dvfu.appliances.compose.Profile
 import ru.dvfu.appliances.compose.Users
-import ru.dvfu.appliances.ui.components.ALL_DRAWER_ITEMS
-import ru.dvfu.appliances.ui.components.DrawerItem
+import ru.dvfu.appliances.compose.components.ALL_DRAWER_ITEMS
+import ru.dvfu.appliances.compose.components.DrawerItem
 
 @Composable
 fun Drawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavController) {

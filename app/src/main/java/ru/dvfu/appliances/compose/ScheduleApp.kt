@@ -132,7 +132,13 @@ private fun NavGraphBuilder.NavGraph(
     composable(
         route = MainDestinations.USERS_ROUTE,
     ) { Users(navController, upPress) }
+
+    composable(
+        route = MainDestinations.SETTINGS_ROUTE,
+    ) { Settings(navController, upPress) }
 }
+
+
 
 @Composable
 fun Calendar(openDrawer: () -> Unit) {
