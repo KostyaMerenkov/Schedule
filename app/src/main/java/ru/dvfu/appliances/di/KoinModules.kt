@@ -14,6 +14,7 @@ import ru.dvfu.appliances.model.repository.UserRepository
 import ru.dvfu.appliances.model.viewmodels.ApplianceViewModel
 import ru.dvfu.appliances.model.viewmodels.LoginViewModel
 import ru.dvfu.appliances.model.viewmodels.MainViewModel
+import ru.dvfu.appliances.model.viewmodels.UserDetailsViewModel
 
 val application = module {
     viewModel { MainViewModel() }
@@ -26,6 +27,7 @@ val application = module {
 
 val mainActivity = module {
     viewModel { LoginViewModel(get(), get()) }
+    viewModel { UserDetailsViewModel(get(), get()) }
     viewModel { UsersViewModel(get()) }
     viewModel { ApplianceViewModel(get(),get()) }
     viewModel { AppliancesViewModel(get(), get()) }

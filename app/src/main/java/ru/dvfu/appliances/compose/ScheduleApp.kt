@@ -135,6 +135,10 @@ private fun NavGraphBuilder.NavGraph(
     ) { NewAppliance(upPress) }
 
     composable(
+        route = MainDestinations.USER_DETAILS_ROUTE,
+    ) { UserDetails(navController, upPress, it.requiredArg(Arguments.USER)) }
+
+    composable(
         route = MainDestinations.USERS_ROUTE,
     ) { Users(navController, upPress) }
 

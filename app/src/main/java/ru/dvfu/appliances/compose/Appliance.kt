@@ -15,7 +15,9 @@ fun Appliance(navController: NavController, upPress: () -> Unit, appliance: Appl
     viewModel.appliance.value = appliance
 
     Scaffold(topBar = {
-        ScheduleAppBar(appliance.name, upPress, deleteClick = { viewModel.deleteAppliance() })
+        ScheduleAppBar(appliance.name, upPress,
+            actionDelete = true,
+            deleteClick = { viewModel.deleteAppliance() })
     }) {
         Text("Appliance = " + appliance.name)
     }

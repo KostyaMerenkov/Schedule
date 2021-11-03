@@ -71,10 +71,12 @@ fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifie
                         if (user.role == role.ordinal) role_users.add(user)
                     }
                     if(role_users.isNotEmpty()) stickyHeader { Header(role.name) }
-                    items (role_users) {
+                    items (role_users) { user ->
                         ItemUser(
-                            user = it,
-                            userClicked = {/*TODO*/ }
+                            user = user,
+                            userClicked = { navController.navigate(
+                                MainDestinations.USER_DETAILS_ROUTE,
+                                Arguments.USER to user) }
                         )
                     }
                 }
@@ -110,11 +112,8 @@ fun Header(role: String) {
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun ItemUser(user: User, userClicked: (User) -> Unit) {
-    MyCard(modifier = Modifier.combinedClickable(
-        onClick = { userClicked(user) },
-        onLongClick = {  },
-    )) {
+fun ItemUser(user: User, userClicked: () -> Unit) {
+    MyCard(onClick = userClicked) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,

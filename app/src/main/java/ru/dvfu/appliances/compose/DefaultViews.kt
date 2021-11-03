@@ -24,7 +24,7 @@ fun MyCardNoPadding(content: @Composable () -> Unit) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MyCard(modifier: Modifier, onClick: () -> Unit = {}, content: @Composable () -> Unit) {
+fun MyCard(modifier: Modifier = Modifier, onClick: () -> Unit = {}, content: @Composable () -> Unit) {
     Card(elevation = 8.dp, modifier = modifier.fillMaxWidth().padding(4.dp), content = content,
         shape = RoundedCornerShape(12.dp), onClick = onClick)
 }
