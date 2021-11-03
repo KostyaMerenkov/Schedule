@@ -3,6 +3,7 @@ package ru.dvfu.appliances.compose
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
@@ -17,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -72,10 +75,12 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
                 modifier = Modifier.fillMaxSize(),
                 cells = GridCells.Fixed(2),
             ) {
-                items(appliances) {
+                items(appliances) { appliance ->
                     ItemAppliance(
-                        appliance = it,
-                        applianceClicked = {/*TODO*/ }
+                        appliance = appliance,
+                        applianceClicked = { navController.navigate(
+                            MainDestinations.APPLIANCE_ROUTE,
+                            Arguments.APPLIANCE to appliance) }
                     )
                 }
             }
@@ -120,7 +125,8 @@ fun AppliancesFab(navController: NavController) {
 @ExperimentalAnimationApi
 @Composable
 fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
-    MyCard(modifier = Modifier.padding(4.dp), onClick = { applianceClicked(appliance) }) {
+    MyCard(modifier = Modifier.padding(4.dp),
+        onClick = { applianceClicked(appliance) }) {
         Column(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,

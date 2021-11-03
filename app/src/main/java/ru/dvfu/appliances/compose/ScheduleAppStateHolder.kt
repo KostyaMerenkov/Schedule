@@ -30,6 +30,7 @@ object MainDestinations {
     const val HOME_ROUTE = "home"
 
     const val SETTINGS_ROUTE = "settings"
+    const val APPLIANCE_ROUTE = "appliance"
     const val APPLIANCES_ROUTE = "appliances"
     const val NEW_APPLIANCE_ROUTE = "new_appliance"
 
@@ -44,6 +45,7 @@ object MainDestinations {
 }
 
 object Arguments {
+    const val APPLIANCE = "appliance_arg"
     const val PLACE = "place_arg"
     const val CATCH = "catch_arg"
     const val MAP_NEW_PLACE = "map_new_place_arg"

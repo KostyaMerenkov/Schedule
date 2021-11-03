@@ -8,16 +8,17 @@ import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.compose.viewmodels.UsersViewModel
 import ru.dvfu.appliances.model.repository.CloudFirestoreDatabaseImpl
-import ru.dvfu.appliances.model.repository.DatabaseProvider
+import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.FirebaseUserRepositoryImpl
 import ru.dvfu.appliances.model.repository.UserRepository
+import ru.dvfu.appliances.model.viewmodels.ApplianceViewModel
 import ru.dvfu.appliances.model.viewmodels.LoginViewModel
 import ru.dvfu.appliances.model.viewmodels.MainViewModel
 
 val application = module {
     viewModel { MainViewModel() }
 
-    single<DatabaseProvider> { CloudFirestoreDatabaseImpl() }
+    single<Repository> { CloudFirestoreDatabaseImpl() }
     single<UserRepository> { FirebaseUserRepositoryImpl(androidContext()) }
 
     single { Logger() }
@@ -26,6 +27,7 @@ val application = module {
 val mainActivity = module {
     viewModel { LoginViewModel(get(), get()) }
     viewModel { UsersViewModel(get()) }
+    viewModel { ApplianceViewModel(get(),get()) }
     viewModel { AppliancesViewModel(get(), get()) }
     viewModel { ProfileViewModel(get()) }
 }

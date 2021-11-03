@@ -36,6 +36,9 @@ fun NewAppliance(backPressed: () -> Unit) {
 
     BottomSheetScaffold (
         topBar = { NewApplianceTopBar(backPressed) },
+        floatingActionButton = {
+            //FloatingActionButton(onClick = )
+        },
         sheetContent = {
         Column {
             Text(

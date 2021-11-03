@@ -6,13 +6,14 @@ import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.ui.Progress
 
-interface DatabaseProvider {
+interface Repository {
     suspend fun addNewUser(user: User): StateFlow<Progress>
     suspend fun getUsers(): Flow<List<User>>
     suspend fun getAppliances(): Flow<List<Appliance>>
 
     suspend fun addUser(user: User)
     suspend fun addAppliance(appliance: Appliance)
+    suspend fun deleteAppliance(appliance: Appliance)
     /*suspend fun addNewCatch(markerId: String, newCatch: RawUserCatch): StateFlow<Progress>
     suspend fun addNewMarker(newMarker: RawMapMarker): StateFlow<Progress>
     suspend fun deleteMarker(userMapMarker: UserMapMarker)

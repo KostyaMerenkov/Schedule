@@ -7,12 +7,12 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
-import ru.dvfu.appliances.model.repository.DatabaseProvider
+import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.UserRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.ui.BaseViewState
 
-class AppliancesViewModel(private val repository: DatabaseProvider,
+class AppliancesViewModel(private val repository: Repository,
                           private val userRepository: UserRepository) : ViewModel() {
 
     val appliancesList = MutableStateFlow(listOf<Appliance>())

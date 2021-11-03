@@ -13,7 +13,7 @@ import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.ui.Progress
 
-class CloudFirestoreDatabaseImpl() : DatabaseProvider {
+class CloudFirestoreDatabaseImpl() : Repository {
 
     private val realtimeDatabase by lazy {
         //FirebaseDatabase.getInstance().reference
@@ -117,6 +117,10 @@ class CloudFirestoreDatabaseImpl() : DatabaseProvider {
     }
 
     override suspend fun addAppliance(appliance: Appliance) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteAppliance(appliance: Appliance) {
         TODO("Not yet implemented")
     }
 

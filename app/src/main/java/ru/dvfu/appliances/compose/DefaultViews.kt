@@ -5,9 +5,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -46,7 +48,12 @@ fun SubtitleWithIcon(modifier: Modifier = Modifier, icon: ImageVector, text: Str
 }
 
 @Composable
-fun ScheduleAppBar(title: String = "", backClick: () -> Unit = {}, navIconBack: Boolean = true) {
+fun ScheduleAppBar(
+    title: String = "",
+    backClick: () -> Unit = {},
+    actionDelete: Boolean = false,
+    deleteClick: () -> Unit = {},
+    navIconBack: Boolean = true) {
     TopAppBar(
         title = { Text(title) },
         navigationIcon = {
@@ -55,6 +62,14 @@ fun ScheduleAppBar(title: String = "", backClick: () -> Unit = {}, navIconBack: 
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.back)
                 )
+            }
+        },
+        actions = {
+            if (actionDelete) {
+                IconButton(
+                    onClick = deleteClick) {
+                    Icon(imageVector = Icons.Filled.Delete, contentDescription = stringResource(R.string.delete), tint = Color.White)
+                }
             }
         },
         elevation = 2.dp

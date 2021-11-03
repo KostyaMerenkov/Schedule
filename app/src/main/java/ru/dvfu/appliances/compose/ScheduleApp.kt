@@ -33,6 +33,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.model.repository.entity.Appliance
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -120,6 +121,10 @@ private fun NavGraphBuilder.NavGraph(
     /*composable(MainDestinations.LOGIN_ROUTE) {
         LoginScreen(navController = navController)
     }*/
+
+    composable(
+        route = MainDestinations.APPLIANCE_ROUTE,
+    ) { Appliance(navController, upPress, it.requiredArg(Arguments.APPLIANCE)) }
 
     composable(
         route = MainDestinations.APPLIANCES_ROUTE,
