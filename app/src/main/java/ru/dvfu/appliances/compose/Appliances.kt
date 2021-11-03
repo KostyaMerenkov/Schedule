@@ -99,7 +99,7 @@ fun Appliances(navController: NavController, modifier: Modifier = Modifier) {
 fun AppliancesFab(navController: NavController) {
     FloatingActionButton(
         modifier = Modifier.animateContentSize().padding(bottom = 15.dp),
-        onClick = { },
+        onClick = { navController.navigate(MainDestinations.NEW_APPLIANCE_ROUTE) },
     ) {
         Icon(
             Icons.Default.Add,
@@ -113,17 +113,14 @@ fun AppliancesFab(navController: NavController) {
 @ExperimentalAnimationApi
 @Composable
 fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
-    MyCard(modifier = Modifier.padding(4.dp)) {
+    MyCard(modifier = Modifier.padding(4.dp), onClick = { applianceClicked(appliance) }) {
         Column(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .height(200.dp)
                 .fillMaxWidth()
-                .padding(5.dp).combinedClickable(
-                    onClick = { applianceClicked(appliance) },
-                    onLongClick = {  },
-                )
+                .padding(5.dp)
         ) {
 
             Box(contentAlignment = Alignment.Center,

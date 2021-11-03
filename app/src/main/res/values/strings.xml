@@ -21,4 +21,9 @@
     <string name="user_photo">User photo</string>
     <string name="back">Back</string>
     <string name="anonymous_user">Anonymous</string>
+    <string name="calendar">Календарь</string>
+    <string name="profile">Профиль</string>
+    <string name="notes">Заметки</string>
+    <string name="appliances">Приборы</string>
+    <string name="users">Пользователи</string>
 </resources>

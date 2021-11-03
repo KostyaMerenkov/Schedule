@@ -5,18 +5,13 @@ import android.content.Intent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -44,13 +39,13 @@ import ru.dvfu.appliances.ui.activity.LoginActivity
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
 @Composable
-fun Profile(navController: NavController, modifier: Modifier = Modifier) {
+fun Profile(navController: NavController, modifier: Modifier = Modifier, backPress: () -> Unit) {
     val viewModel = getViewModel<ProfileViewModel>()
 
 
     val uiState = viewModel.uiState
     Scaffold(
-        topBar = { AppBar(navController) },
+        topBar = { ScheduleAppBar(stringResource(R.string.profile), backClick = backPress) },
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -284,22 +279,6 @@ fun UserNameAndImage(user: User) {
     }
 }
 
-@Composable
-fun AppBar(navController: NavController) {
-    TopAppBar(
-        title = { Text(text = "User") },
-        navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.back)
-                )
-            }
-        },
-        elevation = 2.dp
-    )
-}
-
 private fun startLoginActivity(context: Context) {
     val intent = Intent(context, LoginActivity::class.java)
     context.startActivity(intent)
@@ -314,7 +293,7 @@ private fun startLoginActivity(context: Context) {
 @Composable
 fun ProfilePreview() {
     MaterialTheme {
-        Profile(rememberNavController())
+        Profile(rememberNavController(), backPress = {})
     }
 }
 

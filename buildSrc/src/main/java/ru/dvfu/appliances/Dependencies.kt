@@ -70,12 +70,11 @@ object Libs {
             const val koinJava = "io.insert-koin:koin-android-compat:${koin_version}"
             const val koinWorkManager = "io.insert-koin:koin-androidx-workmanager:${koin_version}"
             const val koinCompose = "io.insert-koin:koin-androidx-compose:${koin_version}"
-
         }
 
         object Navigation {
-            private const val version = "2.4.0-alpha06"
-            const val navigationCompose = "androidx.navigation:navigation-compose:2.4.0-alpha06"
+            private const val version = "2.4.0-alpha07"
+            const val navigationCompose = "androidx.navigation:navigation-compose:${version}"
         }
 
         object Test {

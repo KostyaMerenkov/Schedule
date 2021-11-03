@@ -7,6 +7,7 @@ import AppliancesScreen
 import MusicScreen
 import ProfileScreen
 import SettingsScreen
+import android.content.res.Resources
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,10 +17,13 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
@@ -35,6 +39,7 @@ import ru.dvfu.appliances.ui.components.NavDrawerItem
  * Main activity for the app.
  */
 
+
 class MainActivity : ComponentActivity() {
     @ExperimentalFoundationApi
     @ExperimentalAnimationApi
@@ -43,7 +48,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MainScreen()
+            ScheduleApp()
         }
     }
 }
@@ -69,7 +74,7 @@ fun MainScreen() {
             Drawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
         },
     ) {
-        Navigation(navController = navController, scaffoldState = scaffoldState)
+        //Navigation(navController = navController, scaffoldState = scaffoldState)
     }
     // }
 }
@@ -94,20 +99,23 @@ fun Navigation(navController: NavHostController, scaffoldState: ScaffoldState) {
         composable(NavDrawerItem.Home.route) {
             HomeScreen()
         }
-        composable(NavDrawerItem.Music.route) {
+        /*composable(NavDrawerItem.Music.route) {
             MusicScreen()
         }
         composable(NavDrawerItem.Movies.route) {
             AppliancesScreen(navController, Modifier)
-        }
+        }*/
         composable(NavDrawerItem.Users.route) {
             UsersScreen(navController, Modifier)
         }
-        composable(NavDrawerItem.Profile.route) {
+        /*composable(NavDrawerItem.Profile.route) {
             ProfileScreen(navController, Modifier)
-        }
+        }*/
         composable(NavDrawerItem.Settings.route) {
             SettingsScreen()
+        }
+        composable(MainDestinations.NEW_APPLIANCE_ROUTE) {
+            NewAppliance { navController.popBackStack() }
         }
     }
 }
@@ -146,6 +154,17 @@ fun TopBarPreview() {
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
     val navController = rememberNavController()
     TopBar(scope = scope, scaffoldState = scaffoldState, navController = navController, )
+}
+
+/**
+ * A composable function that returns the [Resources]. It will be recomposed when `Configuration`
+ * gets updated.
+ */
+@Composable
+@ReadOnlyComposable
+fun resources(): Resources {
+    LocalConfiguration.current
+    return LocalContext.current.resources
 }
 
 
