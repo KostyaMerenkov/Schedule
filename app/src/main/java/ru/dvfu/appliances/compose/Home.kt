@@ -7,6 +7,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.os.ConfigurationCompat
 import androidx.navigation.NavController
@@ -36,9 +38,9 @@ import ru.dvfu.appliances.R
 @InternalCoroutinesApi
 fun NavGraphBuilder.addHomeGraph(
     navController: NavController,
-    modifier: Modifier = Modifier,
     openDrawer: () -> Unit,
-    backPress: () -> Unit
+    backPress: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     composable(
         HomeSections.CALENDAR.route
@@ -48,12 +50,12 @@ fun NavGraphBuilder.addHomeGraph(
     composable(
         HomeSections.APPLIANCES.route
     ) { from ->
-        Appliances(navController)
+        Appliances(navController, backPress)
     }
     composable(
         HomeSections.USERS.route
     ) { from ->
-        Users(navController)
+        Users(navController, backPress)
     }
     /*composable(HomeSections.NOTES.route) { from ->
         Notes(onSnackClick = { id -> onSnackSelected(id, from) }, modifier, navController)
@@ -63,7 +65,7 @@ fun NavGraphBuilder.addHomeGraph(
         { navController.popBackStack() }
     }*/
     composable(HomeSections.PROFILE.route) {
-        Profile(navController, modifier, { navController.popBackStack() })
+        Profile(navController, modifier, backPress)
     }
 }
 
@@ -82,9 +84,6 @@ enum class HomeSections(
 
 @Composable
 fun ScheduleBottomBar(
-    result: MutableState<String>,
-    selectedItem: MutableState<String>,
-    fabShape: RoundedCornerShape,
     tabs: Array<HomeSections>,
     currentRoute: String,
     navigateToRoute: (String) -> Unit,
@@ -93,33 +92,23 @@ fun ScheduleBottomBar(
 ) {
     val routes = remember { tabs.map { it.route } }
     val currentSection = tabs.first { it.route == currentRoute }
+    val fabShape = CircleShape
 
     BottomAppBar(
-        cutoutShape = fabShape,
+        //cutoutShape = fabShape,
         content = {
             BottomNavigation() {
-
                 tabs.forEach { section ->
                     val selected = section == currentSection
-                    val tint by animateColorAsState(
-                        if (selected) {
-                            Color.Black
-                        } else {
-                            Color.Black
-                        }
-                    )
-
                     BottomNavigationItem(
                         icon = {
                             Icon(section.icon, section.name, /*tint = tint*/)
                         },
                         label = {
                             Text(
-                                stringResource(section.title).uppercase(
-                                    ConfigurationCompat.getLocales(LocalConfiguration.current)
-                                        .get(0)
-                                ),
-                                maxLines = 1, /*color = tint*/
+                                stringResource(section.title),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis, /*color = tint*/
                             )
                         },
                         selected = selected,
@@ -130,63 +119,6 @@ fun ScheduleBottomBar(
                     )
                 }
             }
-               /* FishingNotesBottomNavigationItem(
-                    icon = {
-                        Icon(
-                            imageVector = section.icon,
-                            tint = tint,
-                            contentDescription = null
-                        )
-                    },
-                    text = {
-                        Text(
-                            text = stringResource(section.title).uppercase(
-                                ConfigurationCompat.getLocales(
-                                    LocalConfiguration.current
-                                ).get(0)
-                            ),
-                            color = tint,
-                            style = MaterialTheme.typography.button,
-                            maxLines = 1
-                        )
-                    },
-                    selected = selected,
-                    onSelected = { navigateToRoute(section.route) },
-                    animSpec = springSpec,
-                    modifier = BottomNavigationItemPadding
-                        .clip(BottomNavIndicatorShape)
-                )
-            }*/
-
-            /*BottomNavigation() {
-                BottomNavigationItem(
-                    icon = {
-                        Icon(Icons.Filled.Home , "")
-                    },
-                    label = { Text(text = "Favorite")},
-                    selected = selectedItem.value == "favorite",
-                    onClick = {
-                        result.value = "Favorite icon clicked"
-                        selectedItem.value = "favorite"
-                    },
-                    alwaysShowLabel = false
-                )
-
-                BottomNavigationItem(
-                    icon = {
-                        Icon(Icons.Filled.Upload ,  "")
-                    },
-
-
-                    label = { Text(text = "Upload")},
-                    selected = selectedItem.value == "upload",
-                    onClick = {
-                        result.value = "Upload icon clicked"
-                        selectedItem.value = "upload"
-                    },
-                    alwaysShowLabel = false
-                )
-            }*/
         }
     )
 }

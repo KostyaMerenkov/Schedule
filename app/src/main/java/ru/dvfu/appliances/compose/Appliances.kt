@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,6 +27,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.getViewModel
+import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Role
@@ -37,7 +39,7 @@ import ru.dvfu.appliances.model.repository.entity.User
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
 @Composable
-fun Appliances(navController: NavController, modifier: Modifier = Modifier) {
+fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Modifier = Modifier) {
 
     val viewModel = getViewModel<AppliancesViewModel>()
 
@@ -56,16 +58,21 @@ fun Appliances(navController: NavController, modifier: Modifier = Modifier) {
     }*/
 
     val appliances by viewModel.appliancesList.collectAsState()
-    SwipeRefresh(
-        state = rememberSwipeRefreshState(refreshing),
-        onRefresh = { viewModel.refresh() },
+    Scaffold(
+        topBar = { ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress) },
+        floatingActionButton = { if (user!!.role >= Role.ADMIN.ordinal) AppliancesFab(navController) },
         modifier = Modifier.fillMaxSize(),
+    ) {
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(refreshing),
+            onRefresh = { viewModel.refresh() },
+            modifier = Modifier.fillMaxSize().background(Color(0XFFE3DAC9)),
         ) {
-        Scaffold(floatingActionButton = { if (user!!.role >= Role.ADMIN.ordinal) AppliancesFab(navController) },
-            modifier = Modifier.fillMaxSize(),) {
-            LazyVerticalGrid(modifier = Modifier.fillMaxSize(),
-                cells = GridCells.Fixed(2),) {
-                items (appliances) {
+            LazyVerticalGrid(
+                modifier = Modifier.fillMaxSize(),
+                cells = GridCells.Fixed(2),
+            ) {
+                items(appliances) {
                     ItemAppliance(
                         appliance = it,
                         applianceClicked = {/*TODO*/ }
@@ -123,19 +130,21 @@ fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
                 .padding(5.dp)
         ) {
 
-            Box(contentAlignment = Alignment.Center,
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier.requiredSize(100.dp).clip(CircleShape)
-                .border(1.dp, Color.Black, CircleShape)
-                .background(/*Color(appliance.color)*/Color.Yellow),
-                    ) {
-                    Text(appliance.name.first().toString(),
-                        maxLines = 1,
-                        fontWeight = FontWeight.Bold,
-                        style = typography.h4,
-                        )
-                }
-                Text(appliance.name, fontWeight = FontWeight.Normal, fontSize = 20.sp)
-                //Text(user.email)
+                    .border(1.dp, Color.Black, CircleShape)
+                    .background(/*Color(appliance.color)*/Color.Yellow),
+            ) {
+                Text(
+                    appliance.name.first().toString(),
+                    maxLines = 1,
+                    fontWeight = FontWeight.Bold,
+                    style = typography.h4,
+                )
             }
+            Text(appliance.name, fontWeight = FontWeight.Normal, fontSize = 20.sp)
+            //Text(user.email)
         }
     }
+}

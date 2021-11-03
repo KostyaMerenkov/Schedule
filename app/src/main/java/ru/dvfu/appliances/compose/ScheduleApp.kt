@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
@@ -47,20 +48,19 @@ fun ScheduleApp() {
 
         val result = remember { mutableStateOf("") }
         val selectedItem = remember { mutableStateOf("upload") }
-        val fabShape = RoundedCornerShape(50)
 
         Scaffold(
-            floatingActionButton = {
+            /*floatingActionButton = {
                 if (appStateHolder.shouldShowFab) {
                     FloatingActionButton(
                         onClick = { result.value = "FAB clicked" },
-                        shape = fabShape,
-                        backgroundColor = Color(0xFFFF8C00)
+                        backgroundColor = Color(0xFFFF8C00),
+
                     ) {
                         Icon(Icons.Filled.Add, "")
                     }
                 }
-            },
+            },*/
             isFloatingActionButtonDocked = true,
             floatingActionButtonPosition = FabPosition.Center,
             drawerContent = {
@@ -73,7 +73,6 @@ fun ScheduleApp() {
             bottomBar = {
                 if (appStateHolder.shouldShowBottomBar) {
                     ScheduleBottomBar(
-                        result, selectedItem, fabShape,
                         tabs = appStateHolder.bottomBarTabs,
                         currentRoute = appStateHolder.currentRoute!!,
                         navigateToRoute = appStateHolder::navigateToBottomBarRoute
@@ -87,7 +86,7 @@ fun ScheduleApp() {
             NavHost(
                 navController = appStateHolder.navController,
                 startDestination = MainDestinations.HOME_ROUTE,
-                //modifier = Modifier.padding(innerPaddingModifier)
+                modifier = Modifier.padding(innerPaddingModifier)
             ) {
                 NavGraph(
                     navController = appStateHolder.navController,
@@ -109,12 +108,13 @@ private fun NavGraphBuilder.NavGraph(
     upPress: () -> Unit,
     openDrawer: () -> Unit,
     navController: NavController,
+    backPress: () -> Unit = { navController.popBackStack() }
 ) {
     navigation(
         route = MainDestinations.HOME_ROUTE,
         startDestination = HomeSections.CALENDAR.route
     ) {
-        addHomeGraph(navController, openDrawer = openDrawer, backPress = {})
+        addHomeGraph(navController, openDrawer = openDrawer, upPress)
     }
 
     /*composable(MainDestinations.LOGIN_ROUTE) {
@@ -123,7 +123,7 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(
         route = MainDestinations.APPLIANCES_ROUTE,
-    ) { Appliances(navController) }
+    ) { Appliances(navController, upPress) }
 
     composable(
         route = MainDestinations.NEW_APPLIANCE_ROUTE,
@@ -131,7 +131,7 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(
         route = MainDestinations.USERS_ROUTE,
-    ) { Users(navController) }
+    ) { Users(navController, upPress) }
 }
 
 @Composable
@@ -149,7 +149,16 @@ fun Calendar(openDrawer: () -> Unit) {
             backgroundColor = Color(0xFFFF5470),
             elevation = AppBarDefaults.TopAppBarElevation
         )
-    }) {
+    }, floatingActionButton = {
+        FloatingActionButton(
+            onClick = {  },
+            //shape = fabShape,
+            backgroundColor = Color(0xFFFF8C00),
+        ) {
+            Icon(Icons.Filled.Add, "")
+        }
+    }
+    ) {
         Box(
             Modifier
                 .background(Color(0XFFE3DAC9))
@@ -164,5 +173,4 @@ fun Calendar(openDrawer: () -> Unit) {
             )
         }
     }
-
 }

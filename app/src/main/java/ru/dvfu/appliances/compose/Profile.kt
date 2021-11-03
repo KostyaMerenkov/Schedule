@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -46,6 +47,7 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
     val uiState = viewModel.uiState
     Scaffold(
         topBar = { ScheduleAppBar(stringResource(R.string.profile), backClick = backPress) },
+        backgroundColor = Color(0XFFE3DAC9),
         content = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -70,7 +72,7 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                 }
                 UserButtons()
             }
-        })
+        },)
 }
 
 /*@Composable
