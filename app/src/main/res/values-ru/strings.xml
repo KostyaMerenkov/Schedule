@@ -5,4 +5,9 @@
     <string name="user_photo">Фотография пользователя</string>
     <string name="back">Назад</string>
     <string name="anonymous_user">Анонимный пользователь</string>
+    <string name="calendar">Календарь</string>
+    <string name="profile">Профиль</string>
+    <string name="notes">Заметки</string>
+    <string name="appliances">Приборы</string>
+    <string name="users">Пользователи</string>
 </resources>

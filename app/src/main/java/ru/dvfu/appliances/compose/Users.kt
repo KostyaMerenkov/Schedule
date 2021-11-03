@@ -3,6 +3,7 @@ package ru.dvfu.appliances.compose
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,7 +39,7 @@ import ru.dvfu.appliances.model.repository.entity.Role
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
 @Composable
-fun Users(navController: NavController, modifier: Modifier = Modifier) {
+fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = getViewModel<UsersViewModel>()
 
     val uiState by viewModel.uiState.collectAsState()
@@ -53,46 +55,50 @@ fun Users(navController: NavController, modifier: Modifier = Modifier) {
     }*/
 
     val users by viewModel.usersList.collectAsState()
-    SwipeRefresh(
-        state = rememberSwipeRefreshState(refreshing),
-        onRefresh = { viewModel.refresh() },
-
-    ) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            item { Spacer(modifier.size(4.dp)) }
-            val myUsers = users
-            for(role in Role.values().reversed()) {
-                val role_users = mutableListOf<User>()
-                myUsers.forEach { user ->
-                    if (user.role == role.ordinal) role_users.add(user)
-                }
-                if(role_users.isNotEmpty()) stickyHeader { Header(role.name) }
-                items (role_users) {
-                    ItemUser(
-                        user = it,
-                        userClicked = {/*TODO*/ }
-                    )
-                }
-            }
-        }
-
-        /*Crossfade(uiState, animationSpec = tween(500)) { animatedUiState ->
-            when (animatedUiState) {
-                is BaseViewState.Loading ->
-                    UserCatchesLoading { onAddNewCatchClick(navController) }
-                is BaseViewState.Success<*> -> UserCatches(
-                    (uiState as BaseViewState.Success<*>).data as List<UserCatch>,
-                    { onAddNewCatchClick(navController) }, { catch -> onCatchItemClick(catch, navController) })
-                is BaseViewState.Error -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "An error occurred fetching the catches.")
+    Scaffold(topBar = { ScheduleAppBar(stringResource(R.string.users), backClick = backPress) },) {
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(refreshing),
+            onRefresh = { viewModel.refresh() },
+            Modifier
+                .background(Color(0XFFE3DAC9))
+        ) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                item { Spacer(modifier.size(4.dp)) }
+                val myUsers = users
+                for(role in Role.values().reversed()) {
+                    val role_users = mutableListOf<User>()
+                    myUsers.forEach { user ->
+                        if (user.role == role.ordinal) role_users.add(user)
+                    }
+                    if(role_users.isNotEmpty()) stickyHeader { Header(role.name) }
+                    items (role_users) {
+                        ItemUser(
+                            user = it,
+                            userClicked = {/*TODO*/ }
+                        )
                     }
                 }
             }
-        }*/
+
+            /*Crossfade(uiState, animationSpec = tween(500)) { animatedUiState ->
+                when (animatedUiState) {
+                    is BaseViewState.Loading ->
+                        UserCatchesLoading { onAddNewCatchClick(navController) }
+                    is BaseViewState.Success<*> -> UserCatches(
+                        (uiState as BaseViewState.Success<*>).data as List<UserCatch>,
+                        { onAddNewCatchClick(navController) }, { catch -> onCatchItemClick(catch, navController) })
+                    is BaseViewState.Error -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "An error occurred fetching the catches.")
+                        }
+                    }
+                }
+            }*/
+        }
+
     }
 }
 

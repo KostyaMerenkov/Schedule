@@ -1,0 +1,23 @@
+package ru.dvfu.appliances.compose.components
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import ru.dvfu.appliances.compose.MainDestinations
+
+sealed class NavDrawerItem(val route: String, val icon: ImageVector, val title: String) {
+    object Home : NavDrawerItem(MainDestinations.HOME_ROUTE, Icons.Default.Home, "Home")
+    object Users : NavDrawerItem(MainDestinations.USERS_ROUTE, Icons.Default.VerifiedUser, "Users")
+    object Appliances : NavDrawerItem(MainDestinations.APPLIANCES_ROUTE, Icons.Default.SettingsApplications, "Appliances")
+    /*object Users : NavDrawerItem("users", Icons.Default.Cake, "Users")
+    object Profile : NavDrawerItem("profile", Icons.Default.Cake, "Profile")*/
+    object Settings : NavDrawerItem(MainDestinations.SETTINGS_ROUTE, Icons.Default.Settings, "Settings")
+}
+
+val ALL_DRAWER_ITEMS = listOf(
+    NavDrawerItem.Home,
+    NavDrawerItem.Users,
+    NavDrawerItem.Appliances,
+    NavDrawerItem.Settings
+)

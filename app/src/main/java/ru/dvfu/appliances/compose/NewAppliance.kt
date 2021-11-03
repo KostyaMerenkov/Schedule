@@ -1,15 +1,15 @@
 package ru.dvfu.appliances.compose
 
-import androidx.compose.animation.SizeTransform
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -19,21 +19,23 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.dvfu.appliances.R
 
 @ExperimentalMaterialApi
 @Composable
-fun NewAppliance() {
+fun NewAppliance(backPressed: () -> Unit) {
 
     val colors = listOf(
-        Color(0xFFEF5350),
+        Color.Black as Color,
         Color(0xFFEC407A),
         Color(0xFFAB47BC)
     )
     val (selectedColor, onColorSelected) = remember { mutableStateOf(colors[0]) }
 
     BottomSheetScaffold (
+        topBar = { NewApplianceTopBar(backPressed) },
         sheetContent = {
         Column {
             Text(
@@ -62,26 +64,60 @@ fun NewAppliance() {
                 .verticalScroll(state = scrollState, enabled = true),
         ) {
             ApplianceName()
-
+            //ApplianceDescription()
         }
     }
 }
 
 @Composable
+fun NewApplianceTopBar(backPressed: () -> Unit) {
+    TopAppBar(
+        title = { Text(text = "Новое устройство") },
+        navigationIcon = {
+            IconButton(onClick = backPressed) {
+                Icon(imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.back)) }
+        },
+        /*actions = {
+            IconButton(onClick = { menuExpanded.value = !menuExpanded.value }) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = stringResource(R.string.more)
+                )
+                DropdownDemo(expanded = menuExpanded)
+            }
+        },*/
+        elevation = 0.dp
+    )
+}
+
+@Composable
 fun ApplianceName() {
-    var textFieldValue by rememberSaveable { mutableStateOf("") }
+    var titleTextFieldValue by rememberSaveable { mutableStateOf("") }
+    var descriptionTextFieldValue by rememberSaveable { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         SubtitleWithIcon(Modifier, Icons.Default.Menu, "Устройство")
         OutlinedTextField(
                 singleLine = true,
-                value = textFieldValue,
+                value = titleTextFieldValue,
                 onValueChange = {
-                    textFieldValue = it
+                    titleTextFieldValue = it
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .onFocusChanged {},
                 label = { Text(text = "Название") },
+        )
+        OutlinedTextField(
+            singleLine = false,
+            value = descriptionTextFieldValue,
+            onValueChange = {
+                descriptionTextFieldValue = it
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged {},
+            label = { Text(text = "Описание") },
         )
     }
 
@@ -102,13 +138,13 @@ fun ColorPicker(
             /*crossAxisSpacing = 4.dp,
             mainAxisSpacing = 4.dp*/
         ) {
-            items.distinct().forEach { color ->
+            /*items.distinct().forEach { color ->
                 ColorItem(
                     selected = color == selectedColor,
                     color = color,
                     onClick = { onColorSelected(color) }
                 )
-            }
+            }*/
         }
     }
 }
@@ -146,6 +182,7 @@ fun ColorItem(
                 if (selected) {
                     Icon(
                         Icons.Default.Check,
+                        "",
                         tint = if (color.luminance() < 0.5) Color.White else Color.Black,
                         modifier = Modifier.align(Alignment.Center)
                     )

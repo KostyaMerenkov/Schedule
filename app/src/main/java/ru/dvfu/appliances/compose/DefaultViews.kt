@@ -1,27 +1,17 @@
 package ru.dvfu.appliances.compose
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
-import coil.transform.CircleCropTransformation
+import ru.dvfu.appliances.R
 import ru.dvfu.appliances.model.repository.entity.User
 
 @Composable
@@ -30,9 +20,11 @@ fun MyCardNoPadding(content: @Composable () -> Unit) {
         modifier = Modifier.fillMaxWidth(), content = content)
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MyCard(modifier: Modifier, content: @Composable () -> Unit) {
-    Card(elevation = 8.dp, modifier = modifier.fillMaxWidth().padding(4.dp), content = content, shape = RoundedCornerShape(12 .dp))
+fun MyCard(modifier: Modifier, onClick: () -> Unit = {}, content: @Composable () -> Unit) {
+    Card(elevation = 8.dp, modifier = modifier.fillMaxWidth().padding(4.dp), content = content,
+        shape = RoundedCornerShape(12.dp), onClick = onClick)
 }
 
 @Composable
@@ -51,6 +43,22 @@ fun SubtitleWithIcon(modifier: Modifier = Modifier, icon: ImageVector, text: Str
         Spacer(Modifier.size(8.dp))
         Text(text)
     }
+}
+
+@Composable
+fun ScheduleAppBar(title: String = "", backClick: () -> Unit = {}, navIconBack: Boolean = true) {
+    TopAppBar(
+        title = { Text(title) },
+        navigationIcon = {
+            IconButton(onClick = backClick) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.back)
+                )
+            }
+        },
+        elevation = 2.dp
+    )
 }
 
 /*

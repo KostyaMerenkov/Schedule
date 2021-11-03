@@ -69,7 +69,7 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
         AuthUI.getInstance().signOut(context).addOnSuccessListener {
             trySend(true)
         }
-        awaitClose{}
+        awaitClose {}
     }
 
     @ExperimentalCoroutinesApi
@@ -78,13 +78,19 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
         if (user.isAnonymous) {
             flow.emit(Progress.Complete)
         } else {
-            getUsersCollection().document(user.userId).set(user)
-                .addOnCompleteListener {
-                    flow.tryEmit(Progress.Complete)
+            getUsersCollection().document(user.userId).get().addOnCompleteListener {
+                if (it.result.exists()) flow.tryEmit(Progress.Complete)
+                else {
+                    getUsersCollection().document(user.userId).set(user)
+                        .addOnCompleteListener {
+                            flow.tryEmit(Progress.Complete)
+                        }
                 }
+            }
         }
         return flow
     }
+
     private fun mapFirebaseUserToUser(firebaseUser: FirebaseUser): User {
         return with(firebaseUser) {
             User(

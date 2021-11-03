@@ -29,22 +29,16 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Appliances
 import ru.dvfu.appliances.compose.Profile
 import ru.dvfu.appliances.compose.Users
-import ru.dvfu.appliances.ui.components.DrawerItem
-import ru.dvfu.appliances.ui.components.NavDrawerItem
+import ru.dvfu.appliances.compose.components.ALL_DRAWER_ITEMS
+import ru.dvfu.appliances.compose.components.DrawerItem
 
 @Composable
 fun Drawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: NavController) {
-    val items = listOf(
-        NavDrawerItem.Home,
-        NavDrawerItem.Music,
-        NavDrawerItem.Movies,
-        NavDrawerItem.Users,
-        NavDrawerItem.Profile,
-        NavDrawerItem.Settings
-    )
+    val items = ALL_DRAWER_ITEMS
     Column(
-        modifier = Modifier
-            .background(colorResource(id = R.color.design_default_color_primary)), content = {
+        /*modifier = Modifier
+            .background(colorResource(id = R.color.design_default_color_primary)), */
+        content = {
             // Header
             Image(
                 Icons.Default.VerifiedUser,
@@ -66,7 +60,7 @@ fun Drawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: N
             items.forEach { item ->
                 DrawerItem(item = item, selected = (currentRoute == item.route), onItemClick = {
                     navController.navigate(item.route) {
-                        // Pop up to the start destination of the graph to
+                        /*// Pop up to the start destination of the graph to
                         // avoid building up a large stack of destinations
                         // on the back stack as users select items
                         navController.graph.startDestinationRoute?.let { route ->
@@ -78,7 +72,7 @@ fun Drawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: N
                         // reselecting the same item
                         launchSingleTop = true
                         // Restore state when reselecting a previously selected item
-                        restoreState = true
+                        restoreState = true*/
                     }
                     // Close drawer
                     scope.launch {
@@ -88,8 +82,8 @@ fun Drawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: N
             }
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "Developed by John Codeos",
-                color = Color.White,
+                text = "Schedule App",
+                /*color = Color.White,*/
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -100,173 +94,7 @@ fun Drawer(scope: CoroutineScope, scaffoldState: ScaffoldState, navController: N
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DrawerPreview() {
-    val scope = rememberCoroutineScope()
-    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
-    val navController = rememberNavController()
-    Drawer(scope = scope, scaffoldState = scaffoldState, navController = navController)
-}
 
-@Composable
-fun HomeScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(id = R.color.design_default_color_primary))
-            .wrapContentSize(Alignment.Center)
-    ) {
-        Text(
-            text = "Home View",
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 25.sp
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen()
-}
-
-@Composable
-fun MusicScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(id = R.color.design_default_color_primary))
-            .wrapContentSize(Alignment.Center)
-    ) {
-        Text(
-            text = "Music View",
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 25.sp
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MusicScreenPreview() {
-    MusicScreen()
-}
-
-@ExperimentalMaterialApi
-@InternalCoroutinesApi
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@Composable
-fun AppliancesScreen(navController: NavHostController, modifier: Modifier.Companion) {
-    Appliances(navController, modifier)
-    /*Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(id = R.color.design_default_color_primary))
-            .wrapContentSize(Alignment.Center)
-    ) {
-        Text(
-            text = "Movies View",
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 25.sp
-        )
-    }*/
-}
-
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
-@InternalCoroutinesApi
-@ExperimentalMaterialApi
-@Preview(showBackground = true)
-@Composable
-fun MoviesScreenPreview() {
-    AppliancesScreen(rememberNavController(), Modifier)
-}
-
-
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
-@InternalCoroutinesApi
-@ExperimentalAnimationApi
-@Composable
-fun UsersScreen(navController: NavHostController, modifier: Modifier.Companion) {
-    Users(navController, modifier)
-    /*Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(id = R.color.design_default_color_primary))
-            .wrapContentSize(Alignment.Center)
-    ) {
-        Text(
-            text = "Books View",
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 25.sp
-        )
-    }*/
-}
-
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
-@InternalCoroutinesApi
-@ExperimentalMaterialApi
-@Preview(showBackground = true)
-@Composable
-fun BooksScreenPreview() {
-    UsersScreen(rememberNavController(), Modifier)
-}
-
-@ExperimentalMaterialApi
-@InternalCoroutinesApi
-@Composable
-fun ProfileScreen(navController: NavHostController, modifier: Modifier.Companion) {
-    Profile(navController, modifier)
-}
-
-@InternalCoroutinesApi
-@ExperimentalMaterialApi
-@Preview(showBackground = true)
-@Composable
-fun ProfileScreenPreview() {
-    ProfileScreen(rememberNavController(), Modifier)
-}
-
-@Composable
-fun SettingsScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(id = R.color.design_default_color_primary))
-            .wrapContentSize(Alignment.Center)
-    ) {
-        Text(
-            text = "Settings View",
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 25.sp
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SettingsScreenPreview() {
-    SettingsScreen()
-}
 
 /*
 package ru.dvfu.appliances.ui.components
