@@ -22,6 +22,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -49,7 +50,7 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
     val uiState by viewModel.uiState.collectAsState()
     val refreshing by remember { viewModel.isRefreshing }
 
-    val user: User? by viewModel.user.collectAsState(User())
+    val user: User by viewModel.user.collectAsState(User())
     //val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     /*LaunchedEffect(refreshing) {
@@ -63,7 +64,7 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
     val appliances by viewModel.appliancesList.collectAsState()
     Scaffold(
         topBar = { ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress) },
-        floatingActionButton = { if (user!!.role >= Role.ADMIN.ordinal) AppliancesFab(navController) },
+        floatingActionButton = { if (user.role >= Role.ADMIN.ordinal) AppliancesFab(navController) },
         modifier = Modifier.fillMaxSize(),
     ) {
         SwipeRefresh(
@@ -74,6 +75,9 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxSize(),
                 cells = GridCells.Fixed(2),
+                contentPadding = PaddingValues(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 items(appliances) { appliance ->
                     ItemAppliance(
@@ -110,7 +114,7 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
 @Composable
 fun AppliancesFab(navController: NavController) {
     FloatingActionButton(
-        modifier = Modifier.animateContentSize().padding(bottom = 15.dp),
+        modifier = Modifier.animateContentSize().padding(bottom = 16.dp),
         onClick = { navController.navigate(MainDestinations.NEW_APPLIANCE_ROUTE) },
     ) {
         Icon(
@@ -125,7 +129,7 @@ fun AppliancesFab(navController: NavController) {
 @ExperimentalAnimationApi
 @Composable
 fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
-    MyCard(modifier = Modifier.padding(4.dp),
+    MyCard(
         onClick = { applianceClicked(appliance) }) {
         Column(
             verticalArrangement = Arrangement.SpaceEvenly,
@@ -140,16 +144,23 @@ fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.requiredSize(100.dp).clip(CircleShape)
                     .border(1.dp, Color.Black, CircleShape)
-                    .background(/*Color(appliance.color)*/Color.Yellow),
+                    .background(Color(appliance.color)),
             ) {
                 Text(
-                    appliance.name.first().toString(),
+                    if (appliance.name.isEmpty()) ""
+                    else appliance.name.first().uppercase(),
                     maxLines = 1,
                     fontWeight = FontWeight.Bold,
                     style = typography.h4,
                 )
             }
-            Text(appliance.name, fontWeight = FontWeight.Normal, fontSize = 20.sp)
+            Text(appliance.name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = FontWeight.Normal,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
             //Text(user.email)
         }
     }

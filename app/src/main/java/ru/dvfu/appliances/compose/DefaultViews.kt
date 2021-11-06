@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.model.repository.entity.User
@@ -53,15 +55,18 @@ fun ScheduleAppBar(
     backClick: () -> Unit = {},
     actionDelete: Boolean = false,
     deleteClick: () -> Unit = {},
-    navIconBack: Boolean = true) {
+    navIconBack: Boolean = true,
+    elevation: Dp = 2.dp) {
     TopAppBar(
-        title = { Text(title) },
+        title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         navigationIcon = {
-            IconButton(onClick = backClick) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.back)
-                )
+            if (navIconBack) {
+                IconButton(onClick = backClick) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back)
+                    )
+                }
             }
         },
         actions = {
@@ -72,7 +77,7 @@ fun ScheduleAppBar(
                 }
             }
         },
-        elevation = 2.dp
+        elevation = elevation
     )
 }
 

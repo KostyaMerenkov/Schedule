@@ -27,4 +27,9 @@
     <string name="appliances">Приборы</string>
     <string name="users">Пользователи</string>
     <string name="delete">Удалить</string>
+    <string name="settings">Настройки</string>
+    <string name="choose_color">Выберите цвет</string>
+    <string name="try_again">Попробовать еще раз</string>
+    <string name="cancel">Отменить</string>
+    <string name="superusers">Суперпользователи</string>
 </resources>

@@ -4,6 +4,8 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ru.dvfu.appliances.Logger
+import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.viewmodels.NewApplianceViewModel
 import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.compose.viewmodels.UsersViewModel
@@ -23,6 +25,7 @@ val application = module {
     single<UserRepository> { FirebaseUserRepositoryImpl(androidContext()) }
 
     single { Logger() }
+    single { SnackbarManager }
 }
 
 val mainActivity = module {
@@ -30,6 +33,7 @@ val mainActivity = module {
     viewModel { UserDetailsViewModel(get(), get()) }
     viewModel { UsersViewModel(get()) }
     viewModel { ApplianceViewModel(get(),get()) }
+    viewModel { NewApplianceViewModel(get()) }
     viewModel { AppliancesViewModel(get(), get()) }
     viewModel { ProfileViewModel(get()) }
 }

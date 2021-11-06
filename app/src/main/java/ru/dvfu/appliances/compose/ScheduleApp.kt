@@ -161,8 +161,7 @@ fun Calendar(openDrawer: () -> Unit) {
                 }
             },
 
-            backgroundColor = Color(0xFFFF5470),
-            elevation = AppBarDefaults.TopAppBarElevation
+            backgroundColor = Color(0xFFFF5470)
         )
     }, floatingActionButton = {
         FloatingActionButton(

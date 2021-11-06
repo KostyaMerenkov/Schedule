@@ -8,6 +8,7 @@ import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.channelFlow
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -37,23 +38,12 @@ class CloudFirestoreDatabaseImpl() : Repository {
         return flow
     }
 
-//    override suspend fun getUsers(): Single<ArrayList<User>> = Single.fromCallable {
-//        val semaphore = Semaphore(0)
-//        val users = ArrayList<User>()
-//        cloudFirestore.collection("users").get().addOnSuccessListener { result ->
-//            for (doc: QueryDocumentSnapshot in result) {
-//                users.add(doc.toObject(User::class.java))
-//            }
-//            semaphore.release();
-//        }
-//        semaphore.acquire()
-//        return@fromCallable users
-//    }.subscribeOn(Schedulers.io())
-
     @ExperimentalCoroutinesApi
     override suspend fun getUsers() = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
-        listeners.add(cloudFirestore.collection("users").addSnapshotListener(getUsersSuccessListener(this)))
+        listeners.add(
+            cloudFirestore.collection("users").addSnapshotListener(getUsersSuccessListener(this))
+        )
         awaitClose {
             listeners.forEach { it.remove() }
         }
@@ -76,7 +66,10 @@ class CloudFirestoreDatabaseImpl() : Repository {
     @ExperimentalCoroutinesApi
     override suspend fun getAppliances() = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
-        listeners.add(cloudFirestore.collection("appliances").addSnapshotListener(getAppliancesSuccessListener(this)))
+        listeners.add(
+            cloudFirestore.collection("appliances")
+                .addSnapshotListener(getAppliancesSuccessListener(this))
+        )
         awaitClose {
             listeners.forEach { it.remove() }
         }
@@ -97,9 +90,9 @@ class CloudFirestoreDatabaseImpl() : Repository {
         }
 
 
-    override suspend fun addUser(user: User) {
+/*    override suspend fun addUser(user: User): StateFlow<Progress> {
         //val firebaseUser = ru.students.dvfu.mvp.model.userdata.FirebaseUser(user.displayName, user.email, user.photoUrl.toString(), "new_user")
-        /*cloudFirestore.collection("users").document(user.uid).set(
+        *//*cloudFirestore.collection("users").document(user.uid).set(
             hashMapOf(
                 "name" to user.displayName,
                 "email" to user.email,
@@ -110,18 +103,23 @@ class CloudFirestoreDatabaseImpl() : Repository {
             Log.d(TAG, "DocumentSnapshot added with ID: $it")
         }.addOnFailureListener { e ->
             Log.w(TAG, "Error adding document", e)
-        }*/
+        }*//*
 
 //        val firebaseUser = ru.students.dvfu.mvp.model.userdata.FirebaseUser(user.displayName!!, user.email!!, user.photoUrl!!.toString(), "Logged user")
 //        realtimeDatabase.reference.child("users").child(user.uid).setValue(firebaseUser)
-    }
+    }*/
 
-    override suspend fun addAppliance(appliance: Appliance) {
-        TODO("Not yet implemented")
+    override suspend fun addAppliance(appliance: Appliance): StateFlow<Progress> {
+        val flow = MutableStateFlow<Progress>(Progress.Loading())
+        getAppliancesCollection().document(appliance.id).set(appliance)
+            .addOnCompleteListener {
+                flow.tryEmit(Progress.Complete)
+            }
+        return flow
     }
 
     override suspend fun deleteAppliance(appliance: Appliance) {
-        TODO("Not yet implemented")
+        getAppliancesCollection().document(appliance.id).delete()
     }
 
     //    fun isUserInDatabase(UID: String): Boolean {
@@ -142,7 +140,12 @@ class CloudFirestoreDatabaseImpl() : Repository {
         return cloudFirestore.collection(USERS_COLLECTION)
     }
 
+    private fun getAppliancesCollection(): CollectionReference {
+        return cloudFirestore.collection(APPLIANCES_COLLECTION)
+    }
+
     companion object {
         private const val USERS_COLLECTION = "users"
+        private const val APPLIANCES_COLLECTION = "appliances"
     }
 }

@@ -22,12 +22,13 @@ class ApplianceViewModel(
         }
     }*/
 
+    val user = userRepository.currentUserFromDB
+
     fun deleteAppliance() {
         viewModelScope.launch {
             appliance.value?.let {
                 repository.deleteAppliance(it)
             }
-
         }
     }
 

@@ -11,4 +11,7 @@
     <string name="appliances">Приборы</string>
     <string name="users">Пользователи</string>
     <string name="delete">Удалить</string>
+    <string name="try_again">Попробовать еще раз</string>
+    <string name="cancel">Отменить</string>
+    <string name="superusers">Суперпользователи</string>
 </resources>

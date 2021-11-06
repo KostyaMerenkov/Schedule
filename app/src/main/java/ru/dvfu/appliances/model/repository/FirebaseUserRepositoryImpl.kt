@@ -96,7 +96,7 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
             User(
                 uid,
                 displayName ?: "Anonymous",
-                email!!,
+                email ?: "",
                 Role.GUEST.ordinal,
                 isAnonymous,
                 photoUrl?.toString() ?: ""
