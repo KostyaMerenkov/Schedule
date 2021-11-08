@@ -5,7 +5,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -20,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
@@ -29,11 +27,12 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.compose.appliance.Appliance
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -100,6 +99,7 @@ fun ScheduleApp() {
 }
 
 
+@OptIn(ExperimentalPagerApi::class)
 @ExperimentalCoroutinesApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi

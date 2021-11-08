@@ -2,42 +2,49 @@ package ru.dvfu.appliances.compose.appliance
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import org.koin.androidx.compose.get
-import org.koin.androidx.compose.getViewModel
-import ru.dvfu.appliances.compose.Arguments
-import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.compose.ItemUser
 import ru.dvfu.appliances.compose.viewmodels.ApplianceUsersViewModel
+import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 
 @ExperimentalAnimationApi
 @Composable
 fun ApplianceUsers(
     navController: NavController,
-    viewModel: ApplianceUsersViewModel = get()
+    appliance: Appliance,
 ) {
+    val viewModel: ApplianceUsersViewModel = get()
+    viewModel.loadAllUsers(appliance)
+
+    val users: List<User> by viewModel.currentContent.collectAsState()
+
+
     Scaffold(backgroundColor = Color.Transparent) {
-        val users: List<User> by viewModel.currentContent.collectAsState()
-        /*Crossfade(users) { animatedUiState ->
+
+        Crossfade(users) { animatedUiState ->
             Users(
                 users = animatedUiState,
                 userClicked = { user ->
                     onUserClick(user, navController)
                 }
             )
-        }*/
+        }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalAnimationApi
 @Composable
 fun Users(
@@ -48,23 +55,20 @@ fun Users(
         when {
             users.isNotEmpty() -> {
                 items(users) { user ->
-                    ItemUser(
-                        users = user
-                    ) { userClicked(user) }
+                    ItemUser(user) { userClicked(user) }
                 }
             }
-            places.isEmpty() -> {
-                item {
+            users.isEmpty() -> {
+                /*item {
                     NoElementsView(
                         mainText = stringResource(R.string.no_places_added),
                         secondaryText = stringResource(R.string.new_place_text),
                         onClickAction = { }
                     )
-                }
+                }*/
 
             }
         }
-
     }
 }
 

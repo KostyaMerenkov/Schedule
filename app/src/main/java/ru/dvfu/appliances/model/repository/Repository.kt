@@ -9,10 +9,18 @@ import ru.dvfu.appliances.ui.Progress
 interface Repository {
     suspend fun addNewUser(user: User): StateFlow<Progress>
     suspend fun getUsers(): Flow<List<User>>
-    suspend fun getAppliances(): Flow<List<Appliance>>
 
-    suspend fun addAppliance(appliance: Appliance): StateFlow<Progress>
+
+
+
+
     suspend fun deleteAppliance(appliance: Appliance)
+    suspend fun addAppliance(appliance: Appliance): StateFlow<Progress>
+    suspend fun getAppliances(): Flow<List<Appliance>>
+    suspend fun getApplianceUsers(appliance: Appliance): Flow<List<User>>
+    suspend fun getApplianceSuperUsers(appliance: Appliance): Flow<List<User>>
+
+
     /*suspend fun addNewCatch(markerId: String, newCatch: RawUserCatch): StateFlow<Progress>
     suspend fun addNewMarker(newMarker: RawMapMarker): StateFlow<Progress>
     suspend fun deleteMarker(userMapMarker: UserMapMarker)

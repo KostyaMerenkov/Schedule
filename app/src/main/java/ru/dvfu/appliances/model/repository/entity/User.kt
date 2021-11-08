@@ -11,5 +11,5 @@ data class User(
     val role: Int = Role.GUEST.ordinal,
     val isAnonymous: Boolean = true,
     val userPic: String? = null,
-    val appliances: List<Appliance> = listOf()
+
 ): Parcelable

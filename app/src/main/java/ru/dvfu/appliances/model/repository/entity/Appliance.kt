@@ -3,6 +3,7 @@ package ru.dvfu.appliances.model.repository.entity
 import android.graphics.Color
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+import kotlinx.coroutines.flow.MutableStateFlow
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.randomUUID
 import java.util.*

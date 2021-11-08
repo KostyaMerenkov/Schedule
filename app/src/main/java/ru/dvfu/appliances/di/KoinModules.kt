@@ -5,10 +5,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ru.dvfu.appliances.Logger
 import ru.dvfu.appliances.application.SnackbarManager
-import ru.dvfu.appliances.compose.viewmodels.NewApplianceViewModel
-import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
-import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
-import ru.dvfu.appliances.compose.viewmodels.UsersViewModel
+import ru.dvfu.appliances.compose.viewmodels.*
 import ru.dvfu.appliances.model.repository.CloudFirestoreDatabaseImpl
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.FirebaseUserRepositoryImpl
@@ -32,8 +29,16 @@ val mainActivity = module {
     viewModel { LoginViewModel(get(), get()) }
     viewModel { UserDetailsViewModel(get(), get()) }
     viewModel { UsersViewModel(get()) }
+
+    viewModel { ProfileViewModel(get()) }
+
+
+
+
+    //Appliances
     viewModel { ApplianceViewModel(get(),get()) }
     viewModel { NewApplianceViewModel(get()) }
+    viewModel { ApplianceUsersViewModel(get()) }
+    viewModel { ApplianceSuperUsersViewModel(get()) }
     viewModel { AppliancesViewModel(get(), get()) }
-    viewModel { ProfileViewModel(get()) }
 }

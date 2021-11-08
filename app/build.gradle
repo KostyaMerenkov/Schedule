@@ -94,6 +94,11 @@ dependencies {
     implementation Libs.AndroidX.DependencyInjection.koinCompose
 
     implementation Libs.Accompanist.insets
+    implementation Libs.Accompanist.systemuicontroller
+    implementation Libs.Accompanist.flowlayouts
+    implementation Libs.Accompanist.pager
+    implementation Libs.Accompanist.pagerindicators
+    implementation Libs.Accompanist.permissions
 
     debugImplementation Libs.AndroidX.Compose.uiTestManifest
 

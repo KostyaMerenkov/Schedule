@@ -1,7 +1,6 @@
 package ru.dvfu.appliances.compose.appliance
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import ru.dvfu.appliances.R
@@ -13,11 +12,13 @@ sealed class TabItem(var icon: Int, var titleRes: Int, var screen: ComposableFun
 
     @ExperimentalAnimationApi
     object Users : TabItem(R.drawable.ic_guest, R.string.users, { navController, appliance ->
-        ApplianceUsers(navController = navController)
+        ApplianceUsers(navController = navController, appliance)
     })
-}
 
-    /*@ExperimentalAnimationApi
-    object SuperUsers : TabItem(R.drawable.ic_menu_gallery, R.string.superusers, { navController, appliance ->
-        ApplianceSuperUsers(navController = navController)
-    })*/
+
+    @ExperimentalAnimationApi
+    object SuperUsers :
+        TabItem(R.drawable.ic_menu_gallery, R.string.superusers, { navController, appliance ->
+            ApplianceSuperUsers(navController = navController, appliance)
+        })
+}

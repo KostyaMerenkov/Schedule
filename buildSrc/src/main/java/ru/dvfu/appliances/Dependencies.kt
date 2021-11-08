@@ -14,8 +14,13 @@ object Libs {
     const val material = "com.google.android.material:material:1.3.0"
 
     object Accompanist {
-        const val version = "0.18.0"
+        private const val version = "0.18.0"
         const val insets = "com.google.accompanist:accompanist-insets:$version"
+        const val systemuicontroller = "com.google.accompanist:accompanist-systemuicontroller:$version"
+        const val flowlayouts = "com.google.accompanist:accompanist-flowlayout:$version"
+        const val pager = "com.google.accompanist:accompanist-pager:$version"
+        const val pagerindicators = "com.google.accompanist:accompanist-pager-indicators:$version"
+        const val permissions = "com.google.accompanist:accompanist-permissions:$version"
     }
 
     object Kotlin {

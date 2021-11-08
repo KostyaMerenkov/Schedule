@@ -6,10 +6,7 @@ import com.google.firebase.firestore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.*
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.ui.Progress
@@ -48,6 +45,62 @@ class CloudFirestoreDatabaseImpl() : Repository {
             listeners.forEach { it.remove() }
         }
     }
+
+    @ExperimentalCoroutinesApi
+    override suspend fun getApplianceUsers(appliance: Appliance) = channelFlow {
+        val listeners = mutableListOf<ListenerRegistration>()
+        listeners.add(
+            getUsersCollection().whereArrayContains("appliances", appliance.id).addSnapshotListener(getApplianceUsersSuccessListener(this, appliance))
+        )
+        awaitClose {
+            listeners.forEach { it.remove() }
+        }
+    }
+
+    @ExperimentalCoroutinesApi
+    private suspend fun getApplianceUsersSuccessListener(
+        scope: ProducerScope<List<User>>,
+        appliance: Appliance
+    ): EventListener<QuerySnapshot> =
+        EventListener<QuerySnapshot> { snapshots, error ->
+            if (error != null) {
+                Log.d("Schedule", "Get all users listener error", error)
+                return@EventListener
+            }
+
+            if (snapshots != null) {
+                val users = snapshots.toObjects(User::class.java)
+                scope.trySend(users)
+            }
+        }
+
+    @ExperimentalCoroutinesApi
+    override suspend fun getApplianceSuperUsers(appliance: Appliance) = channelFlow {
+        val listeners = mutableListOf<ListenerRegistration>()
+        listeners.add(
+            getUsersCollection().whereArrayContains("appliances", appliance.id).addSnapshotListener(getApplianceSuperUsersSuccessListener(this, appliance))
+        )
+        awaitClose {
+            listeners.forEach { it.remove() }
+        }
+    }
+
+    @ExperimentalCoroutinesApi
+    private suspend fun getApplianceSuperUsersSuccessListener(
+        scope: ProducerScope<List<User>>,
+        appliance: Appliance
+    ): EventListener<QuerySnapshot> =
+        EventListener<QuerySnapshot> { snapshots, error ->
+            if (error != null) {
+                Log.d("Schedule", "Get all users listener error", error)
+                return@EventListener
+            }
+
+            if (snapshots != null) {
+                val users = snapshots.toObjects(User::class.java)
+                scope.trySend(users)
+            }
+        }
 
     @ExperimentalCoroutinesApi
     private suspend fun getUsersSuccessListener(scope: ProducerScope<List<User>>): EventListener<QuerySnapshot> =
