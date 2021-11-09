@@ -18,14 +18,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
-import com.google.accompanist.insets.statusBarsHeight
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
+import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.viewmodels.ApplianceViewModel
+import ru.dvfu.appliances.compose.viewmodels.ApplianceViewModel
 
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
@@ -37,23 +37,24 @@ fun Appliance(navController: NavController, upPress: () -> Unit, appliance: Appl
     viewModel.appliance.value = appliance
     var infoDialogState = remember { mutableStateOf(false) }
 
-    val user: User by viewModel.user.collectAsState(User())
+    val user: User by viewModel.currentUser.collectAsState(User())
 
     if (infoDialogState.value) ApplianceInfoDialog(infoDialogState, appliance)
 
-    val tabs = listOf(TabItem.Users/*, TabItem.Catches*/)
+    val tabs = listOf(TabItem.Users, TabItem.SuperUsers)
     val pagerState = rememberPagerState(pageCount = tabs.size)
 
     Scaffold(topBar = {
         ApplianceTopBar(user, appliance, viewModel, upPress)
-    }) {
+    },
+        modifier = Modifier.fillMaxSize().background(Color(0XFFE3DAC9))) {
         Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
             Surface(
                 modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                color = Color.White
+                //color = Color.White
             ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp,
@@ -76,8 +77,8 @@ fun Appliance(navController: NavController, upPress: () -> Unit, appliance: Appl
                     )
                 }
             }
-
-            Column( modifier = Modifier.background(Color.Green)) {
+            Spacer(modifier = Modifier.size(2.dp))
+            Column() {
                 Tabs(tabs = tabs, pagerState = pagerState)
                 Box(modifier = Modifier.fillMaxSize()) {
                     //BackgroundImage()
@@ -98,6 +99,7 @@ fun ApplianceTopBar(
 ) {
     if (permitToDeleteAppliance(user, appliance)) {
         ScheduleAppBar(
+            stringResource(R.string.appliance),
             backClick = upPress,
             actionDelete = true,
             deleteClick = { viewModel.deleteAppliance(); upPress() },
@@ -105,6 +107,7 @@ fun ApplianceTopBar(
         )
     } else {
         ScheduleAppBar(
+            stringResource(R.string.appliance),
             backClick = upPress,
             elevation = 0.dp
         )
@@ -148,7 +151,7 @@ fun Tabs(tabs: List<TabItem>, pagerState: PagerState) {
         backgroundColor = MaterialTheme.colors.surface,
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
-                color = MaterialTheme.colors.onSurface,
+                //color = MaterialTheme.colors.onSurface,
                 modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
             )
         }) {
@@ -156,7 +159,7 @@ fun Tabs(tabs: List<TabItem>, pagerState: PagerState) {
             // OR Tab()
             LeadingIconTab(
                 icon = { Icon(painter = painterResource(id = tab.icon), contentDescription = "",
-                    tint = MaterialTheme.colors.primaryVariant ) },
+                    /*tint = MaterialTheme.colors.primaryVariant*/ ) },
                 text = { Text(stringResource(tab.titleRes), color = MaterialTheme.colors.onSurface) },
                 selected = pagerState.currentPage == index,
                 onClick = {

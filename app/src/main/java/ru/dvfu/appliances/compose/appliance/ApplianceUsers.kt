@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import org.koin.androidx.compose.get
+import ru.dvfu.appliances.compose.ItemAdd
 import ru.dvfu.appliances.compose.ItemUser
 import ru.dvfu.appliances.compose.viewmodels.ApplianceUsersViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -38,7 +39,8 @@ fun ApplianceUsers(
                 users = animatedUiState,
                 userClicked = { user ->
                     onUserClick(user, navController)
-                }
+                },
+                addClicked = {}
             )
         }
     }
@@ -50,8 +52,11 @@ fun ApplianceUsers(
 fun Users(
     users: List<User>,
     userClicked: (User) -> Unit,
+    addClicked: () -> Unit,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
+
+        item { ItemAdd(addClicked) }
         when {
             users.isNotEmpty() -> {
                 items(users) { user ->
@@ -66,7 +71,6 @@ fun Users(
                         onClickAction = { }
                     )
                 }*/
-
             }
         }
     }

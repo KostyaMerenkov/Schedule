@@ -55,7 +55,7 @@ fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifie
     }*/
 
     val users by viewModel.usersList.collectAsState()
-    Scaffold(topBar = { ScheduleAppBar(stringResource(R.string.users), backClick = backPress) },) {
+    Scaffold(topBar = { ScheduleAppBar(stringResource(R.string.users), backClick = backPress) }) {
         SwipeRefresh(
             state = rememberSwipeRefreshState(refreshing),
             onRefresh = { viewModel.refresh() },
@@ -65,18 +65,21 @@ fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifie
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 item { Spacer(modifier.size(4.dp)) }
                 val myUsers = users
-                for(role in Role.values().reversed()) {
+                for (role in Role.values().reversed()) {
                     val role_users = mutableListOf<User>()
                     myUsers.forEach { user ->
                         if (user.role == role.ordinal) role_users.add(user)
                     }
-                    if(role_users.isNotEmpty()) stickyHeader { Header(role.name) }
-                    items (role_users) { user ->
+                    if (role_users.isNotEmpty()) stickyHeader { Header(role.name) }
+                    items(role_users) { user ->
                         ItemUser(
                             user = user,
-                            userClicked = { navController.navigate(
-                                MainDestinations.USER_DETAILS_ROUTE,
-                                Arguments.USER to user) }
+                            userClicked = {
+                                navController.navigate(
+                                    MainDestinations.USER_DETAILS_ROUTE,
+                                    Arguments.USER to user
+                                )
+                            }
                         )
                     }
                 }
@@ -158,5 +161,31 @@ fun ItemUser(user: User, userClicked: () -> Unit) {
                 Text(user.email)
             }
         }
+    }
+}
+
+@ExperimentalFoundationApi
+@ExperimentalAnimationApi
+@Composable
+fun ItemAdd(addClicked: () -> Unit) {
+    MyCard(onClick = addClicked) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .requiredHeight(80.dp)
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text("Добавить нового пользователя", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
+
+        }
+
     }
 }

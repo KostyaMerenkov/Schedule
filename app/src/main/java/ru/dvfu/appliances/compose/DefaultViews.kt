@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
@@ -55,6 +56,8 @@ fun ScheduleAppBar(
     backClick: () -> Unit = {},
     actionDelete: Boolean = false,
     deleteClick: () -> Unit = {},
+    actionAdd: Boolean = false,
+    addClick: () -> Unit = {},
     navIconBack: Boolean = true,
     elevation: Dp = 2.dp) {
     TopAppBar(
@@ -74,6 +77,12 @@ fun ScheduleAppBar(
                 IconButton(
                     onClick = deleteClick) {
                     Icon(imageVector = Icons.Filled.Delete, contentDescription = stringResource(R.string.delete), tint = Color.White)
+                }
+            }
+            if (actionAdd) {
+                IconButton(
+                    onClick = addClick) {
+                    Icon(imageVector = Icons.Filled.Add, contentDescription = stringResource(R.string.add), tint = Color.White)
                 }
             }
         },

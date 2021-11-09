@@ -16,8 +16,11 @@ class ApplianceUsersViewModel(private val repository: Repository) : ViewModel() 
 
     fun loadAllUsers(appliance: Appliance) {
         viewModelScope.launch {
-            repository.getApplianceUsers(appliance).collect { users ->
-                currentContent.value = users as List<User>
+            if (appliance.userIds.isNotEmpty()) {
+                repository.getApplianceUsers(appliance.userIds).collect { users ->
+                    currentContent.value = users as List<User>
+                }
+
             }
         }
     }

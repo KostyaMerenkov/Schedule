@@ -14,4 +14,6 @@
     <string name="try_again">Попробовать еще раз</string>
     <string name="cancel">Отменить</string>
     <string name="superusers">Суперпользователи</string>
+    <string name="add">Добавить</string>
+    <string name="appliance">Прибор</string>
 </resources>

@@ -7,7 +7,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
@@ -60,7 +59,7 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
                 Log.d("Schedule", "User snapshot listener", error)
                 return@EventListener
             }
-            scope.trySend(snapshot?.toObject(User::class.java) ?: User())
+            scope.trySend(snapshot?.toObject(User::class.java) ?: User(appliances = listOf()))
 
         }
 
@@ -99,7 +98,8 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
                 email ?: "",
                 Role.GUEST.ordinal,
                 isAnonymous,
-                photoUrl?.toString() ?: ""
+                photoUrl?.toString() ?: "",
+                listOf()
             )
         }
         //TODO("change name")

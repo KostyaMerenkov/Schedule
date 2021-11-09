@@ -10,10 +10,10 @@ import ru.dvfu.appliances.model.repository.CloudFirestoreDatabaseImpl
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.FirebaseUserRepositoryImpl
 import ru.dvfu.appliances.model.repository.UserRepository
-import ru.dvfu.appliances.model.viewmodels.ApplianceViewModel
-import ru.dvfu.appliances.model.viewmodels.LoginViewModel
-import ru.dvfu.appliances.model.viewmodels.MainViewModel
-import ru.dvfu.appliances.model.viewmodels.UserDetailsViewModel
+import ru.dvfu.appliances.compose.viewmodels.ApplianceViewModel
+import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
+import ru.dvfu.appliances.compose.viewmodels.MainViewModel
+import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
 
 val application = module {
     viewModel { MainViewModel() }

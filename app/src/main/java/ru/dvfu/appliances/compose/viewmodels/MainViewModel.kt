@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.model.viewmodels
+package ru.dvfu.appliances.compose.viewmodels
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

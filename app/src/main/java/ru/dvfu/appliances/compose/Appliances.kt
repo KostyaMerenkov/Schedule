@@ -3,7 +3,6 @@ package ru.dvfu.appliances.compose
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
@@ -18,8 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,7 +47,7 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
     val uiState by viewModel.uiState.collectAsState()
     val refreshing by remember { viewModel.isRefreshing }
 
-    val user: User by viewModel.user.collectAsState(User())
+    val user: User by viewModel.user.collectAsState(User(appliances = listOf()))
     //val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     /*LaunchedEffect(refreshing) {
@@ -63,8 +60,10 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
 
     val appliances by viewModel.appliancesList.collectAsState()
     Scaffold(
-        topBar = { ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress) },
-        floatingActionButton = { if (user.role >= Role.ADMIN.ordinal) AppliancesFab(navController) },
+        topBar = { if (user.role >= Role.ADMIN.ordinal) ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress,
+            actionAdd = true, addClick = { navController.navigate(MainDestinations.NEW_APPLIANCE_ROUTE) })
+                 else ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress, ) },
+        //floatingActionButton = { if (user.role >= Role.ADMIN.ordinal) AppliancesFab(navController) },
         modifier = Modifier.fillMaxSize(),
     ) {
         SwipeRefresh(
