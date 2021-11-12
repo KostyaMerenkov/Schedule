@@ -16,8 +16,10 @@ class ApplianceSuperUsersViewModel(private val repository: Repository) : ViewMod
 
     fun loadAllSuperUsers(appliance: Appliance) {
         viewModelScope.launch {
-            repository.getApplianceSuperUsers(appliance).collect { users ->
-                currentContent.value = users as List<User>
+            if (appliance.superuserIds.isNotEmpty()) {
+                repository.getApplianceUsers(appliance.superuserIds).collect { users ->
+                    currentContent.value = users as List<User>
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.model.viewmodels
+package ru.dvfu.appliances.compose.viewmodels
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +22,7 @@ class ApplianceViewModel(
         }
     }*/
 
-    val user = userRepository.currentUserFromDB
+    val currentUser = userRepository.currentUserFromDB
 
     fun deleteAppliance() {
         viewModelScope.launch {

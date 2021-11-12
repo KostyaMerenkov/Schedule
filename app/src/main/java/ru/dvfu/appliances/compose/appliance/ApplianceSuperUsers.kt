@@ -38,7 +38,8 @@ fun ApplianceSuperUsers(
                 users = animatedUiState,
                 userClicked = { user ->
                     /*onUserClick(user, navController)*/
-                }
+                },
+                addClicked = {}
             )
         }
     }

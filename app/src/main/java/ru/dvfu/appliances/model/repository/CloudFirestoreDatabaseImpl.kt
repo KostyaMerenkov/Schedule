@@ -47,10 +47,10 @@ class CloudFirestoreDatabaseImpl() : Repository {
     }
 
     @ExperimentalCoroutinesApi
-    override suspend fun getApplianceUsers(appliance: Appliance) = channelFlow {
+    override suspend fun getApplianceUsers(userIds: List<String>) = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
         listeners.add(
-            getUsersCollection().whereArrayContains("appliances", appliance.id).addSnapshotListener(getApplianceUsersSuccessListener(this, appliance))
+            getUsersCollection().whereIn("userId", userIds).addSnapshotListener(getApplianceUsersSuccessListener(this))
         )
         awaitClose {
             listeners.forEach { it.remove() }
@@ -60,35 +60,6 @@ class CloudFirestoreDatabaseImpl() : Repository {
     @ExperimentalCoroutinesApi
     private suspend fun getApplianceUsersSuccessListener(
         scope: ProducerScope<List<User>>,
-        appliance: Appliance
-    ): EventListener<QuerySnapshot> =
-        EventListener<QuerySnapshot> { snapshots, error ->
-            if (error != null) {
-                Log.d("Schedule", "Get all users listener error", error)
-                return@EventListener
-            }
-
-            if (snapshots != null) {
-                val users = snapshots.toObjects(User::class.java)
-                scope.trySend(users)
-            }
-        }
-
-    @ExperimentalCoroutinesApi
-    override suspend fun getApplianceSuperUsers(appliance: Appliance) = channelFlow {
-        val listeners = mutableListOf<ListenerRegistration>()
-        listeners.add(
-            getUsersCollection().whereArrayContains("appliances", appliance.id).addSnapshotListener(getApplianceSuperUsersSuccessListener(this, appliance))
-        )
-        awaitClose {
-            listeners.forEach { it.remove() }
-        }
-    }
-
-    @ExperimentalCoroutinesApi
-    private suspend fun getApplianceSuperUsersSuccessListener(
-        scope: ProducerScope<List<User>>,
-        appliance: Appliance
     ): EventListener<QuerySnapshot> =
         EventListener<QuerySnapshot> { snapshots, error ->
             if (error != null) {

@@ -5,10 +5,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import org.koin.androidx.compose.get
-import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.viewmodels.ApplianceViewModel
-import ru.dvfu.appliances.model.viewmodels.UserDetailsViewModel
+import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
 
 @Composable
 fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {

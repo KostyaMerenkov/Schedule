@@ -23,13 +23,10 @@ import ru.dvfu.appliances.databinding.ActivityLoginBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.dvfu.appliances.Logger
 import ru.dvfu.appliances.compose.MainActivity
-import ru.dvfu.appliances.model.UserMapper
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.viewmodels.LoginViewModel
+import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
 import ru.dvfu.appliances.ui.BaseViewState
-import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.concurrent.schedule
 
 class LoginActivity() : AppCompatActivity() {
     private var TAG = "LoginActivity"
