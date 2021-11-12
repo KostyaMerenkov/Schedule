@@ -34,4 +34,5 @@
     <string name="superusers">Суперпользователи</string>
     <string name="add">Добавить</string>
     <string name="appliance">Прибор</string>
+    <string name="no_users_in_appliance">У этого прибора еще нет пользователей</string>
 </resources>
