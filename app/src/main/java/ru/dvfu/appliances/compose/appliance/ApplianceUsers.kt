@@ -29,8 +29,8 @@ import ru.dvfu.appliances.model.repository.entity.User
 @ExperimentalAnimationApi
 @Composable
 fun ApplianceUsers(
-    navController: NavController,
-    appliance: Appliance,
+        navController: NavController,
+        appliance: Appliance,
 ) {
     val viewModel: ApplianceUsersViewModel = get()
     viewModel.loadAllUsers(appliance)
@@ -42,11 +42,11 @@ fun ApplianceUsers(
 
         Crossfade(users) { animatedUiState ->
             Users(
-                users = animatedUiState,
-                userClicked = { user ->
-                    onUserClick(user, navController)
-                },
-                addClicked = {}
+                    users = animatedUiState,
+                    userClicked = { user ->
+                        onUserClick(user, navController)
+                    },
+                    addClicked = {}
             )
         }
     }
@@ -56,53 +56,52 @@ fun ApplianceUsers(
 @ExperimentalAnimationApi
 @Composable
 fun Users(
-    users: List<User>,
-    userClicked: (User) -> Unit,
-    addClicked: () -> Unit,
+        users: List<User>,
+        userClicked: (User) -> Unit,
+        addClicked: () -> Unit,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
 
         item { ItemAdd(addClicked) }
-        when {
-            users.isNotEmpty() -> {
-                items(users) { user ->
-                    ItemUser(user) { userClicked(user) }
-                }
+        if (users.isNotEmpty()) {
+            items(users) { user ->
+                ItemUser(user) { userClicked(user) }
             }
-            users.isEmpty() -> {
-
-                    NoElementsView(
+        } else
+            item {
+                NoElementsView(
                         mainText = stringResource(R.string.no_users_in_appliance),
                         //secondaryText = stringResource(R.string.new_place_text),
                         onClickAction = { }
-                    )
-                }
+                )
             }
-        }
     }
+
+}
+
 
 @Composable
 fun NoElementsView(
-    modifier: Modifier = Modifier,
-    mainText: String,
-    secondaryText: String = "",
-    onClickAction: () -> Unit
+        modifier: Modifier = Modifier,
+        mainText: String,
+        secondaryText: String = "",
+        onClickAction: () -> Unit
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(200.dp)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
     ) {
         Text(text = mainText)
         Spacer(modifier = Modifier.height(8.dp))
         if (secondaryText.isNotEmpty()) {
             Text(
-                modifier = Modifier.clickable {
-                    onClickAction()
-                },
-                text = secondaryText
+                    modifier = Modifier.clickable {
+                        onClickAction()
+                    },
+                    text = secondaryText
             )
         }
     }

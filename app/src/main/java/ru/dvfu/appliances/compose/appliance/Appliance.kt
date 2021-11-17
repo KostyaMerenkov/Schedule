@@ -26,6 +26,7 @@ import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.compose.viewmodels.ApplianceViewModel
+import ru.dvfu.appliances.model.repository.entity.Role
 
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
@@ -115,7 +116,7 @@ fun ApplianceTopBar(
 
 }
 
-fun permitToDeleteAppliance(user: User, appliance: Appliance) = appliance.superuserIds.contains(user.userId)
+fun permitToDeleteAppliance(user: User, appliance: Appliance) = appliance.superuserIds.contains(user.userId) ||  user.role == Role.ADMIN.ordinal
 
 @Composable
 fun ApplianceInfoDialog(infoDialogState: MutableState<Boolean>, appliance: Appliance) {

@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "106372275715-i3j0i28ujaf9b7lpk4aai04jsqijmtbv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "c0d088b9c0a8fe4ebf285d0408e2a5080c63188a"
+          }
+        },
+        {
           "client_id": "106372275715-r9elkha68mkjc85lvbqgehnqprpqvf9q.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

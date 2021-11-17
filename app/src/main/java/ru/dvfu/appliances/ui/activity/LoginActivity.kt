@@ -143,8 +143,7 @@ class LoginActivity() : AppCompatActivity() {
                     // authResult.getCredential().getIdToken().
                 }
                 .addOnFailureListener { e->
-                    showToast(e.message!!)
-                    logError(e.message!!)
+                    handleError(e)
                     setProgressVisibility(false)
                 }
         } else {
@@ -183,19 +182,10 @@ class LoginActivity() : AppCompatActivity() {
                     }
                 }
                 .addOnFailureListener { e->
-                    showToast(e.message!!)
-                    logError(e.message!!)
+                    handleError(e)
                     setProgressVisibility(false)
                 }
         }
-
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-    }
-
-    private fun logError(e: String) {
-        Log.d("Error!", e)
-    }
 
     private fun setProgressVisibility(visibility: Boolean) {
         if (visibility) vb.progressBar.visibility = View.VISIBLE
@@ -226,8 +216,7 @@ class LoginActivity() : AppCompatActivity() {
                     startMainActivity()
                 } else {
                     // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInAnonymously:failure", task.exception)
-                    setProgressVisibility(false)
+                    handleError(task.exception!!)
                     TODO("Guest Login Failed")
                 }
             }
@@ -253,7 +242,7 @@ class LoginActivity() : AppCompatActivity() {
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            val exception = task.exception
+            val e = task.exception
             if (task.isSuccessful) {
                 try {
                     // Google Sign In was successful, authenticate with Firebase
@@ -262,11 +251,10 @@ class LoginActivity() : AppCompatActivity() {
                     handleSignInResult(task) //for checking!!!!!!!!!!!!!!!!
                     firebaseAuthWithGoogle(account.idToken!!)
                 } catch (e: ApiException) {
-                    // Google Sign In failed, update UI appropriately
-                    Log.w("SignInActivity", "Google sign in failed", e)
+                    handleError(e)
                 }
             } else {
-                Log.w("SignInActivity", exception.toString())
+                handleError(e!!)
             }
         }
     }
@@ -281,9 +269,7 @@ class LoginActivity() : AppCompatActivity() {
                     startMainActivity()
                 } else {
                     // If sign in fails, display a message to the user.
-                    setProgressVisibility(false)
-                    Snackbar.make(vb.loginLayout, "Authentication Failed.", Snackbar.LENGTH_SHORT).show()
-                    Log.d("SignInActivity", "signInWithCredential:failure")
+                    handleError(task.exception!!)
                     TODO("DIALOG WINDOW WITH ERROR")
                 }
             }
@@ -291,13 +277,6 @@ class LoginActivity() : AppCompatActivity() {
 
     private fun showSuccessToast(email: String) {
         Toast.makeText(applicationContext, "Successful login in $email", Toast.LENGTH_SHORT).show()
-    }
-
-    fun toastAuthFailed() {
-        Toast.makeText(
-            baseContext, "Authentication failed.",
-            Toast.LENGTH_SHORT
-        ).show()
     }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
