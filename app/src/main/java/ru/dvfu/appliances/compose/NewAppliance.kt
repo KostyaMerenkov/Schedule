@@ -103,7 +103,9 @@ fun SubscribeToProgress(vmuiState: StateFlow<BaseViewState>, upPress: () -> Unit
             }
         }
         is BaseViewState.Loading -> {
-            //LoadingDialog()
+            Surface(modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator()
+            }
         }
         is BaseViewState.Error -> {
             ErrorDialog(errorDialog)
