@@ -10,7 +10,7 @@ interface Repository {
     suspend fun addNewUser(user: User): StateFlow<Progress>
     suspend fun getUsers(): Flow<List<User>>
 
-
+    suspend fun addUsersToAppliance(appliance: Appliance, userIds: List<String>): StateFlow<Progress>
 
 
 

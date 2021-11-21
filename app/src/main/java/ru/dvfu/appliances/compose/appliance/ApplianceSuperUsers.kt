@@ -7,16 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.dvfu.appliances.compose.viewmodels.ApplianceSuperUsersViewModel
-import ru.dvfu.appliances.compose.viewmodels.ApplianceUsersViewModel
-import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 
@@ -39,7 +32,7 @@ fun ApplianceSuperUsers(
                 userClicked = { user ->
                     /*onUserClick(user, navController)*/
                 },
-                addClicked = { onAddClick(navController) }
+                addClicked = { onAddClick(navController, appliance) }
             )
         }
     }

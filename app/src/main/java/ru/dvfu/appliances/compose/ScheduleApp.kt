@@ -129,7 +129,7 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(
         route = MainDestinations.ADD_USER_TO_APPLIANCE,
-    ) { AddUser(navController) }
+    ) { AddUser(navController, it.requiredArg(Arguments.APPLIANCE)) }
 
     composable(
         route = MainDestinations.APPLIANCES_ROUTE,

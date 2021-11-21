@@ -46,11 +46,26 @@ class CloudFirestoreDatabaseImpl() : Repository {
         }
     }
 
+    override suspend fun addUsersToAppliance(
+        appliance: Appliance,
+        userIds: List<String>
+    ): StateFlow<Progress> {
+        val flow = MutableStateFlow<Progress>(Progress.Loading())
+        getAppliancesCollection().document(appliance.id).update(
+            "userIds", userIds
+        ).addOnCompleteListener {
+            flow.tryEmit(Progress.Complete)
+        }
+
+        return flow
+    }
+
     @ExperimentalCoroutinesApi
     override suspend fun getApplianceUsers(userIds: List<String>) = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
         listeners.add(
-            getUsersCollection().whereIn("userId", userIds).addSnapshotListener(getApplianceUsersSuccessListener(this))
+            getUsersCollection().whereIn("userId", userIds)
+                .addSnapshotListener(getApplianceUsersSuccessListener(this))
         )
         awaitClose {
             listeners.forEach { it.remove() }

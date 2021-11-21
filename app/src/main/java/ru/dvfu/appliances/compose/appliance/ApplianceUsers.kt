@@ -20,9 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.koin.androidx.compose.get
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.compose.ItemAdd
-import ru.dvfu.appliances.compose.ItemUser
-import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.viewmodels.ApplianceUsersViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
@@ -47,14 +45,15 @@ fun ApplianceUsers(
                     userClicked = { user ->
                         onUserClick(user, navController)
                     },
-                    addClicked = { onAddClick(navController) }
+                    addClicked = { onAddClick(navController, appliance) }
             )
         }
     }
 }
 
-fun onAddClick(navController: NavController) {
-    navController.navigate(MainDestinations.ADD_USER_TO_APPLIANCE)
+fun onAddClick(navController: NavController, appliance: Appliance) {
+    navController.navigate(MainDestinations.ADD_USER_TO_APPLIANCE,
+        Arguments.APPLIANCE to appliance)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
