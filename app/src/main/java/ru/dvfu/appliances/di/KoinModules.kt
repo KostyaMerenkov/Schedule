@@ -32,13 +32,11 @@ val mainActivity = module {
 
     viewModel { ProfileViewModel(get()) }
 
-
-
-
     //Appliances
     viewModel { ApplianceViewModel(get(),get()) }
     viewModel { NewApplianceViewModel(get()) }
     viewModel { ApplianceUsersViewModel(get()) }
     viewModel { ApplianceSuperUsersViewModel(get()) }
     viewModel { AppliancesViewModel(get(), get()) }
+    viewModel { AddUserViewModel(get())}
 }

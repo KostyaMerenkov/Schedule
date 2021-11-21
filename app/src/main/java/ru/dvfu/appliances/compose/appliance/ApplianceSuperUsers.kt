@@ -39,7 +39,7 @@ fun ApplianceSuperUsers(
                 userClicked = { user ->
                     /*onUserClick(user, navController)*/
                 },
-                addClicked = {}
+                addClicked = { onAddClick(navController) }
             )
         }
     }

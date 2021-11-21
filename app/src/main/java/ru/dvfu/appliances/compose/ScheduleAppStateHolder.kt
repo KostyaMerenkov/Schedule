@@ -32,6 +32,7 @@ object MainDestinations {
 
     const val SETTINGS_ROUTE = "settings"
     const val APPLIANCE_ROUTE = "appliance"
+    const val ADD_USER_TO_APPLIANCE = "add_user_to_appliance"
     const val APPLIANCES_ROUTE = "appliances"
     const val NEW_APPLIANCE_ROUTE = "new_appliance"
 

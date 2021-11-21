@@ -32,6 +32,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.compose.appliance.AddUser
 import ru.dvfu.appliances.compose.appliance.Appliance
 
 @ExperimentalFoundationApi
@@ -125,6 +126,10 @@ private fun NavGraphBuilder.NavGraph(
     composable(
         route = MainDestinations.APPLIANCE_ROUTE,
     ) { Appliance(navController, upPress, it.requiredArg(Arguments.APPLIANCE)) }
+
+    composable(
+        route = MainDestinations.ADD_USER_TO_APPLIANCE,
+    ) { AddUser(navController) }
 
     composable(
         route = MainDestinations.APPLIANCES_ROUTE,
