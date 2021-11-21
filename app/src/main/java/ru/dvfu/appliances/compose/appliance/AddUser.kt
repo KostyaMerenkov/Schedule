@@ -1,6 +1,7 @@
 package ru.dvfu.appliances.compose.appliance
 
 import android.os.Parcelable
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,29 +59,28 @@ fun AddUser(
     val viewModel = getViewModel<AddUserViewModel>()
     val uiState = viewModel.uiState.collectAsState()
     val users by viewModel.usersList.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(uiState.value) {
         when (uiState.value) {
             is BaseViewState.Success<*> -> {
-                delay(300)
-                isSuccess = true
-                isLoading = false
-                delay((MainActivity.splashFadeDurationMillis * 2).toLong())
+                //delay(300)
+                //isSuccess = true
+                //isLoading = false
+                //delay((MainActivity.splashFadeDurationMillis * 2).toLong())
 
-                if ((uiState.value as BaseViewState.Success<*>).data as User? != null) {
-                    visible = false
-                    delay((MainActivity.splashFadeDurationMillis * 2).toLong())
-
-                    navController.navigate(MainDestinations.HOME_ROUTE){
-                        popUpTo(0) {
-                            inclusive = true
-                        }
-                    }
+                if ((uiState.value as BaseViewState.Success<*>).data != null) {
+                    //visible = false
+                    //delay((MainActivity.splashFadeDurationMillis * 2).toLong())
+                    Toast.makeText(context, "Users added successfully", Toast.LENGTH_SHORT).show()
+                    delay(500)
+                    navController.popBackStack()
                 }
             }
-            is BaseViewState.Loading -> isLoading = true
+            //is BaseViewState.Loading -> isLoading = true
             is BaseViewState.Error -> {
-                scaffoldState.snackbarHostState.showSnackbar(errorString)
+                Toast.makeText(context, "Users added unsuccessfully", Toast.LENGTH_SHORT).show()
+                //scaffoldState.snackbarHostState.showSnackbar(errorString)
             }  //TODO: logger.log((uiState.value as BaseViewState.Error).error)
         }
     }
@@ -98,33 +99,27 @@ fun AddUser(
         ScheduleAppBar("Add users to appliance", navController::popBackStack)
     },
         floatingActionButton = {
-            when (uiState.value) {
-                is BaseViewState.Success<*> -> {
-                    delay(300)
-                    isSuccess = true
-                    isLoading = false
-                    delay((MainActivity.splashFadeDurationMillis * 2).toLong())
-
-                    if ((uiState.value as BaseViewState.Success<*>).data as User? != null) {
-                        visible = false
-                        delay((MainActivity.splashFadeDurationMillis * 2).toLong())
-
-                        navController.navigate(MainDestinations.HOME_ROUTE){
-                            popUpTo(0) {
-                                inclusive = true
-                            }
+            if (!selectedUsers.isEmpty()) {
+                //var icon = Icon(Icons.Filled.Check, "")
+                when (uiState.value) {
+                    is BaseViewState.Success<*> -> {
+                        FloatingActionButton(
+                            onClick = { viewModel.addUsersToAppliance(appliance, selectedUsers.map { it.userId }) },
+                            //shape = fabShape,
+                            backgroundColor = Color(0xFFFF8C00),
+                        ) {
+                            Icon(Icons.Filled.Check, "")
                         }
                     }
-                }
-                is BaseViewState.Loading -> isLoading = true
-            }
-            if (!selectedUsers.isEmpty()) {
-                FloatingActionButton(
-                    onClick = { viewModel.addUsersToAppliance(appliance, selectedUsers.map { it.userId }) },
-                    //shape = fabShape,
-                    backgroundColor = Color(0xFFFF8C00),
-                ) {
-                    Icon(Icons.Filled.Check, "")
+                    is BaseViewState.Loading -> {
+                        FloatingActionButton(
+                            onClick = { viewModel.addUsersToAppliance(appliance, selectedUsers.map { it.userId }) },
+                            //shape = fabShape,
+                            backgroundColor = Color(0xFFFF8C00),
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
             }
 

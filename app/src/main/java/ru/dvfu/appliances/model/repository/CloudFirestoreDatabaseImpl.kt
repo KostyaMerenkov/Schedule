@@ -82,6 +82,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
                 return@EventListener
             }
 
+
             if (snapshots != null) {
                 val users = snapshots.toObjects(User::class.java)
                 scope.trySend(users)
