@@ -21,6 +21,11 @@ class CloudFirestoreDatabaseImpl() : Repository {
     private val cloudFirestore by lazy { FirebaseFirestore.getInstance() }
     private var TAG = "FirestoreDatabase"
 
+    override suspend fun deleteUserFromAppliance(userToDelete: User, from: Appliance) {
+        getAppliancesCollection().document(from.id)
+            .update("userIds", from.userIds.filter { it != userToDelete.userId })
+    }
+
 
     @ExperimentalCoroutinesApi
     override suspend fun addNewUser(user: User): StateFlow<Progress> {

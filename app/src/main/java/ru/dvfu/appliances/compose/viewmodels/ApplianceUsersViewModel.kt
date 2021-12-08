@@ -12,16 +12,40 @@ import ru.dvfu.appliances.model.repository.entity.User
 class ApplianceUsersViewModel(private val repository: Repository) : ViewModel() {
 
 
-    val currentContent = MutableStateFlow<List<User>>(listOf())
+    val currentUsers = MutableStateFlow<List<User>>(listOf())
+
+    val currentSuperUsers = MutableStateFlow<List<User>>(listOf())
 
     fun loadAllUsers(appliance: Appliance) {
         viewModelScope.launch {
             if (appliance.userIds.isNotEmpty()) {
                 repository.getApplianceUsers(appliance.userIds).collect { users ->
-                    currentContent.value = users as List<User>
+                    currentUsers.value = users
                 }
 
             }
+        }
+    }
+
+    fun loadAllSuperUsers(appliance: Appliance) {
+        viewModelScope.launch {
+            if (appliance.superuserIds.isNotEmpty()) {
+                repository.getApplianceUsers(appliance.superuserIds).collect { users ->
+                    currentSuperUsers.value = users
+                }
+            }
+        }
+    }
+
+    fun deleteUser(userToDelete: User, from: Appliance) {
+        viewModelScope.launch {
+            repository.deleteUserFromAppliance(userToDelete, from)
+        }
+    }
+
+    fun deleteSuperUser(superUserToDelete: User, from: Appliance) {
+        viewModelScope.launch {
+            //repository.deleteSuperUserFromAppliance(superUserToDelete, from)
         }
     }
 

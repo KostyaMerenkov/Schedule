@@ -9,7 +9,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +31,8 @@ import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import de.charlex.compose.RevealDirection
+import de.charlex.compose.RevealSwipe
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
@@ -79,6 +86,9 @@ fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifie
                                     MainDestinations.USER_DETAILS_ROUTE,
                                     Arguments.USER to user
                                 )
+                            },
+                            userDeleted = {
+                                //viewModel.deleteUser(userToDelete, appliance)
                             }
                         )
                     }
@@ -112,80 +122,109 @@ fun Header(role: String) {
     Text(role, modifier = Modifier.padding(2.dp).padding(start = 6.dp))
 }
 
+@ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun ItemUser(user: User, userClicked: () -> Unit) {
-    MyCard(onClick = userClicked) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .requiredHeight(80.dp)
-                .fillMaxWidth()
-                .padding(10.dp)
-        ) {
-            if (user.userPic.isNullOrEmpty()) {
-                Icon(
-//                        painter = rememberImagePainter(photo),
-                    painterResource(R.drawable.ic_guest),
-                    stringResource(R.string.No),
-                    modifier = Modifier.clip(CircleShape)
-                        .fillMaxHeight()
-                        .align(Alignment.CenterVertically),
-                    //tint = secondaryFigmaColor
-                )
-            } else {
-                Image(
-                    painter = rememberImagePainter(user.userPic,
-                        builder = {
-                            crossfade(true)
-                            placeholder(R.drawable.ic_launcher_foreground)
-                            transformations(CircleCropTransformation())
-                        }),
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .align(Alignment.CenterVertically),
-                    contentDescription = stringResource(R.string.user_photo),
-                    //contentScale = ContentScale.Crop,
+fun ItemUser(user: User, userClicked: () -> Unit, userDeleted: () -> Unit) {
 
+    RevealSwipe(
+        modifier = Modifier.padding(vertical = 5.dp),
+        directions = setOf(
+            RevealDirection.StartToEnd,
+            RevealDirection.EndToStart
+        ),
+        hiddenContentStart = {
+            Icon(
+                modifier = Modifier.padding(horizontal = 25.dp),
+                imageVector = Icons.Outlined.Star,
+                contentDescription = null,
+                tint = Color.White
+            )
+        },
+        hiddenContentEnd = {
+            Icon(
+                modifier = Modifier.padding(horizontal = 25.dp),
+                imageVector = Icons.Outlined.Delete,
+                contentDescription = null
+            )
+        },
+        onBackgroundEndClick = userDeleted
+    ) {
+        MyCard( modifier = Modifier
+            .requiredHeight(80.dp)
+            .fillMaxWidth(),
+            onClick = userClicked) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
 
-                )
-            }
-            Column(
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()
+                    .fillMaxSize()
+                    .padding(10.dp)
             ) {
-                Text(user.userName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                Text(user.email)
+                if (user.userPic.isNullOrEmpty()) {
+                    Icon(
+//                        painter = rememberImagePainter(photo),
+                        painterResource(R.drawable.ic_guest),
+                        stringResource(R.string.No),
+                        modifier = Modifier.clip(CircleShape)
+                            .fillMaxHeight()
+                            .align(Alignment.CenterVertically),
+                        //tint = secondaryFigmaColor
+                    )
+                } else {
+                    Image(
+                        painter = rememberImagePainter(user.userPic,
+                            builder = {
+                                crossfade(true)
+                                placeholder(R.drawable.ic_launcher_foreground)
+                                transformations(CircleCropTransformation())
+                            }),
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .align(Alignment.CenterVertically),
+                        contentDescription = stringResource(R.string.user_photo),
+                        //contentScale = ContentScale.Crop,
+
+
+                    )
+                }
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(user.userName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(user.email)
+                }
             }
         }
     }
+
 }
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
 fun ItemAdd(addClicked: () -> Unit) {
-    MyCard(onClick = addClicked) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .requiredHeight(80.dp)
-                .fillMaxWidth()
-                .padding(10.dp)
-        ) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+
+    ) {
+
+    MyCard( modifier = Modifier
+        .requiredHeight(80.dp).clip(CircleShape).padding(10.dp),
+        onClick = addClicked) {
+
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Text("Добавить нового пользователя", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                modifier = Modifier.fillMaxSize()) {
+                Icon(Icons.Default.PersonAdd, Icons.Default.PersonAdd.name)
             }
-
         }
-
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -25,57 +26,66 @@ import ru.dvfu.appliances.compose.viewmodels.ApplianceUsersViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 
+@ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
 fun ApplianceUsers(
-        navController: NavController,
-        appliance: Appliance,
+    navController: NavController,
+    appliance: Appliance,
 ) {
     val viewModel: ApplianceUsersViewModel = get()
     viewModel.loadAllUsers(appliance)
-    val users: List<User> by viewModel.currentContent.collectAsState()
+    val users: List<User> by viewModel.currentUsers.collectAsState()
 
 
     Scaffold(backgroundColor = Color.Transparent) {
 
         Crossfade(users) { animatedUiState ->
             Users(
-                    users = animatedUiState,
-                    userClicked = { user ->
-                        onUserClick(user, navController)
-                    },
-                    addClicked = { onAddClick(navController, appliance) }
+                users = animatedUiState,
+                userClicked = { user ->
+                    onUserClick(user, navController)
+                },
+                addClicked = { onAddClick(navController, appliance) },
+                deleteClicked = { userToDelete ->
+                    viewModel.deleteUser(userToDelete, appliance)
+                }
             )
         }
     }
 }
 
 fun onAddClick(navController: NavController, appliance: Appliance) {
-    navController.navigate(MainDestinations.ADD_USER_TO_APPLIANCE,
-        Arguments.APPLIANCE to appliance)
+    navController.navigate(
+        MainDestinations.ADD_USER_TO_APPLIANCE,
+        Arguments.APPLIANCE to appliance
+    )
 }
 
+@ExperimentalMaterialApi
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalAnimationApi
 @Composable
 fun Users(
-        users: List<User>,
-        userClicked: (User) -> Unit,
-        addClicked: () -> Unit,
+    users: List<User>,
+    userClicked: (User) -> Unit,
+    addClicked: () -> Unit,
+    deleteClicked: (User) -> Unit
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
 
         item { ItemAdd(addClicked) }
+
         if (users.isNotEmpty()) {
             items(users) { user ->
-                ItemUser(user) { userClicked(user) }
+                ItemUser(user, userClicked = {userClicked(user)}, userDeleted = {deleteClicked(user)})
             }
         } else
             item {
                 NoElementsView(
-                        mainText = stringResource(R.string.no_users_in_appliance),
-                        //secondaryText = stringResource(R.string.new_place_text),
-                        onClickAction = { }
+                    mainText = stringResource(R.string.no_users_in_appliance),
+                    //secondaryText = stringResource(R.string.new_place_text),
+                    onClickAction = { }
                 )
             }
     }
@@ -85,26 +95,26 @@ fun Users(
 
 @Composable
 fun NoElementsView(
-        modifier: Modifier = Modifier,
-        mainText: String,
-        secondaryText: String = "",
-        onClickAction: () -> Unit
+    modifier: Modifier = Modifier,
+    mainText: String,
+    secondaryText: String = "",
+    onClickAction: () -> Unit
 ) {
     Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(200.dp)
     ) {
         Text(text = mainText)
         Spacer(modifier = Modifier.height(8.dp))
         if (secondaryText.isNotEmpty()) {
             Text(
-                    modifier = Modifier.clickable {
-                        onClickAction()
-                    },
-                    text = secondaryText
+                modifier = Modifier.clickable {
+                    onClickAction()
+                },
+                text = secondaryText
             )
         }
     }

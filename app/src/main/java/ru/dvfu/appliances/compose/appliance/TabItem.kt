@@ -2,6 +2,7 @@ package ru.dvfu.appliances.compose.appliance
 
 import android.graphics.drawable.Icon
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
@@ -17,11 +18,13 @@ typealias ComposableFun = @Composable (navController: NavController, appliance: 
 
 sealed class TabItem(var icon: ImageVector, var titleRes: Int, var screen: ComposableFun) {
 
+    @ExperimentalMaterialApi
     @ExperimentalAnimationApi
     object Users : TabItem(Icons.Default.People, R.string.users, { navController, appliance ->
         ApplianceUsers(navController = navController, appliance)
     })
 
+    @ExperimentalMaterialApi
     @ExperimentalAnimationApi
     object SuperUsers :
         TabItem(Icons.Default.SupervisorAccount, R.string.superusers, { navController, appliance ->

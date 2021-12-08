@@ -23,7 +23,7 @@ class ApplianceViewModel(
 
     fun setAppliance(appliance: Appliance) {
         this.appliance = MutableStateFlow(appliance)
-        updateAppliance()
+        //updateAppliance()
     }
 
     private fun updateAppliance() {
