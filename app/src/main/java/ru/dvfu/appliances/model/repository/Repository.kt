@@ -11,6 +11,7 @@ interface Repository {
     suspend fun getUsers(): Flow<List<User>>
 
     suspend fun addUsersToAppliance(appliance: Appliance, userIds: List<String>): StateFlow<Progress>
+    suspend fun addSuperUsersToAppliance(appliance: Appliance, superuserIds: List<String>): StateFlow<Progress>
 
 
 

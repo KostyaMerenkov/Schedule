@@ -132,6 +132,10 @@ private fun NavGraphBuilder.NavGraph(
     ) { AddUser(navController, it.requiredArg(Arguments.APPLIANCE)) }
 
     composable(
+        route = MainDestinations.ADD_SUPERUSER_TO_APPLIANCE,
+    ) { AddUser(navController, it.requiredArg(Arguments.APPLIANCE), superUser = true) }
+
+    composable(
         route = MainDestinations.APPLIANCES_ROUTE,
     ) { Appliances(navController, upPress) }
 

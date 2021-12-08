@@ -54,7 +54,7 @@ import ru.dvfu.appliances.ui.BaseViewState
 fun AddUser(
     navController: NavController,
     appliance: Appliance,
-    superuser: Boolean = false,
+    superUser: Boolean = false
 ) {
     val viewModel = getViewModel<AddUserViewModel>()
     val uiState = viewModel.uiState.collectAsState()
@@ -104,7 +104,8 @@ fun AddUser(
                 when (uiState.value) {
                     is BaseViewState.Success<*> -> {
                         FloatingActionButton(
-                            onClick = { viewModel.addUsersToAppliance(appliance, selectedUsers.map { it.userId }) },
+                            onClick = { if (!superUser) viewModel.addUsersToAppliance(appliance, selectedUsers.map { it.userId })
+                                      else viewModel.addSuperUsersToAppliance(appliance, selectedUsers.map { it.userId })},
                             //shape = fabShape,
                             backgroundColor = Color(0xFFFF8C00),
                         ) {

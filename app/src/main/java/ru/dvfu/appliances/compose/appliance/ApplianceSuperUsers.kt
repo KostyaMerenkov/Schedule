@@ -9,6 +9,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import org.koin.androidx.compose.get
+import ru.dvfu.appliances.compose.Arguments
+import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.ApplianceSuperUsersViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
@@ -32,10 +35,16 @@ fun ApplianceSuperUsers(
                 userClicked = { user ->
                     /*onUserClick(user, navController)*/
                 },
-                addClicked = { onAddClick(navController, appliance) }
+                addClicked = { onAddSuperUserClick(navController, appliance) }
             )
         }
     }
+}
+
+fun onAddSuperUserClick(navController: NavController, appliance: Appliance) {
+    navController.navigate(
+        MainDestinations.ADD_SUPERUSER_TO_APPLIANCE,
+        Arguments.APPLIANCE to appliance)
 }
 
 

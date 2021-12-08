@@ -61,6 +61,20 @@ class CloudFirestoreDatabaseImpl() : Repository {
         return flow
     }
 
+    override suspend fun addSuperUsersToAppliance(
+        appliance: Appliance,
+        superuserIds: List<String>
+    ): StateFlow<Progress> {
+        val flow = MutableStateFlow<Progress>(Progress.Loading())
+        getAppliancesCollection().document(appliance.id).update(
+            "superuserIds", superuserIds
+        ).addOnCompleteListener {
+            flow.tryEmit(Progress.Complete)
+        }
+
+        return flow
+    }
+
     @ExperimentalCoroutinesApi
     override suspend fun getApplianceUsers(userIds: List<String>) = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()

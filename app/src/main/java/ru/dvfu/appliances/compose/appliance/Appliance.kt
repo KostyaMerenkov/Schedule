@@ -81,7 +81,6 @@ fun Appliance(navController: NavController, upPress: () -> Unit, appliance: Appl
                     )
                 }
             }
-            Spacer(modifier = Modifier.size(2.dp))
             Column() {
                 Tabs(tabs = tabs, pagerState = pagerState)
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -162,7 +161,7 @@ fun Tabs(tabs: List<TabItem>, pagerState: PagerState) {
         tabs.forEachIndexed { index, tab ->
             // OR Tab()
             LeadingIconTab(
-                icon = { Icon(painter = painterResource(id = tab.icon), contentDescription = "",
+                icon = { Icon(imageVector = tab.icon, contentDescription = "",
                     /*tint = MaterialTheme.colors.primaryVariant*/ ) },
                 text = { Text(stringResource(tab.titleRes), color = MaterialTheme.colors.onSurface) },
                 selected = pagerState.currentPage == index,

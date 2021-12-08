@@ -62,7 +62,27 @@ class AddUserViewModel(
             }
         }
 
+    }
 
+    fun addSuperUsersToAppliance(appliance: Appliance, selectedSuperUsers: List<String>) {
+        _uiState.value = BaseViewState.Loading(0)
+
+        viewModelScope.launch {
+            repository.addSuperUsersToAppliance(appliance, selectedSuperUsers).collect { progress ->
+                when (progress) {
+                    is Progress.Complete -> {
+                        _uiState.value = BaseViewState.Success(progress)
+                    }
+                    is Progress.Loading -> {
+                        _uiState.value = BaseViewState.Loading(progress.percents)
+                    }
+                    is Progress.Error -> {
+                        _uiState.value =
+                            BaseViewState.Error(progress.error)
+                    }
+                }
+            }
+        }
     }
 
 }
