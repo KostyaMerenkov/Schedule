@@ -35,18 +35,21 @@ import ru.dvfu.appliances.model.repository.entity.Role
 fun Appliance(navController: NavController, upPress: () -> Unit, appliance: Appliance) {
 
     val viewModel: ApplianceViewModel = get()
-    viewModel.appliance.value = appliance
+    viewModel.setAppliance(appliance)
+
+    val updatedAppliance by viewModel.appliance.collectAsState()
+
     var infoDialogState = remember { mutableStateOf(false) }
 
     val user: User by viewModel.currentUser.collectAsState(User())
 
-    if (infoDialogState.value) ApplianceInfoDialog(infoDialogState, appliance)
+    if (infoDialogState.value) ApplianceInfoDialog(infoDialogState, updatedAppliance)
 
     val tabs = listOf(TabItem.Users, TabItem.SuperUsers)
     val pagerState = rememberPagerState(pageCount = tabs.size)
 
     Scaffold(topBar = {
-        ApplianceTopBar(user, appliance, viewModel, upPress)
+        ApplianceTopBar(user, updatedAppliance, viewModel, upPress)
     },
         modifier = Modifier.fillMaxSize().background(Color(0XFFE3DAC9))) {
         Column(
@@ -64,13 +67,13 @@ fun Appliance(navController: NavController, upPress: () -> Unit, appliance: Appl
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth().padding(16.dp).wrapContentHeight()
                 ) {
-                    if (appliance.description.isNotEmpty()) {
+                    if (updatedAppliance.description.isNotEmpty()) {
                         IconButton(onClick = { infoDialogState.value = true }) {
                             Icon(Icons.Default.Info, "")
                         }
                     }
                     Text(
-                        appliance.name,
+                        updatedAppliance.name,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.h4,
                         overflow = TextOverflow.Ellipsis,
@@ -83,7 +86,7 @@ fun Appliance(navController: NavController, upPress: () -> Unit, appliance: Appl
                 Tabs(tabs = tabs, pagerState = pagerState)
                 Box(modifier = Modifier.fillMaxSize()) {
                     //BackgroundImage()
-                    TabsContent(tabs = tabs, pagerState = pagerState, navController, appliance)
+                    TabsContent(tabs = tabs, pagerState = pagerState, navController, updatedAppliance)
                 }
             }
         }

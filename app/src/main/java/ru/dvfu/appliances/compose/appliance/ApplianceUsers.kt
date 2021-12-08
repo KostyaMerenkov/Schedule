@@ -33,7 +33,6 @@ fun ApplianceUsers(
 ) {
     val viewModel: ApplianceUsersViewModel = get()
     viewModel.loadAllUsers(appliance)
-
     val users: List<User> by viewModel.currentContent.collectAsState()
 
 

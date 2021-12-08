@@ -3,6 +3,7 @@ package ru.dvfu.appliances.model.repository
 import android.util.Log
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.*
+import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
@@ -71,6 +72,34 @@ class CloudFirestoreDatabaseImpl() : Repository {
             listeners.forEach { it.remove() }
         }
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun getAppliance(appliance: Appliance) = channelFlow {
+        val listeners = mutableListOf<ListenerRegistration>()
+        listeners.add(
+            getAppliancesCollection().document(appliance.id)
+                .addSnapshotListener(getApplianceSuccessListener(this))
+        )
+        awaitClose {
+            listeners.forEach { it.remove() }
+        }
+    }
+
+    @ExperimentalCoroutinesApi
+    private suspend fun getApplianceSuccessListener(producerScope: ProducerScope<Appliance>): EventListener<DocumentSnapshot> =
+        EventListener<DocumentSnapshot> { document, error ->
+            if (error != null) {
+                Log.d("Schedule", "Get all appliances listener error", error)
+                return@EventListener
+            }
+
+            if (document != null) {
+                val appliance = document.toObject<Appliance>()
+                appliance?.let { producerScope.trySend(appliance) }
+
+
+            }
+        }
 
     @ExperimentalCoroutinesApi
     private suspend fun getApplianceUsersSuccessListener(
