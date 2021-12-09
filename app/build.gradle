@@ -69,9 +69,10 @@ dependencies {
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
+    implementation 'androidx.work:work-runtime-ktx:2.7.0'
+
     implementation Libs.Kotlin.stdlib
     implementation Libs.Coroutines.android
-
 
     implementation Libs.AndroidX.Activity.activityCompose
     implementation Libs.AndroidX.coreKtx
