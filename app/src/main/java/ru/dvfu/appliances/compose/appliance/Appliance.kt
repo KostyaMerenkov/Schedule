@@ -21,6 +21,7 @@ import androidx.navigation.NavController
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
+import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -33,8 +34,8 @@ import ru.dvfu.appliances.model.repository.entity.Role
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun Appliance(navController: NavController, upPress: () -> Unit, appliance: Appliance) {
+    val viewModel: ApplianceViewModel by viewModel()
 
-    val viewModel: ApplianceViewModel = get()
     viewModel.setAppliance(appliance)
 
     val updatedAppliance by viewModel.appliance.collectAsState()

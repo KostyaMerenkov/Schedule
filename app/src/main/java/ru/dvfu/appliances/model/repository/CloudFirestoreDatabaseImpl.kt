@@ -1,6 +1,8 @@
 package ru.dvfu.appliances.model.repository
 
 import android.util.Log
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.toObject
@@ -81,15 +83,17 @@ class CloudFirestoreDatabaseImpl() : Repository {
     }
 
     @ExperimentalCoroutinesApi
-    override suspend fun getApplianceUsers(userIds: List<String>) = channelFlow {
-        val listeners = mutableListOf<ListenerRegistration>()
-        listeners.add(
-            getUsersCollection().whereIn("userId", userIds)
-                .addSnapshotListener(getApplianceUsersSuccessListener(this))
-        )
-        awaitClose {
-            listeners.forEach { it.remove() }
-        }
+    override suspend fun getApplianceUsers(userIds: List<String>) = channelFlow<List<User>> {
+        if (userIds.isNotEmpty()) {
+            val listeners = mutableListOf<Task<QuerySnapshot>>()
+
+            listeners.add(
+                getUsersCollection().whereIn("userId", userIds).get()
+                    .addOnCompleteListener(getApplianceUsersSuccessListener(this))
+            )
+
+            awaitClose {}
+        } else send(listOf())
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -123,16 +127,15 @@ class CloudFirestoreDatabaseImpl() : Repository {
     @ExperimentalCoroutinesApi
     private suspend fun getApplianceUsersSuccessListener(
         scope: ProducerScope<List<User>>,
-    ): EventListener<QuerySnapshot> =
-        EventListener<QuerySnapshot> { snapshots, error ->
-            if (error != null) {
-                Log.d("Schedule", "Get all users listener error", error)
-                return@EventListener
+    ): OnCompleteListener<QuerySnapshot> =
+        OnCompleteListener<QuerySnapshot> { task ->
+            if (task.exception != null) {
+                Log.d("Schedule", "Get all users listener error", task.exception)
+                return@OnCompleteListener
             }
 
-
-            if (snapshots != null) {
-                val users = snapshots.toObjects(User::class.java)
+            if (task.isSuccessful) {
+                val users = task.result.toObjects(User::class.java)
                 scope.trySend(users)
             }
         }

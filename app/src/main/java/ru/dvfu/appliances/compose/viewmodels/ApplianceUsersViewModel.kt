@@ -11,28 +11,21 @@ import ru.dvfu.appliances.model.repository.entity.User
 
 class ApplianceUsersViewModel(private val repository: Repository) : ViewModel() {
 
-
     val currentUsers = MutableStateFlow<List<User>>(listOf())
-
     val currentSuperUsers = MutableStateFlow<List<User>>(listOf())
 
-    fun loadAllUsers(appliance: Appliance) {
+    fun loadAllUsers(updatedAppliance: Appliance) {
         viewModelScope.launch {
-            if (appliance.userIds.isNotEmpty()) {
-                repository.getApplianceUsers(appliance.userIds).collect { users ->
-                    currentUsers.value = users
-                }
-
+            repository.getApplianceUsers(updatedAppliance.userIds).collect { users ->
+                currentUsers.value = users
             }
         }
     }
 
-    fun loadAllSuperUsers(appliance: Appliance) {
+    fun loadAllSuperUsers(updatedAppliance: Appliance) {
         viewModelScope.launch {
-            if (appliance.superuserIds.isNotEmpty()) {
-                repository.getApplianceUsers(appliance.superuserIds).collect { users ->
-                    currentSuperUsers.value = users
-                }
+            repository.getApplianceUsers(updatedAppliance.superuserIds).collect { users ->
+                currentSuperUsers.value = users
             }
         }
     }

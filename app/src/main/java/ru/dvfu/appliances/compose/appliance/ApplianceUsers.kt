@@ -20,9 +20,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.koin.androidx.compose.get
+import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.viewmodels.ApplianceUsersViewModel
+import ru.dvfu.appliances.compose.viewmodels.ApplianceViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 
@@ -33,10 +35,9 @@ fun ApplianceUsers(
     navController: NavController,
     appliance: Appliance,
 ) {
-    val viewModel: ApplianceUsersViewModel = get()
-    viewModel.loadAllUsers(appliance)
-    val users: List<User> by viewModel.currentUsers.collectAsState()
+    val viewModel: ApplianceViewModel by viewModel()
 
+    val users by viewModel.currentUsers.collectAsState()
 
     Scaffold(backgroundColor = Color.Transparent) {
 
