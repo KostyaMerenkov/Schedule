@@ -62,12 +62,6 @@ fun ApplianceUsers(
                 }
             )
         }
-        /*?: AnimatedVisibility(visible = users == null) {
-           Box(
-               modifier = Modifier.fillMaxSize(),
-               contentAlignment = Alignment.TopCenter,
-           ) { CircularProgressIndicator() }
-       }*/
     }
 }
 
@@ -188,7 +182,7 @@ fun NoElementsView(
 fun ItemSwipableUser(user: User, userClicked: () -> Unit, userDeleted: () -> Unit) {
 
     RevealSwipe(
-        modifier = Modifier.padding(vertical = 5.dp),
+        //modifier = Modifier.padding(vertical = 5.dp),
         directions = setOf(
             RevealDirection.StartToEnd,
             RevealDirection.EndToStart
@@ -210,56 +204,8 @@ fun ItemSwipableUser(user: User, userClicked: () -> Unit, userDeleted: () -> Uni
         },
         onBackgroundEndClick = userDeleted
     ) {
-        MyCard( modifier = Modifier
-            .requiredHeight(80.dp)
-            .fillMaxWidth().padding(horizontal = 10.dp),
-            onClick = userClicked) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-            ) {
-                if (user.userPic.isNullOrEmpty()) {
-                    Icon(
-//                        painter = rememberImagePainter(photo),
-                        painterResource(R.drawable.ic_guest),
-                        stringResource(R.string.No),
-                        modifier = Modifier.clip(CircleShape)
-                            .fillMaxHeight()
-                            .align(Alignment.CenterVertically),
-                        //tint = secondaryFigmaColor
-                    )
-                } else {
-                    Image(
-                        painter = rememberImagePainter(user.userPic,
-                            builder = {
-                                crossfade(true)
-                                placeholder(R.drawable.ic_launcher_foreground)
-                                transformations(CircleCropTransformation())
-                            }),
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .align(Alignment.CenterVertically),
-                        contentDescription = stringResource(R.string.user_photo),
-                        //contentScale = ContentScale.Crop,
-
-
-                    )
-                }
-                Column(
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(user.userName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    Text(user.email)
-                }
-            }
-        }
+        ItemUser(user, userClicked)
     }
-
 }
 
 private fun onUserClick(user: User, navController: NavController) {

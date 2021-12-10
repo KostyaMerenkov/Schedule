@@ -62,6 +62,8 @@ fun AddUser(
     val users by viewModel.usersList.collectAsState()
     val context = LocalContext.current
 
+    val applianceUsers = if (superUser) appliance.superuserIds else appliance.userIds
+
     LaunchedEffect(uiState.value) {
         when (uiState.value) {
             is BaseViewState.Success<*> -> {
@@ -124,11 +126,9 @@ fun AddUser(
                     }
                 }
             }
-
-
         }) {
         LazyColumn {
-            items(users.size) { i ->
+            items(users.filter{ !applianceUsers.contains(it.userId) }.size) { i ->
                 var isSelected by remember { mutableStateOf(false) }
 
                 ItemUserWithSelection(users[i], isSelected) {
@@ -145,14 +145,14 @@ fun AddUser(
 @ExperimentalAnimationApi
 @Composable
 fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Unit) {
-    MyCard(onClick = userClicked) {
+    MyCard(onClick = userClicked, modifier = Modifier
+        .requiredHeight(100.dp)
+        .fillMaxWidth()
+        .padding(10.dp)) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .requiredHeight(60.dp)
-                .fillMaxWidth()
-                .padding(10.dp)
+            modifier = Modifier.fillMaxSize().padding(10.dp)
         ) {
             Box(Modifier.size(50.dp), contentAlignment = Alignment.Center) {
                 if (user.userPic.isNullOrEmpty()) {

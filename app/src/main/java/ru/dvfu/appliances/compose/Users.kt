@@ -36,6 +36,7 @@ import de.charlex.compose.RevealSwipe
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.appliance.ItemUserWithSelection
 import ru.dvfu.appliances.compose.viewmodels.UsersViewModel
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Role
@@ -120,54 +121,7 @@ fun Header(role: String) {
 @ExperimentalAnimationApi
 @Composable
 fun ItemUser(user: User, userClicked: () -> Unit) {
-        MyCard( modifier = Modifier
-            .requiredHeight(80.dp)
-            .fillMaxWidth().padding(horizontal = 10.dp),
-            onClick = userClicked) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-            ) {
-                if (user.userPic.isNullOrEmpty()) {
-                    Icon(
-//                        painter = rememberImagePainter(photo),
-                        painterResource(R.drawable.ic_guest),
-                        stringResource(R.string.No),
-                        modifier = Modifier.clip(CircleShape)
-                            .fillMaxHeight()
-                            .align(Alignment.CenterVertically),
-                        //tint = secondaryFigmaColor
-                    )
-                } else {
-                    Image(
-                        painter = rememberImagePainter(user.userPic,
-                            builder = {
-                                crossfade(true)
-                                placeholder(R.drawable.ic_launcher_foreground)
-                                transformations(CircleCropTransformation())
-                            }),
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .align(Alignment.CenterVertically),
-                        contentDescription = stringResource(R.string.user_photo),
-                        //contentScale = ContentScale.Crop,
-
-
-                    )
-                }
-                Column(
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(user.userName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    Text(user.email)
-                }
-            }
-        }
+    ItemUserWithSelection(user, false, userClicked)
 }
 
 @ExperimentalFoundationApi
