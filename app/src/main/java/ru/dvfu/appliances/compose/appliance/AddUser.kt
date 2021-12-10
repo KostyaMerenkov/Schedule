@@ -146,9 +146,9 @@ fun AddUser(
 @Composable
 fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Unit) {
     MyCard(onClick = userClicked, modifier = Modifier
-        .requiredHeight(100.dp)
-        .fillMaxWidth()
-        .padding(10.dp)) {
+        .requiredHeight(80.dp)
+        .fillMaxWidth().padding(horizontal = 10.dp)
+        ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -178,12 +178,9 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
                             //.align(Alignment.CenterVertically),
                         contentDescription = stringResource(ru.dvfu.appliances.R.string.user_photo),
                         //contentScale = ContentScale.Crop,
-
-
                     )
                 }
             }
-
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
