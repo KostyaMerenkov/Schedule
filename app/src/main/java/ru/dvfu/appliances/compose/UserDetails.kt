@@ -17,6 +17,6 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
     Scaffold(topBar = {
         ScheduleAppBar(user.email, upPress)
     }) {
-        Text("Appliance = " + user.userName)
+        Text("User: " + user.userName)
     }
 }

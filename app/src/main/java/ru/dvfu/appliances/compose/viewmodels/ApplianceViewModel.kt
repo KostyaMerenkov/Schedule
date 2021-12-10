@@ -1,10 +1,13 @@
 package ru.dvfu.appliances.compose.viewmodels
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.UserRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -21,8 +24,8 @@ class ApplianceViewModel(
 
     var appliance: MutableStateFlow<Appliance> = MutableStateFlow(defAppliance)
 
-    val currentUsers = MutableStateFlow<List<User>>(listOf())
-    val currentSuperUsers = MutableStateFlow<List<User>>(listOf())
+    val currentUsers = MutableStateFlow<List<User>?>(null)
+    val currentSuperUsers = MutableStateFlow<List<User>?>(null)
     val currentUser = userRepository.currentUserFromDB
 
     fun setAppliance(applianceFromArg: Appliance) {
@@ -37,9 +40,9 @@ class ApplianceViewModel(
     private fun updateAppliance() {
         viewModelScope.launch {
             repository.getAppliance(appliance.value).collect { updatedAppliance ->
-                if (updatedAppliance.userIds != currentUsers.value.map { it.userId })
+                if (updatedAppliance.userIds != currentUsers.value?.map { it.userId })
                     loadAllUsers(updatedAppliance.userIds)
-                if (updatedAppliance.superuserIds != currentSuperUsers.value.map { it.userId })
+                if (updatedAppliance.superuserIds != currentSuperUsers.value?.map { it.userId })
                     loadAllSuperUsers(updatedAppliance.superuserIds)
                 appliance.value = updatedAppliance
             }
@@ -58,7 +61,6 @@ class ApplianceViewModel(
         viewModelScope.launch {
             repository.getApplianceUsers(ids).collect { users ->
                 currentUsers.value = users
-                val temp = currentUsers.value
             }
         }
     }
@@ -79,7 +81,7 @@ class ApplianceViewModel(
 
     fun deleteSuperUser(superUserToDelete: User, from: Appliance) {
         viewModelScope.launch {
-            //repository.deleteSuperUserFromAppliance(superUserToDelete, from)
+            repository.deleteSuperUserFromAppliance(superUserToDelete, from)
         }
     }
 

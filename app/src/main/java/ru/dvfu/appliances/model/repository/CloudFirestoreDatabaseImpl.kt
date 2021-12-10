@@ -28,6 +28,11 @@ class CloudFirestoreDatabaseImpl() : Repository {
             .update("userIds", from.userIds.filter { it != userToDelete.userId })
     }
 
+    override suspend fun deleteSuperUserFromAppliance(userToDelete: User, from: Appliance) {
+        getAppliancesCollection().document(from.id)
+            .update("superuserIds", from.userIds.filter { it != userToDelete.userId })
+    }
+
 
     @ExperimentalCoroutinesApi
     override suspend fun addNewUser(user: User): StateFlow<Progress> {

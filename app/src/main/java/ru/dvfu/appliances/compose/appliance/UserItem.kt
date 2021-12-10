@@ -6,3 +6,4 @@ data class UserItem(
     val user: User =  User(),
     val isSelected: Boolean,
 )
+

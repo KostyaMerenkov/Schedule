@@ -71,14 +71,9 @@ fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifie
         ) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 item { Spacer(modifier.size(4.dp)) }
-                val myUsers = users
-                for (role in Role.values().reversed()) {
-                    val role_users = mutableListOf<User>()
-                    myUsers.forEach { user ->
-                        if (user.role == role.ordinal) role_users.add(user)
-                    }
-                    if (role_users.isNotEmpty()) stickyHeader { Header(role.name) }
-                    items(role_users) { user ->
+                users.groupBy { it.role }.forEach { (role, users) ->
+                    stickyHeader { Header(Role.values()[role].name) }
+                    items(users) { user ->
                         ItemUser(
                             user = user,
                             userClicked = {
@@ -87,12 +82,10 @@ fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifie
                                     Arguments.USER to user
                                 )
                             },
-                            userDeleted = {
-                                //viewModel.deleteUser(userToDelete, appliance)
-                            }
                         )
                     }
                 }
+
             }
 
             /*Crossfade(uiState, animationSpec = tween(500)) { animatedUiState ->
@@ -119,49 +112,24 @@ fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifie
 
 @Composable
 fun Header(role: String) {
-    Text(role, modifier = Modifier.padding(2.dp).padding(start = 6.dp))
+    Text("$role's", modifier = Modifier.padding(2.dp).padding(horizontal = 10.dp), style = MaterialTheme.typography.h6)
 }
 
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun ItemUser(user: User, userClicked: () -> Unit, userDeleted: () -> Unit) {
-
-    RevealSwipe(
-        modifier = Modifier.padding(vertical = 5.dp),
-        directions = setOf(
-            RevealDirection.StartToEnd,
-            RevealDirection.EndToStart
-        ),
-        hiddenContentStart = {
-            Icon(
-                modifier = Modifier.padding(horizontal = 25.dp),
-                imageVector = Icons.Outlined.Star,
-                contentDescription = null,
-                tint = Color.White
-            )
-        },
-        hiddenContentEnd = {
-            Icon(
-                modifier = Modifier.padding(horizontal = 25.dp),
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = null
-            )
-        },
-        onBackgroundEndClick = userDeleted
-    ) {
+fun ItemUser(user: User, userClicked: () -> Unit) {
         MyCard( modifier = Modifier
             .requiredHeight(80.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth().padding(horizontal = 10.dp),
             onClick = userClicked) {
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-
                     .fillMaxSize()
-                    .padding(10.dp)
+                    .padding(8.dp)
             ) {
                 if (user.userPic.isNullOrEmpty()) {
                     Icon(
@@ -200,8 +168,6 @@ fun ItemUser(user: User, userClicked: () -> Unit, userDeleted: () -> Unit) {
                 }
             }
         }
-    }
-
 }
 
 @ExperimentalFoundationApi

@@ -1,6 +1,7 @@
 package ru.dvfu.appliances.compose.appliance
 
 import android.os.Parcelable
+import android.widget.Space
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -153,33 +154,36 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
                 .fillMaxWidth()
                 .padding(10.dp)
         ) {
-            if (user.userPic.isNullOrEmpty()) {
-                Icon(
+            Box(Modifier.size(50.dp), contentAlignment = Alignment.Center) {
+                if (user.userPic.isNullOrEmpty()) {
+                    Icon(
 //                        painter = rememberImagePainter(photo),
-                    painterResource(ru.dvfu.appliances.R.drawable.ic_guest),
-                    stringResource(ru.dvfu.appliances.R.string.No),
-                    modifier = Modifier.clip(CircleShape)
-                        .fillMaxHeight()
-                        .align(Alignment.CenterVertically),
-                    //tint = secondaryFigmaColor
-                )
-            } else {
-                Image(
-                    painter = rememberImagePainter(user.userPic,
-                        builder = {
-                            crossfade(true)
-                            placeholder(ru.dvfu.appliances.R.drawable.ic_launcher_foreground)
-                            transformations(CircleCropTransformation())
-                        }),
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .align(Alignment.CenterVertically),
-                    contentDescription = stringResource(ru.dvfu.appliances.R.string.user_photo),
-                    //contentScale = ContentScale.Crop,
+                        painterResource(ru.dvfu.appliances.R.drawable.ic_guest),
+                        stringResource(ru.dvfu.appliances.R.string.No),
+                        modifier = Modifier.clip(CircleShape)
+                            .fillMaxSize()
+                            //.align(Alignment.CenterVertically),
+                        //tint = secondaryFigmaColor
+                    )
+                } else {
+                    Image(
+                        painter = rememberImagePainter(user.userPic,
+                            builder = {
+                                crossfade(true)
+                                placeholder(ru.dvfu.appliances.R.drawable.ic_launcher_foreground)
+                                transformations(CircleCropTransformation())
+                            }),
+                        modifier = Modifier
+                            .fillMaxSize(),
+                            //.align(Alignment.CenterVertically),
+                        contentDescription = stringResource(ru.dvfu.appliances.R.string.user_photo),
+                        //contentScale = ContentScale.Crop,
 
 
-                )
+                    )
+                }
             }
+
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -188,11 +192,16 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
                 Text(user.userName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Text(user.email)
             }
-            if (isSelected) Icon(
-                Icons.Default.CheckCircleOutline,
-                "",
-                modifier = Modifier.size(20.dp)
-            )
+            Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
+                if (isSelected) {
+                    Icon(
+                        Icons.Default.CheckCircleOutline,
+                        "",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
         }
     }
 }

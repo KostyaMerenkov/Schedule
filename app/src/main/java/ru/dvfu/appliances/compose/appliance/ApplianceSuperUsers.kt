@@ -1,12 +1,18 @@
 package ru.dvfu.appliances.compose.appliance
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import org.koin.androidx.compose.get
@@ -17,6 +23,7 @@ import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.ApplianceUsersViewModel
 import ru.dvfu.appliances.compose.viewmodels.ApplianceViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.User
 
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
@@ -31,19 +38,35 @@ fun ApplianceSuperUsers(
 
     Scaffold(backgroundColor = Color.Transparent) {
 
-        Crossfade(superUsers) { animatedUiState ->
-            Users(
-                users = animatedUiState,
-                userClicked = { superUsers ->
-                    /*onUserClick(user, navController)*/
-                },
-                addClicked = { onAddSuperUserClick(navController, appliance) },
-                deleteClicked = { userToDelete ->
-                    viewModel.deleteSuperUser(userToDelete, appliance)
-                }
-            )
+        superUsers?.let {
+            Crossfade(it) { animatedUiState ->
+                SwipableUsers(
+                    users = animatedUiState,
+                    userClicked = { superUser ->
+                        onSuperUserClick(superUser, navController)
+                    },
+                    addClicked = { onAddSuperUserClick(navController, appliance) },
+                    deleteClicked = { userToDelete ->
+                        viewModel.deleteSuperUser(userToDelete, appliance)
+                    }
+                )
+            }
+        } ?: AnimatedVisibility(visible = superUsers == null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopCenter,
+            ) { CircularProgressIndicator() }
         }
+
+
     }
+}
+
+private fun onSuperUserClick(user: User, navController: NavController) {
+    navController.navigate(
+        MainDestinations.USER_DETAILS_ROUTE,
+        Arguments.USER to user
+    )
 }
 
 fun onAddSuperUserClick(navController: NavController, appliance: Appliance) {

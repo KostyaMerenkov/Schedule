@@ -23,6 +23,7 @@ interface Repository {
 
     suspend fun deleteAppliance(appliance: Appliance)
     suspend fun deleteUserFromAppliance(userToDelete: User, from: Appliance)
+    suspend fun deleteSuperUserFromAppliance(userToDelete: User, from: Appliance)
 
 
     /*suspend fun addNewCatch(markerId: String, newCatch: RawUserCatch): StateFlow<Progress>
