@@ -32,6 +32,9 @@ class AppliancesViewModel(private val repository: Repository,
     val user = userRepository.currentUserFromDB
 
     private fun loadAppliances() {
+        if (appliancesList.value.isEmpty()) {
+
+
         isRefreshing.value = true
         viewModelScope.launch {
             repository.getAppliances().collect { appliances ->
@@ -39,7 +42,8 @@ class AppliancesViewModel(private val repository: Repository,
                 appliancesList.value = appliances as List<Appliance>
                 isRefreshing.value = false
             }
-        }
+
+        }        }
     }
 
 }

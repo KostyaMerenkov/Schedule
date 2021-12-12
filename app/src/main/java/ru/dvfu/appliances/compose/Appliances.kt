@@ -28,6 +28,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -42,12 +43,12 @@ import ru.dvfu.appliances.model.repository.entity.User
 @Composable
 fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Modifier = Modifier) {
 
-    val viewModel = getViewModel<AppliancesViewModel>()
+    val viewModel: AppliancesViewModel by viewModel()
 
     val uiState by viewModel.uiState.collectAsState()
     val refreshing by remember { viewModel.isRefreshing }
 
-    val user: User by viewModel.user.collectAsState(User(appliances = listOf()))
+    val user: User by viewModel.user.collectAsState(User())
     //val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     /*LaunchedEffect(refreshing) {

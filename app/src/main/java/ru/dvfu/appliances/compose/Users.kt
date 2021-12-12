@@ -35,6 +35,7 @@ import de.charlex.compose.RevealDirection
 import de.charlex.compose.RevealSwipe
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.ItemUserWithSelection
 import ru.dvfu.appliances.compose.viewmodels.UsersViewModel
@@ -48,7 +49,7 @@ import ru.dvfu.appliances.model.repository.entity.Role
 @ExperimentalCoilApi
 @Composable
 fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifier = Modifier) {
-    val viewModel = getViewModel<UsersViewModel>()
+    val viewModel: UsersViewModel by viewModel()
 
     val uiState by viewModel.uiState.collectAsState()
     val refreshing by remember { viewModel.isRefreshing }

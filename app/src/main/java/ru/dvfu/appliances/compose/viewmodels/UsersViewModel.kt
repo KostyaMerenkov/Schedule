@@ -30,12 +30,14 @@ class UsersViewModel(
     fun refresh() = loadUsers()
 
     private fun loadUsers() {
-        isRefreshing.value = true
-        viewModelScope.launch {
-            repository.getUsers().collect { users ->
-                delay(1000)
-                usersList.value = users as List<User>
-                isRefreshing.value = false
+        if (usersList.value.isEmpty()) {
+            isRefreshing.value = true
+            viewModelScope.launch {
+                repository.getUsers().collect { users ->
+                    delay(1000)
+                    usersList.value = users as List<User>
+                    isRefreshing.value = false
+                }
             }
         }
     }

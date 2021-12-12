@@ -13,6 +13,5 @@ class UserMapper {
             role = Role.GUEST.ordinal,
             isAnonymous = true,
             //userPic = firebaseUser.photoUri.toString() ?: "",
-            appliances = listOf()
         )
 }

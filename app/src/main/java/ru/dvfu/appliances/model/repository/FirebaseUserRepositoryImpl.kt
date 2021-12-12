@@ -59,7 +59,7 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
                 Log.d("Schedule", "User snapshot listener", error)
                 return@EventListener
             }
-            scope.trySend(snapshot?.toObject(User::class.java) ?: User(appliances = listOf()))
+            scope.trySend(snapshot?.toObject(User::class.java) ?: User())
 
         }
 
@@ -109,7 +109,6 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
                 Role.GUEST.ordinal,
                 isAnonymous,
                 photoUrl?.toString() ?: "",
-                listOf()
             )
         }
         //TODO("change name")
