@@ -1,29 +1,71 @@
 package ru.dvfu.appliances.compose.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import ru.dvfu.appliances.compose.SuperUserAppliancesList
+import ru.dvfu.appliances.compose.UserAppliancesList
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.UserRepository
+import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.Role
+import ru.dvfu.appliances.model.repository.entity.User
 
 class UserDetailsViewModel(
     private val userRepository: UserRepository,
     private val repository: Repository,
 ) : ViewModel() {
 
-    //val appliance: MutableState<Appliance?> = mutableStateOf(null)
+    companion object {
+        val defUser = User()
+    }
 
-    /*fun getCatchesByMarkerId(markerId: String): Flow<List<UserCatch>> {
-        return viewModelScope.run {
-            repository.getCatchesByMarkerId(markerId)
-        }
-    }*/
+    private var currentUser: MutableStateFlow<User> = MutableStateFlow(defUser)
 
-    /*fun deleteAppliance() {
-        viewModelScope.launch {
-            appliance.value?.let {
-                repository.deleteAppliance(it)
+    val currentUserAppliances = MutableStateFlow<List<Appliance>?>(null)
+    val currentSuperUserAppliances = MutableStateFlow<List<Appliance>?>(null)
+
+    //val currentUser = userRepository.currentUserFromDB
+
+    fun setUser(user: User) {
+        if (currentUser.value == defUser) {
+            currentUser.value = user
+            updateUser()
+            when(user.role) {
+                Role.USER.ordinal -> { getUserAppliances(user) }
+                Role.SUPERUSER.ordinal -> {
+                    getUserAppliances(user);
+                    getSuperUserAppliances(user) }
             }
-
         }
     }
-*/
+
+    private fun updateUser() {
+        viewModelScope.launch {
+            userRepository.getUserWithId(currentUser.value.userId).collect {
+                currentUser.value = it
+            }
+        }
+    }
+
+    fun getSuperUserAppliances(user: User) {
+        viewModelScope.launch {
+            repository.getSuperUserAppliances(user.userId).collect {
+                currentSuperUserAppliances.value = it
+            }
+        }
+    }
+
+    fun getUserAppliances(user: User) {
+        viewModelScope.launch {
+            repository.getUserAppliances(user.userId).collect {
+                currentUserAppliances.value = it
+            }
+        }
+    }
+
+
+
 }

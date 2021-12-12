@@ -90,6 +90,16 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
         return flow
     }
 
+    @ExperimentalCoroutinesApi
+    override suspend fun getUserWithId(userId: String) = callbackFlow {
+            val listeners = mutableListOf<ListenerRegistration>()
+
+                listeners.add(
+                    getUsersCollection().document(userId).addSnapshotListener(getUser(this))
+                )
+            awaitClose { listeners.remove(listeners.first()) }
+    }
+
     private fun mapFirebaseUserToUser(firebaseUser: FirebaseUser): User {
         return with(firebaseUser) {
             User(

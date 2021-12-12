@@ -11,4 +11,5 @@ interface UserRepository {
     val currentUserFromDB: Flow<User>
     suspend fun logoutCurrentUser(): Flow<Boolean>
     suspend fun addNewUser(user: User): StateFlow<Progress>
+    suspend fun getUserWithId(userId: String): Flow<User>
 }

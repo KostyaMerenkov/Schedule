@@ -100,13 +100,18 @@ fun SwipableUsers(
                     )
                 }
         } ?: item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                CircularProgressIndicator()
-            }
+            LoadingItem()
         }
+    }
+}
+
+@Composable
+fun LoadingItem() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        CircularProgressIndicator()
     }
 }
 
