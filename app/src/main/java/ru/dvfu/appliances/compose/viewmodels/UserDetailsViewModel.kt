@@ -22,7 +22,7 @@ class UserDetailsViewModel(
         val defUser = User()
     }
 
-    private var currentUser: MutableStateFlow<User> = MutableStateFlow(defUser)
+    val currentUser: MutableStateFlow<User> = MutableStateFlow(defUser)
 
     val currentUserAppliances = MutableStateFlow<List<Appliance>?>(null)
     val currentSuperUserAppliances = MutableStateFlow<List<Appliance>?>(null)
