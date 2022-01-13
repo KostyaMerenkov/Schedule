@@ -100,6 +100,10 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
             awaitClose { listeners.remove(listeners.first()) }
     }
 
+    override suspend fun updateUserField(userId: String, data: Map<String, Any>) {
+        getUsersCollection().document(userId).update(data)
+    }
+
     private fun mapFirebaseUserToUser(firebaseUser: FirebaseUser): User {
         return with(firebaseUser) {
             User(

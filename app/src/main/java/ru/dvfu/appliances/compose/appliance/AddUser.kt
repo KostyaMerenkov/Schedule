@@ -1,9 +1,6 @@
 package ru.dvfu.appliances.compose.appliance
 
-import android.os.Parcelable
-import android.widget.Space
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -13,15 +10,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircleOutline
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
-import androidx.compose.runtime.R
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,7 +29,6 @@ import coil.transform.CircleCropTransformation
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.getViewModel
 
-import ru.dvfu.appliances.compose.ItemUser
 import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.viewmodels.AddUserViewModel
@@ -90,7 +80,7 @@ fun AddUser(
 
     val selectedUsers = remember { mutableStateListOf<User>() }
 
-    var usersWithSelection by remember {
+    var usersWithSelection = remember {
         mutableStateOf(
             users.map {
                 UserItem(it, false)
@@ -127,15 +117,27 @@ fun AddUser(
                 }
             }
         }) {
-        LazyColumn {
-            items(users.filter{ !applianceUsers.contains(it.userId) }.size) { i ->
-                var isSelected by remember { mutableStateOf(false) }
+        UsersWithSelection(users = users, applianceUsers, addUser = {selectedUsers.add(it)}, removeUser = {selectedUsers.remove(it)})
+    }
+}
 
-                ItemUserWithSelection(users[i], isSelected) {
-                    isSelected = !isSelected
-                    if (isSelected) selectedUsers.add(users[i])
-                    else selectedUsers.remove(users[i])
-                }
+@ExperimentalAnimationApi
+@ExperimentalFoundationApi
+@Composable
+fun UsersWithSelection(
+    users: List<User>,
+    applianceUsers: List<String>,
+    addUser: (User) -> Unit,
+    removeUser: (User) -> Unit,
+     ) {
+    LazyColumn {
+        items(users.filter { !applianceUsers.contains(it.userId) }.size) { i ->
+            var isSelected by remember { mutableStateOf(false) }
+
+            ItemUserWithSelection(users[i], isSelected) {
+                isSelected = !isSelected
+                if (isSelected) addUser(users[i])
+                else removeUser(users[i])
             }
         }
     }

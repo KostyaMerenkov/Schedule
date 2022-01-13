@@ -64,6 +64,11 @@ class UserDetailsViewModel(
         }
     }
 
+    fun updateUserRole(user: User, ordinal: Int) {
+        viewModelScope.launch {
+            userRepository.updateUserField(user.userId, mapOf("role" to ordinal))
+        }
+    }
 
 
 }

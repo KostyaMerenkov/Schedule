@@ -135,6 +135,9 @@ dependencies {
 
     implementation "com.google.accompanist:accompanist-flowlayout:0.21.3-beta"
 
+    //ConstraintLayout
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-rc02"
+
     //RX java
     implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'

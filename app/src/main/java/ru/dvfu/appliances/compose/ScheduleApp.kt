@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
@@ -35,6 +36,8 @@ import kotlinx.coroutines.launch
 import ru.dvfu.appliances.compose.appliance.AddUser
 import ru.dvfu.appliances.compose.appliance.Appliance
 
+@OptIn(ExperimentalComposeUiApi::class)
+@ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
@@ -100,6 +103,7 @@ fun ScheduleApp() {
 }
 
 
+@ExperimentalComposeUiApi
 @OptIn(ExperimentalPagerApi::class)
 @ExperimentalCoroutinesApi
 @ExperimentalFoundationApi

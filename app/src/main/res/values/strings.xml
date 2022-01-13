@@ -46,4 +46,5 @@
     <string name="superuser">Суперпользователь</string>
     <string name="admin">Администратор</string>
     <string name="add_new_appliance">Добавить новый прибор</string>
+    <string name="email">Почта</string>
 </resources>
