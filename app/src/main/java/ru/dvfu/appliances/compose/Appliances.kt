@@ -27,12 +27,11 @@ import coil.annotation.ExperimentalCoilApi
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.InternalCoroutinesApi
-import org.koin.androidx.compose.getViewModel
 import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.Role
+import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
 
 @ExperimentalFoundationApi
@@ -61,7 +60,7 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
 
     val appliances by viewModel.appliancesList.collectAsState()
     Scaffold(
-        topBar = { if (user.role >= Role.ADMIN.ordinal) ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress,
+        topBar = { if (user.role >= Roles.ADMIN.ordinal) ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress,
             actionAdd = true, addClick = { navController.navigate(MainDestinations.NEW_APPLIANCE_ROUTE) })
                  else ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress, ) },
         //floatingActionButton = { if (user.role >= Role.ADMIN.ordinal) AppliancesFab(navController) },

@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.dvfu.appliances.R
@@ -30,18 +29,19 @@ import ru.dvfu.appliances.ui.BaseViewState
 @Composable
 fun NewAppliance(backPressed: () -> Unit) {
     val viewModel: NewApplianceViewModel = get()
+    val uiState = viewModel.uiState.collectAsState()
 
     val (selectedColor, onColorSelected) = remember { mutableStateOf(pickerColors[0]) }
     val scaffoldState = rememberBottomSheetScaffoldState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-    SubscribeToProgress(viewModel.uiState, backPressed)
+    SubscribeToProgress(uiState, backPressed)
 
     BottomSheetScaffold(
 
         topBar = { ScheduleAppBar(title = "Новое устройство", backClick = backPressed) },
         floatingActionButton = {
-            NewApplianceFab(scaffoldState) {
+            NewApplianceFab(scaffoldState, uiState = uiState) {
                 if (!viewModel.createNewAppliance())
                     Toast.makeText(context, "Название не заполнено!", Toast.LENGTH_SHORT).show()
             }
@@ -87,13 +87,12 @@ fun NewAppliance(backPressed: () -> Unit) {
 }
 
 @Composable
-fun SubscribeToProgress(vmuiState: StateFlow<BaseViewState>, upPress: () -> Unit) {
+fun SubscribeToProgress(vmuiState: State<BaseViewState>, upPress: () -> Unit) {
     val errorDialog = rememberSaveable { mutableStateOf(false) }
 
-    val uiState by vmuiState.collectAsState()
-    when (uiState) {
+    when (vmuiState.value) {
         is BaseViewState.Success<*> -> {
-            if ((uiState as BaseViewState.Success<*>).data != null) {
+            if ((vmuiState.value as BaseViewState.Success<*>).data != null) {
                 Toast.makeText(
                     LocalContext.current,
                     "Оборудование добавлено!",
@@ -103,16 +102,14 @@ fun SubscribeToProgress(vmuiState: StateFlow<BaseViewState>, upPress: () -> Unit
             }
         }
         is BaseViewState.Loading -> {
-            Surface(modifier = Modifier.fillMaxSize()) {
-                CircularProgressIndicator()
-            }
+
         }
         is BaseViewState.Error -> {
             ErrorDialog(errorDialog)
             errorDialog.value = true
             Toast.makeText(
                 LocalContext.current,
-                "Error: ${(uiState as BaseViewState.Error).error.message}",
+                "Error: ${(vmuiState.value as BaseViewState.Error).error.message}",
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -121,11 +118,16 @@ fun SubscribeToProgress(vmuiState: StateFlow<BaseViewState>, upPress: () -> Unit
 
 @ExperimentalMaterialApi
 @Composable
-fun NewApplianceFab(scaffoldState: BottomSheetScaffoldState, onFabClicked: () -> Unit) {
+fun NewApplianceFab(
+    scaffoldState: BottomSheetScaffoldState,
+    uiState: State<BaseViewState>,
+    onFabClicked: () -> Unit
+) {
 
     val defaultBottomPadding: Dp = 128.dp //194
     val paddingBottom = remember { mutableStateOf(defaultBottomPadding) } //128
     val paddingTop = remember { mutableStateOf(0.dp) }
+
 
     when (scaffoldState.bottomSheetState.currentValue) {
         BottomSheetValue.Collapsed -> {
@@ -138,18 +140,34 @@ fun NewApplianceFab(scaffoldState: BottomSheetScaffoldState, onFabClicked: () ->
         }
     }
 
-    FloatingActionButton(
-        modifier = Modifier
-            .animateContentSize()
-            .padding(bottom = paddingBottom.value, top = paddingTop.value),
-        onClick = onFabClicked,
-    ) {
-        Icon(
-            Icons.Default.Check,
-            contentDescription = "Add new appliance",
-            tint = if (true/*viewmodel.allFieldsFilled*/) Color.Gray else LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
-        )
+    when (uiState.value) {
+        is BaseViewState.Success<*> -> {
+
+            FloatingActionButton(
+                modifier = Modifier
+                    .animateContentSize()
+                    .padding(bottom = paddingBottom.value, top = paddingTop.value),
+                onClick = onFabClicked,
+//                backgroundColor = Color(0xFFFF8C00)
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = stringResource(R.string.add_new_appliance),
+                )
+            }
+
+
+        }
+        is BaseViewState.Loading -> {
+            FloatingActionButton(
+                onClick = onFabClicked,
+                /*backgroundColor = Color(0xFFFF8C00),*/
+            ) {
+                CircularProgressIndicator()
+            }
+        }
     }
+
 }
 
 @Composable

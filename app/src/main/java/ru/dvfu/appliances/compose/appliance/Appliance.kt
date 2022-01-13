@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -20,14 +19,13 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.get
 import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.compose.viewmodels.ApplianceViewModel
-import ru.dvfu.appliances.model.repository.entity.Role
+import ru.dvfu.appliances.model.repository.entity.Roles
 
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
@@ -119,7 +117,7 @@ fun ApplianceTopBar(
 
 }
 
-fun permitToDeleteAppliance(user: User, appliance: Appliance) = appliance.superuserIds.contains(user.userId) ||  user.role == Role.ADMIN.ordinal
+fun permitToDeleteAppliance(user: User, appliance: Appliance) = appliance.superuserIds.contains(user.userId) ||  user.role == Roles.ADMIN.ordinal
 
 @Composable
 fun ApplianceInfoDialog(infoDialogState: MutableState<Boolean>, appliance: Appliance) {

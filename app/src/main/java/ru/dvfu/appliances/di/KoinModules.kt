@@ -37,5 +37,5 @@ val mainActivity = module {
     viewModel { NewApplianceViewModel(get()) }
     viewModel { ApplianceUsersViewModel(get()) }
     viewModel { AppliancesViewModel(get(), get()) }
-    viewModel { AddUserViewModel(get())}
+    viewModel { AddUserViewModel(get()) }
 }

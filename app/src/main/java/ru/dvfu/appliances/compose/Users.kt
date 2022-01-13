@@ -2,45 +2,32 @@ package ru.dvfu.appliances.compose
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PersonAdd
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
-import coil.transform.CircleCropTransformation
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import de.charlex.compose.RevealDirection
-import de.charlex.compose.RevealSwipe
 import kotlinx.coroutines.InternalCoroutinesApi
-import org.koin.androidx.compose.getViewModel
 import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.ItemUserWithSelection
 import ru.dvfu.appliances.compose.viewmodels.UsersViewModel
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository.entity.Role
+import ru.dvfu.appliances.model.repository.entity.Roles
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -74,7 +61,7 @@ fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifie
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 item { Spacer(modifier.size(4.dp)) }
                 users.groupBy { it.role }.forEach { (role, users) ->
-                    stickyHeader { Header(Role.values()[role].name) }
+                    stickyHeader { Header(Roles.values()[role].name) }
                     items(users) { user ->
                         ItemUser(
                             user = user,

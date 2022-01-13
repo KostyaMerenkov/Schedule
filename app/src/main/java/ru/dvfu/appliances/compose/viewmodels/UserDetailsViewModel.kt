@@ -5,12 +5,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.compose.SuperUserAppliancesList
-import ru.dvfu.appliances.compose.UserAppliancesList
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.UserRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.Role
+import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
 
 class UserDetailsViewModel(
@@ -34,8 +32,8 @@ class UserDetailsViewModel(
             currentUser.value = user
             updateUser()
             when(user.role) {
-                Role.USER.ordinal -> { getUserAppliances(user) }
-                Role.SUPERUSER.ordinal -> {
+                Roles.USER.ordinal -> { getUserAppliances(user) }
+                Roles.SUPERUSER.ordinal -> {
                     getUserAppliances(user);
                     getSuperUserAppliances(user) }
             }

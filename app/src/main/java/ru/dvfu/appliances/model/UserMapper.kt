@@ -1,7 +1,7 @@
 package ru.dvfu.appliances.model
 
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository.entity.Role
+import ru.dvfu.appliances.model.repository.entity.Roles
 
 class UserMapper {
 
@@ -10,7 +10,7 @@ class UserMapper {
             //userId = firebaseUser.,
             userName = "Anonymous",
             email = "",
-            role = Role.GUEST.ordinal,
+            role = Roles.GUEST.ordinal,
             isAnonymous = true,
             //userPic = firebaseUser.photoUri.toString() ?: "",
         )

@@ -17,4 +17,14 @@
     <string name="add">Добавить</string>
     <string name="appliance">Прибор</string>
     <string name="no_users_in_appliance">У этого прибора еще нет пользователей</string>
+    <string name="no_appliances">Нет приборов</string>
+    <string name="user_info">Данные пользователя</string>
+    <string name="superuser_appliances">Приборы суперпользователя</string>
+    <string name="name">Имя</string>
+    <string name="role">Роль</string>
+    <string name="guest">Гость</string>
+    <string name="user">Пользователь</string>
+    <string name="superuser">Суперпользователь</string>
+    <string name="admin">Администратор</string>
+    <string name="add_new_appliance">Добавить новый прибор</string>
 </resources>

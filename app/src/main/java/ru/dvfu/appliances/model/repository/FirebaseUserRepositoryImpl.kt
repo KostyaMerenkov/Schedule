@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.runBlocking
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository.entity.Role
+import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.ui.Progress
 
 class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository {
@@ -106,7 +106,7 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
                 uid,
                 displayName ?: "Anonymous",
                 email ?: "",
-                Role.GUEST.ordinal,
+                Roles.GUEST.ordinal,
                 isAnonymous,
                 photoUrl?.toString() ?: "",
             )

@@ -8,7 +8,7 @@ data class User(
     val userId: String = "0",
     val userName: String = "Anonymous",
     val email: String = "",
-    val role: Int = Role.GUEST.ordinal,
+    val role: Int = Roles.GUEST.ordinal,
     val isAnonymous: Boolean = true,
     val userPic: String? = null,
 
