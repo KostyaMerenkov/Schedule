@@ -4,6 +4,7 @@ import android.app.Application
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import ru.dvfu.appliances.BuildConfig
 import ru.dvfu.appliances.di.*
 
@@ -13,8 +14,7 @@ class Schedule : Application() {
         super.onCreate()
         startKoin {
             // Koin Android logger
-            if (BuildConfig.DEBUG)
-                androidLogger()
+            androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
             //inject Android context
             androidContext(this@Schedule)
             modules(

@@ -2,6 +2,8 @@ package ru.dvfu.appliances.compose
 
 import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -23,6 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -35,16 +40,38 @@ import ru.dvfu.appliances.compose.components.NavDrawerItem
 
 
 class MainActivity : ComponentActivity() {
-    @ExperimentalComposeUiApi
-    @ExperimentalFoundationApi
-    @ExperimentalAnimationApi
-    @InternalCoroutinesApi
-    @ExperimentalMaterialApi
+
+    @OptIn(
+        ExperimentalMaterialApi::class,
+        InternalCoroutinesApi::class,
+        ExperimentalAnimationApi::class,
+        ExperimentalFoundationApi::class,
+        ExperimentalComposeUiApi::class
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        getFirebaseMessagingToken()
+
         setContent {
             ScheduleApp()
         }
+    }
+
+    private fun getFirebaseMessagingToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w(this.localClassName, "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+
+            // Get new FCM registration token
+            val token = task.result
+            // Log and toast
+            val msg = getString(R.string.msg_token_fmt, token)
+            Log.d(this.localClassName, msg)
+            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+        })
     }
 }
 
