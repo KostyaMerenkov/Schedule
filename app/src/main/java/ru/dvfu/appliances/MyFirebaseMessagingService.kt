@@ -15,7 +15,10 @@ import java.util.*
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Log.d("MSG", remoteMessage.notification!!.body!!)
+        remoteMessage.notification?.body?.let {
+            Log.d("MSG", it)
+        }
+
         shownotification(remoteMessage.notification)
     }
 
