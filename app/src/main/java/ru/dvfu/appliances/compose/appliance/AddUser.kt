@@ -28,6 +28,7 @@ import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.getViewModel
+import ru.dvfu.appliances.R
 
 import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
@@ -89,7 +90,10 @@ fun AddUser(
 
 
     Scaffold(topBar = {
-        ScheduleAppBar("Add users to appliance", navController::popBackStack)
+        ScheduleAppBar(
+            title = if (superUser) stringResource(id = R.string.add_superuser)
+            else stringResource(id = R.string.add_user), backClick = navController::popBackStack
+        )
     },
         floatingActionButton = {
             if (!selectedUsers.isEmpty()) {
@@ -97,8 +101,14 @@ fun AddUser(
                 when (uiState.value) {
                     is BaseViewState.Success<*> -> {
                         FloatingActionButton(
-                            onClick = { if (!superUser) viewModel.addUsersToAppliance(appliance, selectedUsers.map { it.userId })
-                                      else viewModel.addSuperUsersToAppliance(appliance, selectedUsers.map { it.userId })},
+                            onClick = {
+                                if (!superUser) viewModel.addUsersToAppliance(
+                                    appliance,
+                                    selectedUsers.map { it.userId })
+                                else viewModel.addSuperUsersToAppliance(
+                                    appliance,
+                                    selectedUsers.map { it.userId })
+                            },
                             //shape = fabShape,
                             backgroundColor = Color(0xFFFF8C00),
                         ) {
@@ -107,7 +117,11 @@ fun AddUser(
                     }
                     is BaseViewState.Loading -> {
                         FloatingActionButton(
-                            onClick = { viewModel.addUsersToAppliance(appliance, selectedUsers.map { it.userId }) },
+                            onClick = {
+                                viewModel.addUsersToAppliance(
+                                    appliance,
+                                    selectedUsers.map { it.userId })
+                            },
                             //shape = fabShape,
                             backgroundColor = Color(0xFFFF8C00),
                         ) {
@@ -117,7 +131,11 @@ fun AddUser(
                 }
             }
         }) {
-        UsersWithSelection(users = users, applianceUsers, addUser = {selectedUsers.add(it)}, removeUser = {selectedUsers.remove(it)})
+        UsersWithSelection(
+            users = users,
+            applianceUsers,
+            addUser = { selectedUsers.add(it) },
+            removeUser = { selectedUsers.remove(it) })
     }
 }
 
@@ -129,8 +147,11 @@ fun UsersWithSelection(
     applianceUsers: List<String>,
     addUser: (User) -> Unit,
     removeUser: (User) -> Unit,
-     ) {
-    LazyColumn {
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(10.dp)
+    ) {
         items(users.filter { !applianceUsers.contains(it.userId) }.size) { i ->
             var isSelected by remember { mutableStateOf(false) }
 
@@ -147,14 +168,19 @@ fun UsersWithSelection(
 @ExperimentalAnimationApi
 @Composable
 fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Unit) {
-    MyCard(onClick = userClicked, modifier = Modifier
-        .requiredHeight(80.dp)
-        .fillMaxWidth().padding(horizontal = 10.dp)
-        ) {
+    MyCard(
+        onClick = userClicked, modifier = Modifier
+            .requiredHeight(80.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp),
+        backgroundColor = if (isSelected) Color.LightGray else MaterialTheme.colors.surface
+    ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxSize().padding(10.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp)
         ) {
             Box(Modifier.size(50.dp), contentAlignment = Alignment.Center) {
                 if (user.userPic.isNullOrEmpty()) {
@@ -162,9 +188,10 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
 //                        painter = rememberImagePainter(photo),
                         painterResource(ru.dvfu.appliances.R.drawable.ic_guest),
                         stringResource(ru.dvfu.appliances.R.string.No),
-                        modifier = Modifier.clip(CircleShape)
+                        modifier = Modifier
+                            .clip(CircleShape)
                             .fillMaxSize()
-                            //.align(Alignment.CenterVertically),
+                        //.align(Alignment.CenterVertically),
                         //tint = secondaryFigmaColor
                     )
                 } else {
@@ -177,7 +204,7 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
                             }),
                         modifier = Modifier
                             .fillMaxSize(),
-                            //.align(Alignment.CenterVertically),
+                        //.align(Alignment.CenterVertically),
                         contentDescription = stringResource(ru.dvfu.appliances.R.string.user_photo),
                         //contentScale = ContentScale.Crop,
                     )

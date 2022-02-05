@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,15 +24,27 @@ import ru.dvfu.appliances.model.repository.entity.User
 
 @Composable
 fun MyCardNoPadding(content: @Composable () -> Unit) {
-    Card(elevation = 4.dp, shape = MaterialTheme.shapes.large,
-        modifier = Modifier.fillMaxWidth(), content = content)
+    Card(
+        elevation = 4.dp, shape = MaterialTheme.shapes.large,
+        modifier = Modifier.fillMaxWidth(), content = content
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MyCard(modifier: Modifier = Modifier, onClick: () -> Unit = {}, content: @Composable () -> Unit) {
-    Card(elevation = 8.dp, modifier = modifier.fillMaxWidth().padding(4.dp), content = content,
-        shape = RoundedCornerShape(12.dp), onClick = onClick)
+fun MyCard(
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    onClick: () -> Unit = {},
+    content: @Composable () -> Unit
+) {
+    Card(
+        elevation = 8.dp, modifier = modifier
+            .fillMaxWidth()
+            .padding(4.dp), content = content,
+        backgroundColor = backgroundColor,
+        shape = RoundedCornerShape(12.dp), onClick = onClick
+    )
 }
 
 @Composable
@@ -61,7 +74,8 @@ fun ScheduleAppBar(
     actionAdd: Boolean = false,
     addClick: () -> Unit = {},
     navIconBack: Boolean = true,
-    elevation: Dp = 2.dp) {
+    elevation: Dp = 2.dp
+) {
     TopAppBar(
         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         navigationIcon = {
@@ -75,16 +89,26 @@ fun ScheduleAppBar(
             }
         },
         actions = {
-            if (actionDelete) {
+            AnimatedVisibility (actionDelete) {
                 IconButton(
-                    onClick = deleteClick) {
-                    Icon(imageVector = Icons.Filled.Delete, contentDescription = stringResource(R.string.delete), tint = Color.White)
+                    onClick = deleteClick
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = stringResource(R.string.delete),
+                        tint = Color.White
+                    )
                 }
             }
-            if (actionAdd) {
+            AnimatedVisibility (actionAdd) {
                 IconButton(
-                    onClick = addClick) {
-                    Icon(imageVector = Icons.Filled.Add, contentDescription = stringResource(R.string.add), tint = Color.White)
+                    onClick = addClick
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = stringResource(R.string.add),
+                        tint = Color.White
+                    )
                 }
             }
         },

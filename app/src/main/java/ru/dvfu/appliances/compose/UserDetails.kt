@@ -36,9 +36,16 @@ import ru.dvfu.appliances.model.repository.entity.getRole
 fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
 
     val viewModel: UserDetailsViewModel = get()
-    viewModel.setUser(user)
+
+    DisposableEffect(viewModel) {
+        viewModel.setDetailsUser(user)
+        onDispose {}
+    }
+
     var isChangeRoleDialogOpen by remember { mutableStateOf(false) }
-    val updatedUser by viewModel.currentUser.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
+    val detailsUser by viewModel.detailsUser.collectAsState()
+
     //viewModel.getAppliances(user)
 
 
@@ -52,8 +59,10 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
         }
 
 
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState(0))) {
-            UserInfo(updatedUser) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState(0))) {
+            UserInfo(detailsUser, currentUser) {
                 isChangeRoleDialogOpen = true
             }
 
@@ -150,8 +159,10 @@ fun RolesWithSelectionDialog(
 
 
 @Composable
-fun UserInfo(user: User, onRoleChangeClick: () -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+fun UserInfo(user: User, currentUser: User, onRoleChangeClick: () -> Unit) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(10.dp)) {
 
         HeaderText(text = stringResource(R.string.user_info))
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
@@ -170,7 +181,7 @@ fun UserInfo(user: User, onRoleChangeClick: () -> Unit) {
             readOnly = true,
             label = { Text(stringResource(R.string.role)) },
             trailingIcon = {
-                if (getRole(user.role).isAdmin()) {
+                if (getRole(currentUser.role).isAdmin()) {
                     IconButton(onClick = onRoleChangeClick) {
                         Icon(Icons.Default.Edit, Icons.Default.Edit.name)
                     }

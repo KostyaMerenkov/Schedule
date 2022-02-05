@@ -20,16 +20,27 @@ class UserDetailsViewModel(
         val defUser = User()
     }
 
+    init {
+        getCurrentUser()
+    }
+
+    private fun getCurrentUser() {
+        viewModelScope.launch {
+            userRepository.currentUserFromDB.collect {
+                currentUser.value = it
+            }
+        }
+    }
+
     val currentUser: MutableStateFlow<User> = MutableStateFlow(defUser)
+    val detailsUser: MutableStateFlow<User> = MutableStateFlow(defUser)
 
     val currentUserAppliances = MutableStateFlow<List<Appliance>?>(null)
     val currentSuperUserAppliances = MutableStateFlow<List<Appliance>?>(null)
 
-    //val currentUser = userRepository.currentUserFromDB
-
-    fun setUser(user: User) {
-        if (currentUser.value == defUser) {
-            currentUser.value = user
+    fun setDetailsUser(user: User) {
+        if (detailsUser.value == defUser) {
+            detailsUser.value = user
             updateUser()
             when(user.role) {
                 Roles.USER.ordinal -> { getUserAppliances(user) }
@@ -42,8 +53,8 @@ class UserDetailsViewModel(
 
     private fun updateUser() {
         viewModelScope.launch {
-            userRepository.getUserWithId(currentUser.value.userId).collect {
-                currentUser.value = it
+            userRepository.getUserWithId(detailsUser.value.userId).collect {
+                detailsUser.value = it
             }
         }
     }

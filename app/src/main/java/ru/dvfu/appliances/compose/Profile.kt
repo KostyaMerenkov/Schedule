@@ -43,7 +43,6 @@ import ru.dvfu.appliances.ui.activity.LoginActivity
 fun Profile(navController: NavController, modifier: Modifier = Modifier, backPress: () -> Unit) {
     val viewModel = getViewModel<ProfileViewModel>()
 
-
     val uiState = viewModel.uiState
     Scaffold(
         topBar = { ScheduleAppBar(stringResource(R.string.profile), backClick = backPress) },
