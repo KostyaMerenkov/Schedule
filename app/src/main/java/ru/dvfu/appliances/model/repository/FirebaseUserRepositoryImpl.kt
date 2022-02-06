@@ -25,7 +25,7 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
     private val fireBaseAuth = FirebaseAuth.getInstance()
     private val db = Firebase.firestore
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override val currentUser: Flow<User?>
         get() = callbackFlow {
             val authListener = FirebaseAuth.AuthStateListener {
@@ -38,7 +38,7 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
             awaitClose { fireBaseAuth.removeAuthStateListener(authListener) }
         }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override val currentUserFromDB: Flow<User>
         get() = callbackFlow {
             val listeners = mutableListOf<ListenerRegistration>()
@@ -52,7 +52,7 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
             awaitClose { listeners.remove(listeners.first()) }
         }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun getUser(scope: ProducerScope<User>) =
         EventListener<DocumentSnapshot> { snapshot, error ->
             if (error != null) {
@@ -63,7 +63,7 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
 
         }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun logoutCurrentUser() = callbackFlow {
         AuthUI.getInstance().signOut(context).addOnSuccessListener {
             trySend(true)
@@ -71,7 +71,7 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
         awaitClose {}
     }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun addNewUser(user: User): StateFlow<Progress> {
         val flow = MutableStateFlow<Progress>(Progress.Loading())
         if (user.isAnonymous) {
@@ -90,7 +90,7 @@ class FirebaseUserRepositoryImpl(private val context: Context) : UserRepository 
         return flow
     }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun getUserWithId(userId: String) = callbackFlow {
             val listeners = mutableListOf<ListenerRegistration>()
 

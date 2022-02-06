@@ -42,8 +42,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerVersion "1.5.21"
-        kotlinCompilerExtensionVersion '1.0.1'
+        kotlinCompilerVersion "1.6.10"
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -102,6 +101,8 @@ dependencies {
     implementation Libs.Accompanist.pager
     implementation Libs.Accompanist.pagerindicators
     implementation Libs.Accompanist.permissions
+    implementation 'com.google.firebase:firebase-inappmessaging-display-ktx:20.0.0'
+    implementation 'com.google.firebase:firebase-messaging-ktx:22.0.0'
 
     debugImplementation Libs.AndroidX.Compose.uiTestManifest
 

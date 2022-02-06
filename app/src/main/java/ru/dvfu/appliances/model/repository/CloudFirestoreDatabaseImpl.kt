@@ -34,7 +34,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
             .update("superuserIds", from.userIds.filter { it != userToDelete.userId })
     }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun getUserAppliances(userId: String) = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
 
@@ -60,7 +60,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
             }
         }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun getSuperUserAppliances(userId: String) = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
 
@@ -73,7 +73,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
 
     }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getSuperUserAppliancesListener(producerScope: ProducerScope<List<Appliance>>): EventListener<QuerySnapshot> =
         EventListener<QuerySnapshot> { snapshots, error ->
             if (error != null) {
@@ -87,7 +87,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
         }
 
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun addNewUser(user: User): StateFlow<Progress> {
         val flow = MutableStateFlow<Progress>(Progress.Loading())
         if (user.isAnonymous) {
@@ -101,7 +101,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
         return flow
     }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun getUsers() = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
         listeners.add(
@@ -140,7 +140,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
         return flow
     }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun getApplianceUsers(userIds: List<String>) = channelFlow<List<User>> {
         if (userIds.isNotEmpty()) {
             val listeners = mutableListOf<Task<QuerySnapshot>>()
@@ -166,7 +166,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
         }
     }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getApplianceSuccessListener(producerScope: ProducerScope<Appliance>): EventListener<DocumentSnapshot> =
         EventListener<DocumentSnapshot> { document, error ->
             if (error != null) {
@@ -182,7 +182,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
             }
         }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getApplianceUsersSuccessListener(
         scope: ProducerScope<List<User>>,
     ): OnCompleteListener<QuerySnapshot> =
@@ -198,7 +198,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
             }
         }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getUsersSuccessListener(scope: ProducerScope<List<User>>): EventListener<QuerySnapshot> =
         EventListener<QuerySnapshot> { snapshots, error ->
             if (error != null) {
@@ -212,7 +212,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
             }
         }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun getAppliances() = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
         listeners.add(
@@ -224,7 +224,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
         }
     }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getAppliancesSuccessListener(scope: ProducerScope<List<Appliance>>): EventListener<QuerySnapshot> =
         EventListener<QuerySnapshot> { snapshots, error ->
             if (error != null) {

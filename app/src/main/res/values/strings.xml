@@ -47,6 +47,7 @@
     <string name="admin">Администратор</string>
     <string name="add_new_appliance">Добавить новый прибор</string>
     <string name="email">Почта</string>
+    <string name="msg_token_fmt">Ваш токен: %s</string>
     <string name="add_superuser">Добавление суперпользователя</string>
     <string name="add_user">Добавление пользователя</string>
 </resources>
