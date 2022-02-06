@@ -6,12 +6,16 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
@@ -257,19 +261,27 @@ fun UserNameAndImage(user: User) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = if (user.userPic.isNullOrEmpty() or user.isAnonymous)
-                painterResource(R.drawable.ic_guest)
-            else rememberImagePainter(
-                data = user.userPic,
-                builder = {
-                    transformations(CircleCropTransformation())
-                    //crossfade(500)
-                }
-            ),
-            contentDescription = stringResource(R.string.user_photo),
-            modifier = Modifier.size(125.dp),
-        )
+        if (user.userPic.isNullOrEmpty()) {
+            Icon(
+                Icons.Default.Person, contentDescription = stringResource(R.string.user_photo),
+                modifier = Modifier
+                    .clip(CircleShape).size(125.dp),
+                //.align(Alignment.CenterVertically),
+                //tint = secondaryFigmaColor
+            )
+        } else {
+            Image(
+                painter = rememberImagePainter(user.userPic,
+                    builder = {
+                        crossfade(true)
+                        placeholder(ru.dvfu.appliances.R.drawable.ic_launcher_foreground)
+                        transformations(CircleCropTransformation())
+                    }),
+                contentDescription = stringResource(R.string.user_photo),
+                modifier = Modifier.clip(CircleShape).size(125.dp)
+                //contentScale = ContentScale.Crop,
+            )
+        }
         Text(
             text = when (user.isAnonymous) {
                 true -> stringResource(R.string.anonymous_user)

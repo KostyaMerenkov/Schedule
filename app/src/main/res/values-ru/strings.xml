@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="Yes">Yes</string>
-    <string name="No">No</string>
+    <string name="Yes">Да</string>
+    <string name="No">Нет</string>
     <string name="user_photo">Фотография пользователя</string>
     <string name="back">Назад</string>
     <string name="anonymous_user">Анонимный пользователь</string>
@@ -31,4 +31,10 @@
     <string name="msg_token_fmt">Ваш токен: %s</string>
     <string name="guests">Гости</string>
     <string name="admins">Администраторы</string>
+    <string name="logout">Выйти из аккаунта</string>
+    <string name="settings">Настройки</string>
+    <string name="choose_color">Выберите цвет</string>
+    <string name="user_appliances">Приборы пользователя</string>
+    <string name="add_superuser">Добавление суперпользователя</string>
+    <string name="add_user">Добавление пользователя</string>
 </resources>

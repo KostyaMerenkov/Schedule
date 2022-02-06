@@ -12,6 +12,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircleOutline
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -185,9 +186,7 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
             Box(Modifier.size(50.dp), contentAlignment = Alignment.Center) {
                 if (user.userPic.isNullOrEmpty()) {
                     Icon(
-//                        painter = rememberImagePainter(photo),
-                        painterResource(ru.dvfu.appliances.R.drawable.ic_guest),
-                        stringResource(ru.dvfu.appliances.R.string.No),
+                        Icons.Default.Person, "",
                         modifier = Modifier
                             .clip(CircleShape)
                             .fillMaxSize()

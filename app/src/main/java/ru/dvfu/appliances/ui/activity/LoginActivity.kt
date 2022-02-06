@@ -152,7 +152,7 @@ class LoginActivity() : AppCompatActivity() {
                 .addOnSuccessListener { authResult ->
                     // User is signed in.
                     // IdP data available in
-                    showSuccessToast(authResult.user!!.email!!)
+                    showSuccessToast(authResult.user?.email)
                     authResult.additionalUserInfo?.profile?.toString()?.let {
                         Log.d("PROFILE",
                             it
@@ -232,7 +232,7 @@ class LoginActivity() : AppCompatActivity() {
         } else {
             //UserMapper.
             //firebaseUsersRepo.putUserToDatabase(user)
-            showSuccessToast(user.email!!)
+            showSuccessToast(user.email ?: user.displayName)
         }
     }
 
@@ -275,8 +275,12 @@ class LoginActivity() : AppCompatActivity() {
             }
     }
 
-    private fun showSuccessToast(email: String) {
-        Toast.makeText(applicationContext, "Successful login in $email", Toast.LENGTH_SHORT).show()
+    private fun showSuccessToast(email: String?) {
+        email?.let {
+            Toast.makeText(applicationContext, "Успешный вход в $email", Toast.LENGTH_SHORT).show()
+        } ?: Toast.makeText(applicationContext, "Успешный вход", Toast.LENGTH_SHORT).show()
+
+
     }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
