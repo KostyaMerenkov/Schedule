@@ -35,6 +35,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.compose.appliance.AddUser
 import ru.dvfu.appliances.compose.appliance.Appliance
+import ru.dvfu.appliances.compose.appliance.NewAppliance
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalComposeUiApi

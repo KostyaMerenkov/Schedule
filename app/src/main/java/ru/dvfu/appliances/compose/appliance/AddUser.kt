@@ -128,6 +128,7 @@ fun AddUser(
                             CircularProgressIndicator()
                         }
                     }
+                    is BaseViewState.Error -> {}
                 }
             }
         }) {
@@ -171,8 +172,7 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
     MyCard(
         onClick = userClicked, modifier = Modifier
             .requiredHeight(80.dp)
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp),
+            .fillMaxWidth(),
         backgroundColor = if (isSelected) Color.LightGray else MaterialTheme.colors.surface
     ) {
         Row(

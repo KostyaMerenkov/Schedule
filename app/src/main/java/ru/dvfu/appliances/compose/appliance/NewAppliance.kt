@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.compose
+package ru.dvfu.appliances.compose.appliance
 
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
@@ -10,26 +10,33 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.ScheduleAppBar
+import ru.dvfu.appliances.compose.SubtitleWithIcon
 import ru.dvfu.appliances.compose.components.ColorPicker
 import ru.dvfu.appliances.compose.ui.theme.pickerColors
 import ru.dvfu.appliances.compose.viewmodels.NewApplianceViewModel
 import ru.dvfu.appliances.ui.BaseViewState
 
+@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalMaterialApi
 @Composable
 fun NewAppliance(backPressed: () -> Unit) {
     val viewModel: NewApplianceViewModel = get()
     val uiState = viewModel.uiState.collectAsState()
+
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val (selectedColor, onColorSelected) = remember { mutableStateOf(pickerColors[0]) }
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -66,7 +73,7 @@ fun NewAppliance(backPressed: () -> Unit) {
         },
         scaffoldState = scaffoldState,
         sheetPeekHeight = 0.dp,
-    ){
+    ) {
         val scrollState = rememberScrollState()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -77,10 +84,13 @@ fun NewAppliance(backPressed: () -> Unit) {
                 .verticalScroll(state = scrollState, enabled = true),
         ) {
             ApplianceName(viewModel.title, viewModel.description)
-            OutlinedButton(onClick = { coroutineScope.launch {
-                scaffoldState.bottomSheetState.expand()
-            } }, colors = ButtonDefaults.buttonColors(backgroundColor = selectedColor ?: Color.White))
-            { Text(stringResource(R.string.choose_color))}
+            OutlinedButton(onClick = {
+                coroutineScope.launch {
+                    keyboardController?.hide()
+                    scaffoldState.bottomSheetState.expand()
+                }
+            }, colors = ButtonDefaults.buttonColors(backgroundColor = selectedColor ?: Color.White))
+            { Text(stringResource(R.string.choose_color)) }
             //ApplianceDescription()
         }
     }
@@ -176,15 +186,15 @@ fun ApplianceName(titleState: MutableState<String>, descriptionState: MutableSta
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         SubtitleWithIcon(Modifier, Icons.Default.Menu, "Устройство")
         OutlinedTextField(
-                singleLine = true,
-                value = titleState.value,
-                onValueChange = {
-                    titleState.value = it
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onFocusChanged {},
-                label = { Text(text = "Название") },
+            singleLine = true,
+            value = titleState.value,
+            onValueChange = {
+                titleState.value = it
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged {},
+            label = { Text(text = "Название") },
             isError = titleState.value.isEmpty()
         )
         OutlinedTextField(

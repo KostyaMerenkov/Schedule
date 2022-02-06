@@ -124,7 +124,7 @@ fun ItemAdd(addClicked: () -> Unit) {
     ) {
 
     MyCard( modifier = Modifier
-        .requiredHeight(80.dp).clip(CircleShape).padding(10.dp),
+        .requiredHeight(80.dp).clip(CircleShape).padding(15.dp),
         onClick = addClicked) {
 
             Column(

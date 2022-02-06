@@ -82,7 +82,10 @@ fun SwipableUsers(
     addClicked: () -> Unit,
     deleteClicked: (User) -> Unit
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(10.dp)
+    ) {
         item { ItemAdd(addClicked) }
         users?.let {
             if (users.isNotEmpty()) {
