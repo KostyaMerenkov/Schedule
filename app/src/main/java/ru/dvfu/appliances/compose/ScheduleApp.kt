@@ -1,9 +1,13 @@
 package ru.dvfu.appliances.compose
 
 import Drawer
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -23,6 +27,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
@@ -33,9 +40,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.AddUser
 import ru.dvfu.appliances.compose.appliance.Appliance
 import ru.dvfu.appliances.compose.appliance.NewAppliance
+import ru.dvfu.appliances.compose.components.FabMenuItem
+import ru.dvfu.appliances.compose.components.FabWithMenu
+import ru.dvfu.appliances.compose.components.MultiFabState
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalComposeUiApi
@@ -162,31 +173,58 @@ private fun NavGraphBuilder.NavGraph(
 }
 
 
-
 @Composable
 fun Calendar(openDrawer: () -> Unit) {
+
+    val fabState = remember { mutableStateOf(MultiFabState.COLLAPSED) }
+
     Scaffold(topBar = {
         TopAppBar(
-            title = { Text(text = "Bottom app bar + FAB") },
+            title = { /*Text(text = R.string.androidx_startup)*/ },
             navigationIcon = {
                 IconButton(onClick = { openDrawer() }
                 ) {
                     Icon(Icons.Filled.Menu, contentDescription = "")
                 }
             },
-
             backgroundColor = Color(0xFFFF5470)
         )
     }, floatingActionButton = {
-        FloatingActionButton(
-            onClick = {  },
-            //shape = fabShape,
-            backgroundColor = Color(0xFFFF8C00),
-        ) {
-            Icon(Icons.Filled.Add, "")
-        }
+        FabWithMenu(
+            modifier = Modifier
+                .padding(bottom = 20.dp)
+                .zIndex(5f),
+            fabState = fabState,
+            items = listOf(
+                FabMenuItem(
+                    icon = Icons.Default.MoreTime,
+                    text = "Создать бронирование",
+                    onClick = { }
+                ),
+                FabMenuItem(
+                    icon = Icons.Default.AddTask,
+                    text = "Создать событие",
+                    onClick = { }
+                )
+            )
+        )
     }
     ) {
+        AnimatedVisibility(
+            fabState.value == MultiFabState.EXPANDED,
+            modifier = Modifier
+                .zIndex(4f)
+                .fillMaxSize(),
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(Color.Black.copy(0.6f))
+                    .clickable(role = Role.Image) {
+                        fabState.value = MultiFabState.COLLAPSED
+                    })
+        }
         Box(
             Modifier
                 .background(Color(0XFFE3DAC9))
@@ -194,7 +232,7 @@ fun Calendar(openDrawer: () -> Unit) {
                 .fillMaxSize(),
         ) {
             Text(
-                text = "Calendar",
+                text = stringResource(id = R.string.calendar),
                 fontSize = 22.sp,
                 fontFamily = FontFamily.Serif,
                 modifier = Modifier.align(Alignment.Center)
