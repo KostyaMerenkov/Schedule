@@ -27,6 +27,8 @@ import ru.dvfu.appliances.application.SnackbarManager
 object MainDestinations {
 
 
+    const val ADD_EVENT = "add_event"
+
     const val LOGIN_ROUTE = "login"
     const val HOME_ROUTE = "home"
 

@@ -26,6 +26,8 @@ import org.koin.androidx.compose.get
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
+import ru.dvfu.appliances.compose.views.HeaderText
+import ru.dvfu.appliances.compose.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
@@ -58,27 +60,23 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
             viewModel.updateUserRole(user, newRole.ordinal)
         }
 
-
         Column(modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize().padding(horizontal = 10.dp)
             .verticalScroll(rememberScrollState(0))) {
             UserInfo(detailsUser, currentUser) {
                 isChangeRoleDialogOpen = true
             }
 
-
             when (user.role) {
-                Roles.ADMIN.ordinal -> {}
                 Roles.USER.ordinal -> {
                     UserAppliancesList(viewModel, navController)
                 }
                 Roles.GUEST.ordinal -> {}
-                Roles.SUPERUSER.ordinal -> {
+                Roles.SUPERUSER.ordinal, Roles.ADMIN.ordinal -> {
                     SuperUserAppliancesList(viewModel, navController)
                 }
             }
         }
-
     }
 }
 
@@ -161,8 +159,7 @@ fun RolesWithSelectionDialog(
 @Composable
 fun UserInfo(user: User, currentUser: User, onRoleChangeClick: () -> Unit) {
     Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(10.dp)) {
+        .fillMaxWidth()) {
 
         HeaderText(text = stringResource(R.string.user_info))
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
@@ -211,7 +208,7 @@ fun UserAppliancesList(viewModel: UserDetailsViewModel, navController: NavContro
 @Composable
 fun AppliancesList(appliances: List<Appliance>?, navController: NavController) {
     appliances?.let {
-        LazyRow {
+        LazyRow(contentPadding = PaddingValues(10.dp)) {
             if (appliances.isNotEmpty()) {
                 items(appliances) { item ->
                     ItemAppliance(item, applianceClicked = {

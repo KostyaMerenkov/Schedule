@@ -58,10 +58,13 @@ fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifie
             Modifier
                 .background(Color(0XFFE3DAC9))
         ) {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(4.dp)
+            ) {
                 item { Spacer(modifier.size(4.dp)) }
                 users.groupBy { it.role }.forEach { (role, users) ->
-                    stickyHeader { Header(Roles.values()[role].name) }
+                    stickyHeader { Header(stringResource(Roles.values()[role].stringRess)) }
                     items(users) { user ->
                         ItemUser(
                             user = user,
@@ -101,7 +104,11 @@ fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifie
 
 @Composable
 fun Header(role: String) {
-    Text("$role's", modifier = Modifier.padding(2.dp).padding(horizontal = 10.dp), style = MaterialTheme.typography.h6)
+    Text(
+        role, modifier = Modifier
+            .padding(2.dp)
+            .padding(horizontal = 10.dp), style = MaterialTheme.typography.h6
+    )
 }
 
 @ExperimentalMaterialApi
@@ -123,14 +130,19 @@ fun ItemAdd(addClicked: () -> Unit) {
 
     ) {
 
-    MyCard( modifier = Modifier
-        .requiredHeight(80.dp).clip(CircleShape).padding(15.dp),
-        onClick = addClicked) {
+        MyCard(
+            modifier = Modifier
+                .requiredHeight(80.dp)
+                .clip(CircleShape)
+                .padding(15.dp),
+            onClick = addClicked
+        ) {
 
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()) {
+                modifier = Modifier.fillMaxSize()
+            ) {
                 Icon(Icons.Default.PersonAdd, Icons.Default.PersonAdd.name)
             }
         }

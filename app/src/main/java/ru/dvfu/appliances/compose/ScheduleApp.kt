@@ -36,6 +36,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.google.accompanist.pager.ExperimentalPagerApi
+import io.github.boguszpawlowski.composecalendar.Calendar
+import io.github.boguszpawlowski.composecalendar.SelectableCalendar
+import io.github.boguszpawlowski.composecalendar.rememberCalendarState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -135,6 +138,10 @@ private fun NavGraphBuilder.NavGraph(
         addHomeGraph(navController, openDrawer = openDrawer, upPress)
     }
 
+    composable(MainDestinations.ADD_EVENT) {
+        AddEvent(navController = navController)
+    }
+
     /*composable(MainDestinations.LOGIN_ROUTE) {
         LoginScreen(navController = navController)
     }*/
@@ -172,9 +179,22 @@ private fun NavGraphBuilder.NavGraph(
     ) { Settings(navController, upPress) }
 }
 
+@Composable
+fun AddEvent(navController: NavController) {
+
+    Scaffold(topBar = {
+        ScheduleAppBar(title = "Добавление события", backClick = navController::popBackStack)
+    }) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            SelectableCalendar()
+        }
+    }
+
+}
+
 
 @Composable
-fun Calendar(openDrawer: () -> Unit) {
+fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
 
     val fabState = remember { mutableStateOf(MultiFabState.COLLAPSED) }
 
@@ -199,12 +219,12 @@ fun Calendar(openDrawer: () -> Unit) {
                 FabMenuItem(
                     icon = Icons.Default.MoreTime,
                     text = "Создать бронирование",
-                    onClick = { }
+                    onClick = { navController.navigate(MainDestinations.ADD_EVENT) }
                 ),
                 FabMenuItem(
                     icon = Icons.Default.AddTask,
                     text = "Создать событие",
-                    onClick = { }
+                    onClick = { navController.navigate(MainDestinations.ADD_EVENT) }
                 )
             )
         )
@@ -225,6 +245,7 @@ fun Calendar(openDrawer: () -> Unit) {
                         fabState.value = MultiFabState.COLLAPSED
                     })
         }
+
         Box(
             Modifier
                 .background(Color(0XFFE3DAC9))

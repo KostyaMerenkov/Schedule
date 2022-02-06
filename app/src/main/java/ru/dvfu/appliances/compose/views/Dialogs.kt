@@ -2,23 +2,16 @@ package ru.dvfu.appliances.compose.views
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.constraintlayout.widget.ConstraintLayout
-import ru.dvfu.appliances.compose.DefaultButton
-import ru.dvfu.appliances.compose.DefaultButtonFilled
-import ru.dvfu.appliances.compose.PrimaryText
-import ru.dvfu.appliances.compose.PrimaryTextSmall
 
 @ExperimentalComposeUiApi
 @Composable

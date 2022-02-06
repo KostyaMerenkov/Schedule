@@ -15,19 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "106372275715-ah3k4mhsgsl8ioeldf329vrju02brdh3.apps.googleusercontent.com",
+          "client_id": "106372275715-koeuhmhvig26so13nmor4j2i854g8f2v.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "ru.dvfu.appliances",
-            "certificate_hash": "686be155b7bf47f57f0fdd2d41155aba226b5595"
-          }
-        },
-        {
-          "client_id": "106372275715-i3j0i28ujaf9b7lpk4aai04jsqijmtbv.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "ru.dvfu.appliances",
-            "certificate_hash": "c0d088b9c0a8fe4ebf285d0408e2a5080c63188a"
+            "certificate_hash": "4e0d00aa3c4684c1297e8bce9626a837722d798d"
           }
         },
         {
@@ -39,48 +31,11 @@
           }
         },
         {
-          "client_id": "106372275715-8ijjnah88j72s0725q2kv0dr3ikn9nig.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCuj0dkBp236hQeYxgXuGuBnTUfPW-rxFU"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "106372275715-8ijjnah88j72s0725q2kv0dr3ikn9nig.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:106372275715:android:9ec772feea251a7de67836",
-        "android_client_info": {
-          "package_name": "ru.students.dvfu"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "106372275715-5g70hm8eosmmah3o427j57kl1k6ga1cd.apps.googleusercontent.com",
+          "client_id": "106372275715-u29tknt5jjc1g4ceoj1mhu6kfh3iathu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "ru.students.dvfu",
-            "certificate_hash": "686be155b7bf47f57f0fdd2d41155aba226b5595"
-          }
-        },
-        {
-          "client_id": "106372275715-erqkq10u9a3t9srbo58okk2t2rghqpj7.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "ru.students.dvfu",
-            "certificate_hash": "c1e2b37768b8c21bc2dc7313edb62e0438b4bcf3"
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "3826715f11c9277da334026a74eddb97b2d05e54"
           }
         },
         {
