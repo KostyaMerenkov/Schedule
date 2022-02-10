@@ -11,7 +11,7 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="info">О приложении</string>
-    <string name="login_to_continue">Авторизуйтесь, чтобы продолжить</string>
+    <string name="login_to_continue">Авторизуйтесь</string>
     <string name="logout">Logout</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -52,4 +52,5 @@
     <string name="add_user">Добавление пользователя</string>
     <string name="guests">Гости</string>
     <string name="admins">Администраторы</string>
+    <string name="no_users_chosen">Вы не выбрали пользователей для добавления</string>
 </resources>

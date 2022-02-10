@@ -31,7 +31,7 @@ class CloudFirestoreDatabaseImpl() : Repository {
 
     override suspend fun deleteSuperUserFromAppliance(userToDelete: User, from: Appliance) {
         getAppliancesCollection().document(from.id)
-            .update("superuserIds", from.userIds.filter { it != userToDelete.userId })
+            .update("superuserIds", from.superuserIds.filter { it != userToDelete.userId })
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

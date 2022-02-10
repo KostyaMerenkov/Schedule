@@ -99,7 +99,8 @@ fun ApplianceTopBar(
     viewModel: ApplianceViewModel,
     upPress: () -> Unit
 ) {
-    if (permitToDeleteAppliance(user, appliance)) {
+
+    if (user.isAdmin()) {
         ScheduleAppBar(
             stringResource(R.string.appliance),
             backClick = upPress,
@@ -116,8 +117,6 @@ fun ApplianceTopBar(
     }
 
 }
-
-fun permitToDeleteAppliance(user: User, appliance: Appliance) = appliance.superuserIds.contains(user.userId) ||  user.role == Roles.ADMIN.ordinal
 
 @Composable
 fun ApplianceInfoDialog(infoDialogState: MutableState<Boolean>, appliance: Appliance) {

@@ -1,11 +1,13 @@
 package ru.dvfu.appliances.compose.appliance
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 
@@ -19,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,6 +30,8 @@ import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.viewModel
+import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.R
 
 import ru.dvfu.appliances.compose.MyCard
@@ -47,14 +50,16 @@ import ru.dvfu.appliances.ui.BaseViewState
 fun AddUser(
     navController: NavController,
     appliance: Appliance,
-    superUser: Boolean = false
+    areSuperUsers: Boolean = false
 ) {
-    val viewModel = getViewModel<AddUserViewModel>()
+    val viewModel: AddUserViewModel by viewModel(parameters = { parametersOf(areSuperUsers, appliance) })
     val uiState = viewModel.uiState.collectAsState()
     val users by viewModel.usersList.collectAsState()
     val context = LocalContext.current
 
-    val applianceUsers = if (superUser) appliance.superuserIds else appliance.userIds
+    val applianceUsers by remember {
+        mutableStateOf(if (areSuperUsers) appliance.superuserIds else appliance.userIds)
+    }
 
     LaunchedEffect(uiState.value) {
         when (uiState.value) {
@@ -82,56 +87,29 @@ fun AddUser(
 
     val selectedUsers = remember { mutableStateListOf<User>() }
 
-    var usersWithSelection = remember {
-        mutableStateOf(
-            users.map {
-                UserItem(it, false)
-            })
-    }
-
-
     Scaffold(topBar = {
         ScheduleAppBar(
-            title = if (superUser) stringResource(id = R.string.add_superuser)
+            title = if (areSuperUsers) stringResource(id = R.string.add_superuser)
             else stringResource(id = R.string.add_user), backClick = navController::popBackStack
         )
     },
         floatingActionButton = {
-            if (!selectedUsers.isEmpty()) {
-                //var icon = Icon(Icons.Filled.Check, "")
-                when (uiState.value) {
-                    is BaseViewState.Success<*> -> {
-                        FloatingActionButton(
-                            onClick = {
-                                if (!superUser) viewModel.addUsersToAppliance(
-                                    appliance,
-                                    selectedUsers.map { it.userId })
-                                else viewModel.addSuperUsersToAppliance(
-                                    appliance,
-                                    selectedUsers.map { it.userId })
-                            },
-                            //shape = fabShape,
-                            backgroundColor = Color(0xFFFF8C00),
-                        ) {
-                            Icon(Icons.Filled.Check, "")
+                FloatingActionButton(
+                    onClick = {
+                        if (uiState.value != BaseViewState.Loading(null)) {
+                            viewModel.addToAppliance(appliance, selectedUsers)
                         }
+                    },
+                    //shape = fabShape,
+                    backgroundColor = Color(0xFFFF8C00),
+                ) {
+                    if (uiState.value is BaseViewState.Loading) {
+                        CircularProgressIndicator()
+                    } else {
+                        Icon(Icons.Filled.Check, "")
                     }
-                    is BaseViewState.Loading -> {
-                        FloatingActionButton(
-                            onClick = {
-                                viewModel.addUsersToAppliance(
-                                    appliance,
-                                    selectedUsers.map { it.userId })
-                            },
-                            //shape = fabShape,
-                            backgroundColor = Color(0xFFFF8C00),
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    }
-                    is BaseViewState.Error -> {}
+
                 }
-            }
         }) {
         UsersWithSelection(
             users = users,
@@ -154,13 +132,14 @@ fun UsersWithSelection(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(10.dp)
     ) {
-        items(users.filter { !applianceUsers.contains(it.userId) }.size) { i ->
+        val usersToShow = users.filter { !applianceUsers.contains(it.userId) }
+        items(usersToShow) { user ->
             var isSelected by remember { mutableStateOf(false) }
 
-            ItemUserWithSelection(users[i], isSelected) {
+            ItemUserWithSelection(user, isSelected) {
                 isSelected = !isSelected
-                if (isSelected) addUser(users[i])
-                else removeUser(users[i])
+                if (isSelected) addUser(user)
+                else removeUser(user)
             }
         }
     }

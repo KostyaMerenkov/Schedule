@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.R
+import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
@@ -15,7 +17,9 @@ import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.Progress
 
 class AddUserViewModel(
-    private val repository: Repository
+    private val areSuperUsers: Boolean,
+    private val appliance: Appliance,
+    private val repository: Repository,
 ) : ViewModel() {
 
     val usersList = MutableStateFlow(listOf<User>())
@@ -42,7 +46,30 @@ class AddUserViewModel(
         }
     }
 
-    fun addUsersToAppliance(appliance: Appliance, selectedUsers: List<String>) {
+    fun addToAppliance(appliance: Appliance, selectedUsers: MutableList<User>) {
+        if (selectedUsers.isEmpty()) SnackbarManager.showMessage(R.string.no_users_chosen)
+        else {
+            when (areSuperUsers) {
+                true -> {
+                    val usersToAdd = selectedUsers
+                        .map { it.userId }.toMutableList()
+                        .apply { addAll(appliance.superuserIds) }
+                        .distinct()
+                    addSuperUsersToAppliance(appliance, usersToAdd)
+                }
+                false -> {
+                    val usersToAdd = selectedUsers
+                        .map { it.userId }.toMutableList()
+                        .apply { addAll(appliance.userIds) }
+                        .distinct()
+                    addUsersToAppliance(appliance, usersToAdd)
+                }
+            }
+        }
+
+    }
+
+    private fun addUsersToAppliance(appliance: Appliance, selectedUsers: List<String>) {
         _uiState.value = BaseViewState.Loading(0)
 
         viewModelScope.launch {
@@ -64,7 +91,7 @@ class AddUserViewModel(
 
     }
 
-    fun addSuperUsersToAppliance(appliance: Appliance, selectedSuperUsers: List<String>) {
+    private fun addSuperUsersToAppliance(appliance: Appliance, selectedSuperUsers: List<String>) {
         _uiState.value = BaseViewState.Loading(0)
 
         viewModelScope.launch {

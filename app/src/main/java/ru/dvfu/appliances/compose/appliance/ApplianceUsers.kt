@@ -3,12 +3,10 @@ package ru.dvfu.appliances.compose.appliance
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
@@ -18,16 +16,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
-import coil.transform.CircleCropTransformation
 import de.charlex.compose.RevealDirection
 import de.charlex.compose.RevealSwipe
 import org.koin.androidx.compose.viewModel
@@ -45,6 +37,7 @@ fun ApplianceUsers(
     appliance: Appliance,
 ) {
     val viewModel: ApplianceViewModel by viewModel()
+    val currentUser: User by viewModel.currentUser.collectAsState(User())
 
     val users by viewModel.currentUsers.collectAsState()
 
@@ -59,7 +52,8 @@ fun ApplianceUsers(
                 addClicked = { onAddClick(navController, appliance) },
                 deleteClicked = { userToDelete ->
                     viewModel.deleteUser(userToDelete, appliance)
-                }
+                },
+                isSuperuserOrAdmin = appliance.isUserSuperuserOrAdmin(currentUser)
             )
         }
     }
@@ -80,19 +74,25 @@ fun SwipableUsers(
     users: List<User>?,
     userClicked: (User) -> Unit,
     addClicked: () -> Unit,
-    deleteClicked: (User) -> Unit
+    deleteClicked: (User) -> Unit,
+    isSuperuserOrAdmin: Boolean
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(10.dp)
     ) {
-        item { ItemAdd(addClicked) }
+        if (isSuperuserOrAdmin) item { ItemAdd(addClicked) }
         users?.let {
             if (users.isNotEmpty()) {
                 items(users) { user ->
-                    ItemSwipableUser(user,
-                        userClicked = { userClicked(user) },
-                        userDeleted = { deleteClicked(user) })
+                    if (isSuperuserOrAdmin) {
+                        ItemSwipableUser(user,
+                            userClicked = { userClicked(user) },
+                            userDeleted = { deleteClicked(user) })
+                    } else {
+                        ItemUser(user,
+                            userClicked = { userClicked(user) },)
+                    }
                 }
             } else
                 item {
@@ -192,17 +192,17 @@ fun ItemSwipableUser(user: User, userClicked: () -> Unit, userDeleted: () -> Uni
     RevealSwipe(
         //modifier = Modifier.padding(vertical = 5.dp),
         directions = setOf(
-            RevealDirection.StartToEnd,
+            //RevealDirection.StartToEnd,
             RevealDirection.EndToStart
         ),
-        hiddenContentStart = {
+        /*hiddenContentStart = {
             Icon(
                 modifier = Modifier.padding(horizontal = 25.dp),
                 imageVector = Icons.Outlined.Star,
                 contentDescription = null,
                 tint = Color.White
             )
-        },
+        },*/
         hiddenContentEnd = {
             Icon(
                 modifier = Modifier.padding(horizontal = 25.dp),

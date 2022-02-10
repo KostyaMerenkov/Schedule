@@ -36,9 +36,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.google.accompanist.pager.ExperimentalPagerApi
-import io.github.boguszpawlowski.composecalendar.Calendar
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
-import io.github.boguszpawlowski.composecalendar.rememberCalendarState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -156,7 +154,7 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(
         route = MainDestinations.ADD_SUPERUSER_TO_APPLIANCE,
-    ) { AddUser(navController, it.requiredArg(Arguments.APPLIANCE), superUser = true) }
+    ) { AddUser(navController, it.requiredArg(Arguments.APPLIANCE), areSuperUsers = true) }
 
     composable(
         route = MainDestinations.APPLIANCES_ROUTE,

@@ -1,3 +1,4 @@
+/*
 package ru.dvfu.appliances.compose.viewmodels
 
 import androidx.lifecycle.ViewModel
@@ -11,12 +12,12 @@ import ru.dvfu.appliances.model.repository.entity.User
 
 class ApplianceUsersViewModel(private val repository: Repository) : ViewModel() {
 
-    val currentUsers = MutableStateFlow<List<User>>(listOf())
-    val currentSuperUsers = MutableStateFlow<List<User>>(listOf())
+    private val currentUsers = MutableStateFlow<List<User>>(listOf())
+    private val currentSuperUsers = MutableStateFlow<List<User>>(listOf())
 
     fun loadAllUsers(updatedAppliance: Appliance) {
         viewModelScope.launch {
-            repository.getApplianceUsers(updatedAppliance.userIds).collect { users ->
+            repository.getApplianceUsers(updatedAppliance.userIds.toList()).collect { users ->
                 currentUsers.value = users
             }
         }
@@ -24,7 +25,7 @@ class ApplianceUsersViewModel(private val repository: Repository) : ViewModel() 
 
     fun loadAllSuperUsers(updatedAppliance: Appliance) {
         viewModelScope.launch {
-            repository.getApplianceUsers(updatedAppliance.superuserIds).collect { users ->
+            repository.getApplianceUsers(updatedAppliance.superuserIds.toList()).collect { users ->
                 currentSuperUsers.value = users
             }
         }
@@ -43,3 +44,4 @@ class ApplianceUsersViewModel(private val repository: Repository) : ViewModel() 
     }
 
 }
+*/

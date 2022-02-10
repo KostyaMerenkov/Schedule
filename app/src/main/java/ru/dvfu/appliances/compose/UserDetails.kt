@@ -178,7 +178,7 @@ fun UserInfo(user: User, currentUser: User, onRoleChangeClick: () -> Unit) {
             readOnly = true,
             label = { Text(stringResource(R.string.role)) },
             trailingIcon = {
-                if (getRole(currentUser.role).isAdmin()) {
+                if (getRole(currentUser.role).isAdmin() && user.userId != currentUser.userId) {
                     IconButton(onClick = onRoleChangeClick) {
                         Icon(Icons.Default.Edit, Icons.Default.Edit.name)
                     }

@@ -15,7 +15,6 @@ interface Repository {
 
 
 
-
     suspend fun addAppliance(appliance: Appliance): StateFlow<Progress>
     suspend fun getAppliances(): Flow<List<Appliance>>
     suspend fun getApplianceUsers(userIds: List<String>): Flow<List<User>>

@@ -37,4 +37,5 @@
     <string name="user_appliances">Приборы пользователя</string>
     <string name="add_superuser">Добавление суперпользователя</string>
     <string name="add_user">Добавление пользователя</string>
+    <string name="no_users_chosen">Вы не выбрали пользователей для добавления</string>
 </resources>

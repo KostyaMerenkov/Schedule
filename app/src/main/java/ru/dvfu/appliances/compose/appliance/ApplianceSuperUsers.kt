@@ -15,12 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
-import org.koin.androidx.compose.get
 import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.navigate
-import ru.dvfu.appliances.compose.viewmodels.ApplianceUsersViewModel
 import ru.dvfu.appliances.compose.viewmodels.ApplianceViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
@@ -33,6 +31,7 @@ fun ApplianceSuperUsers(
     appliance: Appliance,
 ) {
     val viewModel: ApplianceViewModel by viewModel()
+    val currentUser by viewModel.currentUser.collectAsState(User())
 
     val superUsers by viewModel.currentSuperUsers.collectAsState()
 
@@ -48,7 +47,8 @@ fun ApplianceSuperUsers(
                     addClicked = { onAddSuperUserClick(navController, appliance) },
                     deleteClicked = { userToDelete ->
                         viewModel.deleteSuperUser(userToDelete, appliance)
-                    }
+                    },
+                    isSuperuserOrAdmin = appliance.isUserSuperuserOrAdmin(currentUser)
                 )
             }
         } ?: AnimatedVisibility(visible = superUsers == null) {
