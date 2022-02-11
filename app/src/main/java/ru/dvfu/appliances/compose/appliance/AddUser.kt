@@ -36,10 +36,12 @@ import ru.dvfu.appliances.R
 
 import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.viewmodels.AddUserViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.BaseViewState
+import ru.dvfu.appliances.ui.ViewState
 
 @OptIn(
     ExperimentalMaterialApi::class,
@@ -54,7 +56,7 @@ fun AddUser(
 ) {
     val viewModel: AddUserViewModel by viewModel(parameters = { parametersOf(areSuperUsers, appliance) })
     val uiState = viewModel.uiState.collectAsState()
-    val users by viewModel.usersList.collectAsState()
+    val usersState by viewModel.usersState.collectAsState()
     val context = LocalContext.current
 
     val applianceUsers by remember {
@@ -82,6 +84,7 @@ fun AddUser(
                 Toast.makeText(context, "Users added unsuccessfully", Toast.LENGTH_SHORT).show()
                 //scaffoldState.snackbarHostState.showSnackbar(errorString)
             }  //TODO: logger.log((uiState.value as BaseViewState.Error).error)
+            is BaseViewState.Loading -> {   }
         }
     }
 
@@ -96,26 +99,35 @@ fun AddUser(
         floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        if (uiState.value != BaseViewState.Loading(null)) {
+                        if (uiState.value !is BaseViewState.Loading) {
                             viewModel.addToAppliance(appliance, selectedUsers)
                         }
                     },
                     //shape = fabShape,
                     backgroundColor = Color(0xFFFF8C00),
                 ) {
-                    if (uiState.value is BaseViewState.Loading) {
+                    AnimatedVisibility(visible = uiState.value is BaseViewState.Loading) {
                         CircularProgressIndicator()
-                    } else {
-                        Icon(Icons.Filled.Check, "")
                     }
-
-                }
+                    AnimatedVisibility(visible = uiState.value !is BaseViewState.Loading) {
+                        Icon(Icons.Filled.Check, "")
+                }}
         }) {
-        UsersWithSelection(
-            users = users,
-            applianceUsers,
-            addUser = { selectedUsers.add(it) },
-            removeUser = { selectedUsers.remove(it) })
+        AnimatedVisibility(visible = usersState is ViewState.Loading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        AnimatedVisibility(visible = usersState is ViewState.Success) {
+            val users = (usersState as ViewState.Success).data
+            UsersWithSelection(
+                users = users,
+                applianceUsers,
+                addUser = { selectedUsers.add(it) },
+                removeUser = { selectedUsers.remove(it) })
+        }
+
+
     }
 }
 
@@ -133,6 +145,10 @@ fun UsersWithSelection(
         contentPadding = PaddingValues(10.dp)
     ) {
         val usersToShow = users.filter { !applianceUsers.contains(it.userId) }
+
+        usersToShow.ifEmpty {
+            item { NoUsersView() }
+        }
         items(usersToShow) { user ->
             var isSelected by remember { mutableStateOf(false) }
 
@@ -143,6 +159,11 @@ fun UsersWithSelection(
             }
         }
     }
+}
+
+@Composable
+fun NoUsersView() {
+    Text(text = "Нет пользователей")
 }
 
 @ExperimentalFoundationApi

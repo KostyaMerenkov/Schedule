@@ -10,11 +10,13 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.Progress
+import ru.dvfu.appliances.ui.ViewState
 
 class AddUserViewModel(
     private val areSuperUsers: Boolean,
@@ -22,26 +24,26 @@ class AddUserViewModel(
     private val repository: Repository,
 ) : ViewModel() {
 
-    val usersList = MutableStateFlow(listOf<User>())
-    val isRefreshing = mutableStateOf<Boolean>(false)
+    private val _uiState = MutableStateFlow<BaseViewState>(BaseViewState.Success(null))
+    val uiState: StateFlow<BaseViewState>
+        get() = _uiState
+
+    private val _usersState = MutableStateFlow<ViewState<List<User>>>(ViewState.Success(listOf()))
+    val usersState: StateFlow<ViewState<List<User>>>
+        get() = _usersState
 
     init {
         loadUsers()
     }
 
-    private val _uiState = MutableStateFlow<BaseViewState>(BaseViewState.Success(null))
-    val uiState: StateFlow<BaseViewState>
-        get() = _uiState
-
     fun refresh() = loadUsers()
 
     private fun loadUsers() {
-        isRefreshing.value = true
+        _usersState.value = ViewState.Loading()
         viewModelScope.launch {
             repository.getUsers().collect { users ->
                 delay(1000)
-                usersList.value = users as List<User>
-                isRefreshing.value = false
+                _usersState.value = ViewState.Success(users)
             }
         }
     }
@@ -70,8 +72,6 @@ class AddUserViewModel(
     }
 
     private fun addUsersToAppliance(appliance: Appliance, selectedUsers: List<String>) {
-        _uiState.value = BaseViewState.Loading(0)
-
         viewModelScope.launch {
             repository.addUsersToAppliance(appliance, selectedUsers).collect { progress ->
                 when (progress) {
@@ -82,8 +82,7 @@ class AddUserViewModel(
                         _uiState.value = BaseViewState.Loading(progress.percents)
                     }
                     is Progress.Error -> {
-                        _uiState.value =
-                            BaseViewState.Error(progress.error)
+                        _uiState.value = BaseViewState.Error(progress.error)
                     }
                 }
             }
@@ -92,8 +91,6 @@ class AddUserViewModel(
     }
 
     private fun addSuperUsersToAppliance(appliance: Appliance, selectedSuperUsers: List<String>) {
-        _uiState.value = BaseViewState.Loading(0)
-
         viewModelScope.launch {
             repository.addSuperUsersToAppliance(appliance, selectedSuperUsers).collect { progress ->
                 when (progress) {
@@ -104,8 +101,7 @@ class AddUserViewModel(
                         _uiState.value = BaseViewState.Loading(progress.percents)
                     }
                     is Progress.Error -> {
-                        _uiState.value =
-                            BaseViewState.Error(progress.error)
+                        _uiState.value = BaseViewState.Error(progress.error)
                     }
                 }
             }

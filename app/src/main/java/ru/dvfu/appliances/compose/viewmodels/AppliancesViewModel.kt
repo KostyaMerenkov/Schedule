@@ -11,9 +11,12 @@ import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.UserRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.ui.BaseViewState
+import ru.dvfu.appliances.ui.ViewState
 
-class AppliancesViewModel(private val repository: Repository,
-                          private val userRepository: UserRepository) : ViewModel() {
+class AppliancesViewModel(
+    private val repository: Repository,
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     val appliancesList = MutableStateFlow(listOf<Appliance>())
 
@@ -23,8 +26,8 @@ class AppliancesViewModel(private val repository: Repository,
         loadAppliances()
     }
 
-    private val _uiState = MutableStateFlow<BaseViewState>(BaseViewState.Success(null))
-    val uiState: StateFlow<BaseViewState>
+    private val _uiState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
+    val uiState: StateFlow<ViewState<List<Appliance>>>
         get() = _uiState
 
     fun refresh() = loadAppliances()
@@ -32,18 +35,17 @@ class AppliancesViewModel(private val repository: Repository,
     val user = userRepository.currentUserFromDB
 
     private fun loadAppliances() {
+/*
         if (appliancesList.value.isEmpty()) {
-
-
+*/
         isRefreshing.value = true
         viewModelScope.launch {
             repository.getAppliances().collect { appliances ->
                 delay(1000)
-                appliancesList.value = appliances as List<Appliance>
+                _uiState.value = ViewState.Success(appliances)
                 isRefreshing.value = false
             }
-
-        }        }
+        }
     }
 
 }

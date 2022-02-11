@@ -56,9 +56,9 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
         ScheduleAppBar(stringResource(R.string.user), upPress)
     }) {
 
-        if (isChangeRoleDialogOpen) RolesWithSelectionDialog(currentUser = user,
+        if (isChangeRoleDialogOpen) RolesWithSelectionDialog(currentUser = detailsUser,
             onDismiss = { isChangeRoleDialogOpen = false }) { newRole ->
-            viewModel.updateUserRole(user, newRole.ordinal)
+            viewModel.updateUserRole(detailsUser, newRole.ordinal)
         }
 
         Column(modifier = Modifier
@@ -68,12 +68,10 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
                 isChangeRoleDialogOpen = true
             }
 
-            when (user.role) {
-                Roles.USER.ordinal -> {
-                    UserAppliancesList(viewModel, navController)
-                }
+            when (detailsUser.role) {
                 Roles.GUEST.ordinal -> {}
-                Roles.ADMIN.ordinal -> {
+                Roles.USER.ordinal, Roles.ADMIN.ordinal -> {
+                    //UserAppliancesList(viewModel, navController)
                     SuperUserAppliancesList(viewModel, navController)
                 }
             }
@@ -92,70 +90,8 @@ fun RolesWithSelectionDialog(
     val currentUserRole = remember {
         mutableStateOf(getRole(currentUser.role))
     }
-
-    val (selectedOption, onOptionSelected) = remember {
-        mutableStateOf(
-            currentUserRole
-        )
-    }
     Dialog(onDismissRequest = onDismiss) {
         ItemsSelection(Modifier, radioOptions, currentUserRole) { onSelectedValue(it) }
-        /*Card {
-            Column(
-                modifier = Modifier.padding(bottom = 12.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Row(
-                    modifier = Modifier.padding(14.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    PrimaryText(
-                        text = String.format(
-                            "Выберите новую роль для пользователя \n\"%s\"", currentUser.userName
-                        )
-                    )
-                }
-
-                radioOptions.forEach { role ->
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(60.dp)
-                            .selectable(
-                                selected = (currentUserRole == role),
-                                onClick = {
-                                    onOptionSelected(role)
-                                    if (currentUser.role != role.ordinal) onSelectedValue(role)
-                                }
-                            )
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(
-                            selected = (currentUserRole == role),
-                            modifier = Modifier.padding(all = Dp(value = 8F)),
-                            onClick = {
-                                onOptionSelected(role)
-                                if (currentUser.role != role.ordinal) onSelectedValue(role)
-                                Toast.makeText(
-                                    context,
-                                    role.name,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        )
-                        Text(
-                            text = stringResource(role.stringRes),
-                            modifier = Modifier.padding(start = 16.dp)
-                        )
-                    }
-                }
-            }
-        }*/
-
     }
 }
 

@@ -27,7 +27,7 @@ class NewApplianceViewModel(private val repository: Repository): ViewModel() {
     val selectedColor = mutableStateOf(pickerColors[0])
 
     private fun saveNewAppliance(appliance: Appliance) {
-        _uiState.value = BaseViewState.Loading(0)
+        _uiState.value = BaseViewState.Loading()
 
         viewModelScope.launch {
                 repository.addAppliance(appliance).collect { progress ->
@@ -39,8 +39,7 @@ class NewApplianceViewModel(private val repository: Repository): ViewModel() {
                             _uiState.value = BaseViewState.Loading(progress.percents)
                         }
                         is Progress.Error -> {
-                            _uiState.value =
-                                BaseViewState.Error(progress.error)
+                            _uiState.value = BaseViewState.Error(progress.error)
                         }
                     }
             }

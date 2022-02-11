@@ -25,6 +25,7 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.SubtitleWithIcon
 import ru.dvfu.appliances.compose.components.ColorPicker
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.ui.theme.pickerColors
 import ru.dvfu.appliances.compose.viewmodels.NewApplianceViewModel
 import ru.dvfu.appliances.ui.BaseViewState

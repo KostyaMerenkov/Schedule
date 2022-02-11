@@ -33,6 +33,8 @@ import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.ui.BaseViewState
+import ru.dvfu.appliances.ui.ViewState
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -69,24 +71,33 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
         SwipeRefresh(
             state = rememberSwipeRefreshState(refreshing),
             onRefresh = { viewModel.refresh() },
-            modifier = Modifier.fillMaxSize().background(Color(0XFFE3DAC9)),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0XFFE3DAC9)),
         ) {
-            LazyVerticalGrid(
-                modifier = Modifier.fillMaxSize(),
-                cells = GridCells.Fixed(2),
-                contentPadding = PaddingValues(6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                items(appliances) { appliance ->
-                    ItemAppliance(
-                        appliance = appliance,
-                        applianceClicked = { navController.navigate(
-                            MainDestinations.APPLIANCE_ROUTE,
-                            Arguments.APPLIANCE to appliance) }
-                    )
+            when (uiState) {
+                is ViewState.Error -> {}
+                is ViewState.Loading -> {}
+                is ViewState.Success -> {
+                    LazyVerticalGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        cells = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(6.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        items((uiState as ViewState.Success<List<Appliance>>).data) { appliance ->
+                            ItemAppliance(
+                                appliance = appliance,
+                                applianceClicked = { navController.navigate(
+                                    MainDestinations.APPLIANCE_ROUTE,
+                                    Arguments.APPLIANCE to appliance) }
+                            )
+                        }
+                    }
                 }
             }
+
         }
 
 
@@ -113,7 +124,9 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
 @Composable
 fun AppliancesFab(navController: NavController) {
     FloatingActionButton(
-        modifier = Modifier.animateContentSize().padding(bottom = 16.dp),
+        modifier = Modifier
+            .animateContentSize()
+            .padding(bottom = 16.dp),
         onClick = { navController.navigate(MainDestinations.NEW_APPLIANCE_ROUTE) },
     ) {
         Icon(
@@ -141,7 +154,9 @@ fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
 
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.requiredSize(100.dp).clip(CircleShape)
+                modifier = Modifier
+                    .requiredSize(100.dp)
+                    .clip(CircleShape)
                     .border(1.dp, Color.Black, CircleShape)
                     .background(Color(appliance.color)),
             ) {
