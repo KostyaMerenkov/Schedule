@@ -44,7 +44,7 @@ class UserDetailsViewModel(
             updateUser()
             when(user.role) {
                 Roles.USER.ordinal -> { getUserAppliances(user) }
-                Roles.SUPERUSER.ordinal, Roles.ADMIN.ordinal -> {
+                Roles.ADMIN.ordinal -> {
                     getUserAppliances(user);
                     getSuperUserAppliances(user) }
             }

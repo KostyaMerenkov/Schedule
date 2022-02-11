@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import org.koin.androidx.compose.get
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.LoadingItem
+import ru.dvfu.appliances.compose.components.ItemsSelection
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
 import ru.dvfu.appliances.compose.views.HeaderText
 import ru.dvfu.appliances.compose.views.PrimaryText
@@ -72,7 +73,7 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
                     UserAppliancesList(viewModel, navController)
                 }
                 Roles.GUEST.ordinal -> {}
-                Roles.SUPERUSER.ordinal, Roles.ADMIN.ordinal -> {
+                Roles.ADMIN.ordinal -> {
                     SuperUserAppliancesList(viewModel, navController)
                 }
             }
@@ -88,7 +89,9 @@ fun RolesWithSelectionDialog(
 ) {
     val radioOptions = Roles.values().asList()
     val context = LocalContext.current
-    val currentUserRole = getRole(currentUser.role)
+    val currentUserRole = remember {
+        mutableStateOf(getRole(currentUser.role))
+    }
 
     val (selectedOption, onOptionSelected) = remember {
         mutableStateOf(
@@ -96,7 +99,8 @@ fun RolesWithSelectionDialog(
         )
     }
     Dialog(onDismissRequest = onDismiss) {
-        Card {
+        ItemsSelection(Modifier, radioOptions, currentUserRole) { onSelectedValue(it) }
+        /*Card {
             Column(
                 modifier = Modifier.padding(bottom = 12.dp),
                 verticalArrangement = Arrangement.Center,
@@ -150,7 +154,7 @@ fun RolesWithSelectionDialog(
                     }
                 }
             }
-        }
+        }*/
 
     }
 }

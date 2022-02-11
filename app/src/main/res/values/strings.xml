@@ -50,7 +50,7 @@
     <string name="msg_token_fmt">Ваш токен: %s</string>
     <string name="add_superuser">Добавление суперпользователя</string>
     <string name="add_user">Добавление пользователя</string>
-    <string name="guests">Гости</string>
-    <string name="admins">Администраторы</string>
+    <string name="guests">Guests</string>
+    <string name="admins">Admins</string>
     <string name="no_users_chosen">Вы не выбрали пользователей для добавления</string>
 </resources>
