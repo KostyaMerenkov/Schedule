@@ -1,34 +1,32 @@
 package ru.dvfu.appliances.compose.event_calendar
 
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 
-
 @Composable
-fun BasicDayHeader(
-    day: LocalDate,
+fun BasicSidebarLabel(
+    time: LocalTime,
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text = day.format(DayFormatter),
-        textAlign = TextAlign.Center,
+        text = time.format(HourFormatter),
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxHeight()
             .padding(4.dp)
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun BasicDayHeaderPreview() {
-        BasicDayHeader(day = LocalDate.now())
+fun BasicSidebarLabelPreview() {
+        BasicSidebarLabel(time = LocalTime.of(13, 0), Modifier.sizeIn(maxHeight = 64.dp))
 }

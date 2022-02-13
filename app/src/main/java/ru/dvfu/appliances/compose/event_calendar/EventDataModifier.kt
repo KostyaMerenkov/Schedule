@@ -6,12 +6,14 @@ import androidx.compose.ui.unit.Density
 import java.time.format.DateTimeFormatter
 
 private class EventDataModifier(
-    val event: Event,
+    val positionedEvent: PositionedEvent,
 ) : ParentDataModifier {
-    override fun Density.modifyParentData(parentData: Any?) = event
+    override fun Density.modifyParentData(parentData: Any?) = positionedEvent
 }
 
-fun Modifier.eventData(event: Event) = this.then(EventDataModifier(event))
+fun Modifier.eventData(positionedEvent: PositionedEvent) = this.then(EventDataModifier(positionedEvent))
 
 
-public val EventTimeFormatter = DateTimeFormatter.ofPattern("hh:mm")
+val EventTimeFormatter = DateTimeFormatter.ofPattern("hh:mm")
+val HourFormatter = DateTimeFormatter.ofPattern("HH")
+val DayFormatter = DateTimeFormatter.ofPattern("EE, MMM d")

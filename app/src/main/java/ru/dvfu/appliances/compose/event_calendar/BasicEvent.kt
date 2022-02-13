@@ -10,6 +10,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,25 +24,44 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun BasicEvent(
-    event: Event,
+    positionedEvent: PositionedEvent,
     modifier: Modifier = Modifier,
 ) {
+    val event = positionedEvent.event
+    val topRadius = if (positionedEvent.splitType == SplitType.Start || positionedEvent.splitType == SplitType.Both) 0.dp else 4.dp
+    val bottomRadius = if (positionedEvent.splitType == SplitType.End || positionedEvent.splitType == SplitType.Both) 0.dp else 4.dp
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(end = 2.dp, bottom = 2.dp)
-            .background(event.color, shape = RoundedCornerShape(4.dp))
+            .padding(
+                end = 2.dp,
+                bottom = if (positionedEvent.splitType == SplitType.End) 0.dp else 2.dp
+            )
+            .clipToBounds()
+            .background(
+                event.color,
+                shape = RoundedCornerShape(
+                    topStart = topRadius,
+                    topEnd = topRadius,
+                    bottomEnd = bottomRadius,
+                    bottomStart = bottomRadius,
+                )
+            )
             .padding(4.dp)
     ) {
         Text(
             text = "${event.start.format(EventTimeFormatter)} - ${event.end.format(EventTimeFormatter)}",
             style = MaterialTheme.typography.caption,
+            maxLines = 2,
+            overflow = TextOverflow.Clip,
         )
 
         Text(
             text = event.name,
             style = MaterialTheme.typography.body1,
             fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
 
         if (event.description != null) {
@@ -52,7 +72,6 @@ fun BasicEvent(
                 overflow = TextOverflow.Ellipsis,
             )
         }
-
     }
 }
 
@@ -67,30 +86,37 @@ val sampleEvents = listOf(
     Event(
         name = "Developer Keynote",
         color = Color(0xFFAFBBF2),
-        start = LocalDateTime.parse("2021-05-18T11:15:00"),
-        end = LocalDateTime.parse("2021-05-18T12:00:00"),
+        start = LocalDateTime.parse("2021-05-18T09:00:00"),
+        end = LocalDateTime.parse("2021-05-18T15:00:00"),
         description = "Learn about the latest updates to our developer products and platforms from Google Developers.",
     ),
     Event(
         name = "What's new in Android",
         color = Color(0xFF1B998B),
-        start = LocalDateTime.parse("2021-05-18T12:50:00"),
-        end = LocalDateTime.parse("2021-05-18T15:00:00"),
+        start = LocalDateTime.parse("2021-05-18T10:00:00"),
+        end = LocalDateTime.parse("2021-05-18T11:30:00"),
         description = "In this Keynote, Chet Haase, Dan Sandler, and Romain Guy discuss the latest Android features and enhancements for developers.",
-    ),
-    Event(
-        name = "What's new in Machine Learning",
-        color = Color(0xFFF4BFDB),
-        start = LocalDateTime.parse("2021-05-19T09:30:00"),
-        end = LocalDateTime.parse("2021-05-19T11:00:00"),
-        description = "Learn about the latest and greatest in ML from Google. We’ll cover what’s available to developers when it comes to creating, understanding, and deploying models for a variety of different applications.",
     ),
     Event(
         name = "What's new in Material Design",
         color = Color(0xFF6DD3CE),
-        start = LocalDateTime.parse("2021-05-19T11:00:00"),
-        end = LocalDateTime.parse("2021-05-19T12:15:00"),
+        start = LocalDateTime.parse("2021-05-18T11:00:00"),
+        end = LocalDateTime.parse("2021-05-18T11:45:00"),
         description = "Learn about the latest design improvements to help you build personal dynamic experiences with Material Design.",
+    ),
+    Event(
+        name = "What's new in Machine Learning",
+        color = Color(0xFFF4BFDB),
+        start = LocalDateTime.parse("2021-05-18T10:00:00"),
+        end = LocalDateTime.parse("2021-05-18T12:00:00"),
+        description = "Learn about the latest and greatest in ML from Google. We’ll cover what’s available to developers when it comes to creating, understanding, and deploying models for a variety of different applications.",
+    ),
+    Event(
+        name = "What's new in Machine Learning",
+        color = Color(0xFFF4BFDB),
+        start = LocalDateTime.parse("2021-05-18T10:30:00"),
+        end = LocalDateTime.parse("2021-05-18T11:30:00"),
+        description = "Learn about the latest and greatest in ML from Google. We’ll cover what’s available to developers when it comes to creating, understanding, and deploying models for a variety of different applications.",
     ),
     Event(
         name = "Jetpack Compose Basics",
@@ -110,5 +136,8 @@ class EventsProvider : PreviewParameterProvider<Event> {
 fun EventPreview(
     @PreviewParameter(EventsProvider::class) event: Event,
 ) {
-        BasicEvent(event, modifier = Modifier.sizeIn(maxHeight = 64.dp))
+        BasicEvent(
+            PositionedEvent(event, SplitType.None, event.start.toLocalDate(), event.start.toLocalTime(), event.end.toLocalTime()),
+            modifier = Modifier.sizeIn(maxHeight = 64.dp)
+        )
 }
