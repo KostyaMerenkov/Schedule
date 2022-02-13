@@ -1,13 +1,11 @@
 package ru.dvfu.appliances.compose
 
-import android.widget.Toast
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -18,7 +16,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
@@ -28,7 +25,6 @@ import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.components.ItemsSelection
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
 import ru.dvfu.appliances.compose.views.HeaderText
-import ru.dvfu.appliances.compose.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
@@ -133,30 +129,30 @@ fun SuperUserAppliancesList(viewModel: UserDetailsViewModel, navController: NavC
     val superUserAppliances by viewModel.currentSuperUserAppliances.collectAsState()
     UserAppliancesList(viewModel, navController)
     HeaderText(text = stringResource(R.string.superuser_appliances))
-    AppliancesList(superUserAppliances, navController)
+    AppliancesLazyRow(superUserAppliances, navController)
 }
 
 @Composable
 fun UserAppliancesList(viewModel: UserDetailsViewModel, navController: NavController) {
     val appliances by viewModel.currentUserAppliances.collectAsState()
     HeaderText(text = stringResource(R.string.user_appliances))
-    AppliancesList(appliances, navController)
+    AppliancesLazyRow(appliances, navController)
 }
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun AppliancesList(appliances: List<Appliance>?, navController: NavController) {
+fun AppliancesLazyRow(appliances: List<Appliance>?, navController: NavController) {
     appliances?.let {
         LazyRow(contentPadding = PaddingValues(10.dp)) {
             if (appliances.isNotEmpty()) {
                 items(appliances) { item ->
-                    ItemAppliance(item, applianceClicked = {
-                        navController.navigate(
-                            MainDestinations.APPLIANCE_ROUTE,
-                            Arguments.APPLIANCE to it
-                        )
-                    })
+                        ItemAppliance(item, applianceClicked = {
+                            navController.navigate(
+                                MainDestinations.APPLIANCE_ROUTE,
+                                Arguments.APPLIANCE to it
+                            )
+                        })
                 }
             } else {
                 item {

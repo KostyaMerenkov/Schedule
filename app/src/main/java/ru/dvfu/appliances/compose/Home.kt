@@ -25,6 +25,7 @@ import coil.annotation.ExperimentalCoilApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.home.MainScreen
 
 @ExperimentalFoundationApi
 @ExperimentalCoroutinesApi

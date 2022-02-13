@@ -38,4 +38,5 @@ val mainActivity = module {
     //viewModel { ApplianceUsersViewModel(get()) }
     viewModel { AppliancesViewModel(get(), get()) }
     viewModel { AddUserViewModel(it.get(), it.get(), get()) }
+    viewModel { AddEventViewModel(get()) }
 }

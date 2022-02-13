@@ -53,4 +53,9 @@
     <string name="guests">Guests</string>
     <string name="admins">Admins</string>
     <string name="no_users_chosen">Вы не выбрали пользователей для добавления</string>
+    <string name="date">Дата</string>
+    <string name="time_start">Начало</string>
+    <string name="time">Время</string>
+    <string name="time_end">Окончание</string>
+    <string name="unknown_duration">неизвестно</string>
 </resources>

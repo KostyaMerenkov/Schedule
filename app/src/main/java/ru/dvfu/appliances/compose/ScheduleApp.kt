@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.zIndex
@@ -41,13 +43,15 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.AddUser
 import ru.dvfu.appliances.compose.appliance.Appliance
 import ru.dvfu.appliances.compose.appliance.NewAppliance
-import ru.dvfu.appliances.compose.components.FabMenuItem
-import ru.dvfu.appliances.compose.components.FabWithMenu
-import ru.dvfu.appliances.compose.components.MultiFabState
+import ru.dvfu.appliances.compose.components.*
+import ru.dvfu.appliances.compose.home.AddEvent
+import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalComposeUiApi
@@ -175,87 +179,4 @@ private fun NavGraphBuilder.NavGraph(
     composable(
         route = MainDestinations.SETTINGS_ROUTE,
     ) { Settings(navController, upPress) }
-}
-
-@Composable
-fun AddEvent(navController: NavController) {
-
-    Scaffold(topBar = {
-        ScheduleAppBar(title = "Добавление события", backClick = navController::popBackStack)
-    }) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            SelectableCalendar()
-        }
-    }
-
-}
-
-
-@Composable
-fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
-
-    val fabState = remember { mutableStateOf(MultiFabState.COLLAPSED) }
-
-    Scaffold(topBar = {
-        TopAppBar(
-            title = { /*Text(text = R.string.androidx_startup)*/ },
-            navigationIcon = {
-                IconButton(onClick = { openDrawer() }
-                ) {
-                    Icon(Icons.Filled.Menu, contentDescription = "")
-                }
-            },
-            backgroundColor = Color(0xFFFF5470)
-        )
-    }, floatingActionButton = {
-        FabWithMenu(
-            modifier = Modifier
-                .padding(bottom = 20.dp)
-                .zIndex(5f),
-            fabState = fabState,
-            items = listOf(
-                FabMenuItem(
-                    icon = Icons.Default.MoreTime,
-                    text = "Создать бронирование",
-                    onClick = { navController.navigate(MainDestinations.ADD_EVENT) }
-                ),
-                FabMenuItem(
-                    icon = Icons.Default.AddTask,
-                    text = "Создать событие",
-                    onClick = { navController.navigate(MainDestinations.ADD_EVENT) }
-                )
-            )
-        )
-    }
-    ) {
-        AnimatedVisibility(
-            fabState.value == MultiFabState.EXPANDED,
-            modifier = Modifier
-                .zIndex(4f)
-                .fillMaxSize(),
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Box(
-                modifier = Modifier
-                    .background(Color.Black.copy(0.6f))
-                    .clickable(role = Role.Image) {
-                        fabState.value = MultiFabState.COLLAPSED
-                    })
-        }
-
-        Box(
-            Modifier
-                .background(Color(0XFFE3DAC9))
-                .padding(16.dp)
-                .fillMaxSize(),
-        ) {
-            Text(
-                text = stringResource(id = R.string.calendar),
-                fontSize = 22.sp,
-                fontFamily = FontFamily.Serif,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-    }
 }

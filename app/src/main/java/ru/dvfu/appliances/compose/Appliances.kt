@@ -150,6 +150,7 @@ fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
                 .height(200.dp)
                 .fillMaxWidth()
                 .padding(5.dp)
+
         ) {
 
             Box(
