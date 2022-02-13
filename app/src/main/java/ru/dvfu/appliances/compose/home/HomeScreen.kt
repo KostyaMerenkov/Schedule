@@ -33,6 +33,7 @@ import ru.dvfu.appliances.compose.components.FabWithMenu
 import ru.dvfu.appliances.compose.components.MultiFabState
 import ru.dvfu.appliances.compose.event_calendar.Schedule
 import ru.dvfu.appliances.compose.event_calendar.sampleEvents
+import java.time.LocalDate
 
 @Composable
 fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
@@ -86,20 +87,9 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
                         fabState.value = MultiFabState.COLLAPSED
                     })
         }
-
-        /*Box(
-            Modifier
-                .background(Color(0XFFE3DAC9))
-                .padding(16.dp)
-                .fillMaxSize(),
-        ) {
-            Text(
-                text = stringResource(id = R.string.calendar),
-                fontSize = 22.sp,
-                fontFamily = FontFamily.Serif,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }*/
-        Schedule(sampleEvents)
+        Schedule(sampleEvents,
+            //minDate = LocalDate.now().minusDays(1),
+            //maxDate = LocalDate.now().plusDays(1)
+        )
     }
 }

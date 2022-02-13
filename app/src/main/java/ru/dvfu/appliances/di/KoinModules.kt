@@ -10,7 +10,7 @@ import ru.dvfu.appliances.model.repository.CloudFirestoreDatabaseImpl
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.FirebaseUserRepositoryImpl
 import ru.dvfu.appliances.model.repository.UserRepository
-import ru.dvfu.appliances.compose.viewmodels.ApplianceViewModel
+import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
 import ru.dvfu.appliances.compose.viewmodels.MainViewModel
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
@@ -33,7 +33,7 @@ val mainActivity = module {
     viewModel { ProfileViewModel(get()) }
 
     //Appliances
-    viewModel { ApplianceViewModel(get(),get()) }
+    viewModel { ApplianceDetailsViewModel(get(),get()) }
     viewModel { NewApplianceViewModel(get()) }
     //viewModel { ApplianceUsersViewModel(get()) }
     viewModel { AppliancesViewModel(get(), get()) }

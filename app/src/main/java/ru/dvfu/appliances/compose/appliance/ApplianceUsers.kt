@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,7 +24,7 @@ import de.charlex.compose.RevealSwipe
 import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.*
-import ru.dvfu.appliances.compose.viewmodels.ApplianceViewModel
+import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 
@@ -36,10 +35,10 @@ fun ApplianceUsers(
     navController: NavController,
     appliance: Appliance,
 ) {
-    val viewModel: ApplianceViewModel by viewModel()
-    val currentUser: User by viewModel.currentUser.collectAsState(User())
+    val detailsViewModel: ApplianceDetailsViewModel by viewModel()
+    val currentUser: User by detailsViewModel.currentUser.collectAsState(User())
 
-    val users by viewModel.currentUsers.collectAsState()
+    val users by detailsViewModel.currentUsers.collectAsState()
 
     Scaffold(backgroundColor = Color.Transparent) {
 
@@ -51,7 +50,7 @@ fun ApplianceUsers(
                 },
                 addClicked = { onAddClick(navController, appliance) },
                 deleteClicked = { userToDelete ->
-                    viewModel.deleteUser(userToDelete, appliance)
+                    detailsViewModel.deleteUser(userToDelete, appliance)
                 },
                 isSuperuserOrAdmin = appliance.isUserSuperuserOrAdmin(currentUser)
             )

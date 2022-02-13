@@ -19,7 +19,7 @@ import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.navigate
-import ru.dvfu.appliances.compose.viewmodels.ApplianceViewModel
+import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 
@@ -30,10 +30,10 @@ fun ApplianceSuperUsers(
     navController: NavController,
     appliance: Appliance,
 ) {
-    val viewModel: ApplianceViewModel by viewModel()
-    val currentUser by viewModel.currentUser.collectAsState(User())
+    val detailsViewModel: ApplianceDetailsViewModel by viewModel()
+    val currentUser by detailsViewModel.currentUser.collectAsState(User())
 
-    val superUsers by viewModel.currentSuperUsers.collectAsState()
+    val superUsers by detailsViewModel.currentSuperUsers.collectAsState()
 
     Scaffold(backgroundColor = Color.Transparent) {
 
@@ -46,7 +46,7 @@ fun ApplianceSuperUsers(
                     },
                     addClicked = { onAddSuperUserClick(navController, appliance) },
                     deleteClicked = { userToDelete ->
-                        viewModel.deleteSuperUser(userToDelete, appliance)
+                        detailsViewModel.deleteSuperUser(userToDelete, appliance)
                     },
                     isSuperuserOrAdmin = appliance.isUserSuperuserOrAdmin(currentUser)
                 )

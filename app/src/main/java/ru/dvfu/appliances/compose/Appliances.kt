@@ -152,7 +152,6 @@ fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
                 .padding(5.dp)
 
         ) {
-
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier

@@ -24,15 +24,14 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.compose.viewmodels.ApplianceViewModel
-import ru.dvfu.appliances.model.repository.entity.Roles
+import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun Appliance(navController: NavController, upPress: () -> Unit, appliance: Appliance) {
-    val viewModel: ApplianceViewModel by viewModel()
+fun ApplianceDetails(navController: NavController, upPress: () -> Unit, appliance: Appliance) {
+    val viewModel: ApplianceDetailsViewModel by viewModel()
 
     viewModel.setAppliance(appliance)
 
@@ -96,7 +95,7 @@ fun Appliance(navController: NavController, upPress: () -> Unit, appliance: Appl
 fun ApplianceTopBar(
     user: User,
     appliance: Appliance,
-    viewModel: ApplianceViewModel,
+    detailsViewModel: ApplianceDetailsViewModel,
     upPress: () -> Unit
 ) {
 
@@ -105,7 +104,7 @@ fun ApplianceTopBar(
             stringResource(R.string.appliance),
             backClick = upPress,
             actionDelete = true,
-            deleteClick = { viewModel.deleteAppliance(); upPress() },
+            deleteClick = { detailsViewModel.deleteAppliance(); upPress() },
             elevation = 0.dp
         )
     } else {

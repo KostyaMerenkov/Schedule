@@ -1,57 +1,31 @@
 package ru.dvfu.appliances.compose
 
 import Drawer
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.google.accompanist.pager.ExperimentalPagerApi
-import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.get
-import org.koin.androidx.compose.getViewModel
-import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.AddUser
-import ru.dvfu.appliances.compose.appliance.Appliance
+import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.NewAppliance
-import ru.dvfu.appliances.compose.components.*
 import ru.dvfu.appliances.compose.home.AddEvent
-import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalComposeUiApi
@@ -150,7 +124,7 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(
         route = MainDestinations.APPLIANCE_ROUTE,
-    ) { Appliance(navController, upPress, it.requiredArg(Arguments.APPLIANCE)) }
+    ) { ApplianceDetails(navController, upPress, it.requiredArg(Arguments.APPLIANCE)) }
 
     composable(
         route = MainDestinations.ADD_USER_TO_APPLIANCE,

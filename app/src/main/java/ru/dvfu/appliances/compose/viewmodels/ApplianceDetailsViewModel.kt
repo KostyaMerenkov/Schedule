@@ -13,7 +13,7 @@ import ru.dvfu.appliances.model.repository.UserRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 
-class ApplianceViewModel(
+class ApplianceDetailsViewModel(
     private val userRepository: UserRepository,
     private val repository: Repository,
 ) : ViewModel() {
