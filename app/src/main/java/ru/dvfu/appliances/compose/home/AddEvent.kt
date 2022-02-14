@@ -33,6 +33,7 @@ import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.ItemUserWithSelection
 import ru.dvfu.appliances.compose.components.*
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
+import ru.dvfu.appliances.compose.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import java.util.*
@@ -72,17 +73,19 @@ fun AddEvent(navController: NavController) {
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun ChooseAppliance() {
-    val currentOption: MutableState<Appliance?> = remember {
-        mutableStateOf(null)
-    }
+    PrimaryText(text = "Выберите прибор:", modifier = Modifier.fillMaxWidth())
+
+    val currentOption: MutableState<Appliance?> = remember { mutableStateOf(null) }
     val appliances = mutableListOf<Appliance>()
     appliances.apply {
         repeat(10) {
             add(Appliance(name = it.toString()))
         }
     }
-    ApplianceSelection(radioOptions = appliances, currentOption = currentOption, onSelectedItem = {
-        currentOption.value = it
+    ApplianceSelection(radioOptions = appliances, currentOption = currentOption,
+    onSelectedItem = {
+        if (currentOption.value == it) currentOption.value = null
+        else currentOption.value = it
     })
 }
 
@@ -96,9 +99,9 @@ fun ItemApplianceSelectable(appliance: Appliance, isSelected: Boolean, appliance
     val selectedColor = animateColorAsState(
         targetValue = if (isSelected) Color.LightGray else MaterialTheme.colors.surface
     )
-    val borderModifier = if (isSelected) Modifier else Modifier
+    val borderModifier = if (isSelected) Modifier.border(2.dp, border.value, CircleShape) else Modifier.border(1.dp, Color.Black, CircleShape)
     MyCard(
-        onClick = applianceClicked, modifier = Modifier/*.border(2.dp, border.value)*/,
+        onClick = applianceClicked, modifier = Modifier,
         backgroundColor = selectedColor.value
     ) {
         Column(
@@ -115,11 +118,11 @@ fun ItemApplianceSelectable(appliance: Appliance, isSelected: Boolean, appliance
                 modifier = Modifier
                     .requiredSize(100.dp)
                     .clip(CircleShape)
-                    .border(1.dp, Color.Black, CircleShape)
-                    .background(Color(appliance.color)),
+                    .background(Color(appliance.color))
+                    .then(borderModifier),
             ) {
-                Crossfade(targetState = isSelected) {
-                    if (it) {
+                //Crossfade(targetState = isSelected) {
+                    if (isSelected) {
                         Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
                     } else {
                         Text(
@@ -130,7 +133,7 @@ fun ItemApplianceSelectable(appliance: Appliance, isSelected: Boolean, appliance
                             style = MaterialTheme.typography.h4,
                         )
                     }
-                }
+                //}
             }
             Text(appliance.name,
                 maxLines = 1,
