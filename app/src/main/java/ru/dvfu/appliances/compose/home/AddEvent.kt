@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose.home
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.*
@@ -9,10 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.CheckCircleOutline
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Today
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -120,13 +118,19 @@ fun ItemApplianceSelectable(appliance: Appliance, isSelected: Boolean, appliance
                     .border(1.dp, Color.Black, CircleShape)
                     .background(Color(appliance.color)),
             ) {
-                Text(
-                    if (appliance.name.isEmpty()) ""
-                    else appliance.name.first().uppercase(),
-                    maxLines = 1,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.h4,
-                )
+                Crossfade(targetState = isSelected) {
+                    if (it) {
+                        Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
+                    } else {
+                        Text(
+                            if (appliance.name.isEmpty()) ""
+                            else appliance.name.first().uppercase(),
+                            maxLines = 1,
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.h4,
+                        )
+                    }
+                }
             }
             Text(appliance.name,
                 maxLines = 1,
