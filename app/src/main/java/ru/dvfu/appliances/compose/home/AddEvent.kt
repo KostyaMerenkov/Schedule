@@ -1,12 +1,9 @@
 package ru.dvfu.appliances.compose.home
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -23,25 +20,32 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
-import coil.transform.CircleCropTransformation
 import org.koin.androidx.compose.get
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
-import ru.dvfu.appliances.compose.appliance.ApplianceDetails
-import ru.dvfu.appliances.compose.appliance.ItemUserWithSelection
+import ru.dvfu.appliances.compose.appliance.FabWithLoading
 import ru.dvfu.appliances.compose.components.*
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
 import ru.dvfu.appliances.compose.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.ui.BaseViewState
+import ru.dvfu.appliances.ui.ViewState
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.*
 
 @Composable
 fun AddEvent(navController: NavController) {
     val viewModel: AddEventViewModel = get()
     val scrollState = rememberScrollState()
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is UiState.Success -> navController.popBackStack()
+        }
+    }
 
     val calendar = remember { Calendar.getInstance() }
 
@@ -53,7 +57,13 @@ fun AddEvent(navController: NavController) {
 
     Scaffold(topBar = {
         ScheduleAppBar(title = "Добавление события", backClick = navController::popBackStack)
-    }) {
+    },
+        floatingActionButton = {
+            FabWithLoading(showLoading = uiState is UiState.InProgress,
+                onClick = { viewModel.addEvent() }) {
+                Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
+            }
+        }) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(30.dp),
@@ -61,10 +71,14 @@ fun AddEvent(navController: NavController) {
                 .fillMaxSize()
                 .verticalScroll(state = scrollState, enabled = true)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
-
         ) {
             DateAndTime(viewModel)
-            ChooseAppliance()
+            ChooseAppliance(
+                appliancesState = viewModel.appliancesState.collectAsState().value,
+                selectedAppliance = viewModel.selectedAppliance.collectAsState(),
+            ) {
+                viewModel.onApplianceSelected(it)
+            }
         }
     }
 
@@ -72,34 +86,54 @@ fun AddEvent(navController: NavController) {
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun ChooseAppliance() {
-    PrimaryText(text = "Выберите прибор:", modifier = Modifier.fillMaxWidth())
-
-    val currentOption: MutableState<Appliance?> = remember { mutableStateOf(null) }
-    val appliances = mutableListOf<Appliance>()
-    appliances.apply {
-        repeat(10) {
-            add(Appliance(name = it.toString()))
+fun ChooseAppliance(
+    appliancesState: ViewState<List<Appliance>>,
+    selectedAppliance: State<Appliance?>,
+    onApplianceSelected: (Appliance) -> Unit
+) {
+    when (appliancesState) {
+        is ViewState.Success -> {
+            Column {
+                PrimaryText(
+                    text = stringResource(id = R.string.choose_appliance),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                ApplianceSelection(radioOptions = appliancesState.data,
+                    currentOption = selectedAppliance,
+                    onSelectedItem = {
+                        onApplianceSelected(it)
+                    })
+            }
+        }
+        is ViewState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         }
     }
-    ApplianceSelection(radioOptions = appliances, currentOption = currentOption,
-    onSelectedItem = {
-        if (currentOption.value == it) currentOption.value = null
-        else currentOption.value = it
-    })
+
 }
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun ItemApplianceSelectable(appliance: Appliance, isSelected: Boolean, applianceClicked: () -> Unit) {
+fun ItemApplianceSelectable(
+    appliance: Appliance,
+    isSelected: Boolean,
+    applianceClicked: () -> Unit
+) {
     val border = animateColorAsState(
         targetValue = if (isSelected) MaterialTheme.colors.primary else Color.White.copy(0f)
     )
     val selectedColor = animateColorAsState(
         targetValue = if (isSelected) Color.LightGray else MaterialTheme.colors.surface
     )
-    val borderModifier = if (isSelected) Modifier.border(2.dp, border.value, CircleShape) else Modifier.border(1.dp, Color.Black, CircleShape)
+    val borderModifier =
+        if (isSelected) Modifier.border(2.dp, border.value, CircleShape) else Modifier.border(
+            1.dp,
+            Color.Black,
+            CircleShape
+        )
     MyCard(
         onClick = applianceClicked, modifier = Modifier,
         backgroundColor = selectedColor.value
@@ -122,20 +156,21 @@ fun ItemApplianceSelectable(appliance: Appliance, isSelected: Boolean, appliance
                     .then(borderModifier),
             ) {
                 //Crossfade(targetState = isSelected) {
-                    if (isSelected) {
-                        Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
-                    } else {
-                        Text(
-                            if (appliance.name.isEmpty()) ""
-                            else appliance.name.first().uppercase(),
-                            maxLines = 1,
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.h4,
-                        )
-                    }
+                if (isSelected) {
+                    Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
+                } else {
+                    Text(
+                        if (appliance.name.isEmpty()) ""
+                        else appliance.name.first().uppercase(),
+                        maxLines = 1,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.h4,
+                    )
+                }
                 //}
             }
-            Text(appliance.name,
+            Text(
+                appliance.name,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Normal,

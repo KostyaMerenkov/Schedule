@@ -42,4 +42,5 @@
     <string name="time">Время</string>
     <string name="time_end">Окончание</string>
     <string name="unknown_duration">неизвестно</string>
+    <string name="choose_appliance">Выберите прибор</string>
 </resources>

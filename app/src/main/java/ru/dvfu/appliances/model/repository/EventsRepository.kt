@@ -4,11 +4,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.ui.Progress
 
-interface Repository: EventsRepository {
-    suspend fun addNewUser(user: User): StateFlow<Progress>
-    suspend fun getUsers(): Flow<List<User>>
+interface EventsRepository {
+    suspend fun addNewEvent(event: Event): StateFlow<Progress>
+
+    suspend fun getAllEventsFromDate(date: Long): Flow<List<Event>>
+    /*suspend fun getUsers(): Flow<List<User>>
 
     suspend fun addUsersToAppliance(appliance: Appliance, userIds: List<String>): StateFlow<Progress>
     suspend fun addSuperUsersToAppliance(appliance: Appliance, superuserIds: List<String>): StateFlow<Progress>
@@ -24,7 +27,7 @@ interface Repository: EventsRepository {
     suspend fun deleteUserFromAppliance(userToDelete: User, from: Appliance)
     suspend fun deleteSuperUserFromAppliance(userToDelete: User, from: Appliance)
     suspend fun getSuperUserAppliances(userId: String): Flow<List<Appliance>>
-    suspend fun getUserAppliances(userId: String): Flow<List<Appliance>>
+    suspend fun getUserAppliances(userId: String): Flow<List<Appliance>>*/
 
 
 }

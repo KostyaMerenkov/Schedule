@@ -68,7 +68,7 @@ fun BasicEvent(
             Text(
                 text = event.description,
                 style = MaterialTheme.typography.body2,
-                maxLines = 1,
+
                 overflow = TextOverflow.Ellipsis,
             )
         }
@@ -83,7 +83,7 @@ val sampleEvents = listOf(
         end = LocalDateTime.parse("2021-05-18T11:00:00"),
         description = "Tune in to find out about how we're furthering our mission to organize the world’s information and make it universally accessible and useful.",
     ),
-    Event(
+    /*Event(
         name = "Developer Keynote",
         color = Color(0xFFAFBBF2),
         start = LocalDateTime.parse("2021-05-18T09:00:00"),
@@ -103,7 +103,7 @@ val sampleEvents = listOf(
         start = LocalDateTime.parse("2021-05-18T11:00:00"),
         end = LocalDateTime.parse("2021-05-18T11:45:00"),
         description = "Learn about the latest design improvements to help you build personal dynamic experiences with Material Design.",
-    ),
+    ),*/
     Event(
         name = "What's new in Machine Learning",
         color = Color(0xFFF4BFDB),

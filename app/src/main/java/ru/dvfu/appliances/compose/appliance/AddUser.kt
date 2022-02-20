@@ -2,6 +2,7 @@ package ru.dvfu.appliances.compose.appliance
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -97,21 +98,10 @@ fun AddUser(
         )
     },
         floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        if (uiState.value !is BaseViewState.Loading) {
-                            viewModel.addToAppliance(appliance, selectedUsers)
-                        }
-                    },
-                    //shape = fabShape,
-                    backgroundColor = Color(0xFFFF8C00),
-                ) {
-                    AnimatedVisibility(visible = uiState.value is BaseViewState.Loading) {
-                        CircularProgressIndicator()
-                    }
-                    AnimatedVisibility(visible = uiState.value !is BaseViewState.Loading) {
-                        Icon(Icons.Filled.Check, "")
-                }}
+                FabWithLoading(showLoading = uiState.value is BaseViewState.Loading,
+                onClick = { viewModel.addToAppliance(appliance, selectedUsers) }) {
+                    Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
+                }
         }) {
         AnimatedVisibility(visible = usersState is ViewState.Loading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -128,6 +118,18 @@ fun AddUser(
         }
 
 
+    }
+}
+
+@Composable
+fun FabWithLoading(showLoading: Boolean, onClick: ()-> Unit, content: @Composable ()-> Unit) {
+    FloatingActionButton(
+        onClick = onClick,
+        backgroundColor = MaterialTheme.colors.secondary,
+    ) {
+        Crossfade(targetState = showLoading) {
+            if (it) { CircularProgressIndicator() } else content.invoke()
+        }
     }
 }
 

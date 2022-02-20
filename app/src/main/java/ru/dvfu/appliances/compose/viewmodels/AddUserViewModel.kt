@@ -50,7 +50,7 @@ class AddUserViewModel(
 
     fun addToAppliance(appliance: Appliance, selectedUsers: MutableList<User>) {
         if (selectedUsers.isEmpty()) SnackbarManager.showMessage(R.string.no_users_chosen)
-        else {
+        else if (uiState.value !is BaseViewState.Loading) {
             when (areSuperUsers) {
                 true -> {
                     val usersToAdd = selectedUsers

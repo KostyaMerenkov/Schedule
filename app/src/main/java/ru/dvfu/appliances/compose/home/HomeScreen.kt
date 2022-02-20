@@ -13,9 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddTask
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreTime
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
+import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.components.FabMenuItem
@@ -37,6 +36,8 @@ import java.time.LocalDate
 
 @Composable
 fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
+    val viewModel: MainScreenViewModel = getViewModel()
+    val events by viewModel.events.collectAsState()
 
     val fabState = remember { mutableStateOf(MultiFabState.COLLAPSED) }
 
@@ -87,9 +88,11 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
                         fabState.value = MultiFabState.COLLAPSED
                     })
         }
-        Schedule(sampleEvents,
+        /*Schedule(sampleEvents,
             //minDate = LocalDate.now().minusDays(1),
             //maxDate = LocalDate.now().plusDays(1)
-        )
+        )*/
+        Schedule(events = events, minDate = LocalDate.now().minusDays(1),
+        maxDate = LocalDate.now().plusDays(1))
     }
 }
