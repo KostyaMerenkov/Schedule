@@ -43,4 +43,8 @@
     <string name="time_end">Окончание</string>
     <string name="unknown_duration">неизвестно</string>
     <string name="choose_appliance">Выберите прибор</string>
+    <string name="commentary">Комментарий</string>
+    <string name="duration_error">Продолжительность события не может быть меньше 10 минут</string>
+    <string name="appliance_not_chosen">Вы не выбрали прибор!</string>
+    <string name="error_occured">Произошла ошибка</string>
 </resources>

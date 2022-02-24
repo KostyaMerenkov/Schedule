@@ -93,6 +93,7 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
             //maxDate = LocalDate.now().plusDays(1)
         )*/
         Schedule(events = events, minDate = LocalDate.now().minusDays(1),
-        maxDate = LocalDate.now().plusDays(1))
+        maxDate = LocalDate.now().plusDays(1),
+            onEventClick = {})
     }
 }

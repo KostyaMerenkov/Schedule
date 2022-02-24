@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.viewModel
+import ru.dvfu.appliances.R
+import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -38,7 +40,10 @@ class AddEventViewModel(
     val date = mutableStateOf(0L)
     val timeStart = mutableStateOf(0L)
     val timeEnd = mutableStateOf(0L)
+    val commentary = mutableStateOf("")
 
+    val isDurationError: MutableStateFlow<Boolean>
+    get() = MutableStateFlow(TimeUnit.MILLISECONDS.toMinutes(timeEnd.value - timeStart.value) < 0)
     val duration: MutableStateFlow<String>
         get() {
             /*       LocalDateTime
@@ -51,6 +56,13 @@ class AddEventViewModel(
                 TimeUnit.MILLISECONDS.toMinutes(mills) % TimeUnit.HOURS.toMinutes(1)
             )
             return MutableStateFlow(period)
+        }
+
+    val isError: MutableStateFlow<Boolean>
+        get() {
+            return MutableStateFlow<Boolean>(
+                isDurationError.value || selectedAppliance.value == null
+            )
         }
 
     init {
@@ -69,7 +81,7 @@ class AddEventViewModel(
     }
 
     fun getDuration() {
-        val start = timeStart.value
+        /*val start = timeStart.value
         val end = timeEnd.value
 
         if (start != 0L && end != 0L) {
@@ -81,32 +93,50 @@ class AddEventViewModel(
                 TimeUnit.MILLISECONDS.toMinutes(mills) % TimeUnit.HOURS.toMinutes(1)
             )
             duration.value = period
-        } else duration.value = ""
+        } else duration.value = ""*/
     }
 
     fun addEvent() {
-        viewModelScope.launch {
-            repository.addNewEvent(
-                Event(
-                    randomUUID(),
-                    timeStart.value,
-                    timeEnd.value,
-                    _selectedAppliance.value!!.id,
-                )
-            ).collect { progress ->
-                when (progress) {
-                    is Progress.Complete -> {
-                        _uiState.value = UiState.Success
+        if (isError.value) {
+            showError()
+        } else {
+            viewModelScope.launch {
+                repository.addNewEvent(
+                    Event(
+                        randomUUID(),
+                        timeStart.value,
+                        timeEnd.value,
+                        commentary.value,
+                        _selectedAppliance.value!!.id,
+                    )
+                ).collect { progress ->
+                    when (progress) {
+                        is Progress.Complete -> {
+                            _uiState.value = UiState.Success
+                        }
+                        is Progress.Loading -> {
+                            _uiState.value = UiState.InProgress
+                        }
+                        is Progress.Error -> {
+                            _uiState.value = UiState.Error
+                        }
                     }
-                    is Progress.Loading -> {
-                        _uiState.value = UiState.InProgress
-                    }
-                    is Progress.Error -> {
-                        _uiState.value = UiState.Error
-                    }
-                }
 
+                }
             }
+        }
+
+    }
+
+    private fun showError() {
+        when {
+            TimeUnit.MILLISECONDS.toMinutes(timeEnd.value - timeStart.value) < TimeUnit.MILLISECONDS.toMinutes(10) -> {
+                SnackbarManager.showMessage(R.string.duration_error)
+            }
+            selectedAppliance.value == null -> {
+                SnackbarManager.showMessage(R.string.appliance_not_chosen)
+            }
+            else -> SnackbarManager.showMessage(R.string.error_occured)
         }
     }
 

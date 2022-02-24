@@ -26,7 +26,8 @@ import kotlin.math.roundToInt
 fun Schedule(
     events: List<Event>,
     modifier: Modifier = Modifier,
-    eventContent: @Composable (positionedEvent: PositionedEvent) -> Unit = { BasicEvent(positionedEvent = it) },
+    onEventClick: (Event) -> Unit,
+    eventContent: @Composable (positionedEvent: PositionedEvent) -> Unit = { BasicEvent(positionedEvent = it, onEventClick = onEventClick) },
     dayHeader: @Composable (day: LocalDate) -> Unit = { BasicDayHeader(day = it) },
     timeLabel: @Composable (time: LocalTime) -> Unit = { BasicSidebarLabel(time = it) },
     minDate: LocalDate = events.minByOrNull(Event::start)?.start?.toLocalDate() ?: LocalDate.now(),
@@ -100,7 +101,7 @@ fun Schedule(
 fun BasicSchedule(
     events: List<Event>,
     modifier: Modifier = Modifier,
-    eventContent: @Composable (positionedEvent: PositionedEvent) -> Unit = { BasicEvent(positionedEvent = it) },
+    eventContent: @Composable (positionedEvent: PositionedEvent) -> Unit = { BasicEvent(positionedEvent = it, onEventClick = {}) },
     minDate: LocalDate = events.minByOrNull(Event::start)?.start?.toLocalDate() ?: LocalDate.now(),
     maxDate: LocalDate = events.maxByOrNull(Event::end)?.end?.toLocalDate() ?: LocalDate.now(),
     minTime: LocalTime = LocalTime.MIN,
@@ -169,5 +170,5 @@ fun BasicSchedule(
 @Preview(showBackground = true)
 @Composable
 fun SchedulePreview() {
-    Schedule(sampleEvents)
+    Schedule(sampleEvents, onEventClick = {})
 }

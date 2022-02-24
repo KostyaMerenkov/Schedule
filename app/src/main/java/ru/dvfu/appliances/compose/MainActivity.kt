@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
             // Log and toast
             val msg = getString(R.string.msg_token_fmt, token)
             Log.d(this.localClassName, msg)
-            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+            //Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
         })
     }
 }

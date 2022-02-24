@@ -1,11 +1,13 @@
 package ru.dvfu.appliances.compose.event_calendar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +28,7 @@ import java.time.format.DateTimeFormatter
 fun BasicEvent(
     positionedEvent: PositionedEvent,
     modifier: Modifier = Modifier,
+    onEventClick: (Event) -> Unit,
 ) {
     val event = positionedEvent.event
     val topRadius = if (positionedEvent.splitType == SplitType.Start || positionedEvent.splitType == SplitType.Both) 0.dp else 4.dp
@@ -47,6 +50,7 @@ fun BasicEvent(
                     bottomStart = bottomRadius,
                 )
             )
+            .clickable { onEventClick(event) }
             .padding(4.dp)
     ) {
         Text(
@@ -138,6 +142,7 @@ fun EventPreview(
 ) {
         BasicEvent(
             PositionedEvent(event, SplitType.None, event.start.toLocalDate(), event.start.toLocalTime(), event.end.toLocalTime()),
-            modifier = Modifier.sizeIn(maxHeight = 64.dp)
+            modifier = Modifier.sizeIn(maxHeight = 64.dp),
+            onEventClick = {}
         )
 }

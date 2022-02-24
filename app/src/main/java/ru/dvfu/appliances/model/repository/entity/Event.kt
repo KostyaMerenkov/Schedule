@@ -8,6 +8,7 @@ data class Event(
     val id: String = "",
     val timeStart: Long = 0L,
     val timeEnd: Long = 0L,
+    val commentary: String = "",
     val applianceId: String = "",
     val superUserId: String? = null,
     val approved: Boolean = false,
