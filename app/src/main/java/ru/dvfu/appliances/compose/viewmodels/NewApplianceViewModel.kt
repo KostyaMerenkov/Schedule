@@ -8,13 +8,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.compose.ui.theme.pickerColors
+import ru.dvfu.appliances.model.repository.AppliancesRepository
 
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.Progress
 
-class NewApplianceViewModel(private val repository: Repository): ViewModel() {
+class NewApplianceViewModel(private val repository: AppliancesRepository): ViewModel() {
 
     private val _uiState = MutableStateFlow<BaseViewState>(BaseViewState.Success(null))
     val uiState: StateFlow<BaseViewState>
@@ -46,7 +47,7 @@ class NewApplianceViewModel(private val repository: Repository): ViewModel() {
         }
     }
 
-    fun isInputCorrect() = title.value.isNotBlank()
+    private fun isInputCorrect() = title.value.isNotBlank()
 
     fun createNewAppliance(): Boolean {
         return if (isInputCorrect()) {

@@ -11,14 +11,21 @@ import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
 import ru.dvfu.appliances.compose.viewmodels.MainViewModel
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
+import ru.dvfu.appliances.model.datasource.*
 import ru.dvfu.appliances.model.repository.*
+import ru.dvfu.appliances.model.repository_offline.OfflineRepository
+import ru.dvfu.appliances.model.utils.RepositoryCollections
 
 val application = module {
+    single { RepositoryCollections() }
     viewModel { MainViewModel() }
 
-    single<Repository> { CloudFirestoreDatabaseImpl() }
-    single<EventsRepository> { EventsRepositoryImpl() }
-    single<UserRepository> { FirebaseUserRepositoryImpl(androidContext()) }
+    single<OfflineRepository> { OfflineRepositoryImpl(dbCollections = get()) }
+
+    single<Repository> { CloudFirestoreDatabaseImpl(dbCollections = get()) }
+    single<EventsRepository> { EventsRepositoryImpl(dbCollections = get()) }
+    single<AppliancesRepository> { AppliancesRepositoryImpl(dbCollections = get()) }
+    single<UsersRepository> { FirebaseUsersRepositoryImpl(androidContext(), dbCollections = get()) }
 
     single { Logger() }
     single { SnackbarManager }
@@ -39,8 +46,8 @@ val mainActivity = module {
     viewModel { NewApplianceViewModel(get()) }
     //viewModel { ApplianceUsersViewModel(get()) }
     viewModel { AppliancesViewModel(get(), get()) }
-    viewModel { AddUserViewModel(it.get(), it.get(), get()) }
-    viewModel { AddEventViewModel(get()) }
+    viewModel { AddUserViewModel(it.get(), it.get(), get(), get()) }
+    viewModel { AddEventViewModel(get(), get(), get()) }
 }
 
 /*
@@ -57,9 +64,9 @@ at com.google.firebase.firestore.DocumentSnapshot.toObject(DocumentSnapshot.java
 at com.google.firebase.firestore.QueryDocumentSnapshot.toObject(QueryDocumentSnapshot.java:116)
 at com.google.firebase.firestore.QuerySnapshot.toObjects(QuerySnapshot.java:184)
 at com.google.firebase.firestore.QuerySnapshot.toObjects(QuerySnapshot.java:166)
-at ru.dvfu.appliances.model.repository.EventsRepositoryImpl.getEventsSuccessListener$lambda-1(EventsRepositoryImpl.kt:64)
-at ru.dvfu.appliances.model.repository.EventsRepositoryImpl.$r8$lambda$uAWxH3pApi2reRc2I3fqZIIUwcA(Unknown Source:0)
-at ru.dvfu.appliances.model.repository.EventsRepositoryImpl$$ExternalSyntheticLambda1.onEvent(Unknown Source:4)
+at ru.dvfu.appliances.model.datasource.EventsRepositoryImpl.getEventsSuccessListener$lambda-1(EventsRepositoryImpl.kt:64)
+at ru.dvfu.appliances.model.datasource.EventsRepositoryImpl.$r8$lambda$uAWxH3pApi2reRc2I3fqZIIUwcA(Unknown Source:0)
+at ru.dvfu.appliances.model.datasource.EventsRepositoryImpl$$ExternalSyntheticLambda1.onEvent(Unknown Source:4)
 at com.google.firebase.firestore.Query.lambda$addSnapshotListenerInternal$2(Query.java:1133)
 at com.google.firebase.firestore.Query$$Lambda$3.onEvent(Unknown Source:6)
 at com.google.firebase.firestore.core.AsyncEventListener.lambda$onEvent$0(AsyncEventListener.java:42)

@@ -1,37 +1,37 @@
-package ru.dvfu.appliances.model.repository
+package ru.dvfu.appliances.model.datasource
 
 import android.util.Log
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.channelFlow
+import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.ui.Progress
 
-class CloudFirestoreDatabaseImpl() : Repository, EventsRepository {
-
-    private val realtimeDatabase by lazy {
-        //FirebaseDatabase.getInstance().reference
-        FirebaseDatabase.getInstance("https://schedule-4c151-default-rtdb.europe-west1.firebasedatabase.app/")
-    }
-    private val cloudFirestore by lazy { FirebaseFirestore.getInstance() }
-    private var TAG = "FirestoreDatabase"
+class AppliancesRepositoryImpl(
+    private val dbCollections: RepositoryCollections,
+) : AppliancesRepository {
 
     override suspend fun deleteUserFromAppliance(userToDelete: User, from: Appliance) {
-        getAppliancesCollection().document(from.id)
+        dbCollections.getAppliancesCollection().document(from.id)
             .update("userIds", from.userIds.filter { it != userToDelete.userId })
     }
 
     override suspend fun deleteSuperUserFromAppliance(userToDelete: User, from: Appliance) {
-        getAppliancesCollection().document(from.id)
+        dbCollections.getAppliancesCollection().document(from.id)
             .update("superuserIds", from.superuserIds.filter { it != userToDelete.userId })
     }
 
@@ -40,11 +40,11 @@ class CloudFirestoreDatabaseImpl() : Repository, EventsRepository {
         val listeners = mutableListOf<ListenerRegistration>()
 
         listeners.add(
-            getAppliancesCollection().whereArrayContains("userIds", userId)
+            dbCollections.getAppliancesCollection().whereArrayContains("userIds", userId)
                 .addSnapshotListener(getUserAppliancesListener(this))
         )
 
-        awaitClose { listeners.forEach { it.remove() }}
+        awaitClose { listeners.forEach { it.remove() } }
 
     }
 
@@ -66,11 +66,11 @@ class CloudFirestoreDatabaseImpl() : Repository, EventsRepository {
         val listeners = mutableListOf<ListenerRegistration>()
 
         listeners.add(
-            getAppliancesCollection().whereArrayContains("superuserIds", userId)
+            dbCollections.getAppliancesCollection().whereArrayContains("superuserIds", userId)
                 .addSnapshotListener(getSuperUserAppliancesListener(this))
         )
 
-        awaitClose { listeners.forEach { it.remove() }}
+        awaitClose { listeners.forEach { it.remove() } }
 
     }
 
@@ -87,38 +87,12 @@ class CloudFirestoreDatabaseImpl() : Repository, EventsRepository {
             }
         }
 
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun addNewUser(user: User): StateFlow<Progress> {
-        val flow = MutableStateFlow<Progress>(Progress.Loading())
-        if (user.isAnonymous) {
-            flow.emit(Progress.Complete)
-        } else {
-            getUsersCollection().document(user.userId).set(user)
-                .addOnCompleteListener {
-                    flow.tryEmit(Progress.Complete)
-                }
-        }
-        return flow
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun getUsers() = channelFlow {
-        val listeners = mutableListOf<ListenerRegistration>()
-        listeners.add(
-            cloudFirestore.collection("users").addSnapshotListener(getUsersSuccessListener(this))
-        )
-        awaitClose {
-            listeners.forEach { it.remove() }
-        }
-    }
-
     override suspend fun addUsersToAppliance(
         appliance: Appliance,
         userIds: List<String>
     ): StateFlow<Progress> {
         val flow = MutableStateFlow<Progress>(Progress.Loading())
-        getAppliancesCollection().document(appliance.id).update(
+        dbCollections.getAppliancesCollection().document(appliance.id).update(
             "userIds", userIds
         ).addOnCompleteListener {
             flow.tryEmit(Progress.Complete)
@@ -132,7 +106,7 @@ class CloudFirestoreDatabaseImpl() : Repository, EventsRepository {
         superuserIds: List<String>
     ): StateFlow<Progress> {
         val flow = MutableStateFlow<Progress>(Progress.Loading())
-        getAppliancesCollection().document(appliance.id).update(
+        dbCollections.getAppliancesCollection().document(appliance.id).update(
             "superuserIds", superuserIds
         ).addOnCompleteListener {
             flow.tryEmit(Progress.Complete)
@@ -147,7 +121,7 @@ class CloudFirestoreDatabaseImpl() : Repository, EventsRepository {
             val listeners = mutableListOf<Task<QuerySnapshot>>()
 
             listeners.add(
-                getUsersCollection().whereIn("userId", userIds).get()
+                dbCollections.getUsersCollection().whereIn("userId", userIds).get()
                     .addOnCompleteListener(getApplianceUsersSuccessListener(this))
             )
 
@@ -159,7 +133,7 @@ class CloudFirestoreDatabaseImpl() : Repository, EventsRepository {
     override suspend fun getAppliance(appliance: Appliance) = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
         listeners.add(
-            getAppliancesCollection().document(appliance.id)
+            dbCollections.getAppliancesCollection().document(appliance.id)
                 .addSnapshotListener(getApplianceSuccessListener(this))
         )
         awaitClose {
@@ -199,25 +173,12 @@ class CloudFirestoreDatabaseImpl() : Repository, EventsRepository {
             }
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun getUsersSuccessListener(scope: ProducerScope<List<User>>): EventListener<QuerySnapshot> =
-        EventListener<QuerySnapshot> { snapshots, error ->
-            if (error != null) {
-                Log.d("Schedule", "Get all users listener error", error)
-                return@EventListener
-            }
-
-            if (snapshots != null) {
-                val users = snapshots.toObjects(User::class.java)
-                scope.trySend(users)
-            }
-        }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun getAppliances() = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
         listeners.add(
-            cloudFirestore.collection("appliances")
+            dbCollections.getAppliancesCollection()
                 .addSnapshotListener(getAppliancesSuccessListener(this))
         )
         awaitClose {
@@ -261,7 +222,7 @@ class CloudFirestoreDatabaseImpl() : Repository, EventsRepository {
 
     override suspend fun addAppliance(appliance: Appliance): StateFlow<Progress> {
         val flow = MutableStateFlow<Progress>(Progress.Loading())
-        getAppliancesCollection().document(appliance.id).set(appliance)
+        dbCollections.getAppliancesCollection().document(appliance.id).set(appliance)
             .addOnCompleteListener {
                 flow.tryEmit(Progress.Complete)
             }
@@ -269,73 +230,6 @@ class CloudFirestoreDatabaseImpl() : Repository, EventsRepository {
     }
 
     override suspend fun deleteAppliance(appliance: Appliance) {
-        getAppliancesCollection().document(appliance.id).delete()
+        dbCollections.getAppliancesCollection().document(appliance.id).delete()
     }
-
-    //    fun isUserInDatabase(UID: String): Boolean {
-//        return false
-//        TODO("Not yet implemented")
-//        return if (cloudFirestore.collection("users").document(UID).get().addOnCompleteListener {
-//            return it.isSuccessful
-//            }
-//                .isComplete) {
-//            Log.d(TAG, "User $UID is already in database")
-//            true
-//        } else {
-//            Log.d(TAG, "User $UID is not in database")
-//            false
-//        }
-//    }
-    private fun getUsersCollection(): CollectionReference {
-        return cloudFirestore.collection(USERS_COLLECTION)
-    }
-
-    private fun getAppliancesCollection(): CollectionReference {
-        return cloudFirestore.collection(APPLIANCES_COLLECTION)
-    }
-
-    private fun getEventsCollection(): CollectionReference {
-        return cloudFirestore.collection(EVENTS_COLLECTION)
-    }
-
-    companion object {
-        private const val USERS_COLLECTION = "users"
-        private const val APPLIANCES_COLLECTION = "appliances"
-        private const val EVENTS_COLLECTION = "events"
-    }
-    override suspend fun addNewEvent(event: Event): StateFlow<Progress> {
-        val flow = MutableStateFlow<Progress>(Progress.Loading())
-
-        getEventsCollection().document(event.id).set(event).addOnCompleteListener {
-            flow.tryEmit(Progress.Complete)
-        }
-
-        return flow
-    }
-
-    override suspend fun getAllEventsFromDate(date: Long): Flow<List<Event>>
-    = channelFlow {
-        val listeners = mutableListOf<ListenerRegistration>()
-        listeners.add(
-            getEventsCollection().orderBy("timeStart").whereGreaterThan("timeStart", date)
-                .addSnapshotListener(getEventsSuccessListener(this))
-        )
-        awaitClose {
-            listeners.forEach { it.remove() }
-        }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun getEventsSuccessListener(scope: ProducerScope<List<Event>>): EventListener<QuerySnapshot> =
-        EventListener<QuerySnapshot> { snapshots, error ->
-            if (error != null) {
-                Log.d("Schedule", "Get all events listener error", error)
-                return@EventListener
-            }
-
-            if (snapshots != null) {
-                val events = snapshots.toObjects(Event::class.java)
-                scope.trySend(events)
-            }
-        }
 }

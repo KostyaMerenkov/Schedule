@@ -1,17 +1,15 @@
 package ru.dvfu.appliances.compose.viewmodels
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
-import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.model.repository.Repository
+import ru.dvfu.appliances.model.repository.AppliancesRepository
+import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.BaseViewState
@@ -21,7 +19,8 @@ import ru.dvfu.appliances.ui.ViewState
 class AddUserViewModel(
     private val areSuperUsers: Boolean,
     private val appliance: Appliance,
-    private val repository: Repository,
+    private val repository: AppliancesRepository,
+    private val usersRepository: UsersRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BaseViewState>(BaseViewState.Success(null))
@@ -41,7 +40,7 @@ class AddUserViewModel(
     private fun loadUsers() {
         _usersState.value = ViewState.Loading()
         viewModelScope.launch {
-            repository.getUsers().collect { users ->
+            usersRepository.getUsers().collect { users ->
                 delay(1000)
                 _usersState.value = ViewState.Success(users)
             }

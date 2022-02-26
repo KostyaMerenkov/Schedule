@@ -6,14 +6,13 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.model.repository.Repository
+import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.BaseViewState
 
 class UsersViewModel(
-    private val repository: Repository
+    private val repository: UsersRepository
 ) : ViewModel() {
 
     val usersList = MutableStateFlow(listOf<User>())

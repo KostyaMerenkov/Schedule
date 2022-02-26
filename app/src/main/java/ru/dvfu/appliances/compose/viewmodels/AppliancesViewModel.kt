@@ -6,16 +6,14 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import ru.dvfu.appliances.model.repository.Repository
-import ru.dvfu.appliances.model.repository.UserRepository
+import ru.dvfu.appliances.model.repository.AppliancesRepository
+import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.ViewState
 
 class AppliancesViewModel(
-    private val repository: Repository,
-    private val userRepository: UserRepository
+    private val repository: AppliancesRepository,
+    private val usersRepository: UsersRepository
 ) : ViewModel() {
 
     val appliancesList = MutableStateFlow(listOf<Appliance>())
@@ -32,7 +30,7 @@ class AppliancesViewModel(
 
     fun refresh() = loadAppliances()
 
-    val user = userRepository.currentUserFromDB
+    val user = usersRepository.currentUserFromDB
 
     private fun loadAppliances() {
         isRefreshing.value = true

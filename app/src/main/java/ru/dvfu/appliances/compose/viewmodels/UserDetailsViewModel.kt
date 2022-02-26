@@ -3,17 +3,17 @@ package ru.dvfu.appliances.compose.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.Repository
-import ru.dvfu.appliances.model.repository.UserRepository
+import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
 
 class UserDetailsViewModel(
-    private val userRepository: UserRepository,
-    private val repository: Repository,
+    private val usersRepository: UsersRepository,
+    private val repository: AppliancesRepository,
 ) : ViewModel() {
 
     companion object {
@@ -26,7 +26,7 @@ class UserDetailsViewModel(
 
     private fun getCurrentUser() {
         viewModelScope.launch {
-            userRepository.currentUserFromDB.collect {
+            usersRepository.currentUserFromDB.collect {
                 currentUser.value = it
             }
         }
@@ -53,7 +53,7 @@ class UserDetailsViewModel(
 
     private fun updateUser() {
         viewModelScope.launch {
-            userRepository.getUserWithId(detailsUser.value.userId).collect {
+            usersRepository.getUserWithId(detailsUser.value.userId).collect {
                 detailsUser.value = it
             }
         }
@@ -77,7 +77,7 @@ class UserDetailsViewModel(
 
     fun updateUserRole(user: User, ordinal: Int) {
         viewModelScope.launch {
-            userRepository.updateUserField(user.userId, mapOf("role" to ordinal))
+            usersRepository.updateUserField(user.userId, mapOf("role" to ordinal))
         }
     }
 

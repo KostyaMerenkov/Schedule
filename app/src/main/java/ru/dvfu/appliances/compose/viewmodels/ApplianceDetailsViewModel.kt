@@ -1,21 +1,18 @@
 package ru.dvfu.appliances.compose.viewmodels
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.compose.components.UiState
+import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.Repository
-import ru.dvfu.appliances.model.repository.UserRepository
+import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 
 class ApplianceDetailsViewModel(
-    private val userRepository: UserRepository,
-    private val repository: Repository,
+    private val usersRepository: UsersRepository,
+    private val repository: AppliancesRepository,
 ) : ViewModel() {
 
     companion object {
@@ -26,7 +23,7 @@ class ApplianceDetailsViewModel(
 
     val currentUsers = MutableStateFlow<List<User>?>(null)
     val currentSuperUsers = MutableStateFlow<List<User>?>(null)
-    val currentUser = userRepository.currentUserFromDB
+    val currentUser = usersRepository.currentUserFromDB
 
     fun setAppliance(applianceFromArg: Appliance) {
         if (appliance.value == defAppliance) {

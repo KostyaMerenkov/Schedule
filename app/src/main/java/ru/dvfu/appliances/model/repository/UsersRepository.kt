@@ -5,9 +5,11 @@ import kotlinx.coroutines.flow.StateFlow
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.Progress
 
-interface UserRepository {
+interface UsersRepository {
     val currentUser: Flow<User?>
     val currentUserFromDB: Flow<User>
+
+    suspend fun getUsers(): Flow<List<User>>
 
     suspend fun logoutCurrentUser(): Flow<Boolean>
     suspend fun addNewUser(user: User): StateFlow<Progress>
