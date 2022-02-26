@@ -10,6 +10,7 @@ data class Event(
     val timeEnd: Long = 0L,
     val commentary: String = "",
     val applianceId: String = "",
+    val applianceName: String = "",
     val superUserId: String? = null,
     val approved: Boolean = false,
 

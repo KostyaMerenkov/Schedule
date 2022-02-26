@@ -14,6 +14,6 @@ private class EventDataModifier(
 fun Modifier.eventData(positionedEvent: PositionedEvent) = this.then(EventDataModifier(positionedEvent))
 
 
-val EventTimeFormatter = DateTimeFormatter.ofPattern("hh:mm")
-val HourFormatter = DateTimeFormatter.ofPattern("HH")
+val EventTimeFormatter = DateTimeFormatter.ofPattern("H:mm")
+val HourFormatter = DateTimeFormatter.ofPattern("H")
 val DayFormatter = DateTimeFormatter.ofPattern("EE, MMM d")

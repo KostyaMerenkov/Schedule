@@ -1,7 +1,9 @@
 package ru.dvfu.appliances.compose.event_calendar
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,11 +26,13 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BasicEvent(
     positionedEvent: PositionedEvent,
     modifier: Modifier = Modifier,
     onEventClick: (Event) -> Unit,
+    onEventLongClick: (Event) -> Unit,
 ) {
     val event = positionedEvent.event
     val topRadius = if (positionedEvent.splitType == SplitType.Start || positionedEvent.splitType == SplitType.Both) 0.dp else 4.dp
@@ -37,6 +41,7 @@ fun BasicEvent(
         modifier = modifier
             .fillMaxSize()
             .padding(
+                start = 2.dp,
                 end = 2.dp,
                 bottom = if (positionedEvent.splitType == SplitType.End) 0.dp else 2.dp
             )
@@ -50,7 +55,10 @@ fun BasicEvent(
                     bottomStart = bottomRadius,
                 )
             )
-            .clickable { onEventClick(event) }
+            .combinedClickable(
+                onClick = { onEventClick(event) },
+                onLongClick = { onEventLongClick(event) }
+            )
             .padding(4.dp)
     ) {
         Text(
@@ -143,6 +151,7 @@ fun EventPreview(
         BasicEvent(
             PositionedEvent(event, SplitType.None, event.start.toLocalDate(), event.start.toLocalTime(), event.end.toLocalTime()),
             modifier = Modifier.sizeIn(maxHeight = 64.dp),
-            onEventClick = {}
+            onEventClick = {},
+            onEventLongClick = {}
         )
 }

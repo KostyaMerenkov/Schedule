@@ -34,7 +34,7 @@ val application = module {
 val mainActivity = module {
     viewModel { LoginViewModel(get(), get()) }
 
-    viewModel { MainScreenViewModel(get()) }
+    viewModel { MainScreenViewModel(get(), get()) }
 
     viewModel { UserDetailsViewModel(get(), get()) }
     viewModel { UsersViewModel(get()) }

@@ -40,6 +40,17 @@ class EventsRepositoryImpl(
         }
     }
 
+    override suspend fun deleteEvent(id: String): StateFlow<Progress> {
+        val flow = MutableStateFlow<Progress>(Progress.Loading())
+
+        dbCollections.getEventsCollection().document(id).delete().addOnCompleteListener {
+            if (it.isSuccessful) flow.tryEmit(Progress.Complete)
+            /*else flow.tryEmit(Progress.Error(null))*/
+        }
+
+        return flow
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getEventsSuccessListener(scope: ProducerScope<List<Event>>): EventListener<QuerySnapshot> =
         EventListener<QuerySnapshot> { snapshots, error ->

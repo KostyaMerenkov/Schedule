@@ -11,6 +11,7 @@ interface EventsRepository {
     suspend fun addNewEvent(event: Event): StateFlow<Progress>
 
     suspend fun getAllEventsFromDate(date: Long): Flow<List<Event>>
+    suspend fun deleteEvent(id: String): StateFlow<Progress>
     /*suspend fun getUsers(): Flow<List<User>>
 
     suspend fun addUsersToAppliance(appliance: Appliance, userIds: List<String>): StateFlow<Progress>
