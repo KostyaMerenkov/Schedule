@@ -7,6 +7,7 @@ data class Event(
     val id: String = "",
     val name: String = "",
     val color: Color = Color.White,
+    val userId: String = "",
     val start: LocalDateTime = LocalDateTime.now(),
     val end: LocalDateTime = LocalDateTime.now(),
     val description: String = "",

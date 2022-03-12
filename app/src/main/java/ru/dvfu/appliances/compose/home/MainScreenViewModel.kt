@@ -26,7 +26,7 @@ class MainScreenViewModel(
 ) : ViewModel() {
 
     val selectedEvent = mutableStateOf(Event())
-    val _events = MutableStateFlow<MutableList<Event>>(mutableListOf())
+    private val _events = MutableStateFlow<MutableList<Event>>(mutableListOf())
     val events: StateFlow<List<Event>> = _events.asStateFlow()
 
     private val appliances = MutableStateFlow<List<Appliance>>(listOf())
@@ -60,7 +60,6 @@ class MainScreenViewModel(
                             description = currentEvent.commentary
                         )
                     }.toMutableList()
-
             }
         }
     }

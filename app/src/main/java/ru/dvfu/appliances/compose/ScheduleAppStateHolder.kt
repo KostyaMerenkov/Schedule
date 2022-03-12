@@ -28,6 +28,8 @@ object MainDestinations {
 
 
     const val ADD_EVENT = "add_event"
+    const val EVENT_INFO = "event_info"
+
 
     const val LOGIN_ROUTE = "login"
     const val HOME_ROUTE = "home"

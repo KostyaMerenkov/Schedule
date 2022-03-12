@@ -13,5 +13,6 @@ data class Event(
     val applianceName: String = "",
     val superUserId: String? = null,
     val approved: Boolean = false,
+    val approvedBy: String = "",
 
 ) : Parcelable

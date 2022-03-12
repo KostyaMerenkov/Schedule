@@ -25,7 +25,9 @@ import kotlinx.coroutines.launch
 import ru.dvfu.appliances.compose.appliance.AddUser
 import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.NewAppliance
+import ru.dvfu.appliances.compose.event_calendar.EventInfo
 import ru.dvfu.appliances.compose.home.AddEvent
+import ru.dvfu.appliances.compose.home.MainScreen
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalComposeUiApi
@@ -116,6 +118,10 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(MainDestinations.ADD_EVENT) {
         AddEvent(navController = navController)
+    }
+
+    composable(MainDestinations.EVENT_INFO) {
+        EventInfo()
     }
 
     /*composable(MainDestinations.LOGIN_ROUTE) {

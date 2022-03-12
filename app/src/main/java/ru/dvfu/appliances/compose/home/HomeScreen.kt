@@ -30,6 +30,7 @@ import androidx.navigation.NavController
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.FabMenuItem
 import ru.dvfu.appliances.compose.components.FabWithMenu
 import ru.dvfu.appliances.compose.components.MultiFabState
@@ -55,16 +56,7 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
     val fabState = remember { mutableStateOf(MultiFabState.COLLAPSED) }
 
     Scaffold(topBar = {
-        TopAppBar(
-            title = { /*Text(text = R.string.androidx_startup)*/ },
-            navigationIcon = {
-                IconButton(onClick = { openDrawer() }
-                ) {
-                    Icon(Icons.Filled.Menu, contentDescription = "")
-                }
-            },
-            backgroundColor = Color(0xFFFF5470)
-        )
+        HomeTopBar(onOpenDrawer = openDrawer)
     }, floatingActionButton = {
         FabWithMenu(
             modifier = Modifier
@@ -113,12 +105,29 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
         )*/
         Schedule(events = events, minDate = LocalDate.now().minusDays(1),
             maxDate = LocalDate.now().plusDays(1),
-            onEventClick = {},
+            onEventClick = { navController.navigate(MainDestinations.EVENT_INFO) },
             onEventLongClick = {
                 viewModel.selectedEvent.value = it
                 eventOptionDialogOpened = true
             })
     }
+}
+
+@Composable
+fun HomeTopBar(onOpenDrawer: () -> Unit) {
+    TopAppBar(
+        title = { /*Text(text = R.string.androidx_startup)*/ },
+        navigationIcon = {
+            IconButton(onClick = onOpenDrawer) {
+                Icon(Icons.Filled.Menu, contentDescription = "")
+            }
+        },
+        backgroundColor = Color(0xFFFF5470)
+    )
+
+    /*ScheduleAppBar(
+
+    )*/
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
