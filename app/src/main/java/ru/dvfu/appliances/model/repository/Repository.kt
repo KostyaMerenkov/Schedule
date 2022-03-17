@@ -7,4 +7,5 @@ import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.ui.Progress
 
 interface Repository {
+
 }

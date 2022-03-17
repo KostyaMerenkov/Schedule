@@ -4,8 +4,8 @@ import androidx.compose.ui.unit.Dp
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
- fun splitEvents(events: List<Event>): List<PositionedEvent> {
-    return events
+ fun splitEvents(calendarEvents: List<CalendarEvent>): List<PositionedEvent> {
+    return calendarEvents
         .map { event ->
             val startDate = event.start.toLocalDate()
             val endDate = event.end.toLocalDate()
@@ -67,7 +67,7 @@ fun arrangeEvents(events: List<PositionedEvent>): List<PositionedEvent> {
             // Overlaps with all, add a new column
             firstFreeCol < 0 -> {
                 groupEvents += mutableListOf(event)
-                // Expand anything that spans into the previous column and doesn't overlap with this event
+                // Expand anything that spans into the previous column and doesn't overlap with this calendarEvent
                 for (ci in 0 until groupEvents.size - 1) {
                     val col = groupEvents[ci]
                     col.forEachIndexed { ei, e ->

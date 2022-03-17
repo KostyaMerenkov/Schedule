@@ -130,10 +130,10 @@ class AppliancesRepositoryImpl(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun getAppliance(appliance: Appliance) = channelFlow {
+    override suspend fun getAppliance(applianceId: String) = channelFlow<Result<Appliance>> {
         val listeners = mutableListOf<ListenerRegistration>()
         listeners.add(
-            dbCollections.getAppliancesCollection().document(appliance.id)
+            dbCollections.getAppliancesCollection().document(applianceId)
                 .addSnapshotListener(getApplianceSuccessListener(this))
         )
         awaitClose {
@@ -142,16 +142,18 @@ class AppliancesRepositoryImpl(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun getApplianceSuccessListener(producerScope: ProducerScope<Appliance>): EventListener<DocumentSnapshot> =
-        EventListener<DocumentSnapshot> { document, error ->
+    private suspend fun getApplianceSuccessListener(producerScope: ProducerScope<Result<Appliance>>)
+    : EventListener<DocumentSnapshot> = EventListener<DocumentSnapshot> { document, error ->
             if (error != null) {
                 Log.d("Schedule", "Get all appliances listener error", error)
+                producerScope.trySend(Result.failure(error.fillInStackTrace()))
                 return@EventListener
             }
 
             if (document != null) {
                 val appliance = document.toObject<Appliance>()
-                appliance?.let { producerScope.trySend(appliance) }
+                appliance?.let { producerScope.trySend(Result.success(appliance)) }
+                    ?: producerScope.trySend(Result.failure(Throwable()))
 
 
             }

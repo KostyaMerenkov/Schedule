@@ -43,17 +43,17 @@ class CloudFirestoreDatabaseImpl(
 //        }
 //    }
 
-    /*override suspend fun addNewEvent(event: Event): StateFlow<Progress> {
+    /*override suspend fun addNewEvent(calendarEvent: CalendarEvent): StateFlow<Progress> {
         val flow = MutableStateFlow<Progress>(Progress.Loading())
 
-        dbCollections.getEventsCollection().document(event.id).set(event).addOnCompleteListener {
+        dbCollections.getEventsCollection().document(calendarEvent.id).set(calendarEvent).addOnCompleteListener {
             flow.tryEmit(Progress.Complete)
         }
 
         return flow
     }
 
-    override suspend fun getAllEventsFromDate(date: Long): Flow<List<Event>>
+    override suspend fun getAllEventsFromDate(date: Long): Flow<List<CalendarEvent>>
     = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
         listeners.add(
@@ -66,7 +66,7 @@ class CloudFirestoreDatabaseImpl(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun getEventsSuccessListener(scope: ProducerScope<List<Event>>): EventListener<QuerySnapshot> =
+    private suspend fun getEventsSuccessListener(scope: ProducerScope<List<CalendarEvent>>): EventListener<QuerySnapshot> =
         EventListener<QuerySnapshot> { snapshots, error ->
             if (error != null) {
                 Log.d("Schedule", "Get all events listener error", error)
@@ -74,7 +74,7 @@ class CloudFirestoreDatabaseImpl(
             }
 
             if (snapshots != null) {
-                val events = snapshots.toObjects(Event::class.java)
+                val events = snapshots.toObjects(CalendarEvent::class.java)
                 scope.trySend(events)
             }
         }*/

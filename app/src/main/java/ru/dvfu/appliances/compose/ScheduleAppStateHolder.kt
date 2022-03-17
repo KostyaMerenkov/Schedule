@@ -52,11 +52,10 @@ object MainDestinations {
 }
 
 object Arguments {
+    const val EVENT = "event_arg"
     const val USER = "user_arg"
     const val APPLIANCE = "appliance_arg"
-    const val PLACE = "place_arg"
-    const val CATCH = "catch_arg"
-    const val MAP_NEW_PLACE = "map_new_place_arg"
+
 }
 
 /**
@@ -163,7 +162,7 @@ inline fun <reified T : Parcelable> NavBackStackEntry.requiredArg(key: String): 
 }
 
 /**
- * If the lifecycle is not resumed it means this NavBackStackEntry already processed a nav event.
+ * If the lifecycle is not resumed it means this NavBackStackEntry already processed a nav calendarEvent.
  *
  * This is used to de-duplicate navigation events.
  */

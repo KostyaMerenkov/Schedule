@@ -3,6 +3,7 @@ package ru.dvfu.appliances.compose.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.Repository
@@ -36,19 +37,26 @@ class ApplianceDetailsViewModel(
 
     private fun updateAppliance() {
         viewModelScope.launch {
-            repository.getAppliance(appliance.value).collect { updatedAppliance ->
-                if (updatedAppliance.userIds != currentUsers.value?.map { it.userId })
-                    loadAllUsers(updatedAppliance.userIds)
-                if (updatedAppliance.superuserIds != currentSuperUsers.value?.map { it.userId })
-                    loadAllSuperUsers(updatedAppliance.superuserIds)
-                appliance.value = updatedAppliance
+            repository.getAppliance(appliance.value.id).collect {
+                it.fold(
+                    onSuccess = { updatedAppliance ->
+                        if (updatedAppliance.userIds != currentUsers.value?.map { it.userId })
+                            loadAllUsers(updatedAppliance.userIds)
+                        if (updatedAppliance.superuserIds != currentSuperUsers.value?.map { it.userId })
+                            loadAllSuperUsers(updatedAppliance.superuserIds)
+                        appliance.value = updatedAppliance
+                    },
+                    onFailure = {
+                        // TODO:
+                    }
+                )
             }
         }
     }
 
     fun deleteAppliance() {
         viewModelScope.launch {
-            appliance.value?.let {
+            appliance.value.let {
                 repository.deleteAppliance(it)
             }
         }

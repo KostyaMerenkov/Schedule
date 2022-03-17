@@ -24,17 +24,19 @@ import kotlin.math.roundToInt
 
 @Composable
 fun Schedule(
-    events: List<Event>,
+    calendarEvents: List<CalendarEvent>,
     modifier: Modifier = Modifier,
-    onEventClick: (Event) -> Unit,
-    onEventLongClick: (Event) -> Unit,
-    eventContent: @Composable (positionedEvent: PositionedEvent) -> Unit = {
-        BasicEvent(positionedEvent = it, onEventClick = onEventClick,  onEventLongClick = onEventLongClick) },
+    onEventClick: (CalendarEvent) -> Unit,
+    onEventLongClick: (CalendarEvent) -> Unit,
+    eventContent: @Composable (positionedEvent: PositionedEvent) -> Unit =
+        {
+            BasicEvent(positionedEvent = it, onEventClick = onEventClick,  onEventLongClick = onEventLongClick)
+        },
     dayHeader: @Composable (day: LocalDate) -> Unit = { BasicDayHeader(day = it) },
     timeLabel: @Composable (time: LocalTime) -> Unit = { BasicSidebarLabel(time = it) },
-    minDate: LocalDate = events.minByOrNull(Event::start)?.start?.toLocalDate() ?: LocalDate.now(),
-    maxDate: LocalDate = events.maxByOrNull(Event::end)?.end?.toLocalDate() ?: LocalDate.now(),
-    minTime: LocalTime = LocalTime.of(7,0),
+    minDate: LocalDate = calendarEvents.minByOrNull(CalendarEvent::start)?.start?.toLocalDate() ?: LocalDate.now(),
+    maxDate: LocalDate = calendarEvents.maxByOrNull(CalendarEvent::end)?.end?.toLocalDate() ?: LocalDate.now(),
+    minTime: LocalTime = LocalTime.of(8,0),
     maxTime: LocalTime = LocalTime.of(23,0),
     daySize: ScheduleSize = ScheduleSize.Adaptive(256.dp),
     hourSize: ScheduleSize = ScheduleSize.Adaptive(64.dp),
@@ -81,7 +83,7 @@ fun Schedule(
                         .onGloballyPositioned { sidebarWidth = it.size.width }
                 )
                 BasicSchedule(
-                    events = events,
+                    calendarEvents = calendarEvents,
                     eventContent = eventContent,
                     minDate = minDate,
                     maxDate = maxDate,
@@ -101,11 +103,11 @@ fun Schedule(
 
 @Composable
 fun BasicSchedule(
-    events: List<Event>,
+    calendarEvents: List<CalendarEvent>,
     modifier: Modifier = Modifier,
     eventContent: @Composable (positionedEvent: PositionedEvent) -> Unit = { BasicEvent(positionedEvent = it, onEventClick = {}, onEventLongClick = {}) },
-    minDate: LocalDate = events.minByOrNull(Event::start)?.start?.toLocalDate() ?: LocalDate.now(),
-    maxDate: LocalDate = events.maxByOrNull(Event::end)?.end?.toLocalDate() ?: LocalDate.now(),
+    minDate: LocalDate = calendarEvents.minByOrNull(CalendarEvent::start)?.start?.toLocalDate() ?: LocalDate.now(),
+    maxDate: LocalDate = calendarEvents.maxByOrNull(CalendarEvent::end)?.end?.toLocalDate() ?: LocalDate.now(),
     minTime: LocalTime = LocalTime.MIN,
     maxTime: LocalTime = LocalTime.MAX,
     dayWidth: Dp,
@@ -115,7 +117,7 @@ fun BasicSchedule(
     val numMinutes = ChronoUnit.MINUTES.between(minTime, maxTime).toInt() + 1
     val numHours = numMinutes / 60
     val dividerColor = if (MaterialTheme.colors.isLight) Color.LightGray else Color.DarkGray
-    val positionedEvents = remember(events) { arrangeEvents(splitEvents(events.sortedBy(Event::start))).filter { it.end > minTime && it.start < maxTime } }
+    val positionedEvents = remember(calendarEvents) { arrangeEvents(splitEvents(calendarEvents.sortedBy(CalendarEvent::start))).filter { it.end > minTime && it.start < maxTime } }
     Layout(
         content = {
             positionedEvents.forEach { positionedEvent ->

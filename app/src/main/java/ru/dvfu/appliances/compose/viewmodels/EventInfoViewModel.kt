@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
+import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
@@ -22,12 +23,36 @@ import ru.dvfu.appliances.ui.ViewState
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class AddEventViewModel(
+class EventInfoViewModel(
+    private val applianceId: String,
     private val usersRepository: UsersRepository,
     private val appliancesRepository: AppliancesRepository,
     private val eventsRepository: EventsRepository,
     private val offlineRepository: OfflineRepository,
+    private val getApplianceUseCase: GetApplianceUseCase
 ) : ViewModel() {
+
+    init {
+        getAppliance(applianceId)
+    }
+
+    private val _applianceState = MutableStateFlow<ViewState<Appliance>>(ViewState.Loading())
+    val applianceState = _applianceState.asStateFlow()
+
+    private fun getAppliance(applianceId: String) {
+        viewModelScope.launch {
+            getApplianceUseCase.invoke(applianceId).collect {
+                it.fold(
+                    onSuccess = {
+                        _applianceState.value = ViewState.Success(it)
+                    },
+                    onFailure = {
+                        _applianceState.value = ViewState.Error(it)
+                    }
+                )
+            }
+        }
+    }
 
     private val _selectedAppliance = MutableStateFlow<Appliance?>(null)
     val selectedAppliance = _selectedAppliance.asStateFlow()

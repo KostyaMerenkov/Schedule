@@ -29,7 +29,21 @@ class OfflineRepositoryImpl(
         awaitClose { }
     }
 
-    override suspend fun getApplianceById() {
-        TODO("Not yet implemented")
+    override fun getApplianceById(applianceId: String) = callbackFlow {
+        db.disableNetwork().addOnSuccessListener {
+            dbCollections.getAppliancesCollection().document(applianceId).get().addOnCompleteListener {
+                if (it.isSuccessful) {
+                    val appliance = it.result.toObject(Appliance::class.java)
+                    appliance?.let {
+                        trySend(Result.success(appliance))
+                    } ?: trySend(Result.failure(it.exception ?: Throwable()))
+
+                } else {
+                    trySend(Result.failure(it.exception ?: Throwable()))
+                }
+                db.enableNetwork()
+            }
+        }
+        awaitClose { }
     }
 }

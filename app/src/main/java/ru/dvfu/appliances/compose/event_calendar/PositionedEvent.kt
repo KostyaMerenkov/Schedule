@@ -14,7 +14,7 @@ value class SplitType private constructor(val value: Int) {
 }
 
 data class PositionedEvent(
-    val event: Event,
+    val calendarEvent: CalendarEvent,
     val splitType: SplitType,
     val date: LocalDate,
     val start: LocalTime,

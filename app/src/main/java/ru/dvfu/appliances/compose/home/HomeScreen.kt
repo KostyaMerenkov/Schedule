@@ -15,28 +15,25 @@ import androidx.compose.material.icons.filled.AddTask
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
-import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.FabMenuItem
 import ru.dvfu.appliances.compose.components.FabWithMenu
 import ru.dvfu.appliances.compose.components.MultiFabState
-import ru.dvfu.appliances.compose.event_calendar.Event
+import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
 import ru.dvfu.appliances.compose.event_calendar.Schedule
-import ru.dvfu.appliances.compose.event_calendar.sampleEvents
+import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.views.DefaultDialog
 import java.time.LocalDate
 
@@ -48,7 +45,7 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
 
     var eventOptionDialogOpened by remember { mutableStateOf(false) }
     if (eventOptionDialogOpened) EventOptionDialog(
-        event = viewModel.selectedEvent.value,
+        calendarEvent = viewModel.selectedEvent.value,
         onDismiss = { eventOptionDialogOpened = false },
         onDelete = viewModel::deleteEvent
     )
@@ -103,9 +100,16 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
             //minDate = LocalDate.now().minusDays(1),
             //maxDate = LocalDate.now().plusDays(1)
         )*/
-        Schedule(events = events, minDate = LocalDate.now().minusDays(1),
+        Schedule(calendarEvents = events, minDate = LocalDate.now().minusDays(1),
             maxDate = LocalDate.now().plusDays(1),
-            onEventClick = { navController.navigate(MainDestinations.EVENT_INFO) },
+            onEventClick = {
+                viewModel.getRepoEvent(it)?.let{
+                    navController.navigate(
+                        MainDestinations.EVENT_INFO,
+                        Arguments.EVENT to it
+                    )
+                }
+            },
             onEventLongClick = {
                 viewModel.selectedEvent.value = it
                 eventOptionDialogOpened = true
@@ -132,11 +136,13 @@ fun HomeTopBar(onOpenDrawer: () -> Unit) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun EventOptionDialog(event: Event, onDelete: (Event) -> Unit, onDismiss: () -> Unit) {
-    DefaultDialog(primaryText = event.name,
-        secondaryText = "${event.start} - ${event.end}\n${event.description}",
-        onDismiss = onDismiss,
-        neutralButtonText = stringResource(id = R.string.delete),
-        onNeutralClick = { onDelete(event); onDismiss() }
-    )
+fun EventOptionDialog(calendarEvent: CalendarEvent?, onDelete: (CalendarEvent) -> Unit, onDismiss: () -> Unit) {
+    calendarEvent?.let {
+        DefaultDialog(primaryText = calendarEvent.applianceName,
+            secondaryText = "${calendarEvent.start} - ${calendarEvent.end}\n${calendarEvent.description}",
+            onDismiss = onDismiss,
+            neutralButtonText = stringResource(id = R.string.delete),
+            onNeutralClick = { onDelete(calendarEvent); onDismiss() }
+        )
+    }
 }
