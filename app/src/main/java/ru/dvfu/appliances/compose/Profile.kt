@@ -283,7 +283,7 @@ fun UserNameAndImage(user: User) {
             )
         }
         Text(
-            text = when (user.isAnonymous) {
+            text = when (user.anonymous) {
                 true -> stringResource(R.string.anonymous_user)
                 false -> user.userName
             }, style = MaterialTheme.typography.h6,

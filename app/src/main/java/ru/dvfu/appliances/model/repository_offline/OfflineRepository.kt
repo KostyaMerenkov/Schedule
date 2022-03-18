@@ -5,7 +5,7 @@ import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 
 interface OfflineRepository {
-    fun getUser(userId: String): Flow<Result<User>>
+    suspend fun getUser(userId: String): Flow<Result<User>>
 
     fun getAppliances(): Flow<List<Appliance>>
     fun getApplianceById(applianceId: String): Flow<Result<Appliance>>

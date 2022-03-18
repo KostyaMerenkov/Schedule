@@ -87,53 +87,52 @@ fun Users(navController: NavController, backPress: () -> Unit) {
             }
         }
     }
+}
 
-    @Composable
-    fun Header(role: String) {
-        Text(
-            role, modifier = Modifier
-                .padding(2.dp)
-                .padding(horizontal = 10.dp), style = MaterialTheme.typography.h6
-        )
-    }
+@Composable
+fun Header(role: String) {
+    Text(
+        role, modifier = Modifier
+            .padding(2.dp)
+            .padding(horizontal = 10.dp), style = MaterialTheme.typography.h6
+    )
+}
 
-    @ExperimentalMaterialApi
-    @ExperimentalFoundationApi
-    @ExperimentalAnimationApi
-    @Composable
-    fun ItemUser(user: User, userClicked: () -> Unit) {
-        ItemUserWithSelection(user, false, userClicked)
-    }
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
+@ExperimentalAnimationApi
+@Composable
+fun ItemUser(user: User, userClicked: () -> Unit) {
+    ItemUserWithSelection(user, false, userClicked)
+}
 
-    @ExperimentalFoundationApi
-    @ExperimentalAnimationApi
-    @Composable
-    fun ItemAdd(addClicked: () -> Unit) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+@ExperimentalFoundationApi
+@ExperimentalAnimationApi
+@Composable
+fun ItemAdd(addClicked: () -> Unit) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
 
+    ) {
+
+        MyCard(
+            modifier = Modifier
+                .requiredHeight(80.dp)
+                .clip(CircleShape)
+                .padding(15.dp),
+            onClick = addClicked
         ) {
 
-            MyCard(
-                modifier = Modifier
-                    .requiredHeight(80.dp)
-                    .clip(CircleShape)
-                    .padding(15.dp),
-                onClick = addClicked
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxSize()
             ) {
-
-                Column(
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Icon(Icons.Default.PersonAdd, Icons.Default.PersonAdd.name)
-                }
+                Icon(Icons.Default.PersonAdd, Icons.Default.PersonAdd.name)
             }
         }
     }
-
-
 }
+

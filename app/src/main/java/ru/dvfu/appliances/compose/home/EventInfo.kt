@@ -32,6 +32,7 @@ fun EventInfo(event: Event, backPress: () -> Unit) {
 
     val viewModel: EventInfoViewModel = getViewModel(parameters = { parametersOf(event) })
     val applianceState by viewModel.applianceState.collectAsState()
+    val userState by viewModel.userState.collectAsState()
     Scaffold(
         topBar = { EventInfoTopBar(backPress) {
 
@@ -41,7 +42,7 @@ fun EventInfo(event: Event, backPress: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
             EventAppliance(applianceState) {  }
-            EventUser()
+            EventUser(userState)
         }
     }
 
@@ -78,8 +79,19 @@ fun EventInfoTopBar(upPress: () -> Unit, onDelete: () -> Unit) {
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun EventUser() {
-    UserInfo(user = User(email = "email@abc.com", userName = "Name"))
+fun EventUser(userState: ViewState<User>) {
+    Crossfade(targetState = userState) {
+        when(it) {
+            is ViewState.Error -> TODO()
+            is ViewState.Loading -> {
+                CircularProgressIndicator()
+            }
+            is ViewState.Success -> {
+                UserInfo(user = it.data)
+            }
+        }
+    }
+
 }
 
 @Preview(

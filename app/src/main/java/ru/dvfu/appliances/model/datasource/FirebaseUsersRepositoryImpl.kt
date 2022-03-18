@@ -14,6 +14,7 @@ import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Roles
@@ -104,7 +105,7 @@ class FirebaseUsersRepositoryImpl(
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun addNewUser(user: User): StateFlow<Progress> {
         val flow = MutableStateFlow<Progress>(Progress.Loading())
-        if (user.isAnonymous) {
+        if (user.anonymous) {
             flow.emit(Progress.Complete)
         } else {
             dbCollections.getUsersCollection().document(user.userId).get().addOnCompleteListener {
@@ -121,14 +122,15 @@ class FirebaseUsersRepositoryImpl(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun getUser(userId: String) = callbackFlow {
-        val listeners = mutableListOf<Task<DocumentSnapshot>>()
+    override suspend fun getUser(userId: String) = callbackFlow<Result<User>> {
+        val doc = dbCollections.getUsersCollection().document(userId).get().await()
+        val user = doc.toObject<User>()
+        user?.let {
+            trySend(Result.success(it))
+        } ?: run {
+            trySend(Result.failure(Throwable()))
+        }
 
-        listeners.add(
-            dbCollections.getUsersCollection()
-                .document(userId).get().addOnCompleteListener(getUser(this))
-        )
-        awaitClose { listeners.remove(listeners.first()) }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

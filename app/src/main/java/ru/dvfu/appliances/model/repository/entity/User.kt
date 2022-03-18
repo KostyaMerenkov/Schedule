@@ -6,10 +6,10 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class User(
     val userId: String = "0",
-    val userName: String = "Anonymous",
+    val userName: String = "",
     val email: String = "",
     val role: Int = Roles.GUEST.ordinal,
-    val isAnonymous: Boolean = true,
+    val anonymous: Boolean = true,
     val userPic: String? = null,
 
     ): Parcelable {
