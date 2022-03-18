@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -22,12 +23,15 @@ import coil.annotation.ExperimentalCoilApi
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.InternalCoroutinesApi
+import org.koin.androidx.compose.getViewModel
 import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.ItemUserWithSelection
+import ru.dvfu.appliances.compose.components.FullscreenLoading
 import ru.dvfu.appliances.compose.viewmodels.UsersViewModel
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Roles
+import ru.dvfu.appliances.ui.ViewState
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -35,116 +39,101 @@ import ru.dvfu.appliances.model.repository.entity.Roles
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
 @Composable
-fun Users(navController: NavController, backPress: () -> Unit, modifier: Modifier = Modifier) {
-    val viewModel: UsersViewModel by viewModel()
+fun Users(navController: NavController, backPress: () -> Unit) {
 
-    val uiState by viewModel.uiState.collectAsState()
-    val refreshing by remember { viewModel.isRefreshing }
-    //val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val viewModel: UsersViewModel = getViewModel()
+    val usersState by viewModel.userState.collectAsState()
 
-    /*LaunchedEffect(refreshing) {
-        if (refreshing) {
-
-            delay(2000)
-            refreshing = false
-        }
-    }*/
-
-    val users by viewModel.usersList.collectAsState()
-    Scaffold(topBar = { ScheduleAppBar(stringResource(R.string.users), backClick = backPress) }) {
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(refreshing),
-            onRefresh = { viewModel.refresh() },
-            Modifier
-                .background(Color(0XFFE3DAC9))
-        ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(4.dp)
-            ) {
-                item { Spacer(modifier.size(4.dp)) }
-                users.groupBy { it.role }.forEach { (role, users) ->
-                    stickyHeader { Header(stringResource(Roles.values()[role].stringRess)) }
-                    items(users) { user ->
-                        ItemUser(
-                            user = user,
-                            userClicked = {
-                                navController.navigate(
-                                    MainDestinations.USER_DETAILS_ROUTE,
-                                    Arguments.USER to user
-                                )
-                            },
-                        )
-                    }
-                }
-
-            }
-
-            /*Crossfade(uiState, animationSpec = tween(500)) { animatedUiState ->
-                when (animatedUiState) {
-                    is BaseViewState.Loading ->
-                        UserCatchesLoading { onAddNewCatchClick(navController) }
-                    is BaseViewState.Success<*> -> UserCatches(
-                        (uiState as BaseViewState.Success<*>).data as List<UserCatch>,
-                        { onAddNewCatchClick(navController) }, { catch -> onCatchItemClick(catch, navController) })
-                    is BaseViewState.Error -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "An error occurred fetching the catches.")
-                        }
-                    }
-                }
-            }*/
-        }
-
-    }
-}
-
-@Composable
-fun Header(role: String) {
-    Text(
-        role, modifier = Modifier
-            .padding(2.dp)
-            .padding(horizontal = 10.dp), style = MaterialTheme.typography.h6
-    )
-}
-
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
-@Composable
-fun ItemUser(user: User, userClicked: () -> Unit) {
-    ItemUserWithSelection(user, false, userClicked)
-}
-
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
-@Composable
-fun ItemAdd(addClicked: () -> Unit) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-
+    Scaffold(
+        backgroundColor = Color(0XFFE3DAC9),
+        topBar = { ScheduleAppBar(stringResource(R.string.users), backClick = backPress) },
     ) {
+        Crossfade(usersState) {
+            when (it) {
+                is ViewState.Success -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(4.dp)
+                    ) {
+                        item { Spacer(Modifier.size(4.dp)) }
+                        it.data.groupBy { it.role }.forEach { (role, users) ->
+                            stickyHeader { Header(stringResource(Roles.values()[role].stringRess)) }
+                            items(users) { user ->
+                                ItemUser(
+                                    user = user,
+                                    userClicked = {
+                                        navController.navigate(
+                                            MainDestinations.USER_DETAILS_ROUTE,
+                                            Arguments.USER to user
+                                        )
+                                    },
+                                )
+                            }
+                        }
 
-        MyCard(
-            modifier = Modifier
-                .requiredHeight(80.dp)
-                .clip(CircleShape)
-                .padding(15.dp),
-            onClick = addClicked
-        ) {
-
-            Column(
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Icon(Icons.Default.PersonAdd, Icons.Default.PersonAdd.name)
+                    }
+                }
+                is ViewState.Error -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "An error occurred")
+                    }
+                }
+                is ViewState.Loading -> {
+                    FullscreenLoading()
+                }
             }
         }
     }
+
+    @Composable
+    fun Header(role: String) {
+        Text(
+            role, modifier = Modifier
+                .padding(2.dp)
+                .padding(horizontal = 10.dp), style = MaterialTheme.typography.h6
+        )
+    }
+
+    @ExperimentalMaterialApi
+    @ExperimentalFoundationApi
+    @ExperimentalAnimationApi
+    @Composable
+    fun ItemUser(user: User, userClicked: () -> Unit) {
+        ItemUserWithSelection(user, false, userClicked)
+    }
+
+    @ExperimentalFoundationApi
+    @ExperimentalAnimationApi
+    @Composable
+    fun ItemAdd(addClicked: () -> Unit) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+
+        ) {
+
+            MyCard(
+                modifier = Modifier
+                    .requiredHeight(80.dp)
+                    .clip(CircleShape)
+                    .padding(15.dp),
+                onClick = addClicked
+            ) {
+
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Icon(Icons.Default.PersonAdd, Icons.Default.PersonAdd.name)
+                }
+            }
+        }
+    }
+
+
 }

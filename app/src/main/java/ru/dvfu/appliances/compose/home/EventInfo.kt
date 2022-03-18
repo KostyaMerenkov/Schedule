@@ -30,7 +30,7 @@ import ru.dvfu.appliances.ui.ViewState
 @Composable
 fun EventInfo(event: Event, backPress: () -> Unit) {
 
-    val viewModel: EventInfoViewModel = getViewModel(parameters = { parametersOf(event.applianceId) })
+    val viewModel: EventInfoViewModel = getViewModel(parameters = { parametersOf(event) })
     val applianceState by viewModel.applianceState.collectAsState()
     Scaffold(
         topBar = { EventInfoTopBar(backPress) {

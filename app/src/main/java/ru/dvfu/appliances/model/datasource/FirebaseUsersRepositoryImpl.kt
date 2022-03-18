@@ -3,9 +3,12 @@ package ru.dvfu.appliances.model.datasource
 import android.content.Context
 import android.util.Log
 import com.firebase.ui.auth.AuthUI
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.*
+import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
@@ -17,8 +20,9 @@ import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.ui.Progress
 
-class FirebaseUsersRepositoryImpl(private val context: Context,
-                                  private val dbCollections: RepositoryCollections,
+class FirebaseUsersRepositoryImpl(
+    private val context: Context,
+    private val dbCollections: RepositoryCollections,
 ) : UsersRepository {
 
     private val fireBaseAuth = FirebaseAuth.getInstance()
@@ -70,21 +74,23 @@ class FirebaseUsersRepositoryImpl(private val context: Context,
             val userId = fireBaseAuth.currentUser?.uid
             userId?.let { id ->
                 listeners.add(
-                    dbCollections.getUsersCollection().document(id).addSnapshotListener(getUser(this))
+                    dbCollections.getUsersCollection().document(id)
+                        .addSnapshotListener(getUserListener(this))
                 )
             }
             awaitClose { listeners.remove(listeners.first()) }
         }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun getUser(scope: ProducerScope<User>) =
+    private fun getUserListener(scope: ProducerScope<User>) =
         EventListener<DocumentSnapshot> { snapshot, error ->
             if (error != null) {
                 Log.d("Schedule", "User snapshot listener", error)
                 return@EventListener
+            } else {
+                val user = snapshot?.toObject<User>()
+                scope.trySend(user ?: User())
             }
-            scope.trySend(snapshot?.toObject(User::class.java) ?: User())
-
         }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -115,17 +121,32 @@ class FirebaseUsersRepositoryImpl(private val context: Context,
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun getUserWithId(userId: String) = callbackFlow {
-            val listeners = mutableListOf<ListenerRegistration>()
+    override suspend fun getUser(userId: String) = callbackFlow {
+        val listeners = mutableListOf<Task<DocumentSnapshot>>()
 
-                listeners.add(
-                    dbCollections.getUsersCollection().document(userId).addSnapshotListener(getUser(this))
-                )
-            awaitClose { listeners.remove(listeners.first()) }
+        listeners.add(
+            dbCollections.getUsersCollection()
+                .document(userId).get().addOnCompleteListener(getUser(this))
+        )
+        awaitClose { listeners.remove(listeners.first()) }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun getUser(scope: ProducerScope<Result<User>>) = OnCompleteListener<DocumentSnapshot> {
+        if (it.isSuccessful) {
+            val user = it.result.toObject<User>()
+            user?.let { scope.trySend(Result.success(it)) } ?: scope.trySend(
+                Result.failure(Throwable())
+            )
+        } else {
+            scope.trySend(Result.failure(Throwable()))
+        }
     }
 
     override suspend fun updateUserField(userId: String, data: Map<String, Any>) {
-        dbCollections.getUsersCollection().document(userId).update(data)
+        dbCollections.getUsersCollection().document(userId).update(data).addOnCompleteListener {
+
+        }
     }
 
     private fun mapFirebaseUserToUser(firebaseUser: FirebaseUser): User {

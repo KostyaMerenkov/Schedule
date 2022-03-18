@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.ViewState
 
 class AppliancesViewModel(
@@ -16,29 +18,21 @@ class AppliancesViewModel(
     private val usersRepository: UsersRepository
 ) : ViewModel() {
 
-    val appliancesList = MutableStateFlow(listOf<Appliance>())
-
-    val isRefreshing = mutableStateOf<Boolean>(false)
+    private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
+    val appliancesState = _appliancesState.asStateFlow()
 
     init {
         loadAppliances()
     }
 
-    private val _uiState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
-    val uiState: StateFlow<ViewState<List<Appliance>>>
-        get() = _uiState
-
-    fun refresh() = loadAppliances()
-
     val user = usersRepository.currentUserFromDB
 
     private fun loadAppliances() {
-        isRefreshing.value = true
+        _appliancesState.value = ViewState.Loading()
         viewModelScope.launch {
             repository.getAppliances().collect { appliances ->
                 delay(1000)
-                _uiState.value = ViewState.Success(appliances)
-                isRefreshing.value = false
+                _appliancesState.value = ViewState.Success(appliances)
             }
         }
     }

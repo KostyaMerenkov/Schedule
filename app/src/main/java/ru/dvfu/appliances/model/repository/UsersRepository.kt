@@ -13,6 +13,6 @@ interface UsersRepository {
 
     suspend fun logoutCurrentUser(): Flow<Boolean>
     suspend fun addNewUser(user: User): StateFlow<Progress>
-    suspend fun getUserWithId(userId: String): Flow<User>
+    suspend fun getUser(userId: String): Flow<Result<User>>
     suspend fun updateUserField(userId: String, data: Map<String, Any>)
 }

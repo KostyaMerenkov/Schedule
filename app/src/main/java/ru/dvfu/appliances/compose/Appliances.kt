@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
@@ -27,8 +28,10 @@ import coil.annotation.ExperimentalCoilApi
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.InternalCoroutinesApi
+import org.koin.androidx.compose.getViewModel
 import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.components.FullscreenLoading
 import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Roles
@@ -44,40 +47,29 @@ import ru.dvfu.appliances.ui.ViewState
 @Composable
 fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Modifier = Modifier) {
 
-    val viewModel: AppliancesViewModel by viewModel()
+    val viewModel: AppliancesViewModel = getViewModel()
 
-    val uiState by viewModel.uiState.collectAsState()
-    val refreshing by remember { viewModel.isRefreshing }
+    val appliancesState by viewModel.appliancesState.collectAsState()
 
     val user: User by viewModel.user.collectAsState(User())
-    //val isRefreshing by viewModel.isRefreshing.collectAsState()
 
-    /*LaunchedEffect(refreshing) {
-        if (refreshing) {
 
-            delay(2000)
-            refreshing = false
-        }
-    }*/
-
-    val appliances by viewModel.appliancesList.collectAsState()
     Scaffold(
-        topBar = { if (user.role >= Roles.ADMIN.ordinal) ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress,
-            actionAdd = true, addClick = { navController.navigate(MainDestinations.NEW_APPLIANCE_ROUTE) })
-                 else ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress, ) },
-        //floatingActionButton = { if (user.role >= Role.ADMIN.ordinal) AppliancesFab(navController) },
-        modifier = Modifier.fillMaxSize(),
+        backgroundColor = Color(0XFFE3DAC9),
+        topBar = {
+            if (user.role >= Roles.ADMIN.ordinal) ScheduleAppBar(stringResource(R.string.appliances),
+                backClick = backPress,
+                actionAdd = true,
+                addClick = { navController.navigate(MainDestinations.NEW_APPLIANCE_ROUTE) })
+            else ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress)
+        },
     ) {
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(refreshing),
-            onRefresh = { viewModel.refresh() },
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0XFFE3DAC9)),
-        ) {
-            when (uiState) {
+        Crossfade(targetState = appliancesState) {
+            when (it) {
                 is ViewState.Error -> {}
-                is ViewState.Loading -> {}
+                is ViewState.Loading -> {
+                    FullscreenLoading()
+                }
                 is ViewState.Success -> {
                     LazyVerticalGrid(
                         modifier = Modifier.fillMaxSize(),
@@ -86,12 +78,15 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        items((uiState as ViewState.Success<List<Appliance>>).data) { appliance ->
+                        items(it.data) { appliance ->
                             ItemAppliance(
                                 appliance = appliance,
-                                applianceClicked = { navController.navigate(
-                                    MainDestinations.APPLIANCE_ROUTE,
-                                    Arguments.APPLIANCE to appliance) }
+                                applianceClicked = {
+                                    navController.navigate(
+                                        MainDestinations.APPLIANCE_ROUTE,
+                                        Arguments.APPLIANCE to appliance
+                                    )
+                                }
                             )
                         }
                     }
@@ -148,7 +143,6 @@ fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .height(200.dp)
-                .fillMaxWidth()
                 .padding(5.dp)
 
         ) {
@@ -168,7 +162,8 @@ fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
                     style = typography.h4,
                 )
             }
-            Text(appliance.name,
+            Text(
+                appliance.name,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Normal,

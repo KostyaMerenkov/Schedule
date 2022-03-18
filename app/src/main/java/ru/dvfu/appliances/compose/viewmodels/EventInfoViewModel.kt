@@ -11,11 +11,13 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
+import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.randomUUID
 import ru.dvfu.appliances.ui.Progress
@@ -24,20 +26,58 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class EventInfoViewModel(
-    private val applianceId: String,
+    private val event: Event,
     private val usersRepository: UsersRepository,
     private val appliancesRepository: AppliancesRepository,
     private val eventsRepository: EventsRepository,
     private val offlineRepository: OfflineRepository,
-    private val getApplianceUseCase: GetApplianceUseCase
+    private val getApplianceUseCase: GetApplianceUseCase,
+    private val getUserUseCase: GetUserUseCase,
 ) : ViewModel() {
 
     init {
-        getAppliance(applianceId)
+        getAppliance(event.applianceId)
+        getUser(event.userId)
+        getSuperUser(event.superUserId)
     }
 
     private val _applianceState = MutableStateFlow<ViewState<Appliance>>(ViewState.Loading())
     val applianceState = _applianceState.asStateFlow()
+
+    private val _userState = MutableStateFlow<ViewState<User>>(ViewState.Loading())
+    val userState = _userState.asStateFlow()
+
+    private fun getSuperUser(superUserId: String?) {
+        superUserId?.let {
+            viewModelScope.launch {
+                getUserUseCase.invoke(superUserId).collect {
+                    it.fold(
+                        onSuccess = {
+                            //_superUserState.value = ViewState.Success(it)
+                        },
+                        onFailure = {
+                            //_superUserState.value = ViewState.Error(it)
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    private fun getUser(userId: String) {
+        viewModelScope.launch {
+            getUserUseCase.invoke(userId).collect {
+                it.fold(
+                    onSuccess = {
+                        _userState.value = ViewState.Success(it)
+                    },
+                    onFailure = {
+                        _userState.value = ViewState.Error(it)
+                    }
+                )
+            }
+        }
+    }
 
     private fun getAppliance(applianceId: String) {
         viewModelScope.launch {

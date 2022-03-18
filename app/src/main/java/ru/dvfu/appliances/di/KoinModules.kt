@@ -7,6 +7,8 @@ import ru.dvfu.appliances.Logger
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.home.MainScreenViewModel
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
+import ru.dvfu.appliances.compose.use_cases.GetAppliancesUseCase
+import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.compose.viewmodels.*
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
@@ -34,15 +36,19 @@ val application = module {
 
 
     factory { GetApplianceUseCase(offlineRepository = get(), appliancesRepository = get()) }
+    factory { GetAppliancesUseCase(offlineRepository = get(), appliancesRepository = get()) }
+    factory { GetUserUseCase(get(),get()) }
 }
 
 val mainActivity = module {
+    viewModel { UsersViewModel(get()) }
+
     viewModel { LoginViewModel(get(), get()) }
 
     viewModel { MainScreenViewModel(get(), get()) }
 
     viewModel { UserDetailsViewModel(get(), get()) }
-    viewModel { UsersViewModel(get()) }
+
 
     viewModel { ProfileViewModel(get()) }
 
@@ -62,12 +68,13 @@ val mainActivity = module {
     }
     viewModel {
         EventInfoViewModel(
-            applianceId = it.get(),
+            event = it.get(),
             usersRepository = get(),
             appliancesRepository = get(),
             eventsRepository = get(),
             offlineRepository = get(),
-            getApplianceUseCase = get()
+            getApplianceUseCase = get(),
+            getUserUseCase = get(),
         )
     }
 }

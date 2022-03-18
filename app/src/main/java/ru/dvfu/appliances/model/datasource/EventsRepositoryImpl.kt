@@ -1,6 +1,7 @@
 package ru.dvfu.appliances.model.datasource
 
 import android.util.Log
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
@@ -40,15 +41,14 @@ class EventsRepositoryImpl(
         }
     }
 
-    override suspend fun deleteEvent(id: String): StateFlow<Progress> {
-        val flow = MutableStateFlow<Progress>(Progress.Loading())
+    override suspend fun deleteEvent(id: String) = callbackFlow<Result<Unit>> {
 
-        dbCollections.getEventsCollection().document(id).delete().addOnCompleteListener {
-            if (it.isSuccessful) flow.tryEmit(Progress.Complete)
-            /*else flow.tryEmit(Progress.Error(null))*/
+        dbCollections.getEventsCollection().document(id).delete().addOnCompleteListener{
+            if (it.isSuccessful)  trySend(Result.success(Unit))
+            else trySend(Result.failure(it.exception ?: Throwable()))
         }
 
-        return flow
+        awaitClose {  }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

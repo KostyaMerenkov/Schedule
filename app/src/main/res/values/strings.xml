@@ -64,4 +64,5 @@
     <string name="duration_error">Продолжительность события не может быть меньше 10 минут</string>
     <string name="appliance_not_chosen">Вы не выбрали прибор!</string>
     <string name="error_occured">Произошла ошибка</string>
+    <string name="event_delete_failed">Не удалось удалить событие</string>
 </resources>

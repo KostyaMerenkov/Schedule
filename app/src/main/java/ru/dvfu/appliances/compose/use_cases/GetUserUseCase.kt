@@ -2,36 +2,35 @@ package ru.dvfu.appliances.compose.use_cases
 
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.single
-import ru.dvfu.appliances.model.repository.AppliancesRepository
-import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.UsersRepository
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 
-class GetApplianceUseCase(
+class GetUserUseCase(
     private val offlineRepository: OfflineRepository,
-    private val appliancesRepository: AppliancesRepository
+    private val usersRepository: UsersRepository
 ) {
 
     suspend operator fun invoke(
-        applianceId: String
-    ) = channelFlow<Result<Appliance>> {
-        offlineRepository.getApplianceById(applianceId).collect {
+        userId: String
+    ) = channelFlow<Result<User>> {
+        offlineRepository.getUser(userId).collect {
             it.fold(
                 onSuccess = {
                     send(Result.success(it))
                 },
                 onFailure = {
-                    getApplianceOnline(this, applianceId)
+                    getUserOnline(this, userId)
                 }
             )
         }
     }
 
-    private suspend fun getApplianceOnline(
-        flowCollector: ProducerScope<Result<Appliance>>,
-        applianceId: String
+    private suspend fun getUserOnline(
+        flowCollector: ProducerScope<Result<User>>,
+        userId: String
     ) {
-        appliancesRepository.getAppliance(applianceId).collect {
+        usersRepository.getUser(userId).collect {
             it.fold(
                 onSuccess = {
                     flowCollector.send(Result.success(it))

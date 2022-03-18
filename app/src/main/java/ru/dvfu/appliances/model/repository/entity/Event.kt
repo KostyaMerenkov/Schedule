@@ -1,6 +1,7 @@
 package ru.dvfu.appliances.model.repository.entity
 
 import android.os.Parcelable
+import androidx.compose.ui.graphics.Color
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -10,6 +11,8 @@ data class Event(
     val timeEnd: Long = 0L,
     val commentary: String = "",
     val applianceId: String = "",
+    val applianceName: String = "",
+    val color: Int = 0,
     val userId: String = "",
     val superUserId: String? = null,
     val approved: Boolean = false,
