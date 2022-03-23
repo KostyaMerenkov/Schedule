@@ -32,10 +32,13 @@ import ru.dvfu.appliances.compose.components.FabMenuItem
 import ru.dvfu.appliances.compose.components.FabWithMenu
 import ru.dvfu.appliances.compose.components.MultiFabState
 import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
+import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.event_calendar.Schedule
 import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.views.DefaultDialog
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.util.*
 
 @Composable
 fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
@@ -96,14 +99,11 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
                         fabState.value = MultiFabState.COLLAPSED
                     })
         }
-        /*Schedule(sampleEvents,
-            //minDate = LocalDate.now().minusDays(1),
-            //maxDate = LocalDate.now().plusDays(1)
-        )*/
+
         Schedule(calendarEvents = events, minDate = LocalDate.now().minusDays(1),
             maxDate = LocalDate.now().plusDays(1),
             onEventClick = {
-                viewModel.getRepoEvent(it)?.let{
+                viewModel.getRepoEvent(it)?.let {
                     navController.navigate(
                         MainDestinations.EVENT_INFO,
                         Arguments.EVENT to it
@@ -136,10 +136,19 @@ fun HomeTopBar(onOpenDrawer: () -> Unit) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun EventOptionDialog(calendarEvent: CalendarEvent?, onDelete: (CalendarEvent) -> Unit, onDismiss: () -> Unit) {
+fun EventOptionDialog(
+    calendarEvent: CalendarEvent?,
+    onDelete: (CalendarEvent) -> Unit,
+    onDismiss: () -> Unit
+) {
+
     calendarEvent?.let {
         DefaultDialog(primaryText = calendarEvent.applianceName,
-            secondaryText = "${calendarEvent.start} - ${calendarEvent.end}\n${calendarEvent.description}",
+            secondaryText = "${calendarEvent.start.format(EventTimeFormatter)} - ${
+                calendarEvent.end.format(
+                    EventTimeFormatter
+                )
+            }\n${calendarEvent.description}",
             onDismiss = onDismiss,
             neutralButtonText = stringResource(id = R.string.delete),
             onNeutralClick = { onDelete(calendarEvent); onDismiss() }

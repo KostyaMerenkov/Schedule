@@ -15,6 +15,7 @@ import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.toLocalDateTime
 import ru.dvfu.appliances.ui.Progress
+import java.time.LocalDate
 
 class MainScreenViewModel(
     private val eventsRepository: EventsRepository,
@@ -45,25 +46,24 @@ class MainScreenViewModel(
 
     private fun getEvents() {
         viewModelScope.launch {
-            eventsRepository.getAllEventsFromDate(java.util.Calendar.getInstance().apply {
-                add(java.util.Calendar.DATE, -1)
-            }.timeInMillis).collect { result ->
-                _reposEvents.value = result.toList()
+            eventsRepository.getAllEventsFromDate(LocalDate.now().minusDays(1L).toEpochDay())
+                .collect { result ->
+                    _reposEvents.value = result.toList()
 
-                _events.value = result.map { currentEvent ->
-                    CalendarEvent(
-                        id = currentEvent.id,
-                        color = Color(currentEvent.color),
-                        applianceName = currentEvent.applianceName,
-                        applianceId = currentEvent.applianceId,
-                        userId = currentEvent.userId,
-                        superUserId = currentEvent.superUserId,
-                        start = currentEvent.timeStart.toLocalDateTime(),
-                        end = currentEvent.timeEnd.toLocalDateTime(),
-                        description = currentEvent.commentary
-                    )
-                }.toMutableList()
-            }
+                    _events.value = result.map { currentEvent ->
+                        CalendarEvent(
+                            id = currentEvent.id,
+                            color = Color(currentEvent.color),
+                            applianceName = currentEvent.applianceName,
+                            applianceId = currentEvent.applianceId,
+                            userId = currentEvent.userId,
+                            superUserId = currentEvent.superUserId,
+                            start = currentEvent.timeStart.toLocalDateTime(),
+                            end = currentEvent.timeEnd.toLocalDateTime(),
+                            description = currentEvent.commentary
+                        )
+                    }.toMutableList()
+                }
         }
     }
 
