@@ -48,4 +48,5 @@
     <string name="appliance_not_chosen">Вы не выбрали прибор!</string>
     <string name="error_occured">Произошла ошибка</string>
     <string name="event_delete_failed">Не удалось удалить событие</string>
+    <string name="schedule">Расписание</string>
 </resources>

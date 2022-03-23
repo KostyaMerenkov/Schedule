@@ -61,7 +61,7 @@ fun AddEvent(navController: NavController) {
     }
 
     Scaffold(topBar = {
-        ScheduleAppBar(title = "Добавление события", backClick = navController::popBackStack)
+        ScheduleAppBar(title = "Создание события", backClick = navController::popBackStack)
     },
         floatingActionButton = {
             FabWithLoading(showLoading = uiState is UiState.InProgress,
@@ -82,9 +82,8 @@ fun AddEvent(navController: NavController) {
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
                 selectedAppliance = viewModel.selectedAppliance.collectAsState(),
-            ) {
-                viewModel.onApplianceSelected(it)
-            }
+                onApplianceSelected = viewModel::onApplianceSelected
+            )
         }
     }
 
@@ -240,7 +239,7 @@ fun DateAndTime(viewModel: AddEventViewModel) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
             OutlinedTextField(
-                value = viewModel.date.value.toDate(),
+                value = viewModel.date.value.toDateWithWeek(),
                 onValueChange = {},
                 label = { Text(text = stringResource(R.string.date)) },
                 readOnly = true,

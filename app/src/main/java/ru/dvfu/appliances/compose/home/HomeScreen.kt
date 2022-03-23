@@ -120,7 +120,7 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
 @Composable
 fun HomeTopBar(onOpenDrawer: () -> Unit) {
     TopAppBar(
-        title = { /*Text(text = R.string.androidx_startup)*/ },
+        title = { Text(text = stringResource(id = R.string.schedule)) },
         navigationIcon = {
             IconButton(onClick = onOpenDrawer) {
                 Icon(Icons.Filled.Menu, contentDescription = "")

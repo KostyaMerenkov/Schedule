@@ -34,20 +34,20 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
     val viewModel: ApplianceDetailsViewModel by viewModel()
 
     viewModel.setAppliance(appliance)
-
     val updatedAppliance by viewModel.appliance.collectAsState()
 
-    var infoDialogState = remember { mutableStateOf(false) }
-
+    var infoDialogState by remember { mutableStateOf(false) }
     val user: User by viewModel.currentUser.collectAsState(User())
 
-    if (infoDialogState.value) ApplianceInfoDialog(infoDialogState, updatedAppliance)
+    if (infoDialogState) ApplianceInfoDialog(updatedAppliance) { infoDialogState = false }
 
     val tabs = listOf(TabItem.Users, TabItem.SuperUsers)
     val pagerState = rememberPagerState(pageCount = tabs.size)
 
     Scaffold(topBar = {
-        ApplianceTopBar(user, updatedAppliance, viewModel, upPress)
+        ApplianceTopBar(user, updatedAppliance, upPress, deleteClick = {
+            viewModel.deleteAppliance(); upPress()
+        })
     },
         modifier = Modifier.fillMaxSize().background(Color(0XFFE3DAC9))) {
         Column(
@@ -66,7 +66,7 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
                     modifier = Modifier.fillMaxWidth().padding(16.dp).wrapContentHeight()
                 ) {
                     if (updatedAppliance.description.isNotEmpty()) {
-                        IconButton(onClick = { infoDialogState.value = true }) {
+                        IconButton(onClick = { infoDialogState = true }) {
                             Icon(Icons.Default.Info, "")
                         }
                     }
@@ -95,8 +95,8 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
 fun ApplianceTopBar(
     user: User,
     appliance: Appliance,
-    detailsViewModel: ApplianceDetailsViewModel,
-    upPress: () -> Unit
+    upPress: () -> Unit,
+    deleteClick: () -> Unit,
 ) {
 
     if (user.isAdmin()) {
@@ -104,7 +104,7 @@ fun ApplianceTopBar(
             stringResource(R.string.appliance),
             backClick = upPress,
             actionDelete = true,
-            deleteClick = { detailsViewModel.deleteAppliance(); upPress() },
+            deleteClick = deleteClick,
             elevation = 0.dp
         )
     } else {
@@ -118,8 +118,8 @@ fun ApplianceTopBar(
 }
 
 @Composable
-fun ApplianceInfoDialog(infoDialogState: MutableState<Boolean>, appliance: Appliance) {
-    Dialog(onDismissRequest = { infoDialogState.value = false }) {
+fun ApplianceInfoDialog(appliance: Appliance, onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier.padding(horizontal = 24.dp).wrapContentHeight(),
             shape = RoundedCornerShape(25.dp)
