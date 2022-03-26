@@ -224,11 +224,15 @@ fun DateAndTime(viewModel: AddEventViewModel) {
     val timeSetStartState = remember { mutableStateOf(false) }
     val timeSetEndState = remember { mutableStateOf(false) }
 
-    if (dateSetState.value) DatePicker(viewModel.date, dateSetState, context)
+    if (dateSetState.value) DatePicker(context, viewModel.date.value, onDateSet = viewModel::onDateSet) {
+        dateSetState.value = false
+    }
     if (timeSetStartState.value) TimePicker(context, viewModel.timeStart.value,
         onTimeSet = { viewModel.timeStart.value = it }) { timeSetStartState.value = false }
-    if (timeSetEndState.value) TimePicker(context, viewModel.timeEnd.value,
-        onTimeSet = { viewModel.timeEnd.value = it },) { timeSetEndState.value = false }
+    if (timeSetEndState.value) TimePicker(
+        context, viewModel.timeEnd.value,
+        onTimeSet = { viewModel.timeEnd.value = it },
+    ) { timeSetEndState.value = false }
 
     LaunchedEffect(viewModel.timeStart) {
         viewModel.timeEnd.value = Date().time + MILLISECONDS_IN_HOUR

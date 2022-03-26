@@ -42,6 +42,7 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
     val applianceState by viewModel.applianceState.collectAsState()
     val event by viewModel.event.collectAsState()
     val userState by viewModel.userState.collectAsState()
+    val superUserState by viewModel.userState.collectAsState()
     val canUpdate by viewModel.canUpdate.collectAsState()
 
     var eventDeleteDialog by remember { mutableStateOf(false) }
@@ -123,6 +124,13 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
                     Arguments.USER to it
                 )
             }
+            HeaderText(text = stringResource(id = R.string.superuser))
+            EventUser(superUserState) {
+                navController.navigate(
+                    MainDestinations.USER_DETAILS_ROUTE,
+                    Arguments.USER to it
+                )
+            }
 
 
 
@@ -165,7 +173,7 @@ fun EventInfoFAB(uiState: UiState?, onSave: () -> Unit) {
 fun TimeEditDialog(event: Event, onTimeChange: (Long) -> Unit, onDismiss: () -> Unit) {
     val context = LocalContext.current
     TimePicker(
-        date = event.timeEnd,
+        time = event.timeEnd,
         onTimeSet = onTimeChange,
         context = context,
         onDismiss = onDismiss

@@ -53,16 +53,19 @@ class EventInfoViewModel(
     private val _userState = MutableStateFlow<ViewState<User>>(ViewState.Loading())
     val userState = _userState.asStateFlow()
 
+    private val _superUserState = MutableStateFlow<ViewState<User>>(ViewState.Loading())
+    val superUserState = _superUserState.asStateFlow()
+
     private fun getSuperUser(superUserId: String?) {
         superUserId?.let {
             viewModelScope.launch {
                 getUserUseCase.invoke(superUserId).collect {
                     it.fold(
                         onSuccess = {
-                            //_superUserState.value = ViewState.Success(it)
+                            _superUserState.value = ViewState.Success(it)
                         },
                         onFailure = {
-                            //_superUserState.value = ViewState.Error(it)
+                            _superUserState.value = ViewState.Error(it)
                         }
                     )
                 }

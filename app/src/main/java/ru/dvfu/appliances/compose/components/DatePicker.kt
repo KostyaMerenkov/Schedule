@@ -10,9 +10,11 @@ import java.util.*
 
 @Composable
 fun DatePicker(
-    date: MutableState<Long>,
-    dateSetState: MutableState<Boolean>,
-    context: Context
+    context: Context,
+    date: Long,
+    minDate: Long = date,
+    onDateSet: (Long) -> Unit,
+    onDismiss: () -> Unit
 ) {
     val calendar = Calendar.getInstance()
 
@@ -23,24 +25,27 @@ fun DatePicker(
             calendar.set(Calendar.YEAR, year)
             calendar.set(Calendar.MONTH, monthOfYear)
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-            date.value = calendar.timeInMillis
+            onDateSet(calendar.timeInMillis)
         },
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH)
-    ).apply { show() }
-    dateSetState.value = false
+    ).apply {
+        datePicker.minDate = minDate
+        show()
+    }
+    onDismiss()
 }
 
 @Composable
 fun TimePicker(
     context: Context,
-    date: Long,
+    time: Long,
     onTimeSet: (Long) -> Unit,
     onDismiss: () -> Unit
 ) {
     val calendar = Calendar.getInstance().apply {
-        timeInMillis = date
+        timeInMillis = time
     }
 
     TimePickerDialog(

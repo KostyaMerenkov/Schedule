@@ -137,4 +137,21 @@ class AddEventViewModel(
         _selectedAppliance.value = appliance.takeIf { it != _selectedAppliance.value }
     }
 
+    fun onDateSet(date: Long) {
+        val calendarToSet = Calendar.getInstance().apply { timeInMillis = date }
+        timeStart.value = Calendar.getInstance().apply {
+            timeInMillis = timeStart.value
+            set(Calendar.YEAR, calendarToSet.get(Calendar.YEAR))
+            set(Calendar.MONTH, calendarToSet.get(Calendar.MONTH))
+            set(Calendar.DAY_OF_MONTH, calendarToSet.get(Calendar.DAY_OF_MONTH))
+        }.timeInMillis
+
+        timeEnd.value = Calendar.getInstance().apply {
+            timeInMillis = timeEnd.value
+            set(Calendar.YEAR, calendarToSet.get(Calendar.YEAR))
+            set(Calendar.MONTH, calendarToSet.get(Calendar.MONTH))
+            set(Calendar.DAY_OF_MONTH, calendarToSet.get(Calendar.DAY_OF_MONTH))
+        }.timeInMillis
+    }
+
 }
