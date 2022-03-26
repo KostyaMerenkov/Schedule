@@ -3,10 +3,7 @@ package ru.dvfu.appliances.compose.home
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -18,19 +15,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
-import ru.dvfu.appliances.compose.ItemAppliance
-import ru.dvfu.appliances.compose.ScheduleAppBar
-import ru.dvfu.appliances.compose.UserInfo
+import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.components.TimePicker
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.viewmodels.EventInfoViewModel
 import ru.dvfu.appliances.compose.views.DefaultDialog
+import ru.dvfu.appliances.compose.views.HeaderText
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
@@ -38,7 +35,7 @@ import ru.dvfu.appliances.model.utils.toLocalTime
 import ru.dvfu.appliances.ui.ViewState
 
 @Composable
-fun EventInfo(eventArg: Event, backPress: () -> Unit) {
+fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Unit) {
 
     val viewModel: EventInfoViewModel = getViewModel(parameters = { parametersOf(eventArg) })
     val eventDeleteState by viewModel.eventDeleteState.collectAsState()
@@ -84,21 +81,25 @@ fun EventInfo(eventArg: Event, backPress: () -> Unit) {
         }
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row {
+            HeaderText(text = stringResource(id = R.string.time))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 OutlinedTextField(
-                    value = eventArg.timeStart.toLocalTime().format(EventTimeFormatter) +
-                            " - " + eventArg.timeEnd.toLocalTime().format(EventTimeFormatter),
+                    modifier = Modifier.weight(1f),
+                    value = eventArg.timeStart.toLocalTime().format(EventTimeFormatter),
                     onValueChange = {},
                     label = { Text(text = stringResource(id = R.string.timeStart)) },
                     readOnly = true,
                 )
-                OutlinedTextField(value = eventArg.timeStart.toLocalTime()
-                    .format(EventTimeFormatter) +
-                        " - " + eventArg.timeEnd.toLocalTime().format(EventTimeFormatter),
+                OutlinedTextField(
+                    modifier = Modifier.weight(1f),
+                    value = eventArg.timeEnd.toLocalTime().format(EventTimeFormatter),
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(text = stringResource(id = R.string.timeEnd)) },
@@ -108,9 +109,24 @@ fun EventInfo(eventArg: Event, backPress: () -> Unit) {
                         }
                     })
             }
+            HeaderText(text = stringResource(id = R.string.appliance))
+            EventAppliance(applianceState) {
+                navController.navigate(
+                    MainDestinations.APPLIANCE_ROUTE,
+                    Arguments.APPLIANCE to it
+                )
+            }
+            HeaderText(text = stringResource(id = R.string.user))
+            EventUser(userState) {
+                navController.navigate(
+                    MainDestinations.USER_DETAILS_ROUTE,
+                    Arguments.USER to it
+                )
+            }
 
-            EventAppliance(applianceState) { }
-            EventUser(userState)
+
+
+
         }
     }
 
@@ -184,9 +200,12 @@ fun EventInfoTopBar(upPress: () -> Unit, onDelete: () -> Unit) {
     )
 }
 
-@OptIn(ExperimentalCoilApi::class)
+@OptIn(ExperimentalCoilApi::class, androidx.compose.material.ExperimentalMaterialApi::class,
+    androidx.compose.foundation.ExperimentalFoundationApi::class,
+    androidx.compose.animation.ExperimentalAnimationApi::class
+)
 @Composable
-fun EventUser(userState: ViewState<User>) {
+fun EventUser(userState: ViewState<User>, onUserClicked: (User) -> Unit) {
     Crossfade(targetState = userState) {
         when (it) {
             is ViewState.Error -> TODO()
@@ -194,7 +213,10 @@ fun EventUser(userState: ViewState<User>) {
                 CircularProgressIndicator()
             }
             is ViewState.Success -> {
-                UserInfo(user = it.data)
+                ItemUser(
+                    user = it.data,
+                    userClicked = { onUserClicked(it.data) },
+                )
             }
         }
     }
