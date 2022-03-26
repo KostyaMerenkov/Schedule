@@ -120,8 +120,10 @@ private fun NavGraphBuilder.NavGraph(
     }
 
     composable(MainDestinations.EVENT_INFO) {
-        EventInfo(event = it.requiredArg(Arguments.EVENT), backPress)
+        EventInfo(eventArg = it.requiredArg(Arguments.EVENT), backPress)
     }
+
+
 
     /*composable(MainDestinations.LOGIN_ROUTE) {
         LoginScreen(navController = navController)

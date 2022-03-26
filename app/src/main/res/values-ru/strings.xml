@@ -49,4 +49,8 @@
     <string name="error_occured">Произошла ошибка</string>
     <string name="event_delete_failed">Не удалось удалить событие</string>
     <string name="schedule">Расписание</string>
+    <string name="timeStart">Время начала</string>
+    <string name="timeEnd">Время окончания</string>
+    <string name="event_delete_successfully">Событие успешно удалено</string>
+    <string name="event_delete_sure">Вы уверены, что хотите удалить данное событие?</string>
 </resources>

@@ -5,43 +5,111 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
+import ru.dvfu.appliances.R
+import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.ItemAppliance
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.UserInfo
+import ru.dvfu.appliances.compose.components.TimePicker
+import ru.dvfu.appliances.compose.components.UiState
+import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.viewmodels.EventInfoViewModel
+import ru.dvfu.appliances.compose.views.DefaultDialog
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.utils.toLocalTime
 import ru.dvfu.appliances.ui.ViewState
 
 @Composable
-fun EventInfo(event: Event, backPress: () -> Unit) {
+fun EventInfo(eventArg: Event, backPress: () -> Unit) {
 
-    val viewModel: EventInfoViewModel = getViewModel(parameters = { parametersOf(event) })
+    val viewModel: EventInfoViewModel = getViewModel(parameters = { parametersOf(eventArg) })
+    val eventDeleteState by viewModel.eventDeleteState.collectAsState()
     val applianceState by viewModel.applianceState.collectAsState()
+    val event by viewModel.event.collectAsState()
     val userState by viewModel.userState.collectAsState()
-    Scaffold(
-        topBar = { EventInfoTopBar(backPress) {
+    val canUpdate by viewModel.canUpdate.collectAsState()
 
-        } }
+    var eventDeleteDialog by remember { mutableStateOf(false) }
+    if (eventDeleteDialog) {
+        EventDeleteDialog(onDismiss = { eventDeleteDialog = false }) {
+            viewModel.deleteEvent()
+        }
+    }
+
+    LaunchedEffect(eventDeleteState) {
+        when (eventDeleteState) {
+            UiState.Error -> {
+                SnackbarManager.showMessage(R.string.event_delete_failed)
+            }
+            UiState.Success -> {
+                SnackbarManager.showMessage(R.string.event_delete_successfully)
+                backPress()
+            }
+            else -> {}
+        }
+    }
+
+    var timeEditDialog by remember { mutableStateOf(false) }
+    if (timeEditDialog) {
+        TimeEditDialog(event = event, onDismiss = { timeEditDialog = false }, onTimeChange = {
+
+        })
+    }
+    Scaffold(
+        topBar = {
+            EventInfoTopBar(backPress) { eventDeleteDialog = true }
+        },
+        floatingActionButton = {
+            if (canUpdate) {
+                EventInfoFAB(eventDeleteState, onSave = viewModel::saveChanges)
+            }
+        }
     ) {
-        Column(modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-            EventAppliance(applianceState) {  }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row {
+                OutlinedTextField(
+                    value = eventArg.timeStart.toLocalTime().format(EventTimeFormatter) +
+                            " - " + eventArg.timeEnd.toLocalTime().format(EventTimeFormatter),
+                    onValueChange = {},
+                    label = { Text(text = stringResource(id = R.string.timeStart)) },
+                    readOnly = true,
+                )
+                OutlinedTextField(value = eventArg.timeStart.toLocalTime()
+                    .format(EventTimeFormatter) +
+                        " - " + eventArg.timeEnd.toLocalTime().format(EventTimeFormatter),
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(text = stringResource(id = R.string.timeEnd)) },
+                    trailingIcon = {
+                        IconButton(onClick = { timeEditDialog = true }) {
+                            Icon(Icons.Default.Edit, Icons.Default.Edit.name)
+                        }
+                    })
+            }
+
+            EventAppliance(applianceState) { }
             EventUser(userState)
         }
     }
@@ -49,11 +117,50 @@ fun EventInfo(event: Event, backPress: () -> Unit) {
 
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun EventDeleteDialog(onDismiss: () -> Unit, function: () -> Unit) {
+    DefaultDialog(
+        primaryText = stringResource(id = R.string.event_delete_sure),
+        positiveButtonText = stringResource(id = R.string.Yes),
+        negativeButtonText = stringResource(id = R.string.No),
+        onPositiveClick = { function(); onDismiss() },
+        onNegativeClick = { onDismiss() },
+        onDismiss = onDismiss
+    ) {}
+}
+
+@Composable
+fun EventInfoFAB(uiState: UiState?, onSave: () -> Unit) {
+    FloatingActionButton(onClick = onSave) {
+        Crossfade(targetState = uiState) {
+            when (it) {
+                is UiState.InProgress -> {
+                    CircularProgressIndicator()
+                }
+                else -> Icon(Icons.Default.Save, "")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun TimeEditDialog(event: Event, onTimeChange: (Long) -> Unit, onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    TimePicker(
+        date = event.timeEnd,
+        onTimeSet = onTimeChange,
+        context = context,
+        onDismiss = onDismiss
+    )
+}
+
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun EventAppliance(applianceState: ViewState<Appliance>, applianceClicked: (Appliance) -> Unit) {
     Crossfade(targetState = applianceState) {
-        when(it) {
+        when (it) {
             is ViewState.Error -> TODO()
             is ViewState.Loading -> {
                 CircularProgressIndicator()
@@ -81,7 +188,7 @@ fun EventInfoTopBar(upPress: () -> Unit, onDelete: () -> Unit) {
 @Composable
 fun EventUser(userState: ViewState<User>) {
     Crossfade(targetState = userState) {
-        when(it) {
+        when (it) {
             is ViewState.Error -> TODO()
             is ViewState.Loading -> {
                 CircularProgressIndicator()
@@ -92,13 +199,4 @@ fun EventUser(userState: ViewState<User>) {
         }
     }
 
-}
-
-@Preview(
-    showBackground = true,
-    //showSystemUi = true
-)
-@Composable
-fun EventInfoPreview() {
-    EventInfo(Event(), { })
 }

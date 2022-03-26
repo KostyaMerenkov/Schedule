@@ -34,11 +34,14 @@ fun DatePicker(
 
 @Composable
 fun TimePicker(
-    date: MutableState<Long>,
-    timeSetState: MutableState<Boolean>,
-    context: Context
+    context: Context,
+    date: Long,
+    onTimeSet: (Long) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val calendar = Calendar.getInstance()
+    val calendar = Calendar.getInstance().apply {
+        timeInMillis = date
+    }
 
     TimePickerDialog(
         context,
@@ -46,10 +49,10 @@ fun TimePicker(
         TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
             calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
             calendar.set(Calendar.MINUTE, minute)
-            date.value = calendar.timeInMillis
+            onTimeSet(calendar.timeInMillis)
         },
         calendar.get(Calendar.HOUR_OF_DAY),
         calendar.get(Calendar.MINUTE), true
     ).show()
-    timeSetState.value = false
+    onDismiss.invoke()
 }

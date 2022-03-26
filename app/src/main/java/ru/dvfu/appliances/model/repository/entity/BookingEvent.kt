@@ -1,0 +1,18 @@
+package ru.dvfu.appliances.model.repository.entity
+
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class BookingEvent(
+    val id: String = "",
+    val timeStart: Long = 0L,
+    val timeEnd: Long = 0L,
+    val commentary: String = "",
+    val applianceId: String = "",
+    val applianceName: String = "",
+    val superUserId: String = "",
+    val approved: Boolean = false,
+    val approvedBy: String = "",
+
+    ) : Parcelable

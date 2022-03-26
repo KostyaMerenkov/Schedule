@@ -68,7 +68,7 @@ val mainActivity = module {
     }
     viewModel {
         EventInfoViewModel(
-            event = it.get(),
+            eventArg = it.get(),
             usersRepository = get(),
             appliancesRepository = get(),
             eventsRepository = get(),

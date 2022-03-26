@@ -96,7 +96,8 @@ fun Commentary(modifier: Modifier = Modifier, commentary: MutableState<String>) 
             text = stringResource(id = R.string.commentary),
             modifier = Modifier.fillMaxWidth()
         )
-        TextField(modifier = Modifier.fillMaxWidth(),
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
             value = commentary.value, onValueChange = { commentary.value = it },
             textStyle = TextStyle(color = MaterialTheme.colors.onSurface, fontSize = 16.sp),
         )
@@ -223,8 +224,13 @@ fun DateAndTime(viewModel: AddEventViewModel) {
     val timeSetEndState = remember { mutableStateOf(false) }
 
     if (dateSetState.value) DatePicker(viewModel.date, dateSetState, context)
-    if (timeSetStartState.value) TimePicker(viewModel.timeStart, timeSetStartState, context)
-    if (timeSetEndState.value) TimePicker(viewModel.timeEnd, timeSetEndState, context)
+    if (timeSetStartState.value) TimePicker(
+        context,
+        viewModel.timeStart.value,
+        onTimeSet = { viewModel.timeStart.value = it },
+    ) { timeSetStartState.value = false }
+    if (timeSetEndState.value) TimePicker(context, viewModel.timeEnd.value,
+        onTimeSet = { viewModel.timeEnd.value = it },) { timeSetEndState.value = false }
 
     LaunchedEffect(viewModel.timeStart) {
         viewModel.timeEnd.value = Date().time + MILLISECONDS_IN_HOUR
