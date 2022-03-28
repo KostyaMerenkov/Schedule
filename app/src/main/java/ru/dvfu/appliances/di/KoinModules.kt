@@ -28,6 +28,7 @@ val application = module {
     single<Repository> { CloudFirestoreDatabaseImpl(dbCollections = get()) }
     single<EventsRepository> { EventsRepositoryImpl(dbCollections = get()) }
     single<AppliancesRepository> { AppliancesRepositoryImpl(dbCollections = get()) }
+    single<BookingRepository> { BookingRepositoryImpl(dbCollections = get()) }
     single<UsersRepository> { FirebaseUsersRepositoryImpl(androidContext(), dbCollections = get()) }
 
     single { Logger() }
@@ -37,7 +38,7 @@ val application = module {
 
     factory { GetApplianceUseCase(offlineRepository = get(), appliancesRepository = get()) }
     factory { GetAppliancesUseCase(offlineRepository = get(), appliancesRepository = get()) }
-    factory { GetUserUseCase(get(),get()) }
+    factory { GetUserUseCase(get(), get()) }
 }
 
 val mainActivity = module {

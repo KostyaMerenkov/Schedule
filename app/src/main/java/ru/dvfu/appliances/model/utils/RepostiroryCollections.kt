@@ -27,9 +27,14 @@ class RepositoryCollections(val cloudFirestore: FirebaseFirestore = Firebase.fir
         return cloudFirestore.collection(EVENTS_COLLECTION)
     }
 
+    fun getBookingCollection(): CollectionReference {
+        return cloudFirestore.collection(BOOKING_COLLECTION)
+    }
+
     companion object {
         private const val USERS_COLLECTION = "users"
         private const val APPLIANCES_COLLECTION = "appliances"
+        private const val BOOKING_COLLECTION = "booking"
         private const val EVENTS_COLLECTION = "events"
     }
 
