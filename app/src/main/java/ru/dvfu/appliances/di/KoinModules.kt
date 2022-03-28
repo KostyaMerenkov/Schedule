@@ -68,6 +68,14 @@ val mainActivity = module {
         )
     }
     viewModel {
+        AddBookingViewModel(
+            usersRepository = get(),
+            appliancesRepository = get(),
+            bookingRepository = get(),
+            offlineRepository = get()
+        )
+    }
+    viewModel {
         EventInfoViewModel(
             eventArg = it.get(),
             usersRepository = get(),

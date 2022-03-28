@@ -78,7 +78,16 @@ fun AddEvent(navController: NavController) {
                 .verticalScroll(state = scrollState, enabled = true)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            DateAndTime(viewModel)
+            DateAndTime(
+                date = viewModel.date.value,
+                timeStart = viewModel.timeStart.value,
+                timeEnd = viewModel.timeEnd.value,
+                onDateSet = viewModel::onDateSet,
+                onTimeStartSet = viewModel::onTimeStartSet,
+                onTimeEndSet = viewModel::onTimeEndSet,
+                duration = viewModel.duration.collectAsState().value,
+                isDurationError = viewModel.isDurationError.collectAsState().value,
+            )
             Commentary(commentary = viewModel.commentary)
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
@@ -215,27 +224,36 @@ fun ItemApplianceSelectable(
 }
 
 @Composable
-fun DateAndTime(viewModel: AddEventViewModel) {
+fun DateAndTime(
+    date: Long,
+    timeStart: Long,
+    timeEnd: Long,
+    onDateSet: (Long) -> Unit,
+    onTimeStartSet: (Long) -> Unit,
+    onTimeEndSet: (Long) -> Unit,
+    duration: String,
+    isDurationError: Boolean,
+) {
     val context = LocalContext.current
-    val duration by viewModel.duration.collectAsState()
-    val isDurationError by viewModel.isDurationError.collectAsState()
 
     val dateSetState = remember { mutableStateOf(false) }
     val timeSetStartState = remember { mutableStateOf(false) }
     val timeSetEndState = remember { mutableStateOf(false) }
 
-    if (dateSetState.value) DatePicker(context, viewModel.date.value, onDateSet = viewModel::onDateSet) {
+    if (dateSetState.value) DatePicker(context, date, onDateSet = onDateSet) {
         dateSetState.value = false
     }
-    if (timeSetStartState.value) TimePicker(context, viewModel.timeStart.value,
-        onTimeSet = { viewModel.timeStart.value = it }) { timeSetStartState.value = false }
+    if (timeSetStartState.value) TimePicker(
+        context, timeStart,
+        onTimeSet = onTimeStartSet
+    ) { timeSetStartState.value = false }
     if (timeSetEndState.value) TimePicker(
-        context, viewModel.timeEnd.value,
-        onTimeSet = { viewModel.timeEnd.value = it },
+        context, timeEnd,
+        onTimeSet = onTimeEndSet,
     ) { timeSetEndState.value = false }
 
-    LaunchedEffect(viewModel.timeStart) {
-        viewModel.timeEnd.value = Date().time + MILLISECONDS_IN_HOUR
+    LaunchedEffect(timeStart) {
+        onTimeEndSet(Date().time + MILLISECONDS_IN_HOUR)
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -247,7 +265,7 @@ fun DateAndTime(viewModel: AddEventViewModel) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
             OutlinedTextField(
-                value = viewModel.date.value.toDateWithWeek(),
+                value = date.toDateWithWeek(),
                 onValueChange = {},
                 label = { Text(text = stringResource(R.string.date)) },
                 readOnly = true,
@@ -267,7 +285,7 @@ fun DateAndTime(viewModel: AddEventViewModel) {
                 })
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
                 OutlinedTextField(
-                    value = viewModel.timeStart.value.toTime(),
+                    value = timeStart.toTime(),
                     onValueChange = {},
                     label = { Text(text = stringResource(R.string.time_start)) },
                     readOnly = true,
@@ -285,7 +303,7 @@ fun DateAndTime(viewModel: AddEventViewModel) {
 
                     })
                 OutlinedTextField(
-                    value = viewModel.timeEnd.value.toTime(),
+                    value = timeEnd.toTime(),
                     onValueChange = {},
                     label = { Text(text = stringResource(R.string.time_end)) },
                     readOnly = true,

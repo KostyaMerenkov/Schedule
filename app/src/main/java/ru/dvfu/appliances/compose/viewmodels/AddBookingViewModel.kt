@@ -3,6 +3,7 @@ package ru.dvfu.appliances.compose.viewmodels
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -12,9 +13,11 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.model.repository.AppliancesRepository
+import ru.dvfu.appliances.model.repository.BookingRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.Booking
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.randomUUID
@@ -23,10 +26,10 @@ import ru.dvfu.appliances.ui.ViewState
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class AddEventViewModel(
+class AddBookingViewModel(
     private val usersRepository: UsersRepository,
     private val appliancesRepository: AppliancesRepository,
-    private val eventsRepository: EventsRepository,
+    private val bookingRepository: BookingRepository,
     private val offlineRepository: OfflineRepository,
 ) : ViewModel() {
 
@@ -48,6 +51,8 @@ class AddEventViewModel(
         get() = MutableStateFlow(TimeUnit.MILLISECONDS.toMinutes(timeEnd.value - timeStart.value) < 0)
     val duration: MutableStateFlow<String>
         get() {
+            /*       LocalDateTime
+                   ChronoUnit.MINUTES.between(calendarEvent.start, calendarEvent.end)*/
             val mills = timeEnd.value - timeStart.value
             val period = String.format(
                 Locale.getDefault(),
@@ -59,7 +64,11 @@ class AddEventViewModel(
         }
 
     val isError: MutableStateFlow<Boolean>
-        get() = MutableStateFlow<Boolean>(isDurationError.value || selectedAppliance.value == null)
+        get() {
+            return MutableStateFlow<Boolean>(
+                isDurationError.value || selectedAppliance.value == null
+            )
+        }
 
     init {
         loadAppliancesOffline()
@@ -73,37 +82,27 @@ class AddEventViewModel(
         }
     }
 
-    fun addEvent() {
+    fun createBooking() {
         val selectedAppliance = _selectedAppliance.value
         viewModelScope.launch {
             if (isError.value) {
                 showError()
             } else {
                 selectedAppliance?.let {
-                    eventsRepository.addNewEvent(
-                        Event(
+                    bookingRepository.createBooking(
+                        Booking(
                             id = randomUUID(),
                             timeStart = timeStart.value,
                             timeEnd = timeEnd.value,
                             commentary = commentary.value,
                             applianceId = it.id,
-                            applianceName = it.name,
-                            color = it.color,
+                            /*applianceName = it.name,
+                            color = it.color,*/
                             userId = usersRepository.currentUser.first()!!.userId
                         )
-                    ).collect { progress ->
-                        when (progress) {
-                            is Progress.Complete -> {
-                                _uiState.value = UiState.Success
-                            }
-                            is Progress.Loading -> {
-                                _uiState.value = UiState.InProgress
-                            }
-                            is Progress.Error -> {
-                                _uiState.value = UiState.Error
-                            }
-                        }
-                    }
+                    )
+                    delay(500)
+                    _uiState.value = UiState.Success
                 }
             }
         }
