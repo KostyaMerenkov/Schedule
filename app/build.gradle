@@ -69,6 +69,7 @@ dependencies {
 
     implementation Libs.Kotlin.stdlib
     implementation Libs.Coroutines.android
+    implementation Libs.Coroutines.firebaseCoroutines
 
     implementation Libs.AndroidX.coreKtx
     implementation Libs.AndroidX.splashScreen

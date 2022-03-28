@@ -15,6 +15,9 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.tasks.await
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.BookingRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -23,10 +26,17 @@ import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.ui.Progress
+import kotlin.coroutines.suspendCoroutine
 
 class BookingRepositoryImpl(
     private val dbCollections: RepositoryCollections,
 ) : BookingRepository {
+
+    override suspend fun getAllUserBooking(userId: String) = flow<Result<List<Booking>>> {
+        val results = dbCollections.getBookingCollection().whereEqualTo("userId", userId).get().await()
+        val bookingList = results.toObjects(Booking::class.java)
+        emit(Result.success(bookingList))
+    }
 
     override suspend fun createBooking(booking: Booking) {
         dbCollections.getBookingCollection().document(booking.id).set(booking)

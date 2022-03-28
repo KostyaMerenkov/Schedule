@@ -9,9 +9,9 @@ data class Booking(
     val timeStart: Long = 0L,
     val timeEnd: Long = 0L,
     val commentary: String = "",
+    val userId: String = "",
     val applianceId: String = "",
-    val applianceName: String = "",
-    val superUserId: String = "",
+    //val applianceName: String = "",
     val managedById: String = "",
     val managerCommentary: String = "",
     val status: BookingStatus = BookingStatus.NONE
