@@ -6,11 +6,11 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Booking(
     val id: String = "",
-    val timeStart: Long = 0L,
-    val timeEnd: Long = 0L,
-    val commentary: String = "",
+    var timeStart: Long = 0L,
+    var timeEnd: Long = 0L,
+    var commentary: String = "",
     val userId: String = "",
-    val applianceId: String = "",
+    var applianceId: String = "",
     //val applianceName: String = "",
     val managedById: String = "",
     val managerCommentary: String = "",

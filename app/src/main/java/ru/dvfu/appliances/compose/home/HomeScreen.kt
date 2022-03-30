@@ -68,11 +68,7 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
                     icon = Icons.Default.MoreTime,
                     text = "Создать бронирование",
                     onClick = {
-                        Toast.makeText(
-                            context.applicationContext,
-                            "Еще не готово!",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        navController.navigate(MainDestinations.ADD_BOOKING)
                     }
                 ),
                 FabMenuItem(

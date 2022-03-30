@@ -127,6 +127,10 @@ class AddEventViewModel(
         _selectedAppliance.value = appliance.takeIf { it != _selectedAppliance.value }
     }
 
+    fun onCommentarySet(commentary: String) {
+        this.commentary.value = commentary
+    }
+
     fun onDateSet(date: Long) {
         val calendarToSet = Calendar.getInstance().apply { timeInMillis = date }
         timeStart.value = Calendar.getInstance().apply {

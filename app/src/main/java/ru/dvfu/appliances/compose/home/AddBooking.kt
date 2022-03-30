@@ -29,6 +29,7 @@ fun AddBooking(navController: NavController) {
     val viewModel: AddBookingViewModel = get()
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
+    val booking by viewModel.booking.collectAsState()
 
     Scaffold(topBar = {
         ScheduleAppBar(title = "Создание бронирования", backClick = navController::popBackStack)
@@ -49,16 +50,16 @@ fun AddBooking(navController: NavController) {
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             DateAndTime(
-                date = viewModel.date.value,
-                timeStart = viewModel.timeStart.value,
-                timeEnd = viewModel.timeEnd.value,
+                date = booking.timeStart,
+                timeStart = booking.timeStart,
+                timeEnd = booking.timeEnd,
                 onDateSet = viewModel::onDateSet,
                 onTimeStartSet = viewModel::onTimeStartSet,
                 onTimeEndSet = viewModel::onTimeEndSet,
                 duration = viewModel.duration.collectAsState().value,
                 isDurationError = viewModel.isDurationError.collectAsState().value,
             )
-            Commentary(commentary = viewModel.commentary)
+            Commentary(commentary = booking.commentary, onCommentarySet = viewModel::onCommentarySet)
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
                 selectedAppliance = viewModel.selectedAppliance.collectAsState(),

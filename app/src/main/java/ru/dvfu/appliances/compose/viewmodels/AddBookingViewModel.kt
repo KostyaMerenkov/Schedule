@@ -23,6 +23,8 @@ import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.randomUUID
 import ru.dvfu.appliances.ui.Progress
 import ru.dvfu.appliances.ui.ViewState
+import java.time.Instant
+import java.time.ZoneId
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -33,27 +35,37 @@ class AddBookingViewModel(
     private val offlineRepository: OfflineRepository,
 ) : ViewModel() {
 
-    private val _selectedAppliance = MutableStateFlow<Appliance?>(null)
-    val selectedAppliance = _selectedAppliance.asStateFlow()
-
     private val _uiState = MutableStateFlow<UiState?>(null)
     val uiState = _uiState.asStateFlow()
 
     private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
     val appliancesState = _appliancesState.asStateFlow()
 
+    private val _selectedAppliance = MutableStateFlow<Appliance?>(null)
+    val selectedAppliance = _selectedAppliance.asStateFlow()
+
+    private val _booking = MutableStateFlow(
+        Booking().copy(
+            timeStart = Calendar.getInstance().timeInMillis,
+            timeEnd = Calendar.getInstance().apply { add(Calendar.HOUR, 1) }.timeInMillis
+        )
+    )
+    val booking = _booking.asStateFlow()
+
     val date = mutableStateOf(0L)
-    val timeStart = mutableStateOf(0L)
-    val timeEnd = mutableStateOf(0L)
-    val commentary = mutableStateOf("")
 
     val isDurationError: MutableStateFlow<Boolean>
-        get() = MutableStateFlow(TimeUnit.MILLISECONDS.toMinutes(timeEnd.value - timeStart.value) < 0)
+        get() = MutableStateFlow(
+            TimeUnit.MILLISECONDS.toMinutes(booking.value.timeEnd - booking.value.timeStart) < 0
+                    || Instant.ofEpochMilli(booking.value.timeStart).atZone(ZoneId.systemDefault())
+                .toLocalDate() != Instant.ofEpochMilli(booking.value.timeEnd)
+                .atZone(ZoneId.systemDefault()).toLocalDate()
+        )
     val duration: MutableStateFlow<String>
         get() {
             /*       LocalDateTime
                    ChronoUnit.MINUTES.between(calendarEvent.start, calendarEvent.end)*/
-            val mills = timeEnd.value - timeStart.value
+            val mills = booking.value.timeEnd - booking.value.timeStart
             val period = String.format(
                 Locale.getDefault(),
                 "%02d:%02d",
@@ -64,11 +76,9 @@ class AddBookingViewModel(
         }
 
     val isError: MutableStateFlow<Boolean>
-        get() {
-            return MutableStateFlow<Boolean>(
-                isDurationError.value || selectedAppliance.value == null
-            )
-        }
+        get() = MutableStateFlow<Boolean>(
+            isDurationError.value || booking.value.applianceId.isEmpty()
+        )
 
     init {
         loadAppliancesOffline()
@@ -83,39 +93,32 @@ class AddBookingViewModel(
     }
 
     fun createBooking() {
-        val selectedAppliance = _selectedAppliance.value
+        val booking = booking.value
         viewModelScope.launch {
             if (isError.value) {
                 showError()
             } else {
-                selectedAppliance?.let {
-                    bookingRepository.createBooking(
-                        Booking(
-                            id = randomUUID(),
-                            timeStart = timeStart.value,
-                            timeEnd = timeEnd.value,
-                            commentary = commentary.value,
-                            applianceId = it.id,
-                            /*applianceName = it.name,
-                            color = it.color,*/
-                            userId = usersRepository.currentUser.first()!!.userId
-                        )
-                    )
-                    delay(500)
-                    _uiState.value = UiState.Success
-                }
+                val userId = usersRepository.currentUser.single()!!.userId
+                val bookingToUpload = booking.copy(
+                    id = UUID.randomUUID().toString(),
+                    userId = userId
+                )
+                bookingRepository.createBooking(bookingToUpload)
+                delay(500)
+                _uiState.value = UiState.Success
+
             }
         }
     }
 
     private fun showError() {
         when {
-            TimeUnit.MILLISECONDS.toMinutes(timeEnd.value - timeStart.value) < TimeUnit.MILLISECONDS.toMinutes(
+            TimeUnit.MILLISECONDS.toMinutes(booking.value.timeEnd - booking.value.timeStart) < TimeUnit.MILLISECONDS.toMinutes(
                 10
             ) -> {
                 SnackbarManager.showMessage(R.string.duration_error)
             }
-            selectedAppliance.value == null -> {
+            booking.value.applianceId.isEmpty() -> {
                 SnackbarManager.showMessage(R.string.appliance_not_chosen)
             }
             else -> SnackbarManager.showMessage(R.string.error_occured)
@@ -123,42 +126,47 @@ class AddBookingViewModel(
     }
 
     fun onApplianceSelected(appliance: Appliance) {
-        _selectedAppliance.value = appliance.takeIf { it != _selectedAppliance.value }
+        _booking.value = booking.value.copy(applianceId = appliance.id)
+        _selectedAppliance.value = appliance
+    }
+
+    fun onCommentarySet(commentary: String) {
+        _booking.value = booking.value.copy(commentary = commentary)
     }
 
     fun onDateSet(date: Long) {
         val calendarToSet = Calendar.getInstance().apply { timeInMillis = date }
-        timeStart.value = Calendar.getInstance().apply {
-            timeInMillis = timeStart.value
+        _booking.value = booking.value.copy(timeStart = Calendar.getInstance().apply {
+            timeInMillis = _booking.value.timeStart
             set(Calendar.YEAR, calendarToSet.get(Calendar.YEAR))
             set(Calendar.MONTH, calendarToSet.get(Calendar.MONTH))
             set(Calendar.DAY_OF_MONTH, calendarToSet.get(Calendar.DAY_OF_MONTH))
-        }.timeInMillis
+        }.timeInMillis)
 
-        timeEnd.value = Calendar.getInstance().apply {
-            timeInMillis = timeEnd.value
+        _booking.value = booking.value.copy(timeEnd = Calendar.getInstance().apply {
+            timeInMillis = _booking.value.timeEnd
             set(Calendar.YEAR, calendarToSet.get(Calendar.YEAR))
             set(Calendar.MONTH, calendarToSet.get(Calendar.MONTH))
             set(Calendar.DAY_OF_MONTH, calendarToSet.get(Calendar.DAY_OF_MONTH))
-        }.timeInMillis
+        }.timeInMillis)
     }
 
     fun onTimeStartSet(time: Long) {
         val calendarToSet = Calendar.getInstance().apply { timeInMillis = time }
-        timeStart.value = Calendar.getInstance().apply {
-            timeInMillis = timeStart.value
+        _booking.value = booking.value.copy(timeStart = Calendar.getInstance().apply {
+            timeInMillis = _booking.value.timeStart
             set(Calendar.HOUR, calendarToSet.get(Calendar.HOUR))
             set(Calendar.MINUTE, calendarToSet.get(Calendar.MINUTE))
-        }.timeInMillis
+        }.timeInMillis)
     }
 
     fun onTimeEndSet(time: Long) {
         val calendarToSet = Calendar.getInstance().apply { timeInMillis = time }
-        timeEnd.value = Calendar.getInstance().apply {
-            timeInMillis = timeStart.value
+        _booking.value = booking.value.copy(timeEnd = Calendar.getInstance().apply {
+            timeInMillis = _booking.value.timeEnd
             set(Calendar.HOUR, calendarToSet.get(Calendar.HOUR))
             set(Calendar.MINUTE, calendarToSet.get(Calendar.MINUTE))
-        }.timeInMillis
+        }.timeInMillis)
     }
 
 }

@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import ru.dvfu.appliances.compose.appliance.AddUser
 import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.NewAppliance
+import ru.dvfu.appliances.compose.home.AddBooking
 import ru.dvfu.appliances.compose.home.EventInfo
 import ru.dvfu.appliances.compose.home.AddEvent
 
@@ -117,6 +118,10 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(MainDestinations.ADD_EVENT) {
         AddEvent(navController = navController)
+    }
+
+    composable(MainDestinations.ADD_BOOKING) {
+        AddBooking(navController = navController)
     }
 
     composable(MainDestinations.EVENT_INFO) {

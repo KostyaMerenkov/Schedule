@@ -28,6 +28,9 @@ object MainDestinations {
 
 
     const val ADD_EVENT = "add_event"
+    const val ADD_BOOKING = "add_booking"
+
+
     const val EVENT_INFO = "event_info"
 
 

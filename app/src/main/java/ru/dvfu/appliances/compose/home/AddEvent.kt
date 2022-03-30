@@ -88,7 +88,7 @@ fun AddEvent(navController: NavController) {
                 duration = viewModel.duration.collectAsState().value,
                 isDurationError = viewModel.isDurationError.collectAsState().value,
             )
-            Commentary(commentary = viewModel.commentary)
+            Commentary(commentary = viewModel.commentary.value, onCommentarySet = viewModel::onCommentarySet)
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
                 selectedAppliance = viewModel.selectedAppliance.collectAsState(),
@@ -100,29 +100,17 @@ fun AddEvent(navController: NavController) {
 }
 
 @Composable
-fun Commentary(modifier: Modifier = Modifier, commentary: MutableState<String>) {
+fun Commentary(modifier: Modifier = Modifier, commentary: String, onCommentarySet: (String) -> Unit) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
         PrimaryText(
             text = stringResource(id = R.string.commentary),
             modifier = Modifier.fillMaxWidth()
         )
-        TextField(
+        OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = commentary.value, onValueChange = { commentary.value = it },
+            value = commentary, onValueChange = onCommentarySet,
             textStyle = TextStyle(color = MaterialTheme.colors.onSurface, fontSize = 16.sp),
         )
-        /*BasicTextField(modifier = modifier, value = commentary.value,
-            onValueChange = { commentary.value = it },
-            textStyle = TextStyle(color = MaterialTheme.colors.onSurface, fontSize = 16.sp),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
-            decorationBox = {
-                Column {
-                    Box {
-                        it()
-                    }
-                    Divider(color = Color.Gray)
-                }
-            })*/
     }
 }
 
