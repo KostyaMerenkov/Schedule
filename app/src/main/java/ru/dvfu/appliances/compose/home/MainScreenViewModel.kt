@@ -18,6 +18,7 @@ import ru.dvfu.appliances.ui.Progress
 import java.time.LocalDate
 
 class MainScreenViewModel(
+
     private val eventsRepository: EventsRepository,
     private val offlineRepository: OfflineRepository
 ) : ViewModel() {

@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.di
 
+import ru.dvfu.appliances.model.datastore.UserDatastore
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -15,12 +16,14 @@ import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
 import ru.dvfu.appliances.compose.viewmodels.MainViewModel
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
 import ru.dvfu.appliances.model.datasource.*
+import ru.dvfu.appliances.model.datastore.UserPreferencesImpl
 import ru.dvfu.appliances.model.repository.*
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 
 val application = module {
     single { RepositoryCollections() }
+    single<UserDatastore> { UserPreferencesImpl(androidContext()) }
     viewModel { MainViewModel() }
 
     single<OfflineRepository> { OfflineRepositoryImpl(dbCollections = get()) }
@@ -29,7 +32,7 @@ val application = module {
     single<EventsRepository> { EventsRepositoryImpl(dbCollections = get()) }
     single<AppliancesRepository> { AppliancesRepositoryImpl(dbCollections = get()) }
     single<BookingRepository> { BookingRepositoryImpl(dbCollections = get()) }
-    single<UsersRepository> { FirebaseUsersRepositoryImpl(androidContext(), dbCollections = get()) }
+    single<UsersRepository> { FirebaseUsersRepositoryImpl(androidContext(), dbCollections = get(), userDatastore = get()) }
 
     single { Logger() }
     single { SnackbarManager }
@@ -72,7 +75,8 @@ val mainActivity = module {
             usersRepository = get(),
             appliancesRepository = get(),
             bookingRepository = get(),
-            offlineRepository = get()
+            offlineRepository = get(),
+            userDatastore = get()
         )
     }
     viewModel {

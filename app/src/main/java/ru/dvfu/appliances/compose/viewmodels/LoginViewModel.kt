@@ -44,7 +44,6 @@ class LoginViewModel(private val usersRepository: UsersRepository, private val r
                     }
                 }
             }
-            //mutableStateFlow.value = BaseViewState.Success(user)
         }
     }
 

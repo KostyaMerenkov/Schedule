@@ -3,6 +3,7 @@ package ru.dvfu.appliances.compose.viewmodels
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ru.dvfu.appliances.model.datastore.UserDatastore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,14 +15,10 @@ import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.BookingRepository
-import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Booking
-import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
-import ru.dvfu.appliances.model.utils.randomUUID
-import ru.dvfu.appliances.ui.Progress
 import ru.dvfu.appliances.ui.ViewState
 import java.time.Instant
 import java.time.ZoneId
@@ -33,6 +30,7 @@ class AddBookingViewModel(
     private val appliancesRepository: AppliancesRepository,
     private val bookingRepository: BookingRepository,
     private val offlineRepository: OfflineRepository,
+    private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState?>(null)
@@ -98,7 +96,7 @@ class AddBookingViewModel(
             if (isError.value) {
                 showError()
             } else {
-                val userId = usersRepository.currentUser.single()!!.userId
+                val userId = userDatastore.getCurrentUser.first().userId
                 val bookingToUpload = booking.copy(
                     id = UUID.randomUUID().toString(),
                     userId = userId

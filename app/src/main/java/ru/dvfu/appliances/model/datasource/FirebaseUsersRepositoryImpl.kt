@@ -1,10 +1,12 @@
 package ru.dvfu.appliances.model.datasource
 
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import com.firebase.ui.auth.AuthUI
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.*
@@ -15,6 +17,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Roles
@@ -24,6 +27,7 @@ import ru.dvfu.appliances.ui.Progress
 class FirebaseUsersRepositoryImpl(
     private val context: Context,
     private val dbCollections: RepositoryCollections,
+    private val userDatastore: UserDatastore
 ) : UsersRepository {
 
     private val fireBaseAuth = FirebaseAuth.getInstance()
@@ -67,6 +71,62 @@ class FirebaseUsersRepositoryImpl(
             awaitClose { fireBaseAuth.removeAuthStateListener(authListener) }
         }
 
+    override suspend fun addNewUser(user: User): StateFlow<Progress> {
+        val flow = MutableStateFlow<Progress>(Progress.Loading())
+
+        val userFromDatabase =
+            dbCollections.getUsersCollection().document(user.userId).get().await()
+                .toObject(User::class.java)
+
+        if (userFromDatabase != null) {
+            /*val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.METHOD, "Google")
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)*/
+            userDatastore.saveUser(userFromDatabase)
+            setUserListener(userFromDatabase)
+            flow.tryEmit(Progress.Complete)
+        } else {
+            dbCollections.getUsersCollection().document(user.userId).set(user)
+                .addOnCompleteListener {
+
+                    runBlocking {
+                        userDatastore.saveUser(user)
+                        setUserListener(user)
+                    }
+                    flow.tryEmit(Progress.Complete)
+                }
+
+        }
+        return flow
+    }
+
+    private suspend fun setUserListener(user: User) {
+        val listeners = mutableListOf<ListenerRegistration>()
+
+        listeners.add(
+            dbCollections.getUsersCollection().document(user.userId)
+                .addSnapshotListener(getUserSnapshotListener())
+        )
+    }
+
+    private fun getUserSnapshotListener(): EventListener<DocumentSnapshot> =
+        EventListener { snapshot, error ->
+            if (error != null) {
+                Log.d("Schedule", "User snapshot listener", error)
+                return@EventListener
+            }
+            if (snapshot != null && snapshot.exists()) {
+                Log.d("Schedule", "Current data: ${snapshot.data}")
+                snapshot.toObject(User::class.java)?.let { userToUpdate ->
+                    runBlocking {
+                        userDatastore.saveUser(userToUpdate)
+                    }
+                }
+            } else {
+                Log.d("Fishing", "Current data: null")
+            }
+        }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     override val currentUserFromDB: Flow<User>
         get() = callbackFlow {
@@ -100,25 +160,6 @@ class FirebaseUsersRepositoryImpl(
             trySend(true)
         }
         awaitClose {}
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun addNewUser(user: User): StateFlow<Progress> {
-        val flow = MutableStateFlow<Progress>(Progress.Loading())
-        if (user.anonymous) {
-            flow.emit(Progress.Complete)
-        } else {
-            dbCollections.getUsersCollection().document(user.userId).get().addOnCompleteListener {
-                if (it.result.exists()) flow.tryEmit(Progress.Complete)
-                else {
-                    dbCollections.getUsersCollection().document(user.userId).set(user)
-                        .addOnCompleteListener {
-                            flow.tryEmit(Progress.Complete)
-                        }
-                }
-            }
-        }
-        return flow
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

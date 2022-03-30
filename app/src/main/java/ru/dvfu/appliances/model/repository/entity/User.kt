@@ -10,8 +10,7 @@ data class User(
     val email: String = "",
     val role: Int = Roles.GUEST.ordinal,
     val anonymous: Boolean = true,
-    val userPic: String? = null,
-
+    val userPic: String = "",
     ): Parcelable {
     fun isAdmin(): Boolean {
         return role == Roles.ADMIN.ordinal
