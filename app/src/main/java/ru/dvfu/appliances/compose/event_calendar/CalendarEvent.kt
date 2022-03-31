@@ -6,6 +6,7 @@ import kotlinx.parcelize.Parcelize
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 @Parcelize
 data class CalendarEvent(

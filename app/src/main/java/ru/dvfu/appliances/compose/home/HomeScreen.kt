@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddTask
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.runtime.*
@@ -56,7 +57,9 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
     val fabState = remember { mutableStateOf(MultiFabState.COLLAPSED) }
 
     Scaffold(topBar = {
-        HomeTopBar(onOpenDrawer = openDrawer)
+        HomeTopBar(onOpenDrawer = openDrawer, onBookingListOpen = {
+            navController.navigate(MainDestinations.BOOKING_LIST)
+        })
     }, floatingActionButton = {
         FabWithMenu(
             modifier = Modifier
@@ -114,7 +117,7 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
 }
 
 @Composable
-fun HomeTopBar(onOpenDrawer: () -> Unit) {
+fun HomeTopBar(onOpenDrawer: () -> Unit, onBookingListOpen: () -> Unit) {
     TopAppBar(
         title = { Text(text = stringResource(id = R.string.schedule)) },
         navigationIcon = {
@@ -122,7 +125,12 @@ fun HomeTopBar(onOpenDrawer: () -> Unit) {
                 Icon(Icons.Filled.Menu, contentDescription = "")
             }
         },
-        backgroundColor = Color(0xFFFF5470)
+        backgroundColor = Color(0xFFFF5470),
+        actions = {
+            IconButton(onClick = onBookingListOpen) {
+                Icon(Icons.Default.Book, Icons.Default.Book.name)
+            }
+        }
     )
 
     /*ScheduleAppBar(

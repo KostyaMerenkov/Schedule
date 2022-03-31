@@ -161,13 +161,13 @@ class FirebaseUsersRepositoryImpl(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun getUser(userId: String) = callbackFlow<Result<User>> {
+    override suspend fun getUser(userId: String) = flow<Result<User>> {
         val doc = dbCollections.getUsersCollection().document(userId).get().await()
         val user = doc.toObject<User>()
         user?.let {
-            trySend(Result.success(it))
+            emit(Result.success(it))
         } ?: run {
-            trySend(Result.failure(Throwable()))
+            emit(Result.failure(Throwable()))
         }
 
     }

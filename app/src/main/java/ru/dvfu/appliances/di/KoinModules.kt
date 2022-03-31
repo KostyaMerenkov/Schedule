@@ -6,6 +6,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ru.dvfu.appliances.Logger
 import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.home.BookingListViewModel
 import ru.dvfu.appliances.compose.home.MainScreenViewModel
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetAppliancesUseCase
@@ -46,6 +47,7 @@ val application = module {
 
 val mainActivity = module {
     viewModel { UsersViewModel(get()) }
+    viewModel { BookingListViewModel(get(),get(),get(),get(), get(), get()) }
 
     viewModel { LoginViewModel(get(), get()) }
 

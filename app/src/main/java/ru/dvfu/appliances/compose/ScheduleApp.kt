@@ -28,8 +28,9 @@ import ru.dvfu.appliances.compose.appliance.NewAppliance
 import ru.dvfu.appliances.compose.home.AddBooking
 import ru.dvfu.appliances.compose.home.EventInfo
 import ru.dvfu.appliances.compose.home.AddEvent
+import ru.dvfu.appliances.compose.home.BookingList
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -163,6 +164,15 @@ private fun NavGraphBuilder.NavGraph(
     ) { Users(navController, upPress) }
 
     composable(
+        route = MainDestinations.BOOKING_LIST
+    ) {
+        BookingList(navController = navController)
+    }
+
+    composable(
         route = MainDestinations.SETTINGS_ROUTE,
     ) { Settings(navController, upPress) }
+
 }
+
+

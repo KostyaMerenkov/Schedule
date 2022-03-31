@@ -1,7 +1,9 @@
 package ru.dvfu.appliances.compose.use_cases
 
 import kotlinx.coroutines.channels.ProducerScope
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.single
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -14,7 +16,7 @@ class GetAppliancesUseCase(
 
         suspend operator fun invoke(
             applianceId: String
-        ) = channelFlow<Result<List<Appliance>>> {
+        ) = flow<Result<List<Appliance>>> {
             /*offlineRepository.getAppliances(applianceId).collect {
                 it.fold(
                 onSuccess = {

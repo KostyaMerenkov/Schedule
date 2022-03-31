@@ -11,6 +11,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,7 +30,13 @@ fun AddBooking(navController: NavController) {
     val viewModel: AddBookingViewModel = get()
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
-    val booking by viewModel.booking.collectAsState()
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is UiState.Success -> navController.popBackStack()
+            else -> {}
+        }
+    }
 
     Scaffold(topBar = {
         ScheduleAppBar(title = "Создание бронирования", backClick = navController::popBackStack)
@@ -49,17 +56,17 @@ fun AddBooking(navController: NavController) {
                 .verticalScroll(state = scrollState, enabled = true)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            /*DateAndTime(
-                date = booking.timeStart,
-                timeStart = booking.timeStart,
-                timeEnd = booking.timeEnd,
+            DateAndTime(
+                date = viewModel.date.collectAsState().value,
+                timeStart = viewModel.timeStart.collectAsState().value.toLocalTime(),
+                timeEnd = viewModel.timeEnd.collectAsState().value.toLocalTime(),
                 onDateSet = viewModel::onDateSet,
                 onTimeStartSet = viewModel::onTimeStartSet,
                 onTimeEndSet = viewModel::onTimeEndSet,
                 duration = viewModel.duration.collectAsState().value,
                 isDurationError = viewModel.isDurationError.collectAsState().value,
-            )*/
-            Commentary(commentary = booking.commentary, onCommentarySet = viewModel::onCommentarySet)
+            )
+            Commentary(commentary = viewModel.commentary.collectAsState().value, onCommentarySet = viewModel::onCommentarySet)
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
                 selectedAppliance = viewModel.selectedAppliance.collectAsState(),

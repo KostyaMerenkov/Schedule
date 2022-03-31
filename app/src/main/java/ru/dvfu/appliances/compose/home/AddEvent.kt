@@ -56,8 +56,6 @@ fun AddEvent(navController: NavController) {
         }
     }
 
-    val calendar = remember { Calendar.getInstance() }
-
     Scaffold(topBar = {
         ScheduleAppBar(title = "Создание события", backClick = navController::popBackStack)
     },

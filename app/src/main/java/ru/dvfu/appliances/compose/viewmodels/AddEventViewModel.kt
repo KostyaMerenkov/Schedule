@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
+import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
@@ -87,8 +88,8 @@ class AddEventViewModel(
                     eventsRepository.addNewEvent(
                         Event(
                             id = randomUUID(),
-                            timeStart = timeStart.value,
-                            timeEnd = timeEnd.value,
+                            timeStart = timeStart.value.toMillis,
+                            timeEnd = timeEnd.value.toMillis,
                             commentary = commentary.value,
                             applianceId = it.id,
                             applianceName = it.name,

@@ -31,6 +31,7 @@ import ru.dvfu.appliances.compose.views.HeaderText
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.utils.toLocalDateTime
 import ru.dvfu.appliances.model.utils.toLocalTime
 import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalTime

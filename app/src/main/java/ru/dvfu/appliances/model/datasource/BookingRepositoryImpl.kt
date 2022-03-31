@@ -26,6 +26,7 @@ import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.ui.Progress
+import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class BookingRepositoryImpl(
@@ -34,6 +35,12 @@ class BookingRepositoryImpl(
 
     override suspend fun getAllUserBooking(userId: String) = flow<Result<List<Booking>>> {
         val results = dbCollections.getBookingCollection().whereEqualTo("userId", userId).get().await()
+        val bookingList = results.toObjects(Booking::class.java)
+        emit(Result.success(bookingList))
+    }
+
+    override suspend fun getAllBooking() = flow<Result<List<Booking>>> {
+        val results = dbCollections.getBookingCollection().get().await()
         val bookingList = results.toObjects(Booking::class.java)
         emit(Result.success(bookingList))
     }
@@ -63,7 +70,8 @@ class BookingRepositoryImpl(
     }
 
 
-    override suspend fun deleteBooking(bookingId: String) {
+    override suspend fun deleteBooking(bookingId: String): Result<Unit> = suspendCoroutine {
         dbCollections.getBookingCollection().document(bookingId).delete()
+        it.resume(Result.success(Unit))
     }
 }

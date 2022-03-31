@@ -26,6 +26,7 @@ import ru.dvfu.appliances.application.SnackbarManager
  */
 object MainDestinations {
 
+    const val TEMP = "temp"
 
     const val ADD_EVENT = "add_event"
     const val ADD_BOOKING = "add_booking"
@@ -43,6 +44,8 @@ object MainDestinations {
     const val ADD_SUPERUSER_TO_APPLIANCE = "add_superuser_to_appliance"
     const val APPLIANCES_ROUTE = "appliances"
     const val NEW_APPLIANCE_ROUTE = "new_appliance"
+
+    const val BOOKING_LIST = "booking_list_screen"
 
     const val USERS_ROUTE = "users"
     const val USER_DETAILS_ROUTE = "user_details"

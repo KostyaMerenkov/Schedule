@@ -18,7 +18,7 @@ import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.toLocalDateTime
 import ru.dvfu.appliances.ui.Progress
 import ru.dvfu.appliances.ui.ViewState
-import java.time.LocalDate
+import java.time.*
 
 class MainScreenViewModel(
     private val usersRepository: UsersRepository,
@@ -85,8 +85,8 @@ class MainScreenViewModel(
                             applianceId = currentEvent.applianceId,
                             userId = currentEvent.userId,
                             superUserId = currentEvent.superUserId,
-                            start = currentEvent.timeStart,
-                            end = currentEvent.timeEnd,
+                            start = Instant.ofEpochMilli(currentEvent.timeStart).atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                            end = Instant.ofEpochMilli(currentEvent.timeEnd).atZone(ZoneId.systemDefault()).toLocalDateTime(),
                             description = currentEvent.commentary
                         )
                     }.toMutableList()

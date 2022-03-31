@@ -1,8 +1,7 @@
 package ru.dvfu.appliances.compose.use_cases
 
-import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.flow
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
@@ -14,11 +13,11 @@ class GetApplianceUseCase(
 
     suspend operator fun invoke(
         applianceId: String
-    ) = channelFlow<Result<Appliance>> {
+    ) = flow<Result<Appliance>> {
         offlineRepository.getApplianceById(applianceId).collect {
             it.fold(
                 onSuccess = {
-                    send(Result.success(it))
+                    emit(Result.success(it))
                 },
                 onFailure = {
                     getApplianceOnline(this, applianceId)
@@ -28,16 +27,16 @@ class GetApplianceUseCase(
     }
 
     private suspend fun getApplianceOnline(
-        flowCollector: ProducerScope<Result<Appliance>>,
+        flowCollector: FlowCollector<Result<Appliance>>,
         applianceId: String
     ) {
         appliancesRepository.getAppliance(applianceId).collect {
             it.fold(
                 onSuccess = {
-                    flowCollector.send(Result.success(it))
+                    flowCollector.emit(Result.success(it))
                 },
                 onFailure = {
-                    flowCollector.send(Result.failure(it))
+                    flowCollector.emit(Result.failure(it))
                 }
             )
         }
