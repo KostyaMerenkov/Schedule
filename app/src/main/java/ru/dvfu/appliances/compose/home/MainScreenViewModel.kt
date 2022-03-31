@@ -10,15 +10,18 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
 import ru.dvfu.appliances.model.repository.EventsRepository
+import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.toLocalDateTime
 import ru.dvfu.appliances.ui.Progress
+import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDate
 
 class MainScreenViewModel(
-
+    private val usersRepository: UsersRepository,
     private val eventsRepository: EventsRepository,
     private val offlineRepository: OfflineRepository
 ) : ViewModel() {
@@ -35,6 +38,29 @@ class MainScreenViewModel(
     init {
         //getAppliances()
         getEvents()
+        loadCurrentUser()
+    }
+
+    val mutableStateFlow: MutableStateFlow<ViewState<User>> =
+        MutableStateFlow(ViewState.Loading(null))
+
+    private fun loadCurrentUser() {
+        viewModelScope.launch {
+            usersRepository.currentUser
+                .catch { error -> handleError(error) }
+                .collectLatest { user -> user?.let { onSuccess(user) } }
+        }
+    }
+
+    private fun onSuccess(user: User) {
+        viewModelScope.launch {
+            usersRepository.setUserListener(user)
+        }
+        mutableStateFlow.value = ViewState.Success(user)
+    }
+
+    private fun handleError(error: Throwable) {
+        mutableStateFlow.value = ViewState.Error(error)
     }
 
     /*private fun getAppliances() {
@@ -59,8 +85,8 @@ class MainScreenViewModel(
                             applianceId = currentEvent.applianceId,
                             userId = currentEvent.userId,
                             superUserId = currentEvent.superUserId,
-                            start = currentEvent.timeStart.toLocalDateTime(),
-                            end = currentEvent.timeEnd.toLocalDateTime(),
+                            start = currentEvent.timeStart,
+                            end = currentEvent.timeEnd,
                             description = currentEvent.commentary
                         )
                     }.toMutableList()

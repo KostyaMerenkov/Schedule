@@ -3,12 +3,13 @@ package ru.dvfu.appliances.model.repository.entity
 import android.os.Parcelable
 import androidx.compose.ui.graphics.Color
 import kotlinx.parcelize.Parcelize
+import java.time.LocalDateTime
 
 @Parcelize
 data class Event(
     val id: String = "",
-    val timeStart: Long = 0L,
-    val timeEnd: Long = 0L,
+    val timeStart: LocalDateTime = LocalDateTime.now(),
+    val timeEnd: LocalDateTime = LocalDateTime.now(),
     val commentary: String = "",
     val applianceId: String = "",
     val applianceName: String = "",
@@ -18,4 +19,4 @@ data class Event(
     val approved: Boolean = false,
     val approvedBy: String = "",
 
-) : Parcelable
+    ) : Parcelable

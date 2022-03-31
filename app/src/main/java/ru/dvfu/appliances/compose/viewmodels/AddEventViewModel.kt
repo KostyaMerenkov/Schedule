@@ -20,8 +20,11 @@ import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.randomUUID
 import ru.dvfu.appliances.ui.Progress
 import ru.dvfu.appliances.ui.ViewState
+import java.time.*
+import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.time.toKotlinDuration
 
 class AddEventViewModel(
     private val usersRepository: UsersRepository,
@@ -39,27 +42,28 @@ class AddEventViewModel(
     private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
     val appliancesState = _appliancesState.asStateFlow()
 
-    val date = mutableStateOf(0L)
-    val timeStart = mutableStateOf(0L)
-    val timeEnd = mutableStateOf(0L)
+    val date = mutableStateOf(LocalDate.now())
+    val timeStart = mutableStateOf<LocalDateTime>(LocalDateTime.now())
+    val timeEnd = mutableStateOf<LocalDateTime>(LocalDateTime.now())
     val commentary = mutableStateOf("")
 
     val isDurationError: MutableStateFlow<Boolean>
-        get() = MutableStateFlow(TimeUnit.MILLISECONDS.toMinutes(timeEnd.value - timeStart.value) < 0)
+        get() = MutableStateFlow(timeEnd.value.isBefore(timeStart.value))
     val duration: MutableStateFlow<String>
         get() {
-            val mills = timeEnd.value - timeStart.value
+            val dur = Duration.between(timeStart.value, timeEnd.value)
+
             val period = String.format(
                 Locale.getDefault(),
                 "%02d:%02d",
-                TimeUnit.MILLISECONDS.toHours(mills),
-                TimeUnit.MILLISECONDS.toMinutes(mills) % TimeUnit.HOURS.toMinutes(1)
+                dur.toHours(),
+                dur.minusHours(dur.toHours()).toMinutes(),
             )
             return MutableStateFlow(period)
         }
 
-    val isError: MutableStateFlow<Boolean>
-        get() = MutableStateFlow<Boolean>(isDurationError.value || selectedAppliance.value == null)
+    private val isError: MutableStateFlow<Boolean>
+        get() = MutableStateFlow(isDurationError.value || selectedAppliance.value == null)
 
     init {
         loadAppliancesOffline()
@@ -111,9 +115,7 @@ class AddEventViewModel(
 
     private fun showError() {
         when {
-            TimeUnit.MILLISECONDS.toMinutes(timeEnd.value - timeStart.value) < TimeUnit.MILLISECONDS.toMinutes(
-                10
-            ) -> {
+            Duration.between(timeEnd.value, timeStart.value) < Duration.ofMinutes(10) /*TimeUnit.MILLISECONDS.toMinutes(10)*/ -> {
                 SnackbarManager.showMessage(R.string.duration_error)
             }
             selectedAppliance.value == null -> {
@@ -131,39 +133,18 @@ class AddEventViewModel(
         this.commentary.value = commentary
     }
 
-    fun onDateSet(date: Long) {
-        val calendarToSet = Calendar.getInstance().apply { timeInMillis = date }
-        timeStart.value = Calendar.getInstance().apply {
-            timeInMillis = timeStart.value
-            set(Calendar.YEAR, calendarToSet.get(Calendar.YEAR))
-            set(Calendar.MONTH, calendarToSet.get(Calendar.MONTH))
-            set(Calendar.DAY_OF_MONTH, calendarToSet.get(Calendar.DAY_OF_MONTH))
-        }.timeInMillis
-
-        timeEnd.value = Calendar.getInstance().apply {
-            timeInMillis = timeEnd.value
-            set(Calendar.YEAR, calendarToSet.get(Calendar.YEAR))
-            set(Calendar.MONTH, calendarToSet.get(Calendar.MONTH))
-            set(Calendar.DAY_OF_MONTH, calendarToSet.get(Calendar.DAY_OF_MONTH))
-        }.timeInMillis
+    fun onDateSet(date: LocalDate) {
+        this.date.value = LocalDate.of(date.year, date.month, date.dayOfMonth)
+        timeStart.value = date.atTime(timeStart.value.hour, timeStart.value.minute)
+        timeEnd.value = date.atTime(timeEnd.value.hour, timeEnd.value.minute)
     }
 
-    fun onTimeStartSet(time: Long) {
-        val calendarToSet = Calendar.getInstance().apply { timeInMillis = time }
-        timeStart.value = Calendar.getInstance().apply {
-            timeInMillis = timeStart.value
-            set(Calendar.HOUR, calendarToSet.get(Calendar.HOUR))
-            set(Calendar.MINUTE, calendarToSet.get(Calendar.MINUTE))
-        }.timeInMillis
+    fun onTimeStartSet(time: LocalTime) {
+        timeStart.value = date.value.atTime(time.hour, time.minute)
     }
 
-    fun onTimeEndSet(time: Long) {
-        val calendarToSet = Calendar.getInstance().apply { timeInMillis = time }
-        timeEnd.value = Calendar.getInstance().apply {
-            timeInMillis = timeStart.value
-            set(Calendar.HOUR, calendarToSet.get(Calendar.HOUR))
-            set(Calendar.MINUTE, calendarToSet.get(Calendar.MINUTE))
-        }.timeInMillis
+    fun onTimeEndSet(time: LocalTime) {
+        timeEnd.value = date.value.atTime(time.hour, time.minute)
     }
 
 }

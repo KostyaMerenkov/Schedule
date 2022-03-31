@@ -33,6 +33,7 @@ import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.toLocalTime
 import ru.dvfu.appliances.ui.ViewState
+import java.time.LocalTime
 
 @Composable
 fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Unit) {
@@ -170,10 +171,10 @@ fun EventInfoFAB(uiState: UiState?, onSave: () -> Unit) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun TimeEditDialog(event: Event, onTimeChange: (Long) -> Unit, onDismiss: () -> Unit) {
+fun TimeEditDialog(event: Event, onTimeChange: (LocalTime) -> Unit, onDismiss: () -> Unit) {
     val context = LocalContext.current
     TimePicker(
-        time = event.timeEnd,
+        time = event.timeEnd.toLocalTime(),
         onTimeSet = onTimeChange,
         context = context,
         onDismiss = onDismiss

@@ -133,7 +133,20 @@ class AddBookingViewModel(
     }
 
     fun onDateSet(date: Long) {
+
         val calendarToSet = Calendar.getInstance().apply { timeInMillis = date }
+        _booking.value = booking.value.copy(timeStart = calendarToSet.apply {
+            set(Calendar.HOUR, calendarToSet.get(Calendar.HOUR))
+            set(Calendar.MINUTE, calendarToSet.get(Calendar.MINUTE))
+        }.timeInMillis)
+
+        _booking.value = booking.value.copy(timeEnd = calendarToSet.apply {
+            set(Calendar.HOUR, calendarToSet.get(Calendar.HOUR))
+            set(Calendar.MINUTE, calendarToSet.get(Calendar.MINUTE))
+        }.timeInMillis)
+
+        /*val calendarToSet = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDateTime()
+
         _booking.value = booking.value.copy(timeStart = Calendar.getInstance().apply {
             timeInMillis = _booking.value.timeStart
             set(Calendar.YEAR, calendarToSet.get(Calendar.YEAR))
@@ -141,12 +154,9 @@ class AddBookingViewModel(
             set(Calendar.DAY_OF_MONTH, calendarToSet.get(Calendar.DAY_OF_MONTH))
         }.timeInMillis)
 
-        _booking.value = booking.value.copy(timeEnd = Calendar.getInstance().apply {
-            timeInMillis = _booking.value.timeEnd
-            set(Calendar.YEAR, calendarToSet.get(Calendar.YEAR))
-            set(Calendar.MONTH, calendarToSet.get(Calendar.MONTH))
-            set(Calendar.DAY_OF_MONTH, calendarToSet.get(Calendar.DAY_OF_MONTH))
-        }.timeInMillis)
+        _booking.value = booking.value.copy(
+            timeEnd = calendarToSet.apply {}
+        )*/
     }
 
     fun onTimeStartSet(time: Long) {

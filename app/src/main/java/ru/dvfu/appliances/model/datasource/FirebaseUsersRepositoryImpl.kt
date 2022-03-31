@@ -83,7 +83,6 @@ class FirebaseUsersRepositoryImpl(
             bundle.putString(FirebaseAnalytics.Param.METHOD, "Google")
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)*/
             userDatastore.saveUser(userFromDatabase)
-            setUserListener(userFromDatabase)
             flow.tryEmit(Progress.Complete)
         } else {
             dbCollections.getUsersCollection().document(user.userId).set(user)
@@ -91,7 +90,6 @@ class FirebaseUsersRepositoryImpl(
 
                     runBlocking {
                         userDatastore.saveUser(user)
-                        setUserListener(user)
                     }
                     flow.tryEmit(Progress.Complete)
                 }
@@ -100,7 +98,7 @@ class FirebaseUsersRepositoryImpl(
         return flow
     }
 
-    private suspend fun setUserListener(user: User) {
+    override suspend fun setUserListener(user: User) {
         val listeners = mutableListOf<ListenerRegistration>()
 
         listeners.add(

@@ -36,8 +36,11 @@ import ru.dvfu.appliances.compose.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.ViewState
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
 @Composable
@@ -54,12 +57,6 @@ fun AddEvent(navController: NavController) {
     }
 
     val calendar = remember { Calendar.getInstance() }
-
-    LaunchedEffect(key1 = null) {
-        viewModel.date.value = calendar.timeInMillis
-        viewModel.timeStart.value = calendar.timeInMillis
-        viewModel.timeEnd.value = calendar.timeInMillis
-    }
 
     Scaffold(topBar = {
         ScheduleAppBar(title = "Создание события", backClick = navController::popBackStack)
@@ -80,8 +77,8 @@ fun AddEvent(navController: NavController) {
         ) {
             DateAndTime(
                 date = viewModel.date.value,
-                timeStart = viewModel.timeStart.value,
-                timeEnd = viewModel.timeEnd.value,
+                timeStart = viewModel.timeStart.value.toLocalTime(),
+                timeEnd = viewModel.timeEnd.value.toLocalTime(),
                 onDateSet = viewModel::onDateSet,
                 onTimeStartSet = viewModel::onTimeStartSet,
                 onTimeEndSet = viewModel::onTimeEndSet,
@@ -213,12 +210,12 @@ fun ItemApplianceSelectable(
 
 @Composable
 fun DateAndTime(
-    date: Long,
-    timeStart: Long,
-    timeEnd: Long,
-    onDateSet: (Long) -> Unit,
-    onTimeStartSet: (Long) -> Unit,
-    onTimeEndSet: (Long) -> Unit,
+    date: LocalDate,
+    timeStart: LocalTime,
+    timeEnd: LocalTime,
+    onDateSet: (LocalDate) -> Unit,
+    onTimeStartSet: (LocalTime) -> Unit,
+    onTimeEndSet: (LocalTime) -> Unit,
     duration: String,
     isDurationError: Boolean,
 ) {
@@ -241,7 +238,7 @@ fun DateAndTime(
     ) { timeSetEndState.value = false }
 
     LaunchedEffect(timeStart) {
-        onTimeEndSet(Date().time + MILLISECONDS_IN_HOUR)
+        onTimeEndSet(timeEnd.plusHours(1L))
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -253,7 +250,7 @@ fun DateAndTime(
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
             OutlinedTextField(
-                value = date.toDateWithWeek(),
+                value = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)),
                 onValueChange = {},
                 label = { Text(text = stringResource(R.string.date)) },
                 readOnly = true,
@@ -273,7 +270,7 @@ fun DateAndTime(
                 })
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
                 OutlinedTextField(
-                    value = timeStart.toTime(),
+                    value = timeStart.toHoursAndMinutes(),
                     onValueChange = {},
                     label = { Text(text = stringResource(R.string.time_start)) },
                     readOnly = true,
@@ -291,7 +288,7 @@ fun DateAndTime(
 
                     })
                 OutlinedTextField(
-                    value = timeEnd.toTime(),
+                    value = timeEnd.toHoursAndMinutes(),
                     onValueChange = {},
                     label = { Text(text = stringResource(R.string.time_end)) },
                     readOnly = true,
@@ -317,4 +314,8 @@ fun DateAndTime(
             Text(text = "Продолжительность: $duration", color = textTint)
         }
     }
+}
+
+private fun LocalTime.toHoursAndMinutes(): String {
+    return format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
 }

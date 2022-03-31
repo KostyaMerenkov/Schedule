@@ -46,6 +46,7 @@ import ru.dvfu.appliances.ui.activity.LoginActivity
 @Composable
 fun Profile(navController: NavController, modifier: Modifier = Modifier, backPress: () -> Unit) {
     val viewModel = getViewModel<ProfileViewModel>()
+    val currentUser by viewModel.currentUser.collectAsState()
 
     val uiState = viewModel.uiState
     Scaffold(
@@ -64,8 +65,7 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                     backgroundColor = MaterialTheme.colors.surface
                 ) {
                     Column() {
-                        val user by viewModel.getCurrentUser().collectAsState(null)
-                        UserInfo(user)
+                        UserInfo(currentUser)
 
                         /*val userPlacesNum by viewModel.getUserPlaces().collectAsState(null)
                         val userCatchesNum by viewModel.getUserCatches().collectAsState(null)
@@ -159,7 +159,9 @@ fun UserButtons() {
     val dialogOnLogout = rememberSaveable { mutableStateOf(false) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize().padding(horizontal = 80.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 80.dp),
         verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.Bottom)
     ) {
         /*ColumnButton(painterResource(R.drawable.ic_friends), stringResource(R.string.friends)) {
@@ -196,6 +198,7 @@ fun LogoutDialog(dialogOnLogout: MutableState<Boolean>) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val viewModel = getViewModel<ProfileViewModel>()
+
     AlertDialog(
         title = { Text("Выход из аккаунта") },
         text = { Text("Вы уверены, что хотите выйти из своего аккаунта?") },
@@ -244,7 +247,10 @@ fun UserInfo(user: User?) {
             UserNameAndImage(animatedUser)
         }
     } ?: Row(
-        modifier = Modifier.fillMaxWidth().height(150.dp).padding(20.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .padding(20.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -257,7 +263,10 @@ fun UserInfo(user: User?) {
 @Composable
 fun UserNameAndImage(user: User) {
     Row(
-        modifier = Modifier.fillMaxWidth().height(150.dp).padding(20.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .padding(20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -265,7 +274,8 @@ fun UserNameAndImage(user: User) {
             Icon(
                 Icons.Default.Person, contentDescription = stringResource(R.string.user_photo),
                 modifier = Modifier
-                    .clip(CircleShape).size(125.dp),
+                    .clip(CircleShape)
+                    .size(125.dp),
                 //.align(Alignment.CenterVertically),
                 //tint = secondaryFigmaColor
             )
@@ -278,7 +288,9 @@ fun UserNameAndImage(user: User) {
                         transformations(CircleCropTransformation())
                     }),
                 contentDescription = stringResource(R.string.user_photo),
-                modifier = Modifier.clip(CircleShape).size(125.dp)
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(125.dp)
                 //contentScale = ContentScale.Crop,
             )
         }

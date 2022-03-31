@@ -49,12 +49,12 @@ val mainActivity = module {
 
     viewModel { LoginViewModel(get(), get()) }
 
-    viewModel { MainScreenViewModel(get(), get()) }
+    viewModel { MainScreenViewModel(get(), get(), get()) }
 
     viewModel { UserDetailsViewModel(get(), get()) }
 
 
-    viewModel { ProfileViewModel(get()) }
+    viewModel { ProfileViewModel(get(), get()) }
 
     //Appliances
     viewModel { ApplianceDetailsViewModel(get(), get()) }

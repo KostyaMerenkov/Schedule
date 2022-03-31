@@ -49,7 +49,7 @@ fun AddBooking(navController: NavController) {
                 .verticalScroll(state = scrollState, enabled = true)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            DateAndTime(
+            /*DateAndTime(
                 date = booking.timeStart,
                 timeStart = booking.timeStart,
                 timeEnd = booking.timeEnd,
@@ -58,7 +58,7 @@ fun AddBooking(navController: NavController) {
                 onTimeEndSet = viewModel::onTimeEndSet,
                 duration = viewModel.duration.collectAsState().value,
                 isDurationError = viewModel.isDurationError.collectAsState().value,
-            )
+            )*/
             Commentary(commentary = booking.commentary, onCommentarySet = viewModel::onCommentarySet)
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
