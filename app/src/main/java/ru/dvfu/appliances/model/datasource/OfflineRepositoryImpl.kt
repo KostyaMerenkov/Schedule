@@ -40,22 +40,24 @@ class OfflineRepositoryImpl(
         db.enableNetwork()
     }
 
-override fun getApplianceById(applianceId: String) = callbackFlow<Result<Appliance>> {
-    db.disableNetwork().addOnSuccessListener {
-        dbCollections.getAppliancesCollection().document(applianceId).get()
-            .addOnCompleteListener {
-                db.enableNetwork()
-                if (it.isSuccessful) {
-                    val appliance = it.result.toObject(Appliance::class.java)
-                    appliance?.let {
-                        trySend(Result.success(appliance))
-                    } ?: trySend(Result.failure(it.exception ?: Throwable()))
+    override fun getApplianceById(applianceId: String) = callbackFlow<Result<Appliance>> {
+        db.disableNetwork().addOnSuccessListener {
+            dbCollections.getAppliancesCollection().document(applianceId).get()
+                .addOnCompleteListener {
+                    db.enableNetwork()
+                    if (it.isSuccessful) {
+                        val appliance = it.result.toObject(Appliance::class.java)
+                        appliance?.let {
+                            trySend(Result.success(appliance))
+                        } ?: trySend(Result.failure(it.exception ?: Throwable()))
 
-                } else {
-                    trySend(Result.failure(it.exception ?: Throwable()))
+                    } else {
+                        trySend(Result.failure(it.exception ?: Throwable()))
+                    }
                 }
-            }
+        }
+        awaitClose { }
     }
-    awaitClose { }
-}
+
+
 }

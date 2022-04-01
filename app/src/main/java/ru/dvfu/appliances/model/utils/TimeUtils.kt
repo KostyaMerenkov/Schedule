@@ -1,10 +1,7 @@
 package ru.dvfu.appliances.model.utils
 
 import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
+import java.time.*
 import java.util.*
 
 fun Long.toLocalDateTime(): LocalDateTime {
@@ -15,4 +12,9 @@ fun Long.toLocalDateTime(): LocalDateTime {
 fun Long.toLocalTime(): LocalTime {
     return Instant.ofEpochMilli(this)
         .atZone(ZoneId.systemDefault()).toLocalTime()
+}
+
+fun Long.toLocalDate(): LocalDate {
+    return Instant.ofEpochMilli(this)
+        .atZone(ZoneId.systemDefault()).toLocalDate()
 }

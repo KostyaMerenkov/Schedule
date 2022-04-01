@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose.home
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -31,7 +32,6 @@ import ru.dvfu.appliances.compose.views.HeaderText
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.utils.toLocalDateTime
 import ru.dvfu.appliances.model.utils.toLocalTime
 import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalTime
@@ -46,6 +46,7 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
     val userState by viewModel.userState.collectAsState()
     val superUserState by viewModel.userState.collectAsState()
     val canUpdate by viewModel.canUpdate.collectAsState()
+    val timeChangeState by viewModel.timeChangeState.collectAsState()
 
     var eventDeleteDialog by remember { mutableStateOf(false) }
     if (eventDeleteDialog) {
@@ -69,13 +70,15 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
 
     var timeEditDialog by remember { mutableStateOf(false) }
     if (timeEditDialog) {
-        TimeEditDialog(event = event, onDismiss = { timeEditDialog = false }, onTimeChange = {
-
-        })
+        TimeEditDialog(event = event, onDismiss = { timeEditDialog = false }, onTimeChange = viewModel::onTimeEndChange)
     }
     Scaffold(
         topBar = {
-            EventInfoTopBar(backPress) { eventDeleteDialog = true }
+            EventInfoTopBar(
+                couldDeleteEvent = viewModel.couldDeleteEvent.collectAsState(),
+                backPress
+            ) { eventDeleteDialog = true }
+
         },
         floatingActionButton = {
             if (canUpdate) {
@@ -84,7 +87,9 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
         }
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -95,20 +100,29 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
             ) {
                 OutlinedTextField(
                     modifier = Modifier.weight(1f),
-                    value = eventArg.timeStart.toLocalTime().format(EventTimeFormatter),
+                    value = event.timeStart.toLocalTime().format(EventTimeFormatter),
                     onValueChange = {},
                     label = { Text(text = stringResource(id = R.string.timeStart)) },
                     readOnly = true,
                 )
                 OutlinedTextField(
                     modifier = Modifier.weight(1f),
-                    value = eventArg.timeEnd.toLocalTime().format(EventTimeFormatter),
+                    value = event.timeEnd.toLocalTime().format(EventTimeFormatter),
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(text = stringResource(id = R.string.timeEnd)) },
                     trailingIcon = {
-                        IconButton(onClick = { timeEditDialog = true }) {
-                            Icon(Icons.Default.Edit, Icons.Default.Edit.name)
+                        Crossfade(targetState = timeChangeState) {
+                            when(it) {
+                                is UiState.InProgress -> CircularProgressIndicator()
+                                else -> {
+                                    AnimatedVisibility(visible = viewModel.couldEditTimeEnd.collectAsState().value) {
+                                        IconButton(onClick = { timeEditDialog = true }) {
+                                            Icon(Icons.Default.Edit, Icons.Default.Edit.name)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     })
             }
@@ -133,8 +147,6 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
                     Arguments.USER to it
                 )
             }
-
-
 
 
         }
@@ -200,17 +212,18 @@ fun EventAppliance(applianceState: ViewState<Appliance>, applianceClicked: (Appl
 }
 
 @Composable
-fun EventInfoTopBar(upPress: () -> Unit, onDelete: () -> Unit) {
+fun EventInfoTopBar(couldDeleteEvent: State<Boolean>, upPress: () -> Unit, onDelete: () -> Unit) {
     ScheduleAppBar(
-        "Событие"/*stringResource(R.string.event_info)*/,
+        stringResource(R.string.event_info),
         backClick = upPress,
-        actionDelete = true,
+        actionDelete = couldDeleteEvent.value,
         deleteClick = onDelete,
         elevation = 0.dp
     )
 }
 
-@OptIn(ExperimentalCoilApi::class, androidx.compose.material.ExperimentalMaterialApi::class,
+@OptIn(
+    ExperimentalCoilApi::class, androidx.compose.material.ExperimentalMaterialApi::class,
     androidx.compose.foundation.ExperimentalFoundationApi::class,
     androidx.compose.animation.ExperimentalAnimationApi::class
 )

@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddTask
@@ -25,6 +26,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Arguments
@@ -45,6 +47,7 @@ import java.util.*
 fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
     val viewModel: MainScreenViewModel = getViewModel()
     val events by viewModel.events.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
     var eventOptionDialogOpened by remember { mutableStateOf(false) }
@@ -98,9 +101,11 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
                         fabState.value = MultiFabState.COLLAPSED
                     })
         }
+        val verticalScrollState = rememberScrollState()
+        val horizontalScrollState = rememberScrollState()
 
         Schedule(calendarEvents = events, minDate = LocalDate.now().minusDays(1),
-            maxDate = LocalDate.now().plusDays(1),
+            maxDate = LocalDate.now().plusDays(6),
             onEventClick = {
                 viewModel.getRepoEvent(it)?.let {
                     navController.navigate(
@@ -112,7 +117,17 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
             onEventLongClick = {
                 viewModel.selectedEvent.value = it
                 eventOptionDialogOpened = true
-            })
+            },
+            verticalScrollState = verticalScrollState,
+            horizontalScrollState = horizontalScrollState
+        )
+
+        DisposableEffect(Unit) {
+            coroutineScope.launch {
+                horizontalScrollState.scrollTo(2)
+            }
+            onDispose {  }
+        }
     }
 }
 

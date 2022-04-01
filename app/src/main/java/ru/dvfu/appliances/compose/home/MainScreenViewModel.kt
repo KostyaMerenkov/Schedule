@@ -73,7 +73,7 @@ class MainScreenViewModel(
 
     private fun getEvents() {
         viewModelScope.launch {
-            eventsRepository.getAllEventsFromDate(LocalDate.now().minusDays(1L).toEpochDay())
+            eventsRepository.getAllEventsFromDate(LocalDate.now().toEpochDay())
                 .collect { result ->
                     _reposEvents.value = result.toList()
 
@@ -85,8 +85,8 @@ class MainScreenViewModel(
                             applianceId = currentEvent.applianceId,
                             userId = currentEvent.userId,
                             superUserId = currentEvent.superUserId,
-                            start = Instant.ofEpochMilli(currentEvent.timeStart).atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                            end = Instant.ofEpochMilli(currentEvent.timeEnd).atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                            start = currentEvent.timeStart.toLocalDateTime(),
+                            end = currentEvent.timeEnd.toLocalDateTime(),
                             description = currentEvent.commentary
                         )
                     }.toMutableList()
@@ -102,7 +102,7 @@ class MainScreenViewModel(
 
     fun deleteEvent(eventToDelete: CalendarEvent) {
         viewModelScope.launch {
-            eventsRepository.deleteEvent(eventToDelete.id).single().fold(
+            eventsRepository.deleteEvent(eventToDelete.id).fold(
                 onSuccess = {
                     val newEventsList =
                         _events.value.filter { it.id != eventToDelete.id }.toMutableList()

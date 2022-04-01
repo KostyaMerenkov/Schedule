@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose.event_calendar
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -40,12 +41,12 @@ fun Schedule(
     maxTime: LocalTime = LocalTime.of(23,0),
     daySize: ScheduleSize = ScheduleSize.Adaptive(256.dp),
     hourSize: ScheduleSize = ScheduleSize.Adaptive(64.dp),
+    verticalScrollState: ScrollState,
+    horizontalScrollState: ScrollState,
 ) {
     val numDays = ChronoUnit.DAYS.between(minDate, maxDate).toInt() + 1
     val numMinutes = ChronoUnit.MINUTES.between(minTime, maxTime).toInt() + 1
     val numHours = numMinutes.toFloat() / 60f
-    val verticalScrollState = rememberScrollState()
-    val horizontalScrollState = rememberScrollState()
     var sidebarWidth by remember { mutableStateOf(0) }
     var headerHeight by remember { mutableStateOf(0) }
     BoxWithConstraints(modifier = modifier) {

@@ -15,4 +15,7 @@ data class User(
     fun isAdmin(): Boolean {
         return role == Roles.ADMIN.ordinal
     }
+    fun isSuperUser(): Boolean {
+        return role == Roles.ADMIN.ordinal
+    }
 }

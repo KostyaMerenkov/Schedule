@@ -3,14 +3,19 @@ package ru.dvfu.appliances.model.datasource
 import android.util.Log
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.*
+import com.google.firebase.firestore.ktx.toObjects
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
+import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.ui.Progress
+import java.time.LocalDateTime
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class EventsRepositoryImpl(
     private val dbCollections: RepositoryCollections,
@@ -41,15 +46,21 @@ class EventsRepositoryImpl(
         }
     }
 
-    override suspend fun deleteEvent(id: String) = callbackFlow<Result<Unit>> {
-
-        dbCollections.getEventsCollection().document(id).delete().addOnCompleteListener{
-            if (it.isSuccessful)  trySend(Result.success(Unit))
-            else trySend(Result.failure(it.exception ?: Throwable()))
+    override suspend fun deleteEvent(id: String) = suspendCoroutine<Result<Unit>> { continuation ->
+        dbCollections.getEventsCollection().document(id).delete().addOnCompleteListener {
+            if (it.isSuccessful) continuation.resume(Result.success(Unit))
+            else continuation.resume(Result.failure(it.exception ?: Throwable()))
         }
-
-        awaitClose {  }
     }
+
+    override suspend fun setNewTimeEnd(eventId: String, timeEnd: Long) =
+        suspendCoroutine<Result<Unit>> { continuation ->
+            dbCollections.getEventsCollection().document(eventId).update("timeEnd", timeEnd)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) continuation.resume(Result.success(Unit))
+                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+        }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getEventsSuccessListener(scope: ProducerScope<List<Event>>): EventListener<QuerySnapshot> =
@@ -63,5 +74,19 @@ class EventsRepositoryImpl(
                 val events = snapshots.toObjects(Event::class.java)
                 scope.trySend(events)
             }
+        }
+
+    override suspend fun getActiveApplianceEvents(applianceId: String, newTimeEnd: Long) =
+        suspendCoroutine<Result<List<Event>>> { continuation ->
+            dbCollections.getEventsCollection()
+                .whereEqualTo("applianceId", applianceId)
+                .whereGreaterThan("timeEnd", newTimeEnd)
+                .get().addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        val events = it.result.toObjects<Event>()
+                        continuation.resume(Result.success(events))
+                    }
+                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
         }
 }

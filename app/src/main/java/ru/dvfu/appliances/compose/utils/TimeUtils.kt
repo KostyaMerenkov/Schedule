@@ -10,6 +10,7 @@ object TimeConstants {
     const val MILLISECONDS_IN_HOUR = 3600000L
     const val SECONDS_IN_HOUR = 3600L
     const val SECONDS_IN_MINUTE = 60L
+    const val MILLISECONDS_IN_MINUTE = 60000L
     const val MOON_PHASE_INCREMENT_IN_DAY = 0.03f
 }
 

@@ -3,6 +3,9 @@ package ru.dvfu.appliances.model.repository.entity
 import android.os.Parcelable
 import androidx.compose.ui.graphics.Color
 import kotlinx.parcelize.Parcelize
+import ru.dvfu.appliances.model.utils.toLocalDate
+import ru.dvfu.appliances.model.utils.toLocalDateTime
+import ru.dvfu.appliances.model.utils.toLocalTime
 import java.time.LocalDateTime
 
 @Parcelize
@@ -18,5 +21,4 @@ data class Event(
     val superUserId: String? = null,
     val approved: Boolean = false,
     val approvedBy: String = "",
-
     ) : Parcelable
