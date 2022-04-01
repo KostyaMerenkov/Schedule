@@ -8,10 +8,10 @@ interface BookingRepository {
     suspend fun getAllUserBooking(userId: String): Flow<Result<List<Booking>>>
     suspend fun getAllBooking(): Flow<Result<List<Booking>>>
 
-    suspend fun createBooking(booking: Booking)
+    suspend fun createBooking(booking: Booking): Result<Unit>
 
-    suspend fun approveBooking(booking: Booking, managedById: String, managerCommentary: String)
-    suspend fun declineBooking(booking: Booking, managedById: String, managerCommentary: String)
+    suspend fun approveBooking(booking: Booking, managedById: String, managerCommentary: String): Result<Unit>
+    suspend fun declineBooking(booking: Booking, managedById: String, managerCommentary: String): Result<Unit>
 
     suspend fun deleteBooking(bookingId: String): Result<Unit>
 }

@@ -84,12 +84,12 @@ class AddBookingViewModel(
                 showError()
                 this.cancel()
             }
-            val user = userDatastore.getCurrentUser.first<User>()
+            //val user = userDatastore.getCurrentUser.first<User>()
             _uiState.value = UiState.InProgress
             selectedAppliance.value?.let {
                 val bookingToUpload = Booking(
                     id = UUID.randomUUID().toString(),
-                    userId = user.userId,
+                    userId = userDatastore.getCurrentUser.first<User>().userId,
                     timeStart = timeStart.value.toMillis,
                     timeEnd = timeEnd.value.toMillis,
                     commentary = commentary.value,

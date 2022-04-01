@@ -47,13 +47,13 @@ val application = module {
 
 val mainActivity = module {
     viewModel { UsersViewModel(get()) }
-    viewModel { BookingListViewModel(get(),get(),get(),get(), get(), get()) }
+    viewModel { BookingListViewModel(get(),get(),get(),get()) }
 
     viewModel { LoginViewModel(get(), get()) }
 
     viewModel { MainScreenViewModel(get(), get(), get()) }
 
-    viewModel { UserDetailsViewModel(get(), get()) }
+    viewModel { UserDetailsViewModel(it[0], get(), get(), get()) }
 
 
     viewModel { ProfileViewModel(get(), get()) }
@@ -69,7 +69,8 @@ val mainActivity = module {
             usersRepository = get(),
             appliancesRepository = get(),
             eventsRepository = get(),
-            offlineRepository = get()
+            offlineRepository = get(),
+            get()
         )
     }
     viewModel {

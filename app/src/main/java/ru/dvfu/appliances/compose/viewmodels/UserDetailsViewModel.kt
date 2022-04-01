@@ -3,7 +3,9 @@ package ru.dvfu.appliances.compose.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -11,42 +13,34 @@ import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
 
 class UserDetailsViewModel(
+    private val detUser: User,
     private val usersRepository: UsersRepository,
     private val repository: AppliancesRepository,
+    private val userDatastore: UserDatastore
 ) : ViewModel() {
 
-    companion object {
-        val defUser = User()
-    }
+    val currentUser: MutableStateFlow<User> = MutableStateFlow(User())
+    val detailsUser: MutableStateFlow<User> = MutableStateFlow(User())
 
     init {
         getCurrentUser()
+        setDetailsUser(detUser)
     }
 
     private fun getCurrentUser() {
         viewModelScope.launch {
-            usersRepository.currentUserFromDB.collect {
-                currentUser.value = it
-            }
+            currentUser.value = userDatastore.getCurrentUser.first()
         }
     }
 
-    val currentUser: MutableStateFlow<User> = MutableStateFlow(defUser)
-    val detailsUser: MutableStateFlow<User> = MutableStateFlow(defUser)
 
     val currentUserAppliances = MutableStateFlow<List<Appliance>?>(null)
     val currentSuperUserAppliances = MutableStateFlow<List<Appliance>?>(null)
 
     fun setDetailsUser(user: User) {
-        if (detailsUser.value == defUser) {
-            detailsUser.value = user
-            when(user.role) {
-                Roles.USER.ordinal -> { getUserAppliances(user) }
-                Roles.ADMIN.ordinal -> {
-                    getUserAppliances(user);
-                    getSuperUserAppliances(user) }
-            }
-        }
+        detailsUser.value = user
+        getUserAppliances(user);
+        getSuperUserAppliances(user)
     }
 
 

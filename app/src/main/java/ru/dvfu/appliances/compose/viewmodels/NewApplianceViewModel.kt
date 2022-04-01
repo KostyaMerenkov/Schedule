@@ -15,7 +15,7 @@ import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.Progress
 
-class NewApplianceViewModel(private val repository: AppliancesRepository): ViewModel() {
+class NewApplianceViewModel(private val repository: AppliancesRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BaseViewState>(BaseViewState.Success(null))
     val uiState: StateFlow<BaseViewState>
@@ -31,19 +31,14 @@ class NewApplianceViewModel(private val repository: AppliancesRepository): ViewM
         _uiState.value = BaseViewState.Loading()
 
         viewModelScope.launch {
-                repository.addAppliance(appliance).collect { progress ->
-                    when (progress) {
-                        is Progress.Complete -> {
-                            _uiState.value = BaseViewState.Success(progress)
-                        }
-                        is Progress.Loading -> {
-                            _uiState.value = BaseViewState.Loading(progress.percents)
-                        }
-                        is Progress.Error -> {
-                            _uiState.value = BaseViewState.Error(progress.error)
-                        }
-                    }
-            }
+            repository.addAppliance(appliance).fold(
+                onSuccess = {
+                    _uiState.value = BaseViewState.Success(it)
+
+                },
+                onFailure = {
+                    _uiState.value = BaseViewState.Error(it)
+                })
         }
     }
 

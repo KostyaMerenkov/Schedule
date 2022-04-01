@@ -108,10 +108,10 @@ fun SwipableUsers(
 }
 
 @Composable
-fun LoadingItem() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
+fun LoadingItem(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator()
     }

@@ -1,6 +1,9 @@
 package ru.dvfu.appliances.application
 
 import android.app.Application
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.firestoreSettings
+import com.google.firebase.ktx.Firebase
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -12,6 +15,11 @@ class Schedule : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        val settings = firestoreSettings {
+            isPersistenceEnabled = false
+        }
+        Firebase.firestore.firestoreSettings = settings
         startKoin {
             // Koin Android logger
             androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)

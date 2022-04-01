@@ -12,11 +12,13 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.utils.toMillis
+import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.randomUUID
 import ru.dvfu.appliances.ui.Progress
@@ -32,6 +34,7 @@ class AddEventViewModel(
     private val appliancesRepository: AppliancesRepository,
     private val eventsRepository: EventsRepository,
     private val offlineRepository: OfflineRepository,
+    private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
     private val _selectedAppliance = MutableStateFlow<Appliance?>(null)
@@ -94,7 +97,7 @@ class AddEventViewModel(
                             applianceId = it.id,
                             applianceName = it.name,
                             color = it.color,
-                            userId = usersRepository.currentUser.first()!!.userId
+                            userId = userDatastore.getCurrentUser.first<User>().userId,
                         )
                     ).collect { progress ->
                         when (progress) {

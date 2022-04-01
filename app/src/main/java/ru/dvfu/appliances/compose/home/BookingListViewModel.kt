@@ -31,6 +31,9 @@ class BookingListViewModel(
 
     private val _reposBookingList = MutableStateFlow<List<Booking>>(listOf())
 
+    private val _uiState = MutableStateFlow<ViewState<MutableList<UiBooking>>>(ViewState.Loading())
+    val uiState: StateFlow<ViewState<List<UiBooking>>> = _uiState.asStateFlow()
+
     private val _bookingList = MutableStateFlow<MutableList<UiBooking>>(mutableListOf())
     val bookingList: StateFlow<List<UiBooking>> = _bookingList.asStateFlow()
 
@@ -47,6 +50,7 @@ class BookingListViewModel(
 
     private fun getBookings() {
         viewModelScope.launch {
+            _uiState.value = ViewState.Loading()
             bookingRepository.getAllBooking().collect { result ->
                 result.fold(
                     onSuccess = {
@@ -58,15 +62,16 @@ class BookingListViewModel(
                                 timeStart = currentBooking.timeStart.toLocalDateTime(),
                                 timeEnd = currentBooking.timeEnd.toLocalDateTime(),
                                 commentary = currentBooking.commentary,
-                                user = getUserUseCase(currentBooking.userId).first().getOrDefault(null),
+                                user = getUserUseCase(currentBooking.userId).first().getOrThrow(),
                                 appliance = getApplianceUseCase(currentBooking.applianceId).first().getOrDefault(null),
                                 managedUser = if (currentBooking.managedById.isBlank()) null else
                                     getUserUseCase(currentBooking.managedById).first().getOrDefault(null)
                             )
                         }.toMutableList()
+                        _uiState.value = ViewState.Success(_bookingList.value)
                     },
                     onFailure = {
-
+                        _uiState.value = ViewState.Error(it)
                     }
                 )
             }

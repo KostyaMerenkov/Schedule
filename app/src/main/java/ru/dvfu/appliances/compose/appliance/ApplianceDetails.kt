@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -22,9 +23,11 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ScheduleAppBar
+import ru.dvfu.appliances.compose.home.EventDeleteDialog
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
+import ru.dvfu.appliances.compose.views.DefaultDialog
 
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
@@ -41,12 +44,19 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
 
     if (infoDialogState) ApplianceInfoDialog(updatedAppliance) { infoDialogState = false }
 
+    var applianceDeleteDialog by remember { mutableStateOf(false) }
+    if (applianceDeleteDialog) {
+        ApplianceDeleteDialog(onDismiss = { applianceDeleteDialog = false }) {
+            viewModel.deleteAppliance(); upPress()
+        }
+    }
+
     val tabs = listOf(TabItem.Users, TabItem.SuperUsers)
     val pagerState = rememberPagerState(pageCount = tabs.size)
 
     Scaffold(topBar = {
         ApplianceTopBar(user, updatedAppliance, upPress, deleteClick = {
-            viewModel.deleteAppliance(); upPress()
+            applianceDeleteDialog = true
         })
     },
         modifier = Modifier.fillMaxSize().background(Color(0XFFE3DAC9))) {
@@ -89,6 +99,19 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
         }
 
     }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun ApplianceDeleteDialog(onDismiss: () -> Unit, function: () -> Unit) {
+    DefaultDialog(
+        primaryText = stringResource(id = R.string.appliance_delete_sure),
+        positiveButtonText = stringResource(id = R.string.Yes),
+        negativeButtonText = stringResource(id = R.string.No),
+        onPositiveClick = { function(); onDismiss() },
+        onNegativeClick = { onDismiss() },
+        onDismiss = onDismiss
+    ) {}
 }
 
 @Composable

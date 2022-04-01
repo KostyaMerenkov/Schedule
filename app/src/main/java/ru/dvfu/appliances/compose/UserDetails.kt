@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.components.ItemsSelection
@@ -34,7 +36,7 @@ import ru.dvfu.appliances.model.repository.entity.getRole
 @Composable
 fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
 
-    val viewModel: UserDetailsViewModel = get()
+    val viewModel: UserDetailsViewModel = getViewModel(parameters = { parametersOf(user)})
 
     DisposableEffect(viewModel) {
         viewModel.setDetailsUser(user)
@@ -44,8 +46,6 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
     var isChangeRoleDialogOpen by remember { mutableStateOf(false) }
     val currentUser by viewModel.currentUser.collectAsState()
     val detailsUser by viewModel.detailsUser.collectAsState()
-
-    //viewModel.getAppliances(user)
 
 
     Scaffold(topBar = {
@@ -58,7 +58,8 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
         }
 
         Column(modifier = Modifier
-            .fillMaxSize().padding(horizontal = 10.dp)
+            .fillMaxSize()
+            .padding(horizontal = 10.dp)
             .verticalScroll(rememberScrollState(0))) {
             UserInfo(detailsUser, currentUser) {
                 isChangeRoleDialogOpen = true

@@ -12,28 +12,44 @@ import com.google.firebase.firestore.ktx.toObjects
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.ui.Progress
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class AppliancesRepositoryImpl(
     private val dbCollections: RepositoryCollections,
 ) : AppliancesRepository {
 
-    override suspend fun deleteUserFromAppliance(userToDelete: User, from: Appliance) {
-        dbCollections.getAppliancesCollection().document(from.id)
-            .update("userIds", from.userIds.filter { it != userToDelete.userId })
-    }
+    override suspend fun deleteUserFromAppliance(userToDelete: User, from: Appliance) =
+        suspendCoroutine<Result<Unit>> { continuation ->
+            dbCollections.getAppliancesCollection().document(from.id)
+                .update("userIds", from.userIds.filter { it != userToDelete.userId })
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        continuation.resume(Result.success(Unit))
+                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+        }
 
-    override suspend fun deleteSuperUserFromAppliance(userToDelete: User, from: Appliance) {
-        dbCollections.getAppliancesCollection().document(from.id)
-            .update("superuserIds", from.superuserIds.filter { it != userToDelete.userId })
-    }
+    override suspend fun deleteSuperUserFromAppliance(userToDelete: User, from: Appliance) =
+        suspendCoroutine<Result<Unit>> { continuation ->
+            dbCollections.getAppliancesCollection().document(from.id)
+                .update("superuserIds", from.superuserIds.filter { it != userToDelete.userId })
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        continuation.resume(Result.success(Unit))
+                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+        }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun getUserAppliances(userId: String) = channelFlow {
@@ -90,29 +106,27 @@ class AppliancesRepositoryImpl(
     override suspend fun addUsersToAppliance(
         appliance: Appliance,
         userIds: List<String>
-    ): StateFlow<Progress> {
-        val flow = MutableStateFlow<Progress>(Progress.Loading())
-        dbCollections.getAppliancesCollection().document(appliance.id).update(
-            "userIds", userIds
-        ).addOnCompleteListener {
-            flow.tryEmit(Progress.Complete)
-        }
+    ) = suspendCoroutine<Result<Unit>> { continuation ->
 
-        return flow
+        dbCollections.getAppliancesCollection().document(appliance.id).update(
+            "userIds", userIds).addOnCompleteListener {
+            if (it.isSuccessful) {
+                continuation.resume(Result.success(Unit))
+            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+        }
     }
 
     override suspend fun addSuperUsersToAppliance(
         appliance: Appliance,
         superuserIds: List<String>
-    ): StateFlow<Progress> {
-        val flow = MutableStateFlow<Progress>(Progress.Loading())
+    ) = suspendCoroutine<Result<Unit>> { continuation ->
         dbCollections.getAppliancesCollection().document(appliance.id).update(
             "superuserIds", superuserIds
         ).addOnCompleteListener {
-            flow.tryEmit(Progress.Complete)
+            if (it.isSuccessful) {
+                continuation.resume(Result.success(Unit))
+            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
         }
-
-        return flow
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -143,21 +157,21 @@ class AppliancesRepositoryImpl(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getApplianceSuccessListener(producerScope: ProducerScope<Result<Appliance>>)
-    : EventListener<DocumentSnapshot> = EventListener<DocumentSnapshot> { document, error ->
-            if (error != null) {
-                Log.d("Schedule", "Get all appliances listener error", error)
-                producerScope.trySend(Result.failure(error.fillInStackTrace()))
-                return@EventListener
-            }
-
-            if (document != null) {
-                val appliance = document.toObject<Appliance>()
-                appliance?.let { producerScope.trySend(Result.success(appliance)) }
-                    ?: producerScope.trySend(Result.failure(Throwable()))
-
-
-            }
+            : EventListener<DocumentSnapshot> = EventListener<DocumentSnapshot> { document, error ->
+        if (error != null) {
+            Log.d("Schedule", "Get all appliances listener error", error)
+            producerScope.trySend(Result.failure(error.fillInStackTrace()))
+            return@EventListener
         }
+
+        if (document != null) {
+            val appliance = document.toObject<Appliance>()
+            appliance?.let { producerScope.trySend(Result.success(appliance)) }
+                ?: producerScope.trySend(Result.failure(Throwable()))
+
+
+        }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getApplianceUsersSuccessListener(
@@ -222,16 +236,20 @@ class AppliancesRepositoryImpl(
 //        realtimeDatabase.reference.child("users").child(user.uid).setValue(firebaseUser)
     }*/
 
-    override suspend fun addAppliance(appliance: Appliance): StateFlow<Progress> {
-        val flow = MutableStateFlow<Progress>(Progress.Loading())
+    override suspend fun addAppliance(appliance: Appliance)= suspendCoroutine<Result<Unit>> { continuation ->
         dbCollections.getAppliancesCollection().document(appliance.id).set(appliance)
             .addOnCompleteListener {
-                flow.tryEmit(Progress.Complete)
+                if (it.isSuccessful) {
+                    continuation.resume(Result.success(Unit))
+                } else continuation.resume(Result.failure(it.exception ?: Throwable()))
             }
-        return flow
     }
 
-    override suspend fun deleteAppliance(appliance: Appliance) {
-        dbCollections.getAppliancesCollection().document(appliance.id).delete()
+    override suspend fun deleteAppliance(appliance: Appliance) = suspendCoroutine<Result<Unit>> { continuation ->
+        dbCollections.getAppliancesCollection().document(appliance.id).delete().addOnCompleteListener {
+            if (it.isSuccessful) {
+                continuation.resume(Result.success(Unit))
+            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+        }
     }
 }

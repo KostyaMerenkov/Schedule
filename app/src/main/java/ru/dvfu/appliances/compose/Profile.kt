@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -37,6 +38,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
+import ru.dvfu.appliances.compose.views.DefaultDialog
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.activity.LoginActivity
 
@@ -75,7 +77,8 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                 }
                 UserButtons()
             }
-        },)
+        },
+    )
 }
 
 /*@Composable
@@ -192,6 +195,7 @@ fun UserButtons() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @InternalCoroutinesApi
 @Composable
 fun LogoutDialog(dialogOnLogout: MutableState<Boolean>) {
@@ -199,25 +203,20 @@ fun LogoutDialog(dialogOnLogout: MutableState<Boolean>) {
     val context = LocalContext.current
     val viewModel = getViewModel<ProfileViewModel>()
 
-    AlertDialog(
-        title = { Text("Выход из аккаунта") },
-        text = { Text("Вы уверены, что хотите выйти из своего аккаунта?") },
-        onDismissRequest = { dialogOnLogout.value = false },
-        confirmButton = {
-            OutlinedButton(
-                onClick = {
-                    scope.launch {
-                        viewModel.logoutCurrentUser().collect { isLogout ->
-                            if (isLogout) startLoginActivity(context)
-                        }
-                    }
-                },
-                content = { Text(stringResource(R.string.Yes)) })
-        }, dismissButton = {
-            OutlinedButton(
-                onClick = { dialogOnLogout.value = false },
-                content = { Text(stringResource(R.string.No)) })
-        }
+    DefaultDialog(
+        primaryText = "Выход из аккаунта",
+        secondaryText = "Вы уверены, что хотите выйти из своего аккаунта?",
+        onDismiss = { dialogOnLogout.value = false },
+        positiveButtonText = stringResource(id = R.string.Yes),
+        negativeButtonText = stringResource(id = R.string.No),
+        onPositiveClick = {
+            scope.launch {
+                viewModel.logoutCurrentUser().collect { isLogout ->
+                    if (isLogout) startLoginActivity(context)
+                }
+            }
+        },
+        onNegativeClick = { dialogOnLogout.value = false },
     )
 }
 

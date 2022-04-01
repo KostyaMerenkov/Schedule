@@ -34,7 +34,8 @@ class BookingRepositoryImpl(
 ) : BookingRepository {
 
     override suspend fun getAllUserBooking(userId: String) = flow<Result<List<Booking>>> {
-        val results = dbCollections.getBookingCollection().whereEqualTo("userId", userId).get().await()
+        val results =
+            dbCollections.getBookingCollection().whereEqualTo("userId", userId).get().await()
         val bookingList = results.toObjects(Booking::class.java)
         emit(Result.success(bookingList))
     }
@@ -45,33 +46,60 @@ class BookingRepositoryImpl(
         emit(Result.success(bookingList))
     }
 
-    override suspend fun createBooking(booking: Booking) {
-        dbCollections.getBookingCollection().document(booking.id).set(booking)
-    }
+    override suspend fun createBooking(booking: Booking) =
+        suspendCoroutine<Result<Unit>> { continuation ->
+            dbCollections.getBookingCollection().document(booking.id).set(booking)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        continuation.resume(Result.success(Unit))
+                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+        }
 
-    override suspend fun approveBooking(booking: Booking, managedById: String, managerCommentary: String) {
+    override suspend fun approveBooking(
+        booking: Booking,
+        managedById: String,
+        managerCommentary: String
+    ): Result<Unit> = suspendCoroutine { continuation ->
         dbCollections.getBookingCollection().document(booking.id).set(
             booking.copy(
                 managedById = managedById,
                 managerCommentary = managerCommentary,
                 status = BookingStatus.APPROVED
             )
-        )
+        ).addOnCompleteListener {
+            if (it.isSuccessful) {
+                continuation.resume(Result.success(Unit))
+            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+        }
     }
 
-    override suspend fun declineBooking(booking: Booking, managedById: String, managerCommentary: String) {
+    override suspend fun declineBooking(
+        booking: Booking,
+        managedById: String,
+        managerCommentary: String
+    ): Result<Unit> = suspendCoroutine { continuation ->
         dbCollections.getBookingCollection().document(booking.id).set(
             booking.copy(
                 managedById = managedById,
                 managerCommentary = managerCommentary,
                 status = BookingStatus.DECLINED
             )
-        )
+        ).addOnCompleteListener {
+            if (it.isSuccessful) {
+                continuation.resume(Result.success(Unit))
+            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+        }
     }
 
 
-    override suspend fun deleteBooking(bookingId: String): Result<Unit> = suspendCoroutine {
-        dbCollections.getBookingCollection().document(bookingId).delete()
-        it.resume(Result.success(Unit))
-    }
+    override suspend fun deleteBooking(bookingId: String): Result<Unit> =
+        suspendCoroutine { continuation ->
+            dbCollections.getBookingCollection().document(bookingId).delete()
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        continuation.resume(Result.success(Unit))
+                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+        }
 }

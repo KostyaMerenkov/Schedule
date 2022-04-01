@@ -72,39 +72,33 @@ class AddUserViewModel(
 
     private fun addUsersToAppliance(appliance: Appliance, selectedUsers: List<String>) {
         viewModelScope.launch {
-            repository.addUsersToAppliance(appliance, selectedUsers).collect { progress ->
-                when (progress) {
-                    is Progress.Complete -> {
-                        _uiState.value = BaseViewState.Success(progress)
-                    }
-                    is Progress.Loading -> {
-                        _uiState.value = BaseViewState.Loading(progress.percents)
-                    }
-                    is Progress.Error -> {
-                        _uiState.value = BaseViewState.Error(progress.error)
-                    }
+            _uiState.value = BaseViewState.Loading()
+            repository.addUsersToAppliance(appliance, selectedUsers).fold(
+                onSuccess = {
+                    _uiState.value = BaseViewState.Success(it)
+
+                },
+                onFailure = {
+                    _uiState.value = BaseViewState.Error(it)
+
                 }
-            }
+            )
         }
 
     }
 
     private fun addSuperUsersToAppliance(appliance: Appliance, selectedSuperUsers: List<String>) {
         viewModelScope.launch {
-            repository.addSuperUsersToAppliance(appliance, selectedSuperUsers).collect { progress ->
-                when (progress) {
-                    is Progress.Complete -> {
-                        _uiState.value = BaseViewState.Success(progress)
-                    }
-                    is Progress.Loading -> {
-                        _uiState.value = BaseViewState.Loading(progress.percents)
-                    }
-                    is Progress.Error -> {
-                        _uiState.value = BaseViewState.Error(progress.error)
-                    }
-                }
-            }
+            repository.addSuperUsersToAppliance(appliance, selectedSuperUsers).fold(
+                onSuccess = {
+                    _uiState.value = BaseViewState.Success(it)
+
+                },
+                onFailure = {
+                    _uiState.value = BaseViewState.Error(it)
+                })
+
         }
     }
-
 }
+

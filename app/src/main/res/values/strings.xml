@@ -70,4 +70,5 @@
     <string name="timeEnd">Время окончания</string>
     <string name="event_delete_successfully">Событие успешно удалено</string>
     <string name="event_delete_sure">Вы уверены, что хотите удалить данное событие?</string>
+    <string name="appliance_delete_sure">Вы уверены, что хотите удалить данный прибор?</string>
 </resources>

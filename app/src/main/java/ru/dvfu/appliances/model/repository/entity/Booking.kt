@@ -24,7 +24,7 @@ data class UiBooking(
     var timeStart: LocalDateTime,
     var timeEnd: LocalDateTime,
     var commentary: String = "",
-    val user: User? = null,
+    val user: User = User(),
     var appliance: Appliance? = null,
     val managedUser: User? = null,
     val managerCommentary: String = "",
