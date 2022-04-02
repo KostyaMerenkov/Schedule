@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
+import ru.dvfu.appliances.compose.use_cases.GetAppliancesUseCase
 import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.BookingRepository
@@ -26,10 +27,8 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class AddBookingViewModel(
-    private val usersRepository: UsersRepository,
-    private val appliancesRepository: AppliancesRepository,
     private val bookingRepository: BookingRepository,
-    private val offlineRepository: OfflineRepository,
+    private val getAppliancesUseCase: GetAppliancesUseCase,
     private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
@@ -72,7 +71,7 @@ class AddBookingViewModel(
 
     private fun loadAppliancesOffline() {
         viewModelScope.launch {
-            offlineRepository.getAppliances().collect { appliances ->
+            getAppliancesUseCase.invoke().collect { appliances ->
                 _appliancesState.value = ViewState.Success(appliances)
             }
         }

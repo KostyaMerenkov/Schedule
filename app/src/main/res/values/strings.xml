@@ -76,4 +76,5 @@
     <string name="time_not_free">Выбранное время уже занято</string>
     <string name="time_end_is_before_now">Новое время окончания не может быть ранее текущего времени</string>
     <string name="time_end_is_before_start">Новое время окончания не может быть ранее времени начала</string>
+    <string name="new_event_failed">Не удалось проверить выбранное время</string>
 </resources>

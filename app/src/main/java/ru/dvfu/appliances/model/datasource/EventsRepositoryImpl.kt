@@ -24,14 +24,11 @@ class EventsRepositoryImpl(
     private var TAG = "EventsFirestoreDatabase"
 
 
-    override suspend fun addNewEvent(event: Event): StateFlow<Progress> {
-        val flow = MutableStateFlow<Progress>(Progress.Loading())
-
+    override suspend fun addNewEvent(event: Event) = suspendCoroutine<Result<Unit>> { continuation ->
         dbCollections.getEventsCollection().document(event.id).set(event).addOnCompleteListener {
-            flow.tryEmit(Progress.Complete)
+            if (it.isSuccessful) continuation.resume(Result.success(Unit))
+            else continuation.resume(Result.failure(it.exception ?: Throwable()))
         }
-
-        return flow
     }
 
     override suspend fun getAllEventsFromDate(date: Long): Flow<List<Event>> = channelFlow {
@@ -76,11 +73,11 @@ class EventsRepositoryImpl(
             }
         }
 
-    override suspend fun getActiveApplianceEvents(applianceId: String, newTimeEnd: Long) =
+    override suspend fun getApplianceEventsAfterTime(applianceId: String, time: Long) =
         suspendCoroutine<Result<List<Event>>> { continuation ->
             dbCollections.getEventsCollection()
                 .whereEqualTo("applianceId", applianceId)
-                .whereGreaterThan("timeEnd", newTimeEnd)
+                .whereGreaterThan("timeEnd", time)
                 .get().addOnCompleteListener {
                     if (it.isSuccessful) {
                         val events = it.result.toObjects<Event>()
@@ -89,4 +86,5 @@ class EventsRepositoryImpl(
                     else continuation.resume(Result.failure(it.exception ?: Throwable()))
                 }
         }
+
 }

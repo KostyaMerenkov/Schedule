@@ -2,41 +2,37 @@ package ru.dvfu.appliances.compose.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.boguszpawlowski.composecalendar.Calendar
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
+import ru.dvfu.appliances.compose.use_cases.GetEventNewTimeEndAvailabilityUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
+import ru.dvfu.appliances.compose.utils.AvailabilityState
 import ru.dvfu.appliances.compose.utils.TimeConstants.MILLISECONDS_IN_MINUTE
 import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.datastore.UserDatastore
-import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
-import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.toLocalDate
-import ru.dvfu.appliances.model.utils.toLocalDateTime
 import ru.dvfu.appliances.model.utils.toLocalTime
 import ru.dvfu.appliances.ui.ViewState
-import java.time.Duration
-import java.time.Instant
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.time.LocalTime
 
 class EventInfoViewModel(
     private val eventArg: Event,
     private val userDatastore: UserDatastore,
-    private val appliancesRepository: AppliancesRepository,
     private val eventsRepository: EventsRepository,
-    private val offlineRepository: OfflineRepository,
     private val getApplianceUseCase: GetApplianceUseCase,
     private val getUserUseCase: GetUserUseCase,
+    private val getEventNewTimeEndAvailabilityUseCase: GetEventNewTimeEndAvailabilityUseCase,
 ) : ViewModel() {
 
     private val currentUser = MutableStateFlow(User())
@@ -163,39 +159,36 @@ class EventInfoViewModel(
             val oldDate = event.value.timeEnd.toLocalDate()
             val oldTime = event.value.timeEnd.toLocalTime()
             val newTimeMillis = newTime.atDate(oldDate).toMillis
-            if (oldTime.isAfter(newTime)) {
+            if (oldTime.isAfter(newTime) && currentUser.value.isAdmin()) {
                 when {
-                    newTime.isBefore(LocalTime.now()) -> {
+                    oldDate == LocalDate.now() && newTime.isBefore(LocalTime.now().plusMinutes(10)) -> {
                         _timeChangeState.value = UiState.Error
                         SnackbarManager.showMessage(R.string.time_end_is_before_now)
                     }
-                    newTime.isBefore(event.value.timeEnd.toLocalTime()) -> {
+                    newTime.isBefore(event.value.timeStart.toLocalTime()) -> {
                         SnackbarManager.showMessage(R.string.time_end_is_before_start)
                     }
                     else -> saveNewTimeEnd(newTimeMillis)
                 }
             } else {
-                eventsRepository.getActiveApplianceEvents(_appliance.value.id, newTimeMillis).fold(
-                    onSuccess = {
-                        if (it.isEmpty()) saveNewTimeEnd(newTimeMillis)
-                        else {
-                            if (isTimeFree(
-                                    list = it.filter { it.id != event.value.id },
-                                    time = newTimeMillis
-                                )
-                            )
-                                saveNewTimeEnd(newTimeMillis)
-                            else {
-                                _timeChangeState.value = UiState.Error
-                                SnackbarManager.showMessage(R.string.time_not_free)
-                            }
+                getEventNewTimeEndAvailabilityUseCase(
+                    eventId = eventArg.id,
+                    applianceId = eventArg.applianceId,
+                    timeEnd = eventArg.timeEnd,
+                    newTimeEnd = newTimeMillis
+                ).collect { result ->
+                    when (result) {
+                        AvailabilityState.Available -> saveNewTimeEnd(newTimeMillis)
+                        AvailabilityState.Error -> {
+                            _timeChangeState.value = UiState.Error
+                            SnackbarManager.showMessage(R.string.new_event_time_end_failed)
                         }
-                    },
-                    onFailure = {
-                        _timeChangeState.value = UiState.Error
-                        SnackbarManager.showMessage(R.string.new_event_time_end_failed)
+                        AvailabilityState.NotAvailable -> {
+                            _timeChangeState.value = UiState.Error
+                            SnackbarManager.showMessage(R.string.time_not_free)
+                        }
                     }
-                )
+                }
             }
         }
     }

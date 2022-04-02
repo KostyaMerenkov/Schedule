@@ -70,7 +70,7 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
 
     var timeEditDialog by remember { mutableStateOf(false) }
     if (timeEditDialog) {
-        TimeEditDialog(event = event, onDismiss = { timeEditDialog = false }, onTimeChange = viewModel::onTimeEndChange)
+        TimeEditDialog(eventTimeEnd = event.timeEnd.toLocalTime(), onDismiss = { timeEditDialog = false }, onTimeChange = viewModel::onTimeEndChange)
     }
     Scaffold(
         topBar = {
@@ -184,10 +184,10 @@ fun EventInfoFAB(uiState: UiState?, onSave: () -> Unit) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun TimeEditDialog(event: Event, onTimeChange: (LocalTime) -> Unit, onDismiss: () -> Unit) {
+fun TimeEditDialog(eventTimeEnd: LocalTime, onTimeChange: (LocalTime) -> Unit, onDismiss: () -> Unit) {
     val context = LocalContext.current
     TimePicker(
-        time = event.timeEnd.toLocalTime(),
+        time = eventTimeEnd,
         onTimeSet = onTimeChange,
         context = context,
         onDismiss = onDismiss

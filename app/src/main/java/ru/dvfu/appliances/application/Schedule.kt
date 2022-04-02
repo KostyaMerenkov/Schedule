@@ -16,10 +16,6 @@ class Schedule : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val settings = firestoreSettings {
-            isPersistenceEnabled = false
-        }
-        Firebase.firestore.firestoreSettings = settings
         startKoin {
             // Koin Android logger
             androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)

@@ -175,5 +175,5 @@ fun BasicSchedule(
 @Preview(showBackground = true)
 @Composable
 fun SchedulePreview() {
-    Schedule(sampleEvents, onEventClick = {}, onEventLongClick = {})
+    //Schedule(sampleEvents, onEventClick = {}, onEventLongClick = {})
 }

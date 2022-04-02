@@ -5,12 +5,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
+import ru.dvfu.appliances.compose.use_cases.GetEventNewTimeEndAvailabilityUseCase
+import ru.dvfu.appliances.compose.use_cases.GetAppliancesUseCase
+import ru.dvfu.appliances.compose.use_cases.GetNewEventTimeAvailabilityUseCase
+import ru.dvfu.appliances.compose.utils.AvailabilityState
 import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
@@ -19,21 +23,15 @@ import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.randomUUID
-import ru.dvfu.appliances.ui.Progress
 import ru.dvfu.appliances.ui.ViewState
 import java.time.*
-import java.time.temporal.ChronoUnit
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.time.toKotlinDuration
 
 class AddEventViewModel(
-    private val usersRepository: UsersRepository,
-    private val appliancesRepository: AppliancesRepository,
     private val eventsRepository: EventsRepository,
-    private val offlineRepository: OfflineRepository,
+    private val getAppliancesUseCase: GetAppliancesUseCase,
+    private val getNewEventTimeAvailabilityUseCase: GetNewEventTimeAvailabilityUseCase,
     private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
@@ -52,7 +50,11 @@ class AddEventViewModel(
     val commentary = mutableStateOf("")
 
     val isDurationError: MutableStateFlow<Boolean>
-        get() = MutableStateFlow(timeEnd.value.isBefore(timeStart.value))
+        get() = MutableStateFlow(
+            timeEnd.value.isBefore(timeStart.value) || Duration.between(
+                timeStart.value, timeEnd.value,
+            ) < Duration.ofMinutes(10)
+        )
     val duration: MutableStateFlow<String>
         get() {
             val dur = Duration.between(timeStart.value, timeEnd.value)
@@ -70,12 +72,12 @@ class AddEventViewModel(
         get() = MutableStateFlow(isDurationError.value || selectedAppliance.value == null)
 
     init {
-        loadAppliancesOffline()
+        loadAppliances()
     }
 
-    private fun loadAppliancesOffline() {
+    private fun loadAppliances() {
         viewModelScope.launch {
-            offlineRepository.getAppliances().collect { appliances ->
+            getAppliancesUseCase.invoke().collect { appliances ->
                 _appliancesState.value = ViewState.Success(appliances)
             }
         }
@@ -88,38 +90,60 @@ class AddEventViewModel(
                 showError()
             } else {
                 selectedAppliance?.let {
-                    eventsRepository.addNewEvent(
-                        Event(
-                            id = randomUUID(),
-                            timeStart = timeStart.value.toMillis,
-                            timeEnd = timeEnd.value.toMillis,
-                            commentary = commentary.value,
-                            applianceId = it.id,
-                            applianceName = it.name,
-                            color = it.color,
-                            userId = userDatastore.getCurrentUser.first<User>().userId,
-                        )
-                    ).collect { progress ->
-                        when (progress) {
-                            is Progress.Complete -> {
-                                _uiState.value = UiState.Success
-                            }
-                            is Progress.Loading -> {
-                                _uiState.value = UiState.InProgress
-                            }
-                            is Progress.Error -> {
+                    _uiState.value = UiState.InProgress
+                    getNewEventTimeAvailabilityUseCase(
+                        it.id,
+                        timeStart.value.toMillis,
+                        timeEnd.value.toMillis
+                    ).collect { result ->
+                        when (result) {
+                            AvailabilityState.Available -> addNewEvent(selectedAppliance)
+                            AvailabilityState.Error -> {
                                 _uiState.value = UiState.Error
+                                SnackbarManager.showMessage(R.string.new_event_failed)
+                            }
+                            AvailabilityState.NotAvailable -> {
+                                _uiState.value = UiState.Error
+                                SnackbarManager.showMessage(R.string.time_not_free)
                             }
                         }
+
                     }
                 }
             }
         }
     }
 
+    private fun addNewEvent(appliance: Appliance) {
+        viewModelScope.launch {
+            eventsRepository.addNewEvent(
+                Event(
+                    id = randomUUID(),
+                    timeStart = timeStart.value.toMillis,
+                    timeEnd = timeEnd.value.toMillis,
+                    commentary = commentary.value,
+                    applianceId = appliance.id,
+                    applianceName = appliance.name,
+                    color = appliance.color,
+                    userId = userDatastore.getCurrentUser.first<User>().userId,
+                )
+            ).fold(
+                onSuccess = {
+                    _uiState.value = UiState.Success
+                },
+                onFailure = {
+                    _uiState.value = UiState.Error
+                }
+            )
+
+        }
+    }
+
     private fun showError() {
         when {
-            Duration.between(timeEnd.value, timeStart.value) < Duration.ofMinutes(10) /*TimeUnit.MILLISECONDS.toMinutes(10)*/ -> {
+            Duration.between(
+                timeStart.value, timeEnd.value,
+            ) < Duration.ofMinutes(10) -> {
                 SnackbarManager.showMessage(R.string.duration_error)
             }
             selectedAppliance.value == null -> {

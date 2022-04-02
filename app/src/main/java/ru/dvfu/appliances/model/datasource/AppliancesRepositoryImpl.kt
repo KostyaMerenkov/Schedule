@@ -202,6 +202,14 @@ class AppliancesRepositoryImpl(
         }
     }
 
+    override suspend fun getAppliancesOneTime() = suspendCoroutine<Result<List<Appliance>>> { continuation ->
+        dbCollections.getAppliancesCollection().get().addOnCompleteListener {
+            if (it.isSuccessful) {
+                continuation.resume(Result.success(it.result.toObjects<Appliance>()))
+            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getAppliancesSuccessListener(scope: ProducerScope<List<Appliance>>): EventListener<QuerySnapshot> =
         EventListener<QuerySnapshot> { snapshots, error ->

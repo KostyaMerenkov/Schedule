@@ -12,6 +12,7 @@ interface AppliancesRepository {
 
     suspend fun addAppliance(appliance: Appliance): Result<Unit>
     suspend fun getAppliances(): Flow<List<Appliance>>
+    suspend fun getAppliancesOneTime(): Result<List<Appliance>>
     suspend fun getApplianceUsers(userIds: List<String>): Flow<List<User>>
     suspend fun getAppliance(applianceId: String): Flow<Result<Appliance>>
 

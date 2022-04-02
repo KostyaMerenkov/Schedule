@@ -6,7 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-class RepositoryCollections(val cloudFirestore: FirebaseFirestore = Firebase.firestore) {
+class RepositoryCollections(private val cloudFirestore: FirebaseFirestore) {
 
     init {
         val settings = FirebaseFirestoreSettings.Builder()
