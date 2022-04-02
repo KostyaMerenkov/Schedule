@@ -88,6 +88,7 @@ class AddBookingViewModel(
             selectedAppliance.value?.let {
                 val bookingToUpload = Booking(
                     id = UUID.randomUUID().toString(),
+                    timeCreated = LocalDateTime.now().toMillis,
                     userId = userDatastore.getCurrentUser.first<User>().userId,
                     timeStart = timeStart.value.toMillis,
                     timeEnd = timeEnd.value.toMillis,

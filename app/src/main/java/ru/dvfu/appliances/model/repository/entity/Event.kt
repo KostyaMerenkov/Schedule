@@ -11,6 +11,7 @@ import java.time.LocalDateTime
 @Parcelize
 data class Event(
     val id: String = "",
+    val timeCreated: Long = 0L,
     val timeStart: Long = 0L,
     val timeEnd: Long = 0L,
     val commentary: String = "",

@@ -119,6 +119,7 @@ class AddEventViewModel(
             eventsRepository.addNewEvent(
                 Event(
                     id = randomUUID(),
+                    timeCreated = LocalDateTime.now().toMillis,
                     timeStart = timeStart.value.toMillis,
                     timeEnd = timeEnd.value.toMillis,
                     commentary = commentary.value,

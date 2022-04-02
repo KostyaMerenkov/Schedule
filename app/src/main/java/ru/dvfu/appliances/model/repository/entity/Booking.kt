@@ -7,12 +7,12 @@ import java.time.LocalDateTime
 @Parcelize
 data class Booking(
     val id: String = "",
+    var timeCreated: Long,
     var timeStart: Long = 0L,
     var timeEnd: Long = 0L,
     var commentary: String = "",
     val userId: String = "",
     var applianceId: String = "",
-    //val applianceName: String = "",
     val managedById: String = "",
     val managerCommentary: String = "",
     val status: BookingStatus = BookingStatus.NONE
