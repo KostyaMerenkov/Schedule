@@ -23,6 +23,8 @@ import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.ui.Progress
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class FirebaseUsersRepositoryImpl(
     private val context: Context,
@@ -184,17 +186,20 @@ class FirebaseUsersRepositoryImpl(
         }
     }
 
-    override suspend fun updateUserField(userId: String, data: Map<String, Any>) {
-        dbCollections.getUsersCollection().document(userId).update(data).addOnCompleteListener {
-
+    override suspend fun updateUserField(userId: String, data: Map<String, Any>) =
+        suspendCoroutine<Result<Unit>> { continuation ->
+            dbCollections.getUsersCollection().document(userId).update(data).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    continuation.resume(Result.success(Unit))
+                } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+            }
         }
-    }
 
     override suspend fun updateCurrentUserField(data: Map<String, Any>) {
         dbCollections.getUsersCollection().document(userDatastore.getCurrentUser.first().userId)
             .update(data).addOnCompleteListener {
 
-        }
+            }
     }
 
     private fun mapFirebaseUserToUser(firebaseUser: FirebaseUser): User {

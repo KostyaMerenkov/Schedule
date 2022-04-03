@@ -34,20 +34,33 @@ import coil.transform.CircleCropTransformation
 
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.compose.views.DefaultDialog
+import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.activity.LoginActivity
 
+@OptIn(ExperimentalComposeUiApi::class)
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
 @Composable
 fun Profile(navController: NavController, modifier: Modifier = Modifier, backPress: () -> Unit) {
-    val viewModel = getViewModel<ProfileViewModel>()
+    val userDatastore: UserDatastore = get()
+    val user: User
+    runBlocking {
+        user = userDatastore.getCurrentUser.first()
+    }
+    UserDetails(navController, upPress = backPress, user = user)
+
+
+    /*val viewModel = getViewModel<ProfileViewModel>()
     val currentUser by viewModel.currentUser.collectAsState()
 
     val uiState = viewModel.uiState
@@ -69,16 +82,16 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                     Column() {
                         UserInfo(currentUser)
 
-                        /*val userPlacesNum by viewModel.getUserPlaces().collectAsState(null)
+                        *//*val userPlacesNum by viewModel.getUserPlaces().collectAsState(null)
                         val userCatchesNum by viewModel.getUserCatches().collectAsState(null)
-                        UserStats(userPlacesNum, userCatchesNum)*/
+                        UserStats(userPlacesNum, userCatchesNum)*//*
                     }
 
                 }
                 UserButtons()
             }
         },
-    )
+    )*/
 }
 
 /*@Composable
@@ -239,7 +252,7 @@ fun ColumnButton(image: Painter, name: String, click: () -> Unit) {
 
 @ExperimentalCoilApi
 @Composable
-fun UserInfo(user: User?) {
+fun ProfileUserInfo(user: User?) {
     //val user by
     user?.let { nutNullUser ->
         Crossfade(nutNullUser, animationSpec = tween(500)) { animatedUser ->

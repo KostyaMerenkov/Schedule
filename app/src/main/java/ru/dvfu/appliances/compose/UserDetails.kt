@@ -19,12 +19,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
-import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.components.ItemsSelection
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
 import ru.dvfu.appliances.compose.views.HeaderText
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -46,6 +46,7 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
     var isChangeRoleDialogOpen by remember { mutableStateOf(false) }
     val currentUser by viewModel.currentUser.collectAsState()
     val detailsUser by viewModel.detailsUser.collectAsState()
+    val userRoleState by viewModel.userRoleState.collectAsState()
 
 
     Scaffold(topBar = {
@@ -55,13 +56,14 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
         if (isChangeRoleDialogOpen) RolesWithSelectionDialog(currentUser = detailsUser,
             onDismiss = { isChangeRoleDialogOpen = false }) { newRole ->
             viewModel.updateUserRole(detailsUser, newRole.ordinal)
+            isChangeRoleDialogOpen = false
         }
 
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 10.dp)
             .verticalScroll(rememberScrollState(0))) {
-            UserInfo(detailsUser, currentUser) {
+            ProfileUserInfo(detailsUser, currentUser, userRoleState = userRoleState) {
                 isChangeRoleDialogOpen = true
             }
 
@@ -94,7 +96,7 @@ fun RolesWithSelectionDialog(
 
 
 @Composable
-fun UserInfo(user: User, currentUser: User, onRoleChangeClick: () -> Unit) {
+fun ProfileUserInfo(user: User, currentUser: User, userRoleState: UiState, onRoleChangeClick: () -> Unit) {
     Column(modifier = Modifier
         .fillMaxWidth()) {
 
@@ -116,8 +118,12 @@ fun UserInfo(user: User, currentUser: User, onRoleChangeClick: () -> Unit) {
             label = { Text(stringResource(R.string.role)) },
             trailingIcon = {
                 if (getRole(currentUser.role).isAdmin() && user.userId != currentUser.userId) {
-                    IconButton(onClick = onRoleChangeClick) {
-                        Icon(Icons.Default.Edit, Icons.Default.Edit.name)
+                    if (userRoleState is UiState.InProgress) {
+                        CircularProgressIndicator()
+                    } else {
+                        IconButton(onClick = onRoleChangeClick) {
+                            Icon(Icons.Default.Edit, Icons.Default.Edit.name)
+                        }
                     }
                 }
             })

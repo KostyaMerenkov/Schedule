@@ -73,4 +73,5 @@
     <string name="approved_books">Подтвержденные бронирования</string>
     <string name="declined_books">Отклоненные бронирования</string>
     <string name="new_books">Ожидающие бронирования</string>
+    <string name="role_changed_successfully">Роль успешно изменена</string>
 </resources>

@@ -65,7 +65,7 @@ val application = module {
 }
 
 fun getFirebase(): FirebaseFirestore {
-    val settings = firestoreSettings { isPersistenceEnabled = false }
+    val settings = firestoreSettings { isPersistenceEnabled = false  }
     return Firebase.firestore.apply { firestoreSettings = settings }
 }
 

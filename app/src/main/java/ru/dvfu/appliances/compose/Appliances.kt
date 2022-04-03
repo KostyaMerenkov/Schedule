@@ -140,7 +140,7 @@ fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.aspectRatio(0.9f)
-                .height(200.dp)
+                .height(150.dp)
                 .padding(10.dp)
 
         ) {
