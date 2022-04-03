@@ -59,4 +59,18 @@
     <string name="time_end_is_before_now">Новое время окончания не может быть ранее текущего времени</string>
     <string name="time_end_is_before_start">Новое время окончания не может быть ранее времени начала</string>
     <string name="new_event_failed">Не удалось проверить выбранное время</string>
+    <string name="decline">Отклонить</string>
+    <string name="approve">Одобрить</string>
+    <string name="no_permissions">У вас недостаточно прав для этого действия</string>
+    <string name="book_declined">Бронирование было успешно отклонено</string>
+    <string name="book_decline_failed">Не удалось отклонить бронирование</string>
+    <string name="book_approved">Бронирование успешно подтверждено</string>
+    <string name="book_approve_failed">Не удалось подтвердить бронирование</string>
+    <string name="approved">Подтверждено</string>
+    <string name="declined">Отклонено</string>
+    <string name="loading">Загрузка...</string>
+    <string name="no_books">Нет бронирований</string>
+    <string name="approved_books">Подтвержденные бронирования</string>
+    <string name="declined_books">Отклоненные бронирования</string>
+    <string name="new_books">Ожидающие бронирования</string>
 </resources>

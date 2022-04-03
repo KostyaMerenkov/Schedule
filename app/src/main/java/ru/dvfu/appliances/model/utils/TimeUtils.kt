@@ -9,6 +9,11 @@ fun Long.toLocalDateTime(): LocalDateTime {
         .atZone(ZoneId.systemDefault()).toLocalDateTime()
 }
 
+fun Long.toZonedDateTime(): ZonedDateTime {
+    return Instant.ofEpochMilli(this)
+        .atZone(ZoneId.systemDefault()).toLocalDateTime().atZone(ZoneId.systemDefault())
+}
+
 fun Long.toLocalTime(): LocalTime {
     return Instant.ofEpochMilli(this)
         .atZone(ZoneId.systemDefault()).toLocalTime()

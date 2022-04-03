@@ -37,6 +37,9 @@ class EventInfoViewModel(
 
     private val currentUser = MutableStateFlow(User())
 
+    private val _userState = MutableStateFlow<ViewState<User>>(ViewState.Loading())
+    val userState = _userState.asStateFlow()
+
     init {
         getCurrentUser()
         getAppliance(eventArg.applianceId)
@@ -66,9 +69,6 @@ class EventInfoViewModel(
     private val _appliance = MutableStateFlow(Appliance())
     private val _applianceState = MutableStateFlow<ViewState<Appliance>>(ViewState.Loading())
     val applianceState = _applianceState.asStateFlow()
-
-    private val _userState = MutableStateFlow<ViewState<User>>(ViewState.Loading())
-    val userState = _userState.asStateFlow()
 
     private val _superUserState = MutableStateFlow<ViewState<User>>(ViewState.Loading())
     val superUserState = _superUserState.asStateFlow()

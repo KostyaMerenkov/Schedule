@@ -10,8 +10,8 @@ interface BookingRepository {
 
     suspend fun createBooking(booking: Booking): Result<Unit>
 
-    suspend fun approveBooking(booking: Booking, managedById: String, managerCommentary: String): Result<Unit>
-    suspend fun declineBooking(booking: Booking, managedById: String, managerCommentary: String): Result<Unit>
+    suspend fun approveBooking(bookId: String, managedById: String, managerCommentary: String, managedTime: Long): Result<Unit>
+    suspend fun declineBooking(bookId: String, managedById: String, managerCommentary: String, managedTime: Long): Result<Unit>
 
     suspend fun deleteBooking(bookingId: String): Result<Unit>
 }

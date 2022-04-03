@@ -102,7 +102,7 @@ fun SwipableUsers(
                     )
                 }
         } ?: item {
-            LoadingItem()
+            LoadingItem(Modifier.fillMaxSize())
         }
     }
 }

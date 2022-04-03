@@ -4,7 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -48,6 +51,8 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
     val canUpdate by viewModel.canUpdate.collectAsState()
     val timeChangeState by viewModel.timeChangeState.collectAsState()
 
+    val scrollState = rememberScrollState()
+
     var eventDeleteDialog by remember { mutableStateOf(false) }
     if (eventDeleteDialog) {
         EventDeleteDialog(onDismiss = { eventDeleteDialog = false }) {
@@ -70,7 +75,11 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
 
     var timeEditDialog by remember { mutableStateOf(false) }
     if (timeEditDialog) {
-        TimeEditDialog(eventTimeEnd = event.timeEnd.toLocalTime(), onDismiss = { timeEditDialog = false }, onTimeChange = viewModel::onTimeEndChange)
+        TimeEditDialog(
+            eventTimeEnd = event.timeEnd.toLocalTime(),
+            onDismiss = { timeEditDialog = false },
+            onTimeChange = viewModel::onTimeEndChange
+        )
     }
     Scaffold(
         topBar = {
@@ -89,6 +98,7 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -113,7 +123,7 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
                     label = { Text(text = stringResource(id = R.string.timeEnd)) },
                     trailingIcon = {
                         Crossfade(targetState = timeChangeState) {
-                            when(it) {
+                            when (it) {
                                 is UiState.InProgress -> CircularProgressIndicator()
                                 else -> {
                                     AnimatedVisibility(visible = viewModel.couldEditTimeEnd.collectAsState().value) {
@@ -184,7 +194,11 @@ fun EventInfoFAB(uiState: UiState?, onSave: () -> Unit) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun TimeEditDialog(eventTimeEnd: LocalTime, onTimeChange: (LocalTime) -> Unit, onDismiss: () -> Unit) {
+fun TimeEditDialog(
+    eventTimeEnd: LocalTime,
+    onTimeChange: (LocalTime) -> Unit,
+    onDismiss: () -> Unit
+) {
     val context = LocalContext.current
     TimePicker(
         time = eventTimeEnd,
@@ -204,11 +218,15 @@ fun EventAppliance(applianceState: ViewState<Appliance>, applianceClicked: (Appl
                 CircularProgressIndicator()
             }
             is ViewState.Success -> {
-                ItemAppliance(appliance = it.data, applianceClicked = applianceClicked)
+                MyCard {
+                    BookingAppliance(
+                        appliance = it.data, onApplianceClick = { applianceClicked(it.data) },
+                        shouldShowHeader = false
+                    )
+                }
             }
         }
     }
-
 }
 
 @Composable

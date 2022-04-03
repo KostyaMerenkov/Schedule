@@ -30,6 +30,7 @@ import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.appliance.FabWithLoading
 import ru.dvfu.appliances.compose.components.*
+import ru.dvfu.appliances.compose.utils.TimeConstants.FULL_DATE_FORMAT
 import ru.dvfu.appliances.compose.utils.TimeConstants.MILLISECONDS_IN_HOUR
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
 import ru.dvfu.appliances.compose.views.PrimaryText
@@ -211,11 +212,11 @@ fun DateAndTime(
     date: LocalDate,
     timeStart: LocalTime,
     timeEnd: LocalTime,
-    onDateSet: (LocalDate) -> Unit,
-    onTimeStartSet: (LocalTime) -> Unit,
-    onTimeEndSet: (LocalTime) -> Unit,
-    duration: String,
-    isDurationError: Boolean,
+    onDateSet: ((LocalDate) -> Unit)? = null,
+    onTimeStartSet: ((LocalTime) -> Unit)? = null,
+    onTimeEndSet: ((LocalTime) -> Unit)? = null,
+    duration: String? = null,
+    isDurationError: Boolean = false,
 ) {
     val context = LocalContext.current
 
@@ -223,20 +224,22 @@ fun DateAndTime(
     val timeSetStartState = remember { mutableStateOf(false) }
     val timeSetEndState = remember { mutableStateOf(false) }
 
-    if (dateSetState.value) DatePicker(context, date, onDateSet = onDateSet) {
-        dateSetState.value = false
+    onDateSet?.let {
+        if (dateSetState.value) DatePicker(context, date, onDateSet = onDateSet) {
+            dateSetState.value = false
+        }
     }
-    if (timeSetStartState.value) TimePicker(
-        context, timeStart,
-        onTimeSet = onTimeStartSet
-    ) { timeSetStartState.value = false }
-    if (timeSetEndState.value) TimePicker(
-        context, timeEnd,
-        onTimeSet = onTimeEndSet,
-    ) { timeSetEndState.value = false }
-
-    LaunchedEffect(timeStart) {
-        onTimeEndSet(timeEnd.plusHours(1L))
+    onTimeStartSet?.let {
+        if (timeSetStartState.value) TimePicker(
+            context, timeStart,
+            onTimeSet = onTimeStartSet
+        ) { timeSetStartState.value = false }
+    }
+    onTimeEndSet?.let {
+        if (timeSetEndState.value) TimePicker(
+            context, timeEnd,
+            onTimeSet = onTimeEndSet,
+        ) { timeSetEndState.value = false }
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -248,23 +251,24 @@ fun DateAndTime(
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
             OutlinedTextField(
-                value = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)),
+                value = date.format(FULL_DATE_FORMAT),
                 onValueChange = {},
                 label = { Text(text = stringResource(R.string.date)) },
                 readOnly = true,
                 modifier = Modifier
                     .fillMaxWidth(),
                 trailingIcon = {
-                    IconButton(onClick = {
-                        dateSetState.value = true
-                    }) {
-                        Icon(
-                            Icons.Default.Today,
-                            tint = MaterialTheme.colors.primary,
-                            contentDescription = stringResource(R.string.date)
-                        )
+                    onDateSet?.let {
+                        IconButton(onClick = {
+                            dateSetState.value = true
+                        }) {
+                            Icon(
+                                Icons.Default.Today,
+                                tint = MaterialTheme.colors.primary,
+                                contentDescription = stringResource(R.string.date)
+                            )
+                        }
                     }
-
                 })
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
                 OutlinedTextField(
@@ -274,16 +278,17 @@ fun DateAndTime(
                     readOnly = true,
                     modifier = Modifier.weight(1f),
                     trailingIcon = {
-                        IconButton(onClick = {
-                            timeSetStartState.value = true
-                        }) {
-                            Icon(
-                                Icons.Default.AccessTime,
-                                tint = MaterialTheme.colors.primary,
-                                contentDescription = stringResource(R.string.time)
-                            )
+                        onTimeStartSet?.let {
+                            IconButton(onClick = {
+                                timeSetStartState.value = true
+                            }) {
+                                Icon(
+                                    Icons.Default.AccessTime,
+                                    tint = MaterialTheme.colors.primary,
+                                    contentDescription = stringResource(R.string.time)
+                                )
+                            }
                         }
-
                     })
                 OutlinedTextField(
                     value = timeEnd.toHoursAndMinutes(),
@@ -292,24 +297,26 @@ fun DateAndTime(
                     readOnly = true,
                     modifier = Modifier.weight(1f),
                     trailingIcon = {
-                        IconButton(onClick = {
-                            timeSetEndState.value = true
-                        }) {
-                            Icon(
-                                Icons.Default.AccessTime,
-                                tint = MaterialTheme.colors.primary,
-                                contentDescription = stringResource(R.string.time)
-                            )
+                        onTimeEndSet?.let {
+                            IconButton(onClick = {
+                                timeSetEndState.value = true
+                            }) {
+                                Icon(
+                                    Icons.Default.AccessTime,
+                                    tint = MaterialTheme.colors.primary,
+                                    contentDescription = stringResource(R.string.time)
+                                )
+                            }
                         }
-
                     })
-
             }
             val textTint by animateColorAsState(
                 if (isDurationError) Color.Red
                 else MaterialTheme.colors.onSurface
             )
-            Text(text = "Продолжительность: $duration", color = textTint)
+            duration?.let {
+                Text(text = "Продолжительность: $duration", color = textTint)
+            }
         }
     }
 }

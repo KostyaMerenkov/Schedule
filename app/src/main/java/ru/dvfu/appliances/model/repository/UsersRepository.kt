@@ -15,5 +15,7 @@ interface UsersRepository {
     suspend fun addNewUser(user: User): StateFlow<Progress>
     suspend fun getUser(userId: String): Flow<Result<User>>
     suspend fun updateUserField(userId: String, data: Map<String, Any>)
+    suspend fun updateCurrentUserField(data: Map<String, Any>)
     suspend fun setUserListener(user: User)
+    suspend fun setNewMessagingToken(token: String) = updateCurrentUserField(mapOf(Pair("msgToken", token)))
 }

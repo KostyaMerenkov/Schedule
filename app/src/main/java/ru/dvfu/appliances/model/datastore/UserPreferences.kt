@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.*
 import ru.dvfu.appliances.model.repository.entity.User
 
 
-class UserPreferencesImpl(private val context: Context): UserDatastore {
+class UserDatastoreImpl(private val context: Context): UserDatastore {
 
     // to make sure there's only one instance
     companion object {

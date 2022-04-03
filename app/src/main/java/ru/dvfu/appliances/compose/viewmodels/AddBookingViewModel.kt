@@ -43,7 +43,7 @@ class AddBookingViewModel(
 
     val date = MutableStateFlow(LocalDate.now())
     val timeStart = MutableStateFlow<LocalDateTime>(LocalDateTime.now())
-    val timeEnd = MutableStateFlow<LocalDateTime>(LocalDateTime.now())
+    val timeEnd = MutableStateFlow<LocalDateTime>(LocalDateTime.now().plusHours(1L))
     val commentary = MutableStateFlow("")
 
     val isDurationError: MutableStateFlow<Boolean>
@@ -104,10 +104,7 @@ class AddBookingViewModel(
 
     private fun showError() {
         when {
-            Duration.between(
-                timeEnd.value,
-                timeStart.value
-            ) < Duration.ofMinutes(10) /*TimeUnit.MILLISECONDS.toMinutes(10)*/ -> {
+            Duration.between(timeStart.value, timeEnd.value,) < Duration.ofMinutes(10) -> {
                 SnackbarManager.showMessage(R.string.duration_error)
             }
             selectedAppliance.value == null -> {
@@ -115,6 +112,7 @@ class AddBookingViewModel(
             }
             else -> SnackbarManager.showMessage(R.string.error_occured)
         }
+        _uiState.value = UiState.Error
     }
 
     fun onApplianceSelected(appliance: Appliance) {

@@ -190,15 +190,22 @@ class FirebaseUsersRepositoryImpl(
         }
     }
 
+    override suspend fun updateCurrentUserField(data: Map<String, Any>) {
+        dbCollections.getUsersCollection().document(userDatastore.getCurrentUser.first().userId)
+            .update(data).addOnCompleteListener {
+
+        }
+    }
+
     private fun mapFirebaseUserToUser(firebaseUser: FirebaseUser): User {
         return with(firebaseUser) {
             User(
-                uid,
-                displayName ?: "Anonymous",
-                email ?: "",
-                Roles.GUEST.ordinal,
-                isAnonymous,
-                photoUrl?.toString() ?: "",
+                userId = uid,
+                userName = displayName ?: "Anonymous",
+                email = email ?: "",
+                role = Roles.GUEST.ordinal,
+                anonymous = isAnonymous,
+                userPic = photoUrl?.toString() ?: "",
             )
         }
         //TODO("change name")

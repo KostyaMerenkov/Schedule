@@ -6,6 +6,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class User(
     val userId: String = "0",
+    val msgToken: String = "",
     val userName: String = "",
     val email: String = "",
     val role: Int = Roles.GUEST.ordinal,

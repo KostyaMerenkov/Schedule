@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
+import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.BookingRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -26,6 +27,8 @@ import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.ui.Progress
+import java.time.LocalDateTime
+import java.time.LocalTime
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -57,16 +60,15 @@ class BookingRepositoryImpl(
         }
 
     override suspend fun approveBooking(
-        booking: Booking,
+        bookId: String,
         managedById: String,
-        managerCommentary: String
+        managerCommentary: String, managedTime: Long,
     ): Result<Unit> = suspendCoroutine { continuation ->
-        dbCollections.getBookingCollection().document(booking.id).set(
-            booking.copy(
-                managedById = managedById,
-                managerCommentary = managerCommentary,
-                status = BookingStatus.APPROVED
-            )
+        dbCollections.getBookingCollection().document(bookId).update(
+            "managedById", managedById,
+            "managerCommentary", managerCommentary,
+            "managedTime", managedTime,
+            "status", BookingStatus.APPROVED
         ).addOnCompleteListener {
             if (it.isSuccessful) {
                 continuation.resume(Result.success(Unit))
@@ -75,21 +77,21 @@ class BookingRepositoryImpl(
     }
 
     override suspend fun declineBooking(
-        booking: Booking,
+        bookId: String,
         managedById: String,
-        managerCommentary: String
+        managerCommentary: String, managedTime: Long,
     ): Result<Unit> = suspendCoroutine { continuation ->
-        dbCollections.getBookingCollection().document(booking.id).set(
-            booking.copy(
-                managedById = managedById,
-                managerCommentary = managerCommentary,
-                status = BookingStatus.DECLINED
-            )
-        ).addOnCompleteListener {
-            if (it.isSuccessful) {
-                continuation.resume(Result.success(Unit))
-            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
-        }
+            dbCollections.getBookingCollection().document(bookId).update(
+                "managedById", managedById,
+                "managerCommentary", managerCommentary,
+                "managedTime", managedTime,
+                "status", BookingStatus.DECLINED
+            ).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    continuation.resume(Result.success(Unit))
+                } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+            }
+
     }
 
 

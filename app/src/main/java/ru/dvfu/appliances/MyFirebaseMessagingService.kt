@@ -9,10 +9,22 @@ import android.os.Build
 import android.util.Log
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.FirebaseMessagingService
+import org.koin.android.ext.android.get
+import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import ru.dvfu.appliances.model.FirebaseMessagingViewModel
 import java.util.*
 
 
-class MyFirebaseMessagingService : FirebaseMessagingService() {
+class MyFirebaseMessagingService() : FirebaseMessagingService() {
+
+    companion object {
+        const val BASE_URL = "https://fcm.googleapis.com"
+        const val SERVER_KEY = "ENTER SERVER KEY HERE"
+        const val CONTENT_TYPE = "application/json"
+    }
+
+    val viewModel: FirebaseMessagingViewModel = get()
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.notification?.body?.let {
@@ -24,6 +36,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(s: String) {
         super.onNewToken(s)
+        viewModel.onNewToken(s)
         Log.d("NEW_TOKEN", s)
     }
 
@@ -48,8 +61,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setDefaults(Notification.DEFAULT_ALL)
             .setWhen(System.currentTimeMillis())
             .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
-            .setContentTitle(message!!.title)
-            .setContentText(message.body)
+            .setContentTitle(message?.title ?: "")
+            .setContentText(message?.body ?: "")
             .setContentInfo("Info")
         notificationManager.notify(Random().nextInt(), notificationBuilder.build())
     }

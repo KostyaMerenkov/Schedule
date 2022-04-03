@@ -91,11 +91,11 @@ fun Users(navController: NavController, backPress: () -> Unit) {
 
 @Composable
 fun Header(role: String) {
-    Text(
-        role, modifier = Modifier
-            .padding(2.dp)
-            .padding(horizontal = 10.dp), style = MaterialTheme.typography.h6
-    )
+        Text(
+            role, modifier = Modifier
+                .padding(2.dp)
+                .padding(horizontal = 10.dp), style = MaterialTheme.typography.h6
+        )
 }
 
 @ExperimentalMaterialApi

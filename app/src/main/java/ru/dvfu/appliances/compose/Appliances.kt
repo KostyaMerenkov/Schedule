@@ -20,23 +20,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.getViewModel
-import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.appliance.ApplianceNameSet
 import ru.dvfu.appliances.compose.components.FullscreenLoading
 import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.ViewState
 
 @ExperimentalFoundationApi
@@ -141,36 +139,46 @@ fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
         Column(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
+            modifier = Modifier.aspectRatio(0.9f)
                 .height(200.dp)
-                .padding(5.dp)
+                .padding(10.dp)
 
         ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .requiredSize(100.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, Color.Black, CircleShape)
-                    .background(Color(appliance.color)),
-            ) {
-                Text(
-                    if (appliance.name.isEmpty()) ""
-                    else appliance.name.first().uppercase(),
-                    maxLines = 1,
-                    fontWeight = FontWeight.Bold,
-                    style = typography.h4,
-                )
-            }
-            Text(
-                appliance.name,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.Normal,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-            //Text(user.email)
+            ApplianceImage(appliance, modifier = Modifier.requiredSize(100.dp))
+            ApplianceName(appliance)
         }
+    }
+}
+
+@Composable
+fun ApplianceName(appliance: Appliance, modifier: Modifier = Modifier, textAlign: TextAlign = TextAlign.Center) {
+    Text(
+        modifier = modifier,
+        text = appliance.name,
+        maxLines = 1,
+        textAlign = textAlign,
+        overflow = TextOverflow.Ellipsis,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp,
+    )
+}
+
+@Composable
+fun ApplianceImage(appliance: Appliance, modifier: Modifier = Modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .clip(CircleShape)
+            .aspectRatio(1f)
+            .border(1.dp, Color.Black, CircleShape)
+            .background(Color(appliance.color)),
+    ) {
+        Text(
+            if (appliance.name.isEmpty()) ""
+            else appliance.name.first().uppercase(),
+            maxLines = 1,
+            fontWeight = FontWeight.Bold,
+            style = typography.h4,
+        )
     }
 }

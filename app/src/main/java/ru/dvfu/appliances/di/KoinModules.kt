@@ -18,16 +18,25 @@ import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
 import ru.dvfu.appliances.compose.viewmodels.MainViewModel
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
+import ru.dvfu.appliances.model.FirebaseMessagingViewModel
 import ru.dvfu.appliances.model.datasource.*
-import ru.dvfu.appliances.model.datastore.UserPreferencesImpl
+import ru.dvfu.appliances.model.datastore.UserDatastoreImpl
 import ru.dvfu.appliances.model.repository.*
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 
 val application = module {
     single { RepositoryCollections(getFirebase()) }
-    single<UserDatastore> { UserPreferencesImpl(androidContext()) }
+    single<UserDatastore> { UserDatastoreImpl(androidContext()) }
     viewModel { MainViewModel() }
+    single {
+        FirebaseMessagingViewModel(
+            getUserUseCase = get(),
+            usersRepository = get(),
+            userDatastore = get(),
+            appliancesRepository = get()
+        )
+    }
 
     single<OfflineRepository> { OfflineRepositoryImpl(dbCollections = get()) }
 
@@ -35,7 +44,13 @@ val application = module {
     single<EventsRepository> { EventsRepositoryImpl(dbCollections = get()) }
     single<AppliancesRepository> { AppliancesRepositoryImpl(dbCollections = get()) }
     single<BookingRepository> { BookingRepositoryImpl(dbCollections = get()) }
-    single<UsersRepository> { FirebaseUsersRepositoryImpl(androidContext(), dbCollections = get(), userDatastore = get()) }
+    single<UsersRepository> {
+        FirebaseUsersRepositoryImpl(
+            androidContext(),
+            dbCollections = get(),
+            userDatastore = get()
+        )
+    }
 
     single { Logger() }
     single { SnackbarManager }
@@ -56,13 +71,24 @@ fun getFirebase(): FirebaseFirestore {
 
 val mainActivity = module {
     viewModel { UsersViewModel(get()) }
-    viewModel { BookingListViewModel(get(),get(),get(),get()) }
+    viewModel { BookingListViewModel(
+        bookingRepository = get(),
+        offlineRepository = get(),
+        getUserUseCase = get(),
+        getApplianceUseCase = get(),
+        userDatastore = get()
+    ) }
 
     viewModel { LoginViewModel(get(), get()) }
 
-    viewModel { MainScreenViewModel(get(), get(), get()) }
+    viewModel { MainScreenViewModel(usersRepository = get(), eventsRepository = get(), offlineRepository = get()) }
 
-    viewModel { UserDetailsViewModel(it[0], get(), get(), get()) }
+    viewModel { UserDetailsViewModel(
+        detUser = it[0],
+        usersRepository = get(),
+        repository = get(),
+        userDatastore = get()
+    ) }
 
 
     viewModel { ProfileViewModel(get(), get()) }

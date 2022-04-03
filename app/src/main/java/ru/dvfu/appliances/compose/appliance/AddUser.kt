@@ -185,32 +185,7 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
                 .fillMaxSize()
                 .padding(10.dp)
         ) {
-            Box(Modifier.size(50.dp), contentAlignment = Alignment.Center) {
-                if (user.userPic.isNullOrEmpty()) {
-                    Icon(
-                        Icons.Default.Person, "",
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .fillMaxSize()
-                        //.align(Alignment.CenterVertically),
-                        //tint = secondaryFigmaColor
-                    )
-                } else {
-                    Image(
-                        painter = rememberImagePainter(user.userPic,
-                            builder = {
-                                crossfade(true)
-                                placeholder(ru.dvfu.appliances.R.drawable.ic_launcher_foreground)
-                                transformations(CircleCropTransformation())
-                            }),
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        //.align(Alignment.CenterVertically),
-                        contentDescription = stringResource(ru.dvfu.appliances.R.string.user_photo),
-                        //contentScale = ContentScale.Crop,
-                    )
-                }
-            }
+            UserImage(modifier = Modifier.size(50.dp), user)
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -229,6 +204,32 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
                 }
             }
 
+        }
+    }
+}
+
+@Composable
+fun UserImage(modifier: Modifier, user: User) {
+    Box(modifier= modifier, contentAlignment = Alignment.Center) {
+        if (user.userPic.isEmpty()) {
+            Icon(
+                Icons.Default.Person, "",
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .fillMaxSize()
+            )
+        } else {
+            Image(
+                painter = rememberImagePainter(user.userPic,
+                    builder = {
+                        crossfade(true)
+                        placeholder(ru.dvfu.appliances.R.drawable.ic_launcher_foreground)
+                        transformations(CircleCropTransformation())
+                    }),
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentDescription = stringResource(ru.dvfu.appliances.R.string.user_photo),
+            )
         }
     }
 }

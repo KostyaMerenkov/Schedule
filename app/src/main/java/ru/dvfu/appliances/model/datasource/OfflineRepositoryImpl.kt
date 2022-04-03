@@ -27,8 +27,8 @@ class OfflineRepositoryImpl(
         db.disableNetwork().await()
         val doc = dbCollections.getUsersCollection().document(userId).get().await()
         val user = doc.toObject<User>()
+        db.enableNetwork().await()
         user?.let { emit(Result.success(user)) } ?: emit(Result.failure(Throwable()))
-        db.enableNetwork()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -36,27 +36,19 @@ class OfflineRepositoryImpl(
         db.disableNetwork().await()
         val collection = dbCollections.getAppliancesCollection().get().await()
         val appliances = collection.toObjects<Appliance>()
+        db.enableNetwork().await()
         emit(appliances)
-        db.enableNetwork()
     }
 
-    override fun getApplianceById(applianceId: String) = callbackFlow<Result<Appliance>> {
-        db.disableNetwork().addOnSuccessListener {
-            dbCollections.getAppliancesCollection().document(applianceId).get()
-                .addOnCompleteListener {
-                    db.enableNetwork()
-                    if (it.isSuccessful) {
-                        val appliance = it.result.toObject(Appliance::class.java)
-                        appliance?.let {
-                            trySend(Result.success(appliance))
-                        } ?: trySend(Result.failure(it.exception ?: Throwable()))
-
-                    } else {
-                        trySend(Result.failure(it.exception ?: Throwable()))
-                    }
-                }
+    override fun getApplianceById(applianceId: String) = flow<Result<Appliance>> {
+        db.disableNetwork().await()
+        val doc = dbCollections.getAppliancesCollection().document(applianceId).get().await()
+        db.enableNetwork().await()
+        doc.toObject<Appliance>()?.let {
+            emit(Result.success(it))
+        } ?: kotlin.run {
+            emit(Result.failure(Throwable()))
         }
-        awaitClose { }
     }
 
 
