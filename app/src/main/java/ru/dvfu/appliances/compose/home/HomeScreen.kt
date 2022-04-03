@@ -47,6 +47,7 @@ import java.util.*
 fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
     val viewModel: MainScreenViewModel = getViewModel()
     val events by viewModel.events.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -70,6 +71,13 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
                 .zIndex(5f),
             fabState = fabState,
             items = listOf(
+                //if(currentUser.isAdmin()) {
+                    FabMenuItem(
+                        icon = Icons.Default.AddTask,
+                        text = "Создать событие",
+                        onClick = { navController.navigate(MainDestinations.ADD_EVENT) }
+                    ),
+                //},
                 FabMenuItem(
                     icon = Icons.Default.MoreTime,
                     text = "Создать бронирование",
@@ -77,11 +85,7 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
                         navController.navigate(MainDestinations.ADD_BOOKING)
                     }
                 ),
-                FabMenuItem(
-                    icon = Icons.Default.AddTask,
-                    text = "Создать событие",
-                    onClick = { navController.navigate(MainDestinations.ADD_EVENT) }
-                )
+
             )
         )
     }

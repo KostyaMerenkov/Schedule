@@ -6,9 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
+import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -23,12 +25,16 @@ import java.time.*
 class MainScreenViewModel(
     private val usersRepository: UsersRepository,
     private val eventsRepository: EventsRepository,
-    private val offlineRepository: OfflineRepository
+    private val offlineRepository: OfflineRepository,
+    private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
     val selectedEvent = mutableStateOf<CalendarEvent?>(null)
 
     private val _reposEvents = MutableStateFlow<List<Event>>(listOf())
+
+    private val _currentUser = MutableStateFlow<User>(User())
+    val currentUser = _currentUser.asStateFlow()
 
     private val _events = MutableStateFlow<MutableList<CalendarEvent>>(mutableListOf())
     val events: StateFlow<List<CalendarEvent>> = _events.asStateFlow()
@@ -39,6 +45,15 @@ class MainScreenViewModel(
         //getAppliances()
         getEvents()
         loadCurrentUser()
+        getCurrentUser()
+    }
+
+    private fun getCurrentUser() {
+        viewModelScope.launch {
+            userDatastore.getCurrentUser.collect{
+
+            }
+        }
     }
 
     val mutableStateFlow: MutableStateFlow<ViewState<User>> =

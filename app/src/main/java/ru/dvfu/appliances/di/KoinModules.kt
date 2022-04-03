@@ -81,7 +81,7 @@ val mainActivity = module {
 
     viewModel { LoginViewModel(get(), get()) }
 
-    viewModel { MainScreenViewModel(usersRepository = get(), eventsRepository = get(), offlineRepository = get()) }
+    viewModel { MainScreenViewModel(usersRepository = get(), eventsRepository = get(), offlineRepository = get(), get()) }
 
     viewModel { UserDetailsViewModel(
         detUser = it[0],
