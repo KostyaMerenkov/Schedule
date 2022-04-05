@@ -1,6 +1,5 @@
 package ru.dvfu.appliances.compose.home
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,11 +25,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import kotlinx.coroutines.launch
+import androidx.navigation.compose.rememberNavController
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.compose.calendars.WeekCalendar
 import ru.dvfu.appliances.compose.components.FabMenuItem
 import ru.dvfu.appliances.compose.components.FabWithMenu
 import ru.dvfu.appliances.compose.components.MultiFabState
@@ -39,14 +39,17 @@ import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.event_calendar.Schedule
 import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.views.DefaultDialog
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.util.*
 
 @Composable
-fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
+fun HomeScreen(
+    navController: NavController,
+    openDrawer: () -> Unit
+) {
     val viewModel: MainScreenViewModel = getViewModel()
+    val innerNavController = rememberNavController()
     val events by viewModel.events.collectAsState()
+    //val dayEvents by viewModel.dayEvents.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -72,11 +75,11 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
             fabState = fabState,
             items = listOf(
                 //if(currentUser.isAdmin()) {
-                    FabMenuItem(
-                        icon = Icons.Default.AddTask,
-                        text = "Создать событие",
-                        onClick = { navController.navigate(MainDestinations.ADD_EVENT) }
-                    ),
+                FabMenuItem(
+                    icon = Icons.Default.AddTask,
+                    text = "Создать событие",
+                    onClick = { navController.navigate(MainDestinations.ADD_EVENT) }
+                ),
                 //},
                 FabMenuItem(
                     icon = Icons.Default.MoreTime,
@@ -85,7 +88,6 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
                         navController.navigate(MainDestinations.ADD_BOOKING)
                     }
                 ),
-
             )
         )
     }
@@ -105,11 +107,7 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
                         fabState.value = MultiFabState.COLLAPSED
                     })
         }
-        val verticalScrollState = rememberScrollState()
-        val horizontalScrollState = rememberScrollState()
-
-        Schedule(calendarEvents = events, minDate = LocalDate.now().minusDays(1),
-            maxDate = LocalDate.now().plusDays(6),
+        EventCalendar(events = events,
             onEventClick = {
                 viewModel.getRepoEvent(it)?.let {
                     navController.navigate(
@@ -117,22 +115,33 @@ fun MainScreen(navController: NavController, openDrawer: () -> Unit) {
                         Arguments.EVENT to it
                     )
                 }
-            },
-            onEventLongClick = {
+            }, onEventLongClick = {
                 viewModel.selectedEvent.value = it
                 eventOptionDialogOpened = true
-            },
-            verticalScrollState = verticalScrollState,
-            horizontalScrollState = horizontalScrollState
-        )
+            })
 
-        DisposableEffect(Unit) {
-            coroutineScope.launch {
-                horizontalScrollState.scrollTo(2)
-            }
-            onDispose {  }
-        }
+        //WeekCalendar(events = dayEvents, navController = navController, onDaySelected = viewModel::getTodayEvents)
     }
+}
+
+@Composable
+fun EventCalendar(
+    events: List<CalendarEvent>,
+    onEventClick: (CalendarEvent) -> Unit,
+    onEventLongClick: (CalendarEvent) -> Unit
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val verticalScrollState = rememberScrollState()
+    val horizontalScrollState = rememberScrollState()
+
+    Schedule(
+        calendarEvents = events, minDate = LocalDate.now().minusDays(1),
+        maxDate = LocalDate.now().plusDays(6),
+        onEventClick = onEventClick,
+        onEventLongClick = onEventLongClick,
+        verticalScrollState = verticalScrollState,
+        horizontalScrollState = horizontalScrollState
+    )
 }
 
 @Composable

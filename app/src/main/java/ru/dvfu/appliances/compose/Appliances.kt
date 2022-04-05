@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
@@ -41,7 +40,6 @@ import ru.dvfu.appliances.ui.ViewState
 @ExperimentalAnimationApi
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
-@ExperimentalCoilApi
 @Composable
 fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Modifier = Modifier) {
 

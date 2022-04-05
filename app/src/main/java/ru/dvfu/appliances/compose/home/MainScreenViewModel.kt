@@ -10,6 +10,7 @@ import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
+import ru.dvfu.appliances.compose.use_cases.GetDateEventsUseCase
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
@@ -27,6 +28,7 @@ class MainScreenViewModel(
     private val eventsRepository: EventsRepository,
     private val offlineRepository: OfflineRepository,
     private val userDatastore: UserDatastore,
+    private val getDateEventsUseCase: GetDateEventsUseCase,
 ) : ViewModel() {
 
     val selectedEvent = mutableStateOf<CalendarEvent?>(null)
@@ -39,13 +41,37 @@ class MainScreenViewModel(
     private val _events = MutableStateFlow<MutableList<CalendarEvent>>(mutableListOf())
     val events: StateFlow<List<CalendarEvent>> = _events.asStateFlow()
 
+    private val _dayEvents = MutableStateFlow<MutableList<CalendarEvent>>(mutableListOf())
+    val dayEvents: StateFlow<List<CalendarEvent>> = _dayEvents.asStateFlow()
+
     private val appliances = MutableStateFlow<List<Appliance>>(listOf())
 
     init {
+        getTodayEvents()
         //getAppliances()
         getEvents()
         loadCurrentUser()
         getCurrentUser()
+    }
+
+    fun getTodayEvents(date: LocalDate = LocalDate.now()) {
+        viewModelScope.launch {
+            getDateEventsUseCase(date).collectLatest {
+                _dayEvents.value = it.map { currentEvent ->
+                    CalendarEvent(
+                        id = currentEvent.id,
+                        color = Color(currentEvent.color),
+                        applianceName = currentEvent.applianceName,
+                        applianceId = currentEvent.applianceId,
+                        userId = currentEvent.userId,
+                        superUserId = currentEvent.superUserId,
+                        start = currentEvent.timeStart.toLocalDateTime(),
+                        end = currentEvent.timeEnd.toLocalDateTime(),
+                        description = currentEvent.commentary
+                    )
+                }.toMutableList()
+            }
+        }
     }
 
     private fun getCurrentUser() {

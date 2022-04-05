@@ -62,33 +62,45 @@ val application = module {
     factory { GetUserUseCase(get(), get()) }
     factory { GetEventNewTimeEndAvailabilityUseCase(get()) }
     factory { GetNewEventTimeAvailabilityUseCase(get()) }
+    factory { GetDateEventsUseCase(get()) }
 }
 
 fun getFirebase(): FirebaseFirestore {
-    val settings = firestoreSettings { isPersistenceEnabled = false  }
+    val settings = firestoreSettings { isPersistenceEnabled = false }
     return Firebase.firestore.apply { firestoreSettings = settings }
 }
 
 val mainActivity = module {
     viewModel { UsersViewModel(get()) }
-    viewModel { BookingListViewModel(
-        bookingRepository = get(),
-        offlineRepository = get(),
-        getUserUseCase = get(),
-        getApplianceUseCase = get(),
-        userDatastore = get()
-    ) }
+    viewModel {
+        BookingListViewModel(
+            bookingRepository = get(),
+            offlineRepository = get(),
+            getUserUseCase = get(),
+            getApplianceUseCase = get(),
+            userDatastore = get()
+        )
+    }
 
     viewModel { LoginViewModel(get(), get()) }
 
-    viewModel { MainScreenViewModel(usersRepository = get(), eventsRepository = get(), offlineRepository = get(), get()) }
+    viewModel {
+        MainScreenViewModel(
+            usersRepository = get(),
+            eventsRepository = get(),
+            offlineRepository = get(),
+            userDatastore = get(), getDateEventsUseCase = get()
+        )
+    }
 
-    viewModel { UserDetailsViewModel(
-        detUser = it[0],
-        usersRepository = get(),
-        repository = get(),
-        userDatastore = get()
-    ) }
+    viewModel {
+        UserDetailsViewModel(
+            detUser = it[0],
+            usersRepository = get(),
+            repository = get(),
+            userDatastore = get()
+        )
+    }
 
 
     viewModel { ProfileViewModel(get(), get()) }

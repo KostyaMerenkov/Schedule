@@ -13,6 +13,7 @@ import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.ui.Progress
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -24,12 +25,14 @@ class EventsRepositoryImpl(
     private var TAG = "EventsFirestoreDatabase"
 
 
-    override suspend fun addNewEvent(event: Event) = suspendCoroutine<Result<Unit>> { continuation ->
-        dbCollections.getEventsCollection().document(event.id).set(event).addOnCompleteListener {
-            if (it.isSuccessful) continuation.resume(Result.success(Unit))
-            else continuation.resume(Result.failure(it.exception ?: Throwable()))
+    override suspend fun addNewEvent(event: Event) =
+        suspendCoroutine<Result<Unit>> { continuation ->
+            dbCollections.getEventsCollection().document(event.id).set(event)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) continuation.resume(Result.success(Unit))
+                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
         }
-    }
 
     override suspend fun getAllEventsFromDate(date: Long): Flow<List<Event>> = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
@@ -59,6 +62,19 @@ class EventsRepositoryImpl(
                 }
         }
 
+    override suspend fun getAllEventsForADay(date: LocalDate): Flow<List<Event>> = callbackFlow {
+        val subscription = dbCollections.getEventsCollection()
+            .whereGreaterThanOrEqualTo("timeStart", date.atStartOfDay().toMillis)
+            .whereLessThanOrEqualTo("timeStart", date.plusDays(1).atStartOfDay().toMillis)
+            .addSnapshotListener { value, error ->
+                value?.let {
+                    trySend(value.toObjects<Event>())
+                }
+            }
+
+        awaitClose { subscription.remove() }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getEventsSuccessListener(scope: ProducerScope<List<Event>>): EventListener<QuerySnapshot> =
         EventListener<QuerySnapshot> { snapshots, error ->
@@ -82,8 +98,7 @@ class EventsRepositoryImpl(
                     if (it.isSuccessful) {
                         val events = it.result.toObjects<Event>()
                         continuation.resume(Result.success(events))
-                    }
-                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
                 }
         }
 

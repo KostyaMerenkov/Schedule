@@ -56,5 +56,5 @@ private fun DrawerRow(title: String, selected: Boolean, onClick: () -> Unit) {
 @Preview(showBackground = false)
 @Composable
 fun DrawerItemPreview() {
-    DrawerItem(item = NavDrawerItem.Home, selected = false, onItemClick = {})
+    DrawerItem(item = NavDrawerItem.Appliances, selected = false, onItemClick = {})
 }

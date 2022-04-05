@@ -26,6 +26,8 @@ import ru.dvfu.appliances.application.SnackbarManager
  */
 object MainDestinations {
 
+    const val EVENT_CALENDAR = "event_calendar"
+    const val WEEK_CALENDAR = "week_calendar"
     const val TEMP = "temp"
 
     const val ADD_EVENT = "add_event"
@@ -115,7 +117,11 @@ class AppStateHolder(
     // ----------------------------------------------------------
 
     val bottomBarTabs = HomeSections.values()
-    private val bottomBarRoutes = bottomBarTabs.map { it.route }
+    private val innerScreensRoutes = listOf<String>(
+        HomeSections.CALENDAR.route + "/" + MainDestinations.WEEK_CALENDAR,
+        HomeSections.CALENDAR.route + "/" + MainDestinations.HOME_ROUTE,
+    )
+    private val bottomBarRoutes = bottomBarTabs.map { it.route } + innerScreensRoutes
 
     // Reading this attribute will cause recompositions when the bottom bar needs shown, or not.
     // Not all routes need to show the bottom bar.

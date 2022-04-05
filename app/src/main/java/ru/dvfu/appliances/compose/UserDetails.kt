@@ -48,7 +48,6 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
     val detailsUser by viewModel.detailsUser.collectAsState()
     val userRoleState by viewModel.userRoleState.collectAsState()
 
-
     Scaffold(topBar = {
         ScheduleAppBar(stringResource(R.string.user), upPress)
     }) {

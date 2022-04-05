@@ -3,17 +3,18 @@ package ru.dvfu.appliances.compose
 import Drawer
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.padding
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
@@ -22,13 +23,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.compose.appliance.AddUser
 import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.NewAppliance
-import ru.dvfu.appliances.compose.home.AddBooking
-import ru.dvfu.appliances.compose.home.EventInfo
-import ru.dvfu.appliances.compose.home.AddEvent
-import ru.dvfu.appliances.compose.home.BookingList
+import ru.dvfu.appliances.compose.home.*
+import ru.dvfu.appliances.compose.viewmodels.MainViewModel
 
 @OptIn(ExperimentalComposeUiApi::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @ExperimentalComposeUiApi
@@ -38,10 +38,9 @@ import ru.dvfu.appliances.compose.home.BookingList
 @InternalCoroutinesApi
 @Composable
 fun ScheduleApp() {
-    //ProvideWindowInsets {
     MaterialTheme {
         val appStateHolder = rememberAppStateHolder()
-        //var visible by remember { mutableStateOf(false) }
+        val viewModel: MainScreenViewModel = getViewModel()
         val scope = rememberCoroutineScope()
 
         val result = remember { mutableStateOf("") }
@@ -105,16 +104,20 @@ fun ScheduleApp() {
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
 private fun NavGraphBuilder.NavGraph(
-    upPress: () -> Unit,
     openDrawer: () -> Unit,
     navController: NavController,
-    backPress: () -> Unit = { navController.popBackStack() }
+    backPress: () -> Unit = { navController.popBackStack() },
+    upPress: () -> Unit
 ) {
     navigation(
         route = MainDestinations.HOME_ROUTE,
         startDestination = HomeSections.CALENDAR.route
     ) {
-        addHomeGraph(navController, openDrawer = openDrawer, upPress)
+        addHomeGraph(
+            navController = navController,
+            openDrawer = openDrawer,
+            backPress = upPress
+        )
     }
 
     composable(MainDestinations.ADD_EVENT) {
@@ -129,6 +132,9 @@ private fun NavGraphBuilder.NavGraph(
         EventInfo(navController, eventArg = it.requiredArg(Arguments.EVENT), backPress)
     }
 
+    /*composable(MainDestinations.EVENT_INFO) {
+        WeekCalendar(navController)
+    }*/
 
 
     /*composable(MainDestinations.LOGIN_ROUTE) {

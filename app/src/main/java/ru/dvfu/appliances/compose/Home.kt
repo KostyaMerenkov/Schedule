@@ -20,12 +20,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.navigation.navigation
 import coil.annotation.ExperimentalCoilApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.compose.home.MainScreen
+import ru.dvfu.appliances.compose.calendars.WeekCalendar
+import ru.dvfu.appliances.compose.home.EventCalendar
+import ru.dvfu.appliances.compose.home.HomeScreen
+import ru.dvfu.appliances.compose.home.MainScreenViewModel
+import ru.dvfu.appliances.compose.viewmodels.MainViewModel
+import ru.dvfu.appliances.ui.day.HomeViewModel
 
 @ExperimentalFoundationApi
 @ExperimentalCoroutinesApi
@@ -34,16 +41,18 @@ import ru.dvfu.appliances.compose.home.MainScreen
 @ExperimentalMaterialApi
 @InternalCoroutinesApi
 fun NavGraphBuilder.addHomeGraph(
-    navController: NavController,
     openDrawer: () -> Unit,
     backPress: () -> Unit,
     modifier: Modifier = Modifier,
+    navController: NavController,
 ) {
+
     composable(
         HomeSections.CALENDAR.route
-    ) { from ->
-        MainScreen(navController, openDrawer)
+    ) {
+        HomeScreen(navController, openDrawer)
     }
+
     composable(
         HomeSections.APPLIANCES.route
     ) { from ->
@@ -54,13 +63,7 @@ fun NavGraphBuilder.addHomeGraph(
     ) { from ->
         Users(navController, backPress)
     }
-    /*composable(HomeSections.NOTES.route) { from ->
-        Notes(onSnackClick = { id -> onSnackSelected(id, from) }, modifier, navController)
-    }*/
-    /*composable(HomeSections.WEATHER.route) { from ->
-        Weather(onSnackClick = { id -> onSnackSelected(id, from) }, modifier, navController)
-        { navController.popBackStack() }
-    }*/
+
     composable(HomeSections.PROFILE.route) {
         Profile(navController, modifier, backPress)
     }
@@ -72,6 +75,7 @@ enum class HomeSections(
     val route: String
 ) {
     CALENDAR(R.string.calendar, Icons.Outlined.Home, "home/calendar"),
+
     //NOTES(R.string.notes, Icons.Outlined.Menu, "home/notes"),
     //WEATHER(R.string.weather, Icons.Outlined.WbSunny, "home/weather"),
     APPLIANCES(R.string.appliances, Icons.Outlined.Apartment, "home/appliances"),
@@ -99,7 +103,7 @@ fun ScheduleBottomBar(
                     val selected = section == currentSection
                     BottomNavigationItem(
                         icon = {
-                            Icon(section.icon, section.name, /*tint = tint*/)
+                            Icon(section.icon, section.name /*tint = tint*/)
                         },
                         label = {
                             Text(
