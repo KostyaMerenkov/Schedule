@@ -1,38 +1,128 @@
 package ru.dvfu.appliances.compose.calendars
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.himanshoe.kalendar.ui.Kalendar
 import com.himanshoe.kalendar.ui.KalendarType
+import org.koin.androidx.compose.getViewModel
+import ru.dvfu.appliances.compose.appliance.LoadingItem
+import ru.dvfu.appliances.compose.appliance.NoElementsView
 import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
+import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
+import ru.dvfu.appliances.compose.event_calendar.SplitType
+import ru.dvfu.appliances.compose.viewmodels.EventsState
+import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
+import ru.dvfu.appliances.model.repository.entity.Event
+import ru.dvfu.appliances.model.utils.toLocalDateTime
 import java.time.LocalDate
 
 @Composable
-fun WeekCalendar(events: List<CalendarEvent>, navController: NavController, onDaySelected: (LocalDate) -> Unit) {
-
+fun WeekCalendar(
+    navController: NavController,
+) {
+    val viewModel: WeekCalendarViewModel = getViewModel()
+    var currentDate by remember {
+        mutableStateOf(LocalDate.now())
+    }
+    val dayEvents = viewModel.dayEvents
     Scaffold {
         Column {
             Kalendar(kalendarType = KalendarType.Oceanic(), onCurrentDayClick = { day, event ->
-
+                viewModel.onDaySelected(day)
+                currentDate = day
             }, errorMessage = {
                 //Handle the error if any
             })
             LazyColumn(contentPadding = PaddingValues(8.dp)) {
-                items(events) { event ->
-                    Row {
-                        Text(text = event.applianceId)
+                dayEvents[currentDate]?.let {
+                    when (it) {
+                        is EventsState.Loaded -> {
+                            if (it.events.isEmpty()) {
+                                item {
+                                    NoElementsView(mainText = "Нет событий на выбранный день"){}
+                                }
+                            }
+                            items(it.events) { event ->
+                                EventView(event = event, onEventClick = {}, onEventLongClick = {})
+                            }
+                        }
+                        EventsState.Loading -> {
+                            item {
+                                LoadingItem(modifier = Modifier.fillMaxWidth())
+                            }
+                        }
                     }
                 }
+
             }
 
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun EventView(
+    modifier: Modifier = Modifier,
+    event: CalendarEvent,
+    onEventClick: (CalendarEvent) -> Unit,
+    onEventLongClick: (CalendarEvent) -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(4.dp)
+            .clipToBounds()
+            .background(
+                event.color,
+                shape = RoundedCornerShape(4.dp)
+            )
+            .combinedClickable(
+                onClick = { onEventClick(event) },
+                onLongClick = { onEventLongClick(event) }
+            )
+    ) {
+        Column(Modifier.padding(4.dp)) {
+            Text(
+                text = "${event.start.format(EventTimeFormatter)} - ${event.end.format(EventTimeFormatter)}",
+                style = MaterialTheme.typography.caption,
+                maxLines = 2,
+                overflow = TextOverflow.Clip,
+            )
+
+            Text(
+                text = event.applianceName,
+                style = MaterialTheme.typography.body1,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            if (event.description.isNotBlank()) {
+                Text(
+                    text = event.description,
+                    style = MaterialTheme.typography.body2,
+
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+
     }
 }

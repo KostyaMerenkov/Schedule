@@ -107,7 +107,8 @@ fun HomeScreen(
                         fabState.value = MultiFabState.COLLAPSED
                     })
         }
-        EventCalendar(events = events,
+
+        /*EventCalendar(events = events,
             onEventClick = {
                 viewModel.getRepoEvent(it)?.let {
                     navController.navigate(
@@ -118,9 +119,9 @@ fun HomeScreen(
             }, onEventLongClick = {
                 viewModel.selectedEvent.value = it
                 eventOptionDialogOpened = true
-            })
+            })*/
 
-        //WeekCalendar(events = dayEvents, navController = navController, onDaySelected = viewModel::getTodayEvents)
+        WeekCalendar(navController = navController)
     }
 }
 

@@ -89,7 +89,17 @@ val mainActivity = module {
             usersRepository = get(),
             eventsRepository = get(),
             offlineRepository = get(),
-            userDatastore = get(), getDateEventsUseCase = get()
+            userDatastore = get(),
+            getDateEventsUseCase = get()
+        )
+    }
+    viewModel {
+        WeekCalendarViewModel(
+            usersRepository = get(),
+            eventsRepository = get(),
+            offlineRepository = get(),
+            userDatastore = get(),
+            getDateEventsUseCase = get()
         )
     }
 
