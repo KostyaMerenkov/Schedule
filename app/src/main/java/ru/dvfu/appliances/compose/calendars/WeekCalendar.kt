@@ -18,6 +18,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.himanshoe.kalendar.common.KalendarSelector
+import com.himanshoe.kalendar.common.KalendarStyle
+import com.himanshoe.kalendar.common.data.KalendarEvent
 import com.himanshoe.kalendar.ui.Kalendar
 import com.himanshoe.kalendar.ui.KalendarType
 import org.koin.androidx.compose.getViewModel
@@ -48,7 +51,10 @@ fun WeekCalendar(
                 currentDate = day
             }, errorMessage = {
                 //Handle the error if any
-            })
+            },
+            kalendarStyle = KalendarStyle(kalendarSelector = KalendarSelector.Circle()),
+                kalendarEvents = listOf(KalendarEvent(LocalDate.now().plusDays(2), ""))
+            )
             LazyColumn(contentPadding = PaddingValues(8.dp)) {
                 dayEvents[currentDate]?.let {
                     when (it) {
