@@ -59,7 +59,6 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
         user = userDatastore.getCurrentUser.first()
     }
 
-
     val viewModel = getViewModel<ProfileViewModel>()
     val currentUser by viewModel.currentUser.collectAsState()
 
@@ -75,7 +74,6 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
             ) {
-                UserDetails(navController, upPress = backPress, user = user)
 
                 Card(
                     elevation = 10.dp,

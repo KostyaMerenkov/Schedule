@@ -44,7 +44,6 @@ import java.time.LocalDate
 @Composable
 fun HomeScreen(
     navController: NavController,
-    openDrawer: () -> Unit
 ) {
     val viewModel: MainScreenViewModel = getViewModel()
     val innerNavController = rememberNavController()
@@ -64,7 +63,7 @@ fun HomeScreen(
     val fabState = remember { mutableStateOf(MultiFabState.COLLAPSED) }
 
     Scaffold(topBar = {
-        HomeTopBar(onOpenDrawer = openDrawer, onBookingListOpen = {
+        HomeTopBar(onBookingListOpen = {
             navController.navigate(MainDestinations.BOOKING_LIST)
         })
     }, floatingActionButton = {
@@ -146,14 +145,9 @@ fun EventCalendar(
 }
 
 @Composable
-fun HomeTopBar(onOpenDrawer: () -> Unit, onBookingListOpen: () -> Unit) {
+fun HomeTopBar(onBookingListOpen: () -> Unit) {
     TopAppBar(
         title = { Text(text = stringResource(id = R.string.schedule)) },
-        navigationIcon = {
-            IconButton(onClick = onOpenDrawer) {
-                Icon(Icons.Filled.Menu, contentDescription = "")
-            }
-        },
         backgroundColor = Color(0xFFFF5470),
         actions = {
             IconButton(onClick = onBookingListOpen) {

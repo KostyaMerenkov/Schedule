@@ -1,34 +1,29 @@
 package ru.dvfu.appliances.compose
 
-import Drawer
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FabPosition
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-
-import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.compose.appliance.AddUser
 import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.NewAppliance
 import ru.dvfu.appliances.compose.home.*
-import ru.dvfu.appliances.compose.viewmodels.MainViewModel
 
 @OptIn(ExperimentalComposeUiApi::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @ExperimentalComposeUiApi
@@ -43,30 +38,9 @@ fun ScheduleApp() {
         val viewModel: MainScreenViewModel = getViewModel()
         val scope = rememberCoroutineScope()
 
-        val result = remember { mutableStateOf("") }
-        val selectedItem = remember { mutableStateOf("upload") }
-
         Scaffold(
-            /*floatingActionButton = {
-                if (appStateHolder.shouldShowFab) {
-                    FloatingActionButton(
-                        onClick = { result.value = "FAB clicked" },
-                        backgroundColor = Color(0xFFFF8C00),
-
-                    ) {
-                        Icon(Icons.Filled.Add, "")
-                    }
-                }
-            },*/
             isFloatingActionButtonDocked = true,
             floatingActionButtonPosition = FabPosition.Center,
-            drawerContent = {
-                Drawer(
-                    scope = scope,
-                    scaffoldState = appStateHolder.scaffoldState,
-                    navController = appStateHolder.navController
-                )
-            },
             bottomBar = {
                 if (appStateHolder.shouldShowBottomBar) {
                     ScheduleBottomBar(
@@ -75,11 +49,9 @@ fun ScheduleApp() {
                         navigateToRoute = appStateHolder::navigateToBottomBarRoute
                     )
                 }
-                //ScheduleBottomBar(result, selectedItem, fabShape)
             },
             scaffoldState = appStateHolder.scaffoldState
         ) { innerPaddingModifier ->
-            //Spacer(modifier = Modifier.statusBarsHeight())
             NavHost(
                 navController = appStateHolder.navController,
                 startDestination = MainDestinations.HOME_ROUTE,
@@ -88,7 +60,6 @@ fun ScheduleApp() {
                 NavGraph(
                     navController = appStateHolder.navController,
                     upPress = appStateHolder::upPress,
-                    openDrawer = { scope.launch { appStateHolder.scaffoldState.drawerState.open() } }
                 )
             }
         }
@@ -104,7 +75,6 @@ fun ScheduleApp() {
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
 private fun NavGraphBuilder.NavGraph(
-    openDrawer: () -> Unit,
     navController: NavController,
     backPress: () -> Unit = { navController.popBackStack() },
     upPress: () -> Unit
@@ -115,7 +85,6 @@ private fun NavGraphBuilder.NavGraph(
     ) {
         addHomeGraph(
             navController = navController,
-            openDrawer = openDrawer,
             backPress = upPress
         )
     }

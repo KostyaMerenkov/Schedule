@@ -1,38 +1,34 @@
 package ru.dvfu.appliances.compose
 
-import androidx.compose.ui.tooling.preview.Preview
-
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.outlined.Apartment
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.SupervisedUserCircle
+import androidx.compose.material.icons.outlined.VerifiedUser
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import coil.annotation.ExperimentalCoilApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.compose.calendars.WeekCalendar
-import ru.dvfu.appliances.compose.home.EventCalendar
 import ru.dvfu.appliances.compose.home.HomeScreen
-import ru.dvfu.appliances.compose.home.MainScreenViewModel
-import ru.dvfu.appliances.compose.viewmodels.MainViewModel
-import ru.dvfu.appliances.ui.day.HomeViewModel
 
 @ExperimentalFoundationApi
 @ExperimentalCoroutinesApi
@@ -41,7 +37,6 @@ import ru.dvfu.appliances.ui.day.HomeViewModel
 @ExperimentalMaterialApi
 @InternalCoroutinesApi
 fun NavGraphBuilder.addHomeGraph(
-    openDrawer: () -> Unit,
     backPress: () -> Unit,
     modifier: Modifier = Modifier,
     navController: NavController,
@@ -50,7 +45,7 @@ fun NavGraphBuilder.addHomeGraph(
     composable(
         HomeSections.CALENDAR.route
     ) {
-        HomeScreen(navController, openDrawer)
+        HomeScreen(navController)
     }
 
     composable(
