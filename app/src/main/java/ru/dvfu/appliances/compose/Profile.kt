@@ -6,10 +6,13 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -18,9 +21,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,7 +35,6 @@ import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
 
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -57,10 +58,9 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
     runBlocking {
         user = userDatastore.getCurrentUser.first()
     }
-    UserDetails(navController, upPress = backPress, user = user)
 
 
-    /*val viewModel = getViewModel<ProfileViewModel>()
+    val viewModel = getViewModel<ProfileViewModel>()
     val currentUser by viewModel.currentUser.collectAsState()
 
     val uiState = viewModel.uiState
@@ -71,8 +71,12 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
             ) {
+                UserDetails(navController, upPress = backPress, user = user)
+
                 Card(
                     elevation = 10.dp,
                     modifier = Modifier.padding(25.dp),
@@ -80,98 +84,20 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                     backgroundColor = MaterialTheme.colors.surface
                 ) {
                     Column() {
-                        UserInfo(currentUser)
-
-                        *//*val userPlacesNum by viewModel.getUserPlaces().collectAsState(null)
-                        val userCatchesNum by viewModel.getUserCatches().collectAsState(null)
-                        UserStats(userPlacesNum, userCatchesNum)*//*
+                        ProfileUserInfo(currentUser)
                     }
 
                 }
-                UserButtons()
+                UserButtons(navController)
             }
         },
-    )*/
+    )
 }
-
-/*@Composable
-fun UserStats(userPlacesNum: List<MapMarker>?, userCatchesNum: List<UserCatch>?) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier.padding(5.dp).fillMaxWidth().height(50.dp)
-    ) {
-        PlacesNumber(userPlacesNum)
-        CatchesNumber(userCatchesNum)
-    }
-}*/
-
-/*@Composable
-fun PlacesNumber(userPlacesNum: List<MapMarker>?) {
-    //val userPlacesNum by viewModel.getUserPlaces().collectAsState(null)
-    userPlacesNum?.let {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center, modifier = Modifier.size(50.dp)
-        ) {
-            Icon(
-                Icons.Default.Place, stringResource(R.string.place),
-                modifier = Modifier.size(25.dp)
-            )
-            Text(it.size.toString())
-        }
-    } ?: Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center, modifier = Modifier.size(50.dp)
-    ) {
-        Icon(
-            Icons.Default.Place, stringResource(R.string.place),
-            modifier = Modifier.size(25.dp).shimmer(),
-            tint = Color.LightGray
-        )
-        Text(
-            "0",
-            color = Color.LightGray,
-            modifier = Modifier.background(Color.LightGray).shimmer()
-        )
-    }
-
-}
-
-@Composable
-fun CatchesNumber(userCatchesNum: List<UserCatch>?) {
-//    val userCatchesNum by viewModel.getUserCatches().collectAsState(null)
-    userCatchesNum?.let {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center, modifier = Modifier.size(50.dp)
-        ) {
-            Icon(
-                painterResource(R.drawable.ic_fishing), stringResource(R.string.place),
-                modifier = Modifier.size(25.dp)
-            )
-            Text(it.size.toString())
-        }
-    } ?: Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center, modifier = Modifier.size(50.dp)
-    ) {
-        Icon(
-            painterResource(R.drawable.ic_fishing), stringResource(R.string.place),
-            modifier = Modifier.size(25.dp).shimmer(),
-            tint = Color.LightGray
-        )
-        Text(
-            "0",
-            color = Color.LightGray,
-            modifier = Modifier.background(Color.LightGray).shimmer()
-        )
-    }
-}*/
 
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
 @Composable
-fun UserButtons() {
+fun UserButtons(navController: NavController) {
     val dialogOnLogout = rememberSaveable { mutableStateOf(false) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -180,25 +106,11 @@ fun UserButtons() {
             .padding(horizontal = 80.dp),
         verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.Bottom)
     ) {
-        /*ColumnButton(painterResource(R.drawable.ic_friends), stringResource(R.string.friends)) {
-            //notReadyYetToast()
-        }
 
-        ColumnButton(
-            painterResource(R.drawable.ic_edit),
-            stringResource(R.string.edit_profile)
-        ) {
-            //notReadyYetToast()
-        }
+        ColumnButton(Icons.Default.Edit, "Редактировать профиль")
+        { navController.navigate(MainDestinations.EDIT_PROFILE) }
 
-        ColumnButton(
-            painterResource(R.drawable.ic_settings),
-            stringResource(R.string.settings)
-        ) {
-//            val action =
-//                UserFragmentDirections.actionUserFragmentToSettingsFragment()
-//            findNavController().navigate(action)
-        }*/
+
         Spacer(modifier = Modifier.size(15.dp))
         OutlinedButton(onClick = {
             dialogOnLogout.value = true
@@ -234,7 +146,7 @@ fun LogoutDialog(dialogOnLogout: MutableState<Boolean>) {
 }
 
 @Composable
-fun ColumnButton(image: Painter, name: String, click: () -> Unit) {
+fun ColumnButton(image: ImageVector, name: String, click: () -> Unit) {
     OutlinedButton(
         onClick = click,
         modifier = Modifier.fillMaxWidth(),

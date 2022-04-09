@@ -17,8 +17,6 @@ enum class Roles(override val stringRes: Int, val stringRess: Int): StringOperat
         }
     }
 
-
-
 }
 
 fun getRole(ordinal: Int): Roles {

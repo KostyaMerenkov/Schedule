@@ -26,6 +26,7 @@ import ru.dvfu.appliances.application.SnackbarManager
  */
 object MainDestinations {
 
+    const val EDIT_PROFILE = "edit_profile"
     const val EVENT_CALENDAR = "event_calendar"
     const val WEEK_CALENDAR = "week_calendar"
     const val TEMP = "temp"

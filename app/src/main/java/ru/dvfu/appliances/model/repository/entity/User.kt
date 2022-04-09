@@ -13,10 +13,11 @@ data class User(
     val anonymous: Boolean = true,
     val userPic: String = "",
     ): Parcelable {
+
     fun isAdmin(): Boolean {
         return role == Roles.ADMIN.ordinal
     }
-    fun isSuperUser(): Boolean {
-        return role == Roles.ADMIN.ordinal
+    fun isUser(): Boolean {
+        return role == Roles.USER.ordinal
     }
 }
