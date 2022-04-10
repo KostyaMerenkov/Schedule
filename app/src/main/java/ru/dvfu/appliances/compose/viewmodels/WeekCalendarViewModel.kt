@@ -20,6 +20,7 @@ import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
+import ru.dvfu.appliances.model.utils.toLocalDate
 import ru.dvfu.appliances.model.utils.toLocalDateTime
 import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDate
@@ -32,6 +33,12 @@ class WeekCalendarViewModel(
     private val getDateEventsUseCase: GetDateEventsUseCase,
     private val getEventsFromDateUseCase: GetEventsFromDateUseCase
 ) : ViewModel() {
+
+    private val _currentDate = MutableStateFlow<LocalDate>(LocalDate.now())
+    val currentDate = _currentDate.asStateFlow()
+
+    private val _reposEvents = MutableStateFlow<Set<Event>>(setOf())
+    val selectedEvent = mutableStateOf<CalendarEvent?>(null)
 
     private val _currentUser = MutableStateFlow<User>(User())
     val currentUser = _currentUser.asStateFlow()
@@ -63,6 +70,7 @@ class WeekCalendarViewModel(
         viewModelScope.launch {
             getEventsFromDateUseCase(LocalDate.now().minusMonths(2)).collectLatest {
                 it.forEach { localDate, list ->
+                    _reposEvents.value = (_reposEvents.value.plus(list))
                     _dayEvents = _dayEvents.apply {
                         put(
                             localDate,
@@ -88,7 +96,11 @@ class WeekCalendarViewModel(
 
     private fun getDayEvents(date: LocalDate = LocalDate.now()) {
         viewModelScope.launch {
+            _dayEvents = _dayEvents.apply {
+                put(date, EventsState.Loading)
+            }
             getDateEventsUseCase(date).collectLatest {
+                _reposEvents.value = (_reposEvents.value.plus(it))
                 val dayEvents = it.map { currentEvent ->
                     CalendarEvent(
                         id = currentEvent.id,
@@ -107,18 +119,39 @@ class WeekCalendarViewModel(
                 }
             }
         }
+
     }
 
     private fun getCurrentUser() {
         viewModelScope.launch {
             userDatastore.getCurrentUser.collect {
-
+                _currentUser.value = it
             }
         }
     }
 
     fun onDaySelected(day: LocalDate) {
+        _currentDate.value = day
         getDayEvents(day)
+    }
+
+    fun deleteEvent(eventToDelete: CalendarEvent) {
+        viewModelScope.launch {
+            eventsRepository.deleteEvent(eventToDelete.id).fold(
+                onSuccess = {
+                    /*val newEventsList =
+                        _events.value.filter { it.id != eventToDelete.id }.toMutableList()
+                    _events.value = newEventsList*/
+                },
+                onFailure = {
+                    SnackbarManager.showMessage(R.string.event_delete_failed)
+                }
+            )
+        }
+    }
+
+    fun getRepoEvent(calendarEvent: CalendarEvent): Event? {
+        return _reposEvents.value.find { it.id == calendarEvent.id }
     }
 }
 

@@ -125,6 +125,7 @@ val mainActivity = module {
     viewModel { AddUserViewModel(it.get(), it.get(), get(), get()) }
     viewModel {
         AddEventViewModel(
+            selectedDate = it[0],
             eventsRepository = get(),
             getAppliancesUseCase = get(),
             userDatastore = get(),
@@ -133,6 +134,7 @@ val mainActivity = module {
     }
     viewModel {
         AddBookingViewModel(
+            selectedDate = it[0],
             bookingRepository = get(),
             getAppliancesUseCase = get(),
             userDatastore = get()

@@ -61,6 +61,7 @@ object MainDestinations {
 }
 
 object Arguments {
+    const val DATE = "date_arg"
     const val EVENT = "event_arg"
     const val USER = "user_arg"
     const val APPLIANCE = "appliance_arg"
@@ -159,7 +160,17 @@ class AppStateHolder(
 }
 
 fun NavController.navigate(route: String, vararg args: Pair<String, Parcelable>) {
-    navigate(route)
+    navigate(route) {
+        if (HomeSections.values().map { it.route }.contains(route)) {
+            launchSingleTop = true
+            restoreState = true
+            // Pop up backstack to the first destination and save state. This makes going back
+            // to the start destination when pressing back in any other bottom tab.
+            popUpTo(findStartDestination(this@navigate.graph).id) {
+                saveState = true
+            }
+        }
+    }
 
     requireNotNull(currentBackStackEntry?.arguments).apply {
         args.forEach { (key: String, arg: Parcelable) ->

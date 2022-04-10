@@ -19,15 +19,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.koin.androidx.compose.get
+import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.appliance.FabWithLoading
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.viewmodels.AddBookingViewModel
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
+import java.time.LocalDate
 
 @Composable
-fun AddBooking(navController: NavController) {
-    val viewModel: AddBookingViewModel = get()
+fun AddBooking(selectedDate: LocalDate, navController: NavController) {
+    val viewModel: AddBookingViewModel = get(parameters = { parametersOf(selectedDate) })
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
 
@@ -66,7 +68,10 @@ fun AddBooking(navController: NavController) {
                 duration = viewModel.duration.collectAsState().value,
                 isDurationError = viewModel.isDurationError.collectAsState().value,
             )
-            Commentary(commentary = viewModel.commentary.collectAsState().value, onCommentarySet = viewModel::onCommentarySet)
+            Commentary(
+                commentary = viewModel.commentary.collectAsState().value,
+                onCommentarySet = viewModel::onCommentarySet
+            )
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
                 selectedAppliance = viewModel.selectedAppliance.collectAsState(),

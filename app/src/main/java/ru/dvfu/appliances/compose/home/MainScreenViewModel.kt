@@ -31,6 +31,7 @@ class MainScreenViewModel(
     private val getDateEventsUseCase: GetDateEventsUseCase,
 ) : ViewModel() {
 
+    val currentDate = MutableStateFlow(LocalDate.now())
     val selectedEvent = mutableStateOf<CalendarEvent?>(null)
 
     private val _reposEvents = MutableStateFlow<List<Event>>(listOf())

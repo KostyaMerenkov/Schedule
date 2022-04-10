@@ -24,12 +24,14 @@ import com.himanshoe.kalendar.common.KalendarStyle
 import com.himanshoe.kalendar.common.data.KalendarEvent
 import com.himanshoe.kalendar.ui.Kalendar
 import com.himanshoe.kalendar.ui.KalendarType
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.appliance.NoElementsView
 import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
 import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.event_calendar.SplitType
+import ru.dvfu.appliances.compose.home.EventOptionDialog
 import ru.dvfu.appliances.compose.viewmodels.EventsState
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.model.repository.entity.Event
@@ -38,18 +40,17 @@ import java.time.LocalDate
 
 @Composable
 fun WeekCalendar(
-    navController: NavController,
+    viewModel: WeekCalendarViewModel,
+    onEventClick: (CalendarEvent) -> Unit,
+    onEventLongClick: (CalendarEvent) -> Unit,
 ) {
-    val viewModel: WeekCalendarViewModel = getViewModel()
-    var currentDate by remember {
-        mutableStateOf(LocalDate.now())
-    }
+    val currentDate = viewModel.currentDate.collectAsState()
     val dayEvents = viewModel.dayEvents
     Scaffold {
         Column {
             Kalendar(kalendarType = KalendarType.Oceanic(), onCurrentDayClick = { day, event ->
                 viewModel.onDaySelected(day)
-                currentDate = day
+
             }, errorMessage = {
                 //Handle the error if any
             },
@@ -58,7 +59,7 @@ fun WeekCalendar(
                     .map { KalendarEvent(it.key, "") }
             )
             LazyColumn(contentPadding = PaddingValues(8.dp)) {
-                dayEvents[currentDate]?.let {
+                dayEvents[currentDate.value]?.let {
                     when (it) {
                         is EventsState.Loaded -> {
                             if (it.events.isEmpty()) {
@@ -67,7 +68,7 @@ fun WeekCalendar(
                                 }
                             }
                             items(it.events) { event ->
-                                EventView(event = event, onEventClick = {}, onEventLongClick = {})
+                                EventView(event = event, onEventClick = onEventClick, onEventLongClick = onEventLongClick)
                             }
                         }
                         EventsState.Loading -> {

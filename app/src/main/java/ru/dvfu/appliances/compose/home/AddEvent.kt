@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.koin.androidx.compose.get
+import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
@@ -45,8 +46,8 @@ import java.time.format.FormatStyle
 import java.util.*
 
 @Composable
-fun AddEvent(navController: NavController) {
-    val viewModel: AddEventViewModel = get()
+fun AddEvent(selectedDate: LocalDate, navController: NavController) {
+    val viewModel: AddEventViewModel = get(parameters = { parametersOf(selectedDate) })
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
 

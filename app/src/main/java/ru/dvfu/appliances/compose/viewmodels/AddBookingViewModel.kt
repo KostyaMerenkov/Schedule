@@ -27,6 +27,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class AddBookingViewModel(
+    private val selectedDate: LocalDate,
     private val bookingRepository: BookingRepository,
     private val getAppliancesUseCase: GetAppliancesUseCase,
     private val userDatastore: UserDatastore,
@@ -41,9 +42,9 @@ class AddBookingViewModel(
     private val _selectedAppliance = MutableStateFlow<Appliance?>(null)
     val selectedAppliance = _selectedAppliance.asStateFlow()
 
-    val date = MutableStateFlow(LocalDate.now())
-    val timeStart = MutableStateFlow<LocalDateTime>(LocalDateTime.now())
-    val timeEnd = MutableStateFlow<LocalDateTime>(LocalDateTime.now().plusHours(1L))
+    val date = MutableStateFlow(selectedDate)
+    val timeStart = MutableStateFlow<LocalDateTime>(LocalTime.now().atDate(selectedDate))
+    val timeEnd = MutableStateFlow<LocalDateTime>(LocalTime.now().plusHours(1).atDate(selectedDate))
     val commentary = MutableStateFlow("")
 
     val isDurationError: MutableStateFlow<Boolean>

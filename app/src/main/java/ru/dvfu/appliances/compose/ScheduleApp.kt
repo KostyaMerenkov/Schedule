@@ -24,6 +24,7 @@ import ru.dvfu.appliances.compose.appliance.AddUser
 import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.NewAppliance
 import ru.dvfu.appliances.compose.home.*
+import java.time.LocalDate
 
 @OptIn(ExperimentalComposeUiApi::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @ExperimentalComposeUiApi
@@ -90,11 +91,13 @@ private fun NavGraphBuilder.NavGraph(
     }
 
     composable(MainDestinations.ADD_EVENT) {
-        AddEvent(navController = navController)
+        val selectedDate = it.arguments?.getParcelable<SelectedDate>(Arguments.DATE)?.value ?: LocalDate.now()
+        AddEvent(selectedDate = selectedDate, navController = navController)
     }
 
     composable(MainDestinations.ADD_BOOKING) {
-        AddBooking(navController = navController)
+        val selectedDate = it.arguments?.getParcelable<SelectedDate>(Arguments.DATE)?.value ?: LocalDate.now()
+        AddBooking(selectedDate = selectedDate, navController = navController)
     }
 
     composable(MainDestinations.EVENT_INFO) {

@@ -29,6 +29,7 @@ import java.time.*
 import java.util.*
 
 class AddEventViewModel(
+    private val selectedDate: LocalDate,
     private val eventsRepository: EventsRepository,
     private val getAppliancesUseCase: GetAppliancesUseCase,
     private val getNewEventTimeAvailabilityUseCase: GetNewEventTimeAvailabilityUseCase,
@@ -44,9 +45,9 @@ class AddEventViewModel(
     private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
     val appliancesState = _appliancesState.asStateFlow()
 
-    val date = mutableStateOf(LocalDate.now())
-    val timeStart = mutableStateOf<LocalDateTime>(LocalDateTime.now())
-    val timeEnd = mutableStateOf<LocalDateTime>(LocalDateTime.now())
+    val date = mutableStateOf(selectedDate)
+    val timeStart = mutableStateOf<LocalDateTime>(LocalTime.now().atDate(selectedDate))
+    val timeEnd = mutableStateOf<LocalDateTime>(LocalTime.now().plusHours(1).atDate(selectedDate))
     val commentary = mutableStateOf("")
 
     val isDurationError: MutableStateFlow<Boolean>

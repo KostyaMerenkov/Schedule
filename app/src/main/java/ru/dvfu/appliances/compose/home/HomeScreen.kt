@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose.home
 
+import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -13,19 +14,17 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddTask
 import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Arguments
@@ -38,6 +37,7 @@ import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
 import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.event_calendar.Schedule
 import ru.dvfu.appliances.compose.navigate
+import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.compose.views.DefaultDialog
 import java.time.LocalDate
 
@@ -45,13 +45,16 @@ import java.time.LocalDate
 fun HomeScreen(
     navController: NavController,
 ) {
-    val viewModel: MainScreenViewModel = getViewModel()
-    val innerNavController = rememberNavController()
+    val viewModell: MainScreenViewModel = getViewModel()
+    val viewModel: WeekCalendarViewModel = getViewModel()
+    /*val innerNavController = rememberNavController()
     val events by viewModel.events.collectAsState()
     //val dayEvents by viewModel.dayEvents.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val context = LocalContext.current*/
+
+    val currentDate by viewModel.currentDate.collectAsState()
 
     var eventOptionDialogOpened by remember { mutableStateOf(false) }
     if (eventOptionDialogOpened) EventOptionDialog(
@@ -77,14 +80,14 @@ fun HomeScreen(
                 FabMenuItem(
                     icon = Icons.Default.AddTask,
                     text = "Создать событие",
-                    onClick = { navController.navigate(MainDestinations.ADD_EVENT) }
+                    onClick = { navController.navigate(MainDestinations.ADD_EVENT,Arguments.DATE to SelectedDate(currentDate)) }
                 ),
                 //},
                 FabMenuItem(
                     icon = Icons.Default.MoreTime,
                     text = "Создать бронирование",
                     onClick = {
-                        navController.navigate(MainDestinations.ADD_BOOKING)
+                        navController.navigate(MainDestinations.ADD_BOOKING, Arguments.DATE to SelectedDate(currentDate))
                     }
                 ),
             )
@@ -120,9 +123,22 @@ fun HomeScreen(
                 eventOptionDialogOpened = true
             })*/
 
-        WeekCalendar(navController = navController)
+        WeekCalendar(viewModel = viewModel, onEventClick = {
+            viewModel.getRepoEvent(it)?.let {
+                navController.navigate(
+                    MainDestinations.EVENT_INFO,
+                    Arguments.EVENT to it
+                )
+            }
+        }) {
+            viewModel.selectedEvent.value = it
+            eventOptionDialogOpened = true
+        }
     }
 }
+
+@Parcelize
+data class SelectedDate(val value: LocalDate = LocalDate.now()) : Parcelable
 
 @Composable
 fun EventCalendar(
