@@ -34,11 +34,11 @@ class EventsRepositoryImpl(
                 }
         }
 
-    override suspend fun getAllEventsFromDate(date: Long): Flow<List<Event>> = channelFlow {
+    override suspend fun getAllEventsFromDate(date: LocalDate): Flow<List<Event>> = channelFlow {
         val listeners = mutableListOf<ListenerRegistration>()
         listeners.add(
             dbCollections.getEventsCollection()
-                .orderBy("timeStart").whereGreaterThan("timeStart", date)
+                .orderBy("timeStart").whereGreaterThan("timeStart", date.atStartOfDay().toMillis)
                 .addSnapshotListener(getEventsSuccessListener(this))
         )
         awaitClose {
@@ -62,7 +62,7 @@ class EventsRepositoryImpl(
                 }
         }
 
-    override suspend fun getAllEventsForADay(date: LocalDate): Flow<List<Event>> = callbackFlow {
+    override suspend fun getAllEventsForOneDay(date: LocalDate): Flow<List<Event>> = callbackFlow {
         val subscription = dbCollections.getEventsCollection()
             .whereGreaterThanOrEqualTo("timeStart", date.atStartOfDay().toMillis)
             .whereLessThanOrEqualTo("timeStart", date.plusDays(1).atStartOfDay().toMillis)

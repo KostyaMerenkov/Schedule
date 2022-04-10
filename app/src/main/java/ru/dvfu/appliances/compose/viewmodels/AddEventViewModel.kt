@@ -77,8 +77,8 @@ class AddEventViewModel(
 
     private fun loadAppliances() {
         viewModelScope.launch {
-            getAppliancesUseCase.invoke().collect { appliances ->
-                _appliancesState.value = ViewState.Success(appliances)
+            getAppliancesUseCase.invoke().collect { result ->
+                _appliancesState.value = ViewState.Success(result.getOrDefault(listOf()))
             }
         }
     }

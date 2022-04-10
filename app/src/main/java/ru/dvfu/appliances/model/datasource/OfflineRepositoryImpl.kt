@@ -1,6 +1,7 @@
 package ru.dvfu.appliances.model.datasource
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
@@ -17,6 +18,7 @@ import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.RepositoryCollections
+import kotlin.Exception
 
 class OfflineRepositoryImpl(
     private val db: FirebaseFirestore = Firebase.firestore,
@@ -24,31 +26,31 @@ class OfflineRepositoryImpl(
 ) : OfflineRepository {
 
     override suspend fun getUser(userId: String) = flow {
-        db.disableNetwork().await()
-        val doc = dbCollections.getUsersCollection().document(userId).get().await()
+        val doc = dbCollections.getUsersCollection().document(userId).get(Source.CACHE).await()
         val user = doc.toObject<User>()
-        db.enableNetwork().await()
         user?.let { emit(Result.success(user)) } ?: emit(Result.failure(Throwable()))
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun getAppliances() = flow {
-        db.disableNetwork().await()
-        val collection = dbCollections.getAppliancesCollection().get().await()
+        val collection = dbCollections.getAppliancesCollection().get(Source.CACHE).await()
         val appliances = collection.toObjects<Appliance>()
-        db.enableNetwork().await()
-        emit(appliances)
+        if (appliances.isNullOrEmpty()) {
+            emit(Result.failure(Throwable()))
+        } else {
+            emit(Result.success(appliances))
+        }
     }
 
     override fun getApplianceById(applianceId: String) = flow<Result<Appliance>> {
-        db.disableNetwork().await()
-        val doc = dbCollections.getAppliancesCollection().document(applianceId).get().await()
-        db.enableNetwork().await()
+        val doc =
+            dbCollections.getAppliancesCollection().document(applianceId).get(Source.CACHE).await()
         doc.toObject<Appliance>()?.let {
             emit(Result.success(it))
         } ?: kotlin.run {
             emit(Result.failure(Throwable()))
         }
+
     }
 
 

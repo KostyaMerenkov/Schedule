@@ -114,7 +114,7 @@ class MainScreenViewModel(
 
     private fun getEvents() {
         viewModelScope.launch {
-            eventsRepository.getAllEventsFromDate(LocalDate.now().toEpochDay())
+            eventsRepository.getAllEventsFromDate(LocalDate.now())
                 .collect { result ->
                     _reposEvents.value = result.toList()
 
@@ -132,12 +132,6 @@ class MainScreenViewModel(
                         )
                     }.toMutableList()
                 }
-        }
-    }
-
-    private suspend fun getAppliances() {
-        offlineRepository.getAppliances().collect {
-            appliances.value = it
         }
     }
 

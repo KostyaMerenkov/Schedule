@@ -45,9 +45,22 @@ class BookingRepositoryImpl(
 
     override suspend fun getAllBooking() = flow<Result<List<Booking>>> {
         val results = dbCollections.getBookingCollection().get().await()
+
         val bookingList = results.toObjects(Booking::class.java)
         emit(Result.success(bookingList))
+
     }
+
+    /*override suspend fun getAllBooking() = channelFlow<Result<List<Booking>>> {
+        dbCollections.getBookingCollection().get().addOnSuccessListener {
+            val bookingList = it.toObjects(Booking::class.java)
+            trySend(Result.success(bookingList))
+        }.addOnFailureListener {
+            trySend(Result.failure(it ?: Throwable()))
+        }
+
+        awaitClose()
+    }*/
 
     override suspend fun createBooking(booking: Booking) =
         suspendCoroutine<Result<Unit>> { continuation ->
@@ -81,16 +94,16 @@ class BookingRepositoryImpl(
         managedById: String,
         managerCommentary: String, managedTime: Long,
     ): Result<Unit> = suspendCoroutine { continuation ->
-            dbCollections.getBookingCollection().document(bookId).update(
-                "managedById", managedById,
-                "managerCommentary", managerCommentary,
-                "managedTime", managedTime,
-                "status", BookingStatus.DECLINED
-            ).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    continuation.resume(Result.success(Unit))
-                } else continuation.resume(Result.failure(it.exception ?: Throwable()))
-            }
+        dbCollections.getBookingCollection().document(bookId).update(
+            "managedById", managedById,
+            "managerCommentary", managerCommentary,
+            "managedTime", managedTime,
+            "status", BookingStatus.DECLINED
+        ).addOnCompleteListener {
+            if (it.isSuccessful) {
+                continuation.resume(Result.success(Unit))
+            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+        }
 
     }
 

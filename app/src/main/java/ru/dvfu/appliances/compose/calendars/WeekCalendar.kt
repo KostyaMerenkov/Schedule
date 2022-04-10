@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.himanshoe.kalendar.common.KalendarKonfig
 import com.himanshoe.kalendar.common.KalendarSelector
 import com.himanshoe.kalendar.common.KalendarStyle
 import com.himanshoe.kalendar.common.data.KalendarEvent
@@ -52,8 +53,9 @@ fun WeekCalendar(
             }, errorMessage = {
                 //Handle the error if any
             },
-            kalendarStyle = KalendarStyle(kalendarSelector = KalendarSelector.Circle()),
-                kalendarEvents = listOf(KalendarEvent(LocalDate.now().plusDays(2), ""))
+                kalendarStyle = KalendarStyle(kalendarSelector = KalendarSelector.Circle()),
+                kalendarEvents = dayEvents.filter { (it.value as? EventsState.Loaded)?.events?.isEmpty() == false }
+                    .map { KalendarEvent(it.key, "") }
             )
             LazyColumn(contentPadding = PaddingValues(8.dp)) {
                 dayEvents[currentDate]?.let {
@@ -61,7 +63,7 @@ fun WeekCalendar(
                         is EventsState.Loaded -> {
                             if (it.events.isEmpty()) {
                                 item {
-                                    NoElementsView(mainText = "Нет событий на выбранный день"){}
+                                    NoElementsView(mainText = "Нет событий на выбранный день") {}
                                 }
                             }
                             items(it.events) { event ->
@@ -75,9 +77,7 @@ fun WeekCalendar(
                         }
                     }
                 }
-
             }
-
         }
     }
 }
@@ -106,7 +106,11 @@ fun EventView(
     ) {
         Column(Modifier.padding(4.dp)) {
             Text(
-                text = "${event.start.format(EventTimeFormatter)} - ${event.end.format(EventTimeFormatter)}",
+                text = "${event.start.format(EventTimeFormatter)} - ${
+                    event.end.format(
+                        EventTimeFormatter
+                    )
+                }",
                 style = MaterialTheme.typography.caption,
                 maxLines = 2,
                 overflow = TextOverflow.Clip,

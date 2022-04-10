@@ -71,8 +71,8 @@ class AddBookingViewModel(
 
     private fun loadAppliancesOffline() {
         viewModelScope.launch {
-            getAppliancesUseCase.invoke().collect { appliances ->
-                _appliancesState.value = ViewState.Success(appliances)
+            getAppliancesUseCase.invoke().collect { result ->
+                _appliancesState.value = ViewState.Success(result.getOrDefault(listOf()))
             }
         }
     }

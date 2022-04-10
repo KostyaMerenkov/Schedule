@@ -104,14 +104,10 @@ class LoginActivity() : AppCompatActivity() {
         }
     }
 
-    private fun handleError(error: Throwable) {
+    private fun handleError(error: Throwable?) {
         setViews(false)
-        //vb.warning.visibility = View.VISIBLE
-        Toast.makeText(this, error.message, Toast.LENGTH_SHORT).show()
-        //vb.warning.setOnClickListener {
-        //    Toast.makeText(this, error.message, Toast.LENGTH_LONG).show()
-        //}
-        logger.log(error.message)
+        Toast.makeText(this, error?.message ?: getString(R.string.error_occured), Toast.LENGTH_SHORT).show()
+        logger.log(error?.message)
     }
 
     private fun startMainActivity() {
@@ -269,8 +265,8 @@ class LoginActivity() : AppCompatActivity() {
                     startMainActivity()
                 } else {
                     // If sign in fails, display a message to the user.
-                    handleError(task.exception!!)
-                    TODO("DIALOG WINDOW WITH ERROR")
+                    handleError(task.exception)
+                    //TODO("DIALOG WINDOW WITH ERROR")
                 }
             }
     }

@@ -93,18 +93,22 @@ fun BookingList(navController: NavController) {
                                         Column(modifier = Modifier.padding(16.dp)) {
                                             BookingTime(book.timeStart, book.timeEnd)
                                             Spacer(modifier = Modifier.size(8.dp))
-                                            BookingAppliance(book.appliance, onApplianceClick = {
-                                                navController.navigate(
-                                                    MainDestinations.APPLIANCE_ROUTE,
-                                                    Arguments.APPLIANCE to book.appliance
-                                                )
-                                            })
-                                            BookingUser(book.user, onUserClick = {
-                                                navController.navigate(
-                                                    MainDestinations.USER_DETAILS_ROUTE,
-                                                    Arguments.USER to book.user
-                                                )
-                                            })
+                                            book.appliance?.let {
+                                                BookingAppliance(book.appliance!!, onApplianceClick = {
+                                                    navController.navigate(
+                                                        MainDestinations.APPLIANCE_ROUTE,
+                                                        Arguments.APPLIANCE to book.appliance!!
+                                                    )
+                                                })
+                                            }
+                                            book.user?.let {
+                                                BookingUser(book.user, onUserClick = {
+                                                    navController.navigate(
+                                                        MainDestinations.USER_DETAILS_ROUTE,
+                                                        Arguments.USER to book.user
+                                                    )
+                                                })
+                                            }
                                             if (book.commentary.isNotBlank()) {
                                                 BookingCommentary(commentary = book.commentary)
                                             }
@@ -225,7 +229,7 @@ fun BookingStatus(
         }
         NONE -> {
             if (currentUser.value.isAdmin() || currentUser.value.let {
-                    book.appliance.superuserIds.contains(it.userId)
+                    book.appliance?.superuserIds?.contains(it.userId) == true
                 }) {
                 BookingManagerButtons(
                     onDecline = { onDecline(book) },

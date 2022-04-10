@@ -75,12 +75,10 @@ class BookingListViewModel(
                                 timeStart = currentBooking.timeStart.toLocalDateTime(),
                                 timeEnd = currentBooking.timeEnd.toLocalDateTime(),
                                 commentary = currentBooking.commentary,
-                                user = getUserUseCase(currentBooking.userId).first().getOrThrow(),
-                                appliance = getApplianceUseCase(currentBooking.applianceId).first()
-                                    .getOrThrow(),
+                                user = getUserUseCase(currentBooking.userId).first().getOrDefault(null),
+                                appliance = getApplianceUseCase(currentBooking.applianceId).first().getOrDefault(null),
                                 managedUser = if (currentBooking.managedById.isBlank()) null else
-                                    getUserUseCase(currentBooking.managedById).first()
-                                        .getOrDefault(null),
+                                    getUserUseCase(currentBooking.managedById).first().getOrDefault(null),
                                 managedTime = currentBooking.managedTime,
                                 status = currentBooking.status,
                                 managerCommentary = currentBooking.managerCommentary
@@ -93,12 +91,6 @@ class BookingListViewModel(
                     }
                 )
             }
-        }
-    }
-
-    private suspend fun getAppliances() {
-        offlineRepository.getAppliances().collect {
-            appliances.value = it
         }
     }
 
@@ -190,7 +182,7 @@ class BookingListViewModel(
     }
 
     private fun couldManageBooks(user: User, book: UiBooking): Boolean {
-        return user.isAdmin() || book.appliance.superuserIds.contains(user.userId)
+        return user.isAdmin() || book.appliance?.superuserIds?.contains(user.userId) == true
     }
 
     fun deleteBooking(idToDelete: String) {

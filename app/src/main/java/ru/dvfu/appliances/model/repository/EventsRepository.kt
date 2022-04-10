@@ -11,11 +11,11 @@ import java.time.LocalDate
 interface EventsRepository {
     suspend fun addNewEvent(event: Event): Result<Unit>
 
-    suspend fun getAllEventsFromDate(date: Long): Flow<List<Event>>
+    suspend fun getAllEventsFromDate(date: LocalDate): Flow<List<Event>>
     suspend fun deleteEvent(id: String): Result<Unit>
     suspend fun setNewTimeEnd(eventId: String, timeEnd: Long): Result<Unit>
 
-    suspend fun getAllEventsForADay(date: LocalDate): Flow<List<Event>>
+    suspend fun getAllEventsForOneDay(date: LocalDate): Flow<List<Event>>
 
     suspend fun getApplianceEventsAfterTime(applianceId: String, time: Long): Result<List<Event>>
     /*suspend fun getUsers(): Flow<List<User>>
