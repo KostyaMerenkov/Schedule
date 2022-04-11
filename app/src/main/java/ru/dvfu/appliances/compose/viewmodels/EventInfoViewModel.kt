@@ -53,8 +53,11 @@ class EventInfoViewModel(
         }
     }
 
-    private val _timeChangeState = MutableStateFlow<UiState?>(null)
-    val timeChangeState = _timeChangeState.asStateFlow()
+    private val _timeStartChangeState = MutableStateFlow<UiState?>(null)
+    val timeStartChangeState = _timeStartChangeState.asStateFlow()
+
+    private val _timeEndChangeState = MutableStateFlow<UiState?>(null)
+    val timeEndChangeState = _timeEndChangeState.asStateFlow()
 
 
     private val _eventDeleteState = MutableStateFlow<UiState?>(null)
@@ -83,7 +86,15 @@ class EventInfoViewModel(
     val couldEditTimeEnd: MutableStateFlow<Boolean>
         get() = MutableStateFlow(
             couldDeleteEvent.value ||
-                    ((event.value.timeEnd - System.currentTimeMillis()) < (MILLISECONDS_IN_MINUTE * 10)
+                    ((event.value.timeEnd - System.currentTimeMillis()) > (MILLISECONDS_IN_MINUTE * 10)
+                            && _appliance.value.userIds.contains(currentUser.value.userId))
+
+        )
+
+    val couldEditTimeStart: MutableStateFlow<Boolean>
+        get() = MutableStateFlow(
+            couldDeleteEvent.value ||
+                    ((event.value.timeStart - System.currentTimeMillis()) < (MILLISECONDS_IN_MINUTE * 10)
                             && _appliance.value.userIds.contains(currentUser.value.userId))
 
         )
@@ -155,14 +166,14 @@ class EventInfoViewModel(
 
     fun onTimeEndChange(newTime: LocalTime) {
         viewModelScope.launch {
-            _timeChangeState.value = UiState.InProgress
+            _timeEndChangeState.value = UiState.InProgress
             val oldDate = event.value.timeEnd.toLocalDate()
             val oldTime = event.value.timeEnd.toLocalTime()
             val newTimeMillis = newTime.atDate(oldDate).toMillis
             if (oldTime.isAfter(newTime) && currentUser.value.isAdmin()) {
                 when {
                     oldDate == LocalDate.now() && newTime.isBefore(LocalTime.now().plusMinutes(10)) -> {
-                        _timeChangeState.value = UiState.Error
+                        _timeEndChangeState.value = UiState.Error
                         SnackbarManager.showMessage(R.string.time_end_is_before_now)
                     }
                     newTime.isBefore(event.value.timeStart.toLocalTime()) -> {
@@ -180,11 +191,11 @@ class EventInfoViewModel(
                     when (result) {
                         AvailabilityState.Available -> saveNewTimeEnd(newTimeMillis)
                         AvailabilityState.Error -> {
-                            _timeChangeState.value = UiState.Error
+                            _timeEndChangeState.value = UiState.Error
                             SnackbarManager.showMessage(R.string.new_event_time_end_failed)
                         }
                         AvailabilityState.NotAvailable -> {
-                            _timeChangeState.value = UiState.Error
+                            _timeEndChangeState.value = UiState.Error
                             SnackbarManager.showMessage(R.string.time_not_free)
                         }
                     }
@@ -193,11 +204,44 @@ class EventInfoViewModel(
         }
     }
 
-    private fun isTimeFree(list: List<Event>, time: Long): Boolean {
-        list.forEach {
-            if (it.timeStart < time) return false
+    fun onTimeStartChange(newTime: LocalTime) {
+        viewModelScope.launch {
+            _timeEndChangeState.value = UiState.InProgress
+            val oldDate = event.value.timeEnd.toLocalDate()
+            val oldTime = event.value.timeEnd.toLocalTime()
+            val newTimeMillis = newTime.atDate(oldDate).toMillis
+            if (oldTime.isBefore(newTime) && currentUser.value.isAdmin()) {
+                when {
+                    oldDate == LocalDate.now() && newTime.isBefore(LocalTime.now().plusMinutes(10)) -> {
+                        _timeEndChangeState.value = UiState.Error
+                        SnackbarManager.showMessage(R.string.time_end_is_before_now)
+                    }
+                    newTime.isBefore(event.value.timeStart.toLocalTime()) -> {
+                        SnackbarManager.showMessage(R.string.time_end_is_before_start)
+                    }
+                    else -> saveNewTimeEnd(newTimeMillis)
+                }
+            } else {
+                getEventNewTimeEndAvailabilityUseCase(
+                    eventId = eventArg.id,
+                    applianceId = eventArg.applianceId,
+                    timeEnd = eventArg.timeEnd,
+                    newTimeEnd = newTimeMillis
+                ).collect { result ->
+                    when (result) {
+                        AvailabilityState.Available -> saveNewTimeEnd(newTimeMillis)
+                        AvailabilityState.Error -> {
+                            _timeEndChangeState.value = UiState.Error
+                            SnackbarManager.showMessage(R.string.new_event_time_end_failed)
+                        }
+                        AvailabilityState.NotAvailable -> {
+                            _timeEndChangeState.value = UiState.Error
+                            SnackbarManager.showMessage(R.string.time_not_free)
+                        }
+                    }
+                }
+            }
         }
-        return true
     }
 
     private fun saveNewTimeEnd(newTime: Long) {
@@ -207,11 +251,11 @@ class EventInfoViewModel(
                 timeEnd = newTime
             ).fold(
                 onSuccess = {
-                    _timeChangeState.value = UiState.Success
+                    _timeEndChangeState.value = UiState.Success
                     _event.value = event.value.copy(timeEnd = newTime)
                 },
                 onFailure = {
-                    _timeChangeState.value = UiState.Error
+                    _timeEndChangeState.value = UiState.Error
                     SnackbarManager.showMessage(R.string.new_event_time_end_failed)
                 }
             )

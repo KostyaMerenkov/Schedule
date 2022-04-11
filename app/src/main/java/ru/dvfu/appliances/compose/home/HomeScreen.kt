@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddTask
-import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.MoreTime
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -24,12 +22,14 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
+import com.himanshoe.kalendar.ui.KalendarType
 import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
-import ru.dvfu.appliances.compose.calendars.WeekCalendar
+import ru.dvfu.appliances.compose.calendars.CalendarType
+import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
 import ru.dvfu.appliances.compose.components.FabMenuItem
 import ru.dvfu.appliances.compose.components.FabWithMenu
 import ru.dvfu.appliances.compose.components.MultiFabState
@@ -45,7 +45,8 @@ import java.time.LocalDate
 fun HomeScreen(
     navController: NavController,
 ) {
-    val viewModell: MainScreenViewModel = getViewModel()
+    var calendarState by remember { mutableStateOf(CalendarType.WEEK) }
+    //val viewModell: MainScreenViewModel = getViewModel()
     val viewModel: WeekCalendarViewModel = getViewModel()
     /*val innerNavController = rememberNavController()
     val events by viewModel.events.collectAsState()
@@ -68,7 +69,7 @@ fun HomeScreen(
     Scaffold(topBar = {
         HomeTopBar(onBookingListOpen = {
             navController.navigate(MainDestinations.BOOKING_LIST)
-        })
+        }, onCalendarSelected = { calendarState = it})
     }, floatingActionButton = {
         FabWithMenu(
             modifier = Modifier
@@ -80,14 +81,22 @@ fun HomeScreen(
                 FabMenuItem(
                     icon = Icons.Default.AddTask,
                     text = "Создать событие",
-                    onClick = { navController.navigate(MainDestinations.ADD_EVENT,Arguments.DATE to SelectedDate(currentDate)) }
+                    onClick = {
+                        navController.navigate(
+                            MainDestinations.ADD_EVENT,
+                            Arguments.DATE to SelectedDate(currentDate)
+                        )
+                    }
                 ),
                 //},
                 FabMenuItem(
                     icon = Icons.Default.MoreTime,
                     text = "Создать бронирование",
                     onClick = {
-                        navController.navigate(MainDestinations.ADD_BOOKING, Arguments.DATE to SelectedDate(currentDate))
+                        navController.navigate(
+                            MainDestinations.ADD_BOOKING,
+                            Arguments.DATE to SelectedDate(currentDate)
+                        )
                     }
                 ),
             )
@@ -110,30 +119,52 @@ fun HomeScreen(
                     })
         }
 
-        /*EventCalendar(events = events,
-            onEventClick = {
-                viewModel.getRepoEvent(it)?.let {
-                    navController.navigate(
-                        MainDestinations.EVENT_INFO,
-                        Arguments.EVENT to it
-                    )
+        when (calendarState) {
+            CalendarType.MONTH -> {
+                MonthWeekCalendar(
+                    viewModel = viewModel,
+                    calendarType = KalendarType.Firey(),
+                    onEventClick = {
+                        viewModel.getRepoEvent(it)?.let {
+                            navController.navigate(
+                                MainDestinations.EVENT_INFO,
+                                Arguments.EVENT to it
+                            )
+                        }
+                    }) {
+                    viewModel.selectedEvent.value = it
+                    eventOptionDialogOpened = true
                 }
-            }, onEventLongClick = {
-                viewModel.selectedEvent.value = it
-                eventOptionDialogOpened = true
-            })*/
-
-        WeekCalendar(viewModel = viewModel, onEventClick = {
-            viewModel.getRepoEvent(it)?.let {
-                navController.navigate(
-                    MainDestinations.EVENT_INFO,
-                    Arguments.EVENT to it
-                )
             }
-        }) {
-            viewModel.selectedEvent.value = it
-            eventOptionDialogOpened = true
+            CalendarType.WEEK -> {
+                MonthWeekCalendar(viewModel = viewModel, onEventClick = {
+                    viewModel.getRepoEvent(it)?.let {
+                        navController.navigate(
+                            MainDestinations.EVENT_INFO,
+                            Arguments.EVENT to it
+                        )
+                    }
+                }) {
+                    viewModel.selectedEvent.value = it
+                    eventOptionDialogOpened = true
+                }
+            }
+            CalendarType.THREE_DAYS -> {
+                EventCalendar(viewModel = viewModel,
+                    onEventClick = {
+                        viewModel.getRepoEvent(it)?.let {
+                            navController.navigate(
+                                MainDestinations.EVENT_INFO,
+                                Arguments.EVENT to it
+                            )
+                        }
+                    }, onEventLongClick = {
+                        viewModel.selectedEvent.value = it
+                        eventOptionDialogOpened = true
+                    })
+            }
         }
+
     }
 }
 
@@ -142,10 +173,14 @@ data class SelectedDate(val value: LocalDate = LocalDate.now()) : Parcelable
 
 @Composable
 fun EventCalendar(
-    events: List<CalendarEvent>,
+    viewModel: WeekCalendarViewModel,
     onEventClick: (CalendarEvent) -> Unit,
-    onEventLongClick: (CalendarEvent) -> Unit
+    onEventLongClick: (CalendarEvent) -> Unit,
 ) {
+    SideEffect {
+        viewModel.getThreeDaysEvents()
+    }
+    val events by viewModel.threeDaysEvents.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
@@ -161,13 +196,33 @@ fun EventCalendar(
 }
 
 @Composable
-fun HomeTopBar(onBookingListOpen: () -> Unit) {
+fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: (CalendarType) -> Unit) {
+    var dropdownExpanded by remember {
+        mutableStateOf(false)
+    }
     TopAppBar(
         title = { Text(text = stringResource(id = R.string.schedule)) },
         backgroundColor = Color(0xFFFF5470),
         actions = {
             IconButton(onClick = onBookingListOpen) {
                 Icon(Icons.Default.Book, Icons.Default.Book.name)
+            }
+            IconButton(onClick = { dropdownExpanded = true }) {
+                Icon(Icons.Default.EditCalendar, Icons.Default.EditCalendar.name)
+            }
+            DropdownMenu(
+                expanded = dropdownExpanded,
+                onDismissRequest = { dropdownExpanded = false }) {
+
+                DropdownMenuItem(onClick = { onCalendarSelected(CalendarType.MONTH) }) {
+                    Icon(Icons.Default.CalendarViewMonth, Icons.Default.CalendarViewMonth.name)
+                }
+                DropdownMenuItem(onClick = { onCalendarSelected(CalendarType.WEEK) }) {
+                    Icon(Icons.Default.CalendarViewWeek, Icons.Default.CalendarViewWeek.name)
+                }
+                DropdownMenuItem(onClick = { onCalendarSelected(CalendarType.THREE_DAYS) }) {
+                    Icon(Icons.Default.CalendarViewDay, Icons.Default.CalendarViewDay.name)
+                }
             }
         }
     )

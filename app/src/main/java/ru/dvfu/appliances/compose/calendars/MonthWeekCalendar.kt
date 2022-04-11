@@ -39,8 +39,9 @@ import ru.dvfu.appliances.model.utils.toLocalDateTime
 import java.time.LocalDate
 
 @Composable
-fun WeekCalendar(
+fun MonthWeekCalendar(
     viewModel: WeekCalendarViewModel,
+    calendarType: KalendarType = KalendarType.Oceanic(),
     onEventClick: (CalendarEvent) -> Unit,
     onEventLongClick: (CalendarEvent) -> Unit,
 ) {
@@ -48,7 +49,7 @@ fun WeekCalendar(
     val dayEvents = viewModel.dayEvents
     Scaffold {
         Column {
-            Kalendar(kalendarType = KalendarType.Oceanic(), onCurrentDayClick = { day, event ->
+            Kalendar(kalendarType = calendarType, onCurrentDayClick = { day, event ->
                 viewModel.onDaySelected(day)
 
             }, errorMessage = {

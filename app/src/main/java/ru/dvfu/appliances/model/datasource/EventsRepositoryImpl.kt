@@ -102,4 +102,20 @@ class EventsRepositoryImpl(
                 }
         }
 
+    override suspend fun getAllEventsWithPeriod(
+        dateStart: LocalDate,
+        dateEnd: LocalDate
+    ): Result<List<Event>> =
+        suspendCoroutine<Result<List<Event>>> { continuation ->
+            dbCollections.getEventsCollection()
+                .whereGreaterThan("timeStart", dateStart.atStartOfDay().toMillis)
+                .whereLessThan("timeStart", dateEnd.plusDays(1).atStartOfDay().toMillis)
+                .get().addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        val events = it.result.toObjects<Event>()
+                        continuation.resume(Result.success(events))
+                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+        }
+
 }

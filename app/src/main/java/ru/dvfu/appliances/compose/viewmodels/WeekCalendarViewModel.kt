@@ -13,6 +13,7 @@ import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
 import ru.dvfu.appliances.compose.use_cases.GetDateEventsUseCase
 import ru.dvfu.appliances.compose.use_cases.GetEventsFromDateUseCase
+import ru.dvfu.appliances.compose.use_cases.GetPeriodEventsUseCase
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
@@ -31,11 +32,16 @@ class WeekCalendarViewModel(
     private val offlineRepository: OfflineRepository,
     private val userDatastore: UserDatastore,
     private val getDateEventsUseCase: GetDateEventsUseCase,
-    private val getEventsFromDateUseCase: GetEventsFromDateUseCase
+    private val getEventsFromDateUseCase: GetEventsFromDateUseCase,
+    private val getPeriodEventsUseCase: GetPeriodEventsUseCase,
 ) : ViewModel() {
 
     private val _currentDate = MutableStateFlow<LocalDate>(LocalDate.now())
     val currentDate = _currentDate.asStateFlow()
+
+    private val _threeDaysEvents = MutableStateFlow<List<CalendarEvent>>(listOf())
+    val threeDaysEvents = _threeDaysEvents.asStateFlow()
+
 
     private val _reposEvents = MutableStateFlow<Set<Event>>(setOf())
     val selectedEvent = mutableStateOf<CalendarEvent?>(null)
@@ -152,6 +158,27 @@ class WeekCalendarViewModel(
 
     fun getRepoEvent(calendarEvent: CalendarEvent): Event? {
         return _reposEvents.value.find { it.id == calendarEvent.id }
+    }
+
+    fun getThreeDaysEvents() {
+        viewModelScope.launch {
+            _threeDaysEvents.value = getPeriodEventsUseCase.invoke(
+                dateStart = LocalDate.now(),
+                dateEnd = LocalDate.now().plusDays(3)
+            ).first().map { currentEvent ->
+                CalendarEvent(
+                    id = currentEvent.id,
+                    color = Color(currentEvent.color),
+                    applianceName = currentEvent.applianceName,
+                    applianceId = currentEvent.applianceId,
+                    userId = currentEvent.userId,
+                    superUserId = currentEvent.superUserId,
+                    start = currentEvent.timeStart.toLocalDateTime(),
+                    end = currentEvent.timeEnd.toLocalDateTime(),
+                    description = currentEvent.commentary
+                )
+            }.toList()
+        }
     }
 }
 

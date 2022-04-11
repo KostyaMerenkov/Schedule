@@ -64,6 +64,7 @@ val application = module {
     factory { GetNewEventTimeAvailabilityUseCase(get()) }
     factory { GetDateEventsUseCase(get()) }
     factory { GetEventsFromDateUseCase(get()) }
+    factory { GetPeriodEventsUseCase(get()) }
 }
 
 fun getFirebase(): FirebaseFirestore {

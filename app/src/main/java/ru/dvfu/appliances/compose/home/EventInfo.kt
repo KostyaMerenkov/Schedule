@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -49,15 +48,14 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
     val userState by viewModel.userState.collectAsState()
     val superUserState by viewModel.userState.collectAsState()
     val canUpdate by viewModel.canUpdate.collectAsState()
-    val timeChangeState by viewModel.timeChangeState.collectAsState()
+    val timeEndChangeState by viewModel.timeEndChangeState.collectAsState()
+    val timeStartChangeState by viewModel.timeStartChangeState.collectAsState()
 
     val scrollState = rememberScrollState()
 
     var eventDeleteDialog by remember { mutableStateOf(false) }
     if (eventDeleteDialog) {
-        EventDeleteDialog(onDismiss = { eventDeleteDialog = false }) {
-            viewModel.deleteEvent()
-        }
+        EventDeleteDialog(onDismiss = { eventDeleteDialog = false }) { viewModel.deleteEvent() }
     }
 
     LaunchedEffect(eventDeleteState) {
@@ -73,14 +71,24 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
         }
     }
 
-    var timeEditDialog by remember { mutableStateOf(false) }
-    if (timeEditDialog) {
+    var timeEndEditDialog by remember { mutableStateOf(false) }
+    if (timeEndEditDialog) {
         TimeEditDialog(
             eventTimeEnd = event.timeEnd.toLocalTime(),
-            onDismiss = { timeEditDialog = false },
+            onDismiss = { timeEndEditDialog = false },
             onTimeChange = viewModel::onTimeEndChange
         )
     }
+
+    var timeStartEditDialog by remember { mutableStateOf(false) }
+    if (timeStartEditDialog) {
+        TimeEditDialog(
+            eventTimeEnd = event.timeStart.toLocalTime(),
+            onDismiss = { timeStartEditDialog = false },
+            onTimeChange = viewModel::onTimeStartChange
+        )
+    }
+
     Scaffold(
         topBar = {
             EventInfoTopBar(
@@ -113,6 +121,20 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
                     value = event.timeStart.toLocalTime().format(EventTimeFormatter),
                     onValueChange = {},
                     label = { Text(text = stringResource(id = R.string.timeStart)) },
+                    trailingIcon = {
+                        Crossfade(targetState = timeStartChangeState) {
+                            when (it) {
+                                is UiState.InProgress -> CircularProgressIndicator()
+                                else -> {
+                                    AnimatedVisibility(visible = viewModel.couldEditTimeStart.collectAsState().value) {
+                                        IconButton(onClick = { timeStartEditDialog = true }) {
+                                            Icon(Icons.Default.Edit, Icons.Default.Edit.name)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     readOnly = true,
                 )
                 OutlinedTextField(
@@ -122,12 +144,12 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
                     readOnly = true,
                     label = { Text(text = stringResource(id = R.string.timeEnd)) },
                     trailingIcon = {
-                        Crossfade(targetState = timeChangeState) {
+                        Crossfade(targetState = timeEndChangeState) {
                             when (it) {
                                 is UiState.InProgress -> CircularProgressIndicator()
                                 else -> {
                                     AnimatedVisibility(visible = viewModel.couldEditTimeEnd.collectAsState().value) {
-                                        IconButton(onClick = { timeEditDialog = true }) {
+                                        IconButton(onClick = { timeEndEditDialog = true }) {
                                             Icon(Icons.Default.Edit, Icons.Default.Edit.name)
                                         }
                                     }
