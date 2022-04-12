@@ -102,7 +102,8 @@ val mainActivity = module {
             offlineRepository = get(),
             userDatastore = get(),
             getDateEventsUseCase = get(),
-            getEventsFromDateUseCase = get()
+            getEventsFromDateUseCase = get(),
+            getPeriodEventsUseCase = get()
         )
     }
 

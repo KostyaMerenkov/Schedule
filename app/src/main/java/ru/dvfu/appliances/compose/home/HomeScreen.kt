@@ -6,20 +6,20 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.himanshoe.kalendar.ui.KalendarType
@@ -45,9 +45,9 @@ import java.time.LocalDate
 fun HomeScreen(
     navController: NavController,
 ) {
-    var calendarState by remember { mutableStateOf(CalendarType.WEEK) }
     //val viewModell: MainScreenViewModel = getViewModel()
     val viewModel: WeekCalendarViewModel = getViewModel()
+    val calendarType by viewModel.calendarType.collectAsState()
     /*val innerNavController = rememberNavController()
     val events by viewModel.events.collectAsState()
     //val dayEvents by viewModel.dayEvents.collectAsState()
@@ -69,7 +69,7 @@ fun HomeScreen(
     Scaffold(topBar = {
         HomeTopBar(onBookingListOpen = {
             navController.navigate(MainDestinations.BOOKING_LIST)
-        }, onCalendarSelected = { calendarState = it})
+        }, onCalendarSelected = viewModel::setCalendarType)
     }, floatingActionButton = {
         FabWithMenu(
             modifier = Modifier
@@ -119,7 +119,7 @@ fun HomeScreen(
                     })
         }
 
-        when (calendarState) {
+        when (calendarType) {
             CalendarType.MONTH -> {
                 MonthWeekCalendar(
                     viewModel = viewModel,
@@ -213,15 +213,16 @@ fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: (CalendarType)
             DropdownMenu(
                 expanded = dropdownExpanded,
                 onDismissRequest = { dropdownExpanded = false }) {
-
-                DropdownMenuItem(onClick = { onCalendarSelected(CalendarType.MONTH) }) {
-                    Icon(Icons.Default.CalendarViewMonth, Icons.Default.CalendarViewMonth.name)
-                }
-                DropdownMenuItem(onClick = { onCalendarSelected(CalendarType.WEEK) }) {
-                    Icon(Icons.Default.CalendarViewWeek, Icons.Default.CalendarViewWeek.name)
-                }
-                DropdownMenuItem(onClick = { onCalendarSelected(CalendarType.THREE_DAYS) }) {
-                    Icon(Icons.Default.CalendarViewDay, Icons.Default.CalendarViewDay.name)
+                CalendarType.values().forEach {
+                    DropdownMenuItem(onClick = { onCalendarSelected(it); dropdownExpanded = false }) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            //Icon(it.icon, it.icon.name)
+                            Text(text = stringResource(id = it.stringRes), maxLines = 1)
+                        }
+                    }
                 }
             }
         }

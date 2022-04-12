@@ -24,7 +24,6 @@ class EventsRepositoryImpl(
 
     private var TAG = "EventsFirestoreDatabase"
 
-
     override suspend fun addNewEvent(event: Event) =
         suspendCoroutine<Result<Unit>> { continuation ->
             dbCollections.getEventsCollection().document(event.id).set(event)

@@ -92,4 +92,7 @@
     <string name="declined_books">Отклоненные бронирования</string>
     <string name="new_books">Ожидающие бронирования</string>
     <string name="role_changed_successfully">Роль успешно изменена</string>
+    <string name="week">Месяц</string>
+    <string name="month">Месяц</string>
+    <string name="three_days">3 дня</string>
 </resources>

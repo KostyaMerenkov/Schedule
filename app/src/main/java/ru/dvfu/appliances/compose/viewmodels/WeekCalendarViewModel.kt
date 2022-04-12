@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
 import ru.dvfu.appliances.compose.use_cases.GetDateEventsUseCase
 import ru.dvfu.appliances.compose.use_cases.GetEventsFromDateUseCase
@@ -36,12 +37,14 @@ class WeekCalendarViewModel(
     private val getPeriodEventsUseCase: GetPeriodEventsUseCase,
 ) : ViewModel() {
 
+    private val _calendarType = MutableStateFlow<CalendarType>(CalendarType.WEEK)
+    val calendarType = _calendarType.asStateFlow()
+
     private val _currentDate = MutableStateFlow<LocalDate>(LocalDate.now())
     val currentDate = _currentDate.asStateFlow()
 
     private val _threeDaysEvents = MutableStateFlow<List<CalendarEvent>>(listOf())
     val threeDaysEvents = _threeDaysEvents.asStateFlow()
-
 
     private val _reposEvents = MutableStateFlow<Set<Event>>(setOf())
     val selectedEvent = mutableStateOf<CalendarEvent?>(null)
@@ -70,6 +73,15 @@ class WeekCalendarViewModel(
         getDayEvents(LocalDate.now())
         getLatestEvents()
         getCurrentUser()
+        getCalendarTypeListener()
+    }
+
+    private fun getCalendarTypeListener() {
+        viewModelScope.launch {
+            userDatastore.getCalendarType.collect {
+                _calendarType.value = it
+            }
+        }
     }
 
     private fun getLatestEvents() {
@@ -179,6 +191,12 @@ class WeekCalendarViewModel(
                 )
             }.toList()
         }
+    }
+
+    fun setCalendarType(calendarType: CalendarType) {
+         viewModelScope.launch {
+             userDatastore.saveCalendarType(calendarType)
+         }
     }
 }
 
