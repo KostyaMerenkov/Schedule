@@ -109,6 +109,11 @@ class FirebaseUsersRepositoryImpl(
         )
     }
 
+    override suspend fun setNewProfileData(userId: String, data: Map<String, Any>): Result<Unit> = suspendCoroutine {
+        dbCollections.getUsersCollection().document(userId).update(data)
+        it.resume(Result.success(Unit))
+    }
+
     private fun getUserSnapshotListener(): EventListener<DocumentSnapshot> =
         EventListener { snapshot, error ->
             if (error != null) {

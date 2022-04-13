@@ -54,10 +54,6 @@ import ru.dvfu.appliances.ui.activity.LoginActivity
 @Composable
 fun Profile(navController: NavController, modifier: Modifier = Modifier, backPress: () -> Unit) {
     val userDatastore: UserDatastore = get()
-    val user: User
-    runBlocking {
-        user = userDatastore.getCurrentUser.first()
-    }
 
     val viewModel = getViewModel<ProfileViewModel>()
     val currentUser by viewModel.currentUser.collectAsState()

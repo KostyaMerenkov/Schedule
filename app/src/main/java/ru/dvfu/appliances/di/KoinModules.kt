@@ -152,5 +152,8 @@ val mainActivity = module {
             getEventNewTimeEndAvailabilityUseCase = get()
         )
     }
+    viewModel {
+        EditProfileViewModel(userDatastore = get(), userRepository = get())
+    }
 }
 

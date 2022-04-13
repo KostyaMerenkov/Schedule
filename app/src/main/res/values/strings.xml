@@ -95,4 +95,14 @@
     <string name="week">Месяц</string>
     <string name="month">Месяц</string>
     <string name="three_days">3 дня</string>
+    <string name="name_hint">Ваше имя</string>
+    <string name="email_hint">Email</string>
+    <string name="birthday_hint">Дата рождения</string>
+    <string name="birthday_set">Указать дату рождения</string>
+    <string name="save">Сохранить</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="reset_dialog">Сбросить изменения</string>
+    <string name="reset_dialog_secondary">Вы уверены, что хотите отменить внесенные изменения?</string>
+    <string name="profile_edit">Редактирование профиля</string>
 </resources>

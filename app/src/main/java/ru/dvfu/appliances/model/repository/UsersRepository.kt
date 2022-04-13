@@ -18,4 +18,5 @@ interface UsersRepository {
     suspend fun updateCurrentUserField(data: Map<String, Any>)
     suspend fun setUserListener(user: User)
     suspend fun setNewMessagingToken(token: String) = updateCurrentUserField(mapOf(Pair("msgToken", token)))
+    suspend fun setNewProfileData(userId: String, data: Map<String, Any>): Result<Unit>
 }

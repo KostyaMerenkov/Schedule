@@ -74,6 +74,7 @@ fun ScheduleAppBar(
     actionAdd: Boolean = false,
     addClick: () -> Unit = {},
     navIconBack: Boolean = true,
+    actions: @Composable () -> Unit = {},
     elevation: Dp = 2.dp
 ) {
     TopAppBar(
@@ -111,6 +112,7 @@ fun ScheduleAppBar(
                     )
                 }
             }
+            actions()
         },
         elevation = elevation
     )

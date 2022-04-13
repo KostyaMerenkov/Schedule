@@ -2,10 +2,7 @@ package ru.dvfu.appliances.compose.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.UsersRepository
@@ -30,7 +27,9 @@ class ProfileViewModel(
 
     fun getCurrentUser() {
         viewModelScope.launch {
-            _currentUser.value = userDatastore.getCurrentUser.first()
+            userDatastore.getCurrentUser.collect {
+                _currentUser.value = it
+            }
         }
     }
 

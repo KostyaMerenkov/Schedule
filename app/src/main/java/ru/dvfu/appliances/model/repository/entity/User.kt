@@ -9,6 +9,7 @@ data class User(
     val msgToken: String = "",
     val userName: String = "",
     val email: String = "",
+    val birthday: Long = 0,
     val role: Int = Roles.GUEST.ordinal,
     val anonymous: Boolean = true,
     val userPic: String = "",

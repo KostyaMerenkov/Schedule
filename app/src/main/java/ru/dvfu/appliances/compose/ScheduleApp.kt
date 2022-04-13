@@ -24,6 +24,7 @@ import ru.dvfu.appliances.compose.appliance.AddUser
 import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.NewAppliance
 import ru.dvfu.appliances.compose.home.*
+import ru.dvfu.appliances.compose.profile.EditProfile
 import java.time.LocalDate
 
 @OptIn(ExperimentalComposeUiApi::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -104,9 +105,11 @@ private fun NavGraphBuilder.NavGraph(
         EventInfo(navController, eventArg = it.requiredArg(Arguments.EVENT), backPress)
     }
 
-    /*composable(MainDestinations.EVENT_INFO) {
-        WeekCalendar(navController)
-    }*/
+    composable(MainDestinations.EDIT_PROFILE) {
+        EditProfile() {
+            navController.popBackStack()
+        }
+    }
 
 
     /*composable(MainDestinations.LOGIN_ROUTE) {
