@@ -24,9 +24,12 @@ import de.charlex.compose.RevealSwipe
 import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.*
+import ru.dvfu.appliances.compose.calendars.EventView
+import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
+import java.time.LocalDateTime
 
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
@@ -89,8 +92,10 @@ fun SwipableUsers(
                             userClicked = { userClicked(user) },
                             userDeleted = { deleteClicked(user) })
                     } else {
-                        ItemUser(user,
-                            userClicked = { userClicked(user) },)
+                        ItemUser(
+                            user,
+                            userClicked = { userClicked(user) },
+                        )
                     }
                 }
             } else

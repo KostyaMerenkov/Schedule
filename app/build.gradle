@@ -102,6 +102,8 @@ dependencies {
     implementation Libs.Accompanist.pager
     implementation Libs.Accompanist.pagerindicators
     implementation Libs.Accompanist.permissions
+    implementation Libs.Accompanist.placeholder
+
     implementation 'com.google.firebase:firebase-inappmessaging-display-ktx:20.1.2'
     implementation 'com.google.firebase:firebase-messaging-ktx:23.0.2'
 

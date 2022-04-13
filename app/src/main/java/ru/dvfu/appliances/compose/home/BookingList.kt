@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -36,7 +35,6 @@ import ru.dvfu.appliances.model.utils.toLocalDateTime
 import ru.dvfu.appliances.model.utils.toZonedDateTime
 import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
 import java.time.format.DateTimeFormatter.ofLocalizedDateTime
 import java.time.format.FormatStyle
 

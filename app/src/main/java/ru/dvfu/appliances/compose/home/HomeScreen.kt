@@ -219,8 +219,8 @@ fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: (CalendarType)
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            //Icon(it.icon, it.icon.name)
                             Text(text = stringResource(id = it.stringRes), maxLines = 1)
+                            Icon(it.icon, it.icon.name)
                         }
                     }
                 }

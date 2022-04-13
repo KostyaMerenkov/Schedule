@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -17,26 +16,19 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.himanshoe.kalendar.common.KalendarKonfig
 import com.himanshoe.kalendar.common.KalendarSelector
 import com.himanshoe.kalendar.common.KalendarStyle
 import com.himanshoe.kalendar.common.data.KalendarEvent
 import com.himanshoe.kalendar.ui.Kalendar
 import com.himanshoe.kalendar.ui.KalendarType
-import kotlinx.coroutines.flow.MutableStateFlow
-import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.appliance.NoElementsView
 import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
 import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
-import ru.dvfu.appliances.compose.event_calendar.SplitType
-import ru.dvfu.appliances.compose.home.EventOptionDialog
 import ru.dvfu.appliances.compose.viewmodels.EventsState
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
-import ru.dvfu.appliances.model.repository.entity.Event
-import ru.dvfu.appliances.model.utils.toLocalDateTime
-import java.time.LocalDate
+import ru.dvfu.appliances.model.utils.loadingModifier
+import java.time.LocalDateTime
 
 @Composable
 fun MonthWeekCalendar(
@@ -69,12 +61,22 @@ fun MonthWeekCalendar(
                                 }
                             }
                             items(it.events) { event ->
-                                EventView(event = event, onEventClick = onEventClick, onEventLongClick = onEventLongClick)
+                                EventView(
+                                    onEventClick = onEventClick,
+                                    onEventLongClick = onEventLongClick,
+                                    event = event
+                                )
                             }
                         }
                         EventsState.Loading -> {
-                            item {
-                                LoadingItem(modifier = Modifier.fillMaxWidth())
+                            items(2) {
+                                EventView(
+                                    childModifier = Modifier.loadingModifier(),
+                                    event = CalendarEvent(
+                                        applianceName = "Appliance",
+                                        start = LocalDateTime.now(),
+                                        end = LocalDateTime.now()
+                                    ), onEventClick = {}, onEventLongClick = {})
                             }
                         }
                     }
@@ -88,9 +90,10 @@ fun MonthWeekCalendar(
 @Composable
 fun EventView(
     modifier: Modifier = Modifier,
-    event: CalendarEvent,
+    childModifier: Modifier = Modifier,
     onEventClick: (CalendarEvent) -> Unit,
-    onEventLongClick: (CalendarEvent) -> Unit
+    onEventLongClick: (CalendarEvent) -> Unit,
+    event: CalendarEvent
 ) {
     Column(
         modifier = modifier
@@ -105,6 +108,7 @@ fun EventView(
                 onClick = { onEventClick(event) },
                 onLongClick = { onEventLongClick(event) }
             )
+            .then(childModifier)
     ) {
         Column(Modifier.padding(4.dp)) {
             Text(
@@ -116,6 +120,7 @@ fun EventView(
                 style = MaterialTheme.typography.caption,
                 maxLines = 2,
                 overflow = TextOverflow.Clip,
+                modifier = childModifier
             )
 
             Text(
@@ -124,6 +129,7 @@ fun EventView(
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                modifier = childModifier
             )
 
             if (event.description.isNotBlank()) {
@@ -132,6 +138,7 @@ fun EventView(
                     style = MaterialTheme.typography.body2,
 
                     overflow = TextOverflow.Ellipsis,
+                    modifier = childModifier
                 )
             }
         }
