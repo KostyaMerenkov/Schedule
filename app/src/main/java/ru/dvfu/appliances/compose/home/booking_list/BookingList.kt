@@ -18,12 +18,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
+import com.google.accompanist.pager.rememberPagerState
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.appliance.UserImage
 import ru.dvfu.appliances.compose.components.UiState
+import ru.dvfu.appliances.compose.home.booking_list.BookingListTabsView
+import ru.dvfu.appliances.compose.home.booking_list.BookingTabItem
+import ru.dvfu.appliances.compose.home.booking_list.BookingTabsContent
 import ru.dvfu.appliances.compose.utils.TimeConstants
 import ru.dvfu.appliances.compose.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.views.PrimaryText
@@ -42,7 +46,8 @@ import java.time.format.FormatStyle
 @OptIn(
     ExperimentalCoilApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class,
     androidx.compose.animation.ExperimentalAnimationApi::class,
-    androidx.compose.material.ExperimentalMaterialApi::class
+    androidx.compose.material.ExperimentalMaterialApi::class,
+    com.google.accompanist.pager.ExperimentalPagerApi::class
 )
 @Composable
 fun BookingList(navController: NavController) {
@@ -75,64 +80,92 @@ fun BookingList(navController: NavController) {
                 }
                 is ViewState.Success -> {
                     if (list.isEmpty()) NoBookingsView(Modifier.fillMaxSize())
-                    LazyColumn(
-                        contentPadding = PaddingValues(8.dp)
+
+                    val tabs = listOf(
+                        BookingTabItem.PendingBookingsTabItem(list),
+                        BookingTabItem.ApprovedBookingsTabItem(list),
+                        BookingTabItem.DeclinedBookingsTabItem(list)
+                    )
+
+                    val pagerState = rememberPagerState(pageCount = tabs.size)
+
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        list.groupBy { it.status }
-                            .apply { keys.sortedWith(compareBy { it.ordinal }) }
-                            .forEach { (status, books) ->
-                                stickyHeader { BookingListHeader(stringResource(status.stringRes)) }
-                                items(books) { book ->
-                                    Card(
-                                        modifier = Modifier.padding(8.dp),
-                                        elevation = 12.dp,
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) {
-                                        Column(modifier = Modifier.padding(16.dp)) {
-                                            BookingTime(book.timeStart, book.timeEnd)
-                                            Spacer(modifier = Modifier.size(8.dp))
-                                            book.appliance?.let {
-                                                BookingAppliance(book.appliance!!, onApplianceClick = {
-                                                    navController.navigate(
-                                                        MainDestinations.APPLIANCE_ROUTE,
-                                                        Arguments.APPLIANCE to book.appliance!!
-                                                    )
-                                                })
-                                            }
-                                            book.user?.let {
-                                                BookingUser(book.user, onUserClick = {
-                                                    navController.navigate(
-                                                        MainDestinations.USER_DETAILS_ROUTE,
-                                                        Arguments.USER to book.user
-                                                    )
-                                                })
-                                            }
-                                            if (book.commentary.isNotBlank()) {
-                                                BookingCommentary(commentary = book.commentary)
-                                            }
-                                            BookingStatus(
-                                                book = book,
-                                                viewModel = viewModel,
-                                                currentUser = currentUser,
-                                                onApprove = viewModel::approveBook,
-                                                onDecline = viewModel::declineBook,
-                                                onUserClick = {
-                                                    navController.navigate(
-                                                        MainDestinations.USER_DETAILS_ROUTE,
-                                                        Arguments.USER to it
-                                                    )
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+
+                        BookingListTabsView(
+                            tabsList = tabs,
+                            pagerState = pagerState
+                        )
+
+                        BookingTabsContent(
+                            tabsList = tabs,
+                            pagerState = pagerState
+                        )
+
                     }
+
+//                    LazyColumn(
+//                        contentPadding = PaddingValues(8.dp)
+//                    ) {
+//                        list.groupBy { it.status }
+//                            .apply { keys.sortedWith(compareBy { it.ordinal }) }
+//                            .forEach { (status, books) ->
+//                                stickyHeader { BookingListHeader(stringResource(status.stringRes)) }
+//                                items(books) { book ->
+//                                    Card(
+//                                        modifier = Modifier.padding(8.dp),
+//                                        elevation = 12.dp,
+//                                        shape = RoundedCornerShape(12.dp)
+//                                    ) {
+//                                        Column(modifier = Modifier.padding(16.dp)) {
+//                                            BookingTime(book.timeStart, book.timeEnd)
+//                                            Spacer(modifier = Modifier.size(8.dp))
+//                                            book.appliance?.let {
+//                                                BookingAppliance(book.appliance!!, onApplianceClick = {
+//                                                    navController.navigate(
+//                                                        MainDestinations.APPLIANCE_ROUTE,
+//                                                        Arguments.APPLIANCE to book.appliance!!
+//                                                    )
+//                                                })
+//                                            }
+//                                            book.user?.let {
+//                                                BookingUser(book.user, onUserClick = {
+//                                                    navController.navigate(
+//                                                        MainDestinations.USER_DETAILS_ROUTE,
+//                                                        Arguments.USER to book.user
+//                                                    )
+//                                                })
+//                                            }
+//                                            if (book.commentary.isNotBlank()) {
+//                                                BookingCommentary(commentary = book.commentary)
+//                                            }
+//                                            BookingStatus(
+//                                                book = book,
+//                                                viewModel = viewModel,
+//                                                currentUser = currentUser,
+//                                                onApprove = viewModel::approveBook,
+//                                                onDecline = viewModel::declineBook,
+//                                                onUserClick = {
+//                                                    navController.navigate(
+//                                                        MainDestinations.USER_DETAILS_ROUTE,
+//                                                        Arguments.USER to it
+//                                                    )
+//                                                }
+//                                            )
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                    }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun BookingListHeader(stringResource: String) {
@@ -213,7 +246,8 @@ fun BookingStatus(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = book.managedTime.toZonedDateTime().format(ofLocalizedDateTime(FormatStyle.MEDIUM))
+                    text = book.managedTime.toZonedDateTime()
+                        .format(ofLocalizedDateTime(FormatStyle.MEDIUM))
                 )
                 book.managedUser?.let {
                     BookingUser(
