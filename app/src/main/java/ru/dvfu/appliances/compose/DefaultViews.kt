@@ -73,7 +73,7 @@ fun ScheduleAppBar(
     deleteClick: () -> Unit = {},
     actionAdd: Boolean = false,
     addClick: () -> Unit = {},
-    actions: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
     elevation: Dp = 2.dp
 ) {
 
@@ -93,7 +93,7 @@ fun ScheduleAppBar(
         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         navigationIcon = navBack,
         actions = {
-            AnimatedVisibility (actionDelete) {
+            if (actionDelete) {
                 IconButton(
                     onClick = deleteClick
                 ) {
@@ -104,7 +104,7 @@ fun ScheduleAppBar(
                     )
                 }
             }
-            AnimatedVisibility (actionAdd) {
+            if (actionAdd) {
                 IconButton(
                     onClick = addClick
                 ) {
