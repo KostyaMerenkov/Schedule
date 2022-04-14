@@ -1,6 +1,5 @@
 package ru.dvfu.appliances.compose.viewmodels
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
@@ -22,9 +21,7 @@ import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
-import ru.dvfu.appliances.model.utils.toLocalDate
 import ru.dvfu.appliances.model.utils.toLocalDateTime
-import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDate
 
 class WeekCalendarViewModel(

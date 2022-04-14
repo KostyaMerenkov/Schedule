@@ -68,27 +68,30 @@ fun SubtitleWithIcon(modifier: Modifier = Modifier, icon: ImageVector, text: Str
 @Composable
 fun ScheduleAppBar(
     title: String = "",
-    backClick: () -> Unit = {},
+    backClick: (() -> Unit)? = null,
     actionDelete: Boolean = false,
     deleteClick: () -> Unit = {},
     actionAdd: Boolean = false,
     addClick: () -> Unit = {},
-    navIconBack: Boolean = true,
     actions: @Composable () -> Unit = {},
     elevation: Dp = 2.dp
 ) {
+
+    var navBack: @Composable (() -> Unit)? = null
+    if (backClick != null) {
+        navBack = {
+            IconButton(onClick = backClick) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.back)
+                )
+            }
+        }
+    }
+
     TopAppBar(
         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        navigationIcon = {
-            if (navIconBack) {
-                IconButton(onClick = backClick) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back)
-                    )
-                }
-            }
-        },
+        navigationIcon = navBack,
         actions = {
             AnimatedVisibility (actionDelete) {
                 IconButton(

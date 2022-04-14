@@ -11,24 +11,28 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddTask
+import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import ru.dvfu.appliances.model.repository.entity.Roles
+import ru.dvfu.appliances.model.repository.entity.User
 
 @Composable
 fun FabWithMenu(
     modifier: Modifier = Modifier,
-    items: List<FabMenuItem>,
     fabState: MutableState<MultiFabState>,
+    currentUser: User,
+    onAddEventClick: () -> Unit,
+    onAddBookingClick: () -> Unit,
 ) {
     //val toState = remember { mutableStateOf(MultiFabState.COLLAPSED) }
     val transition = updateTransition(targetState = fabState, label = "")
@@ -46,9 +50,22 @@ fun FabWithMenu(
         horizontalAlignment = Alignment.End
     ) {
 
+        if (currentUser.isAdmin()) {
+            FabMenu(item = FabMenuItem(
+                icon = Icons.Default.AddTask,
+                text = "Создать событие",
+                onClick = onAddEventClick
+            ), size = size.value)
+        }
 
-        items.forEach {
-            FabMenuItem(item = it, size = size.value)
+        if (currentUser.isUser() || currentUser.isAdmin()) {
+            FabMenu(
+                item = FabMenuItem(
+                    icon = Icons.Default.MoreTime,
+                    text = "Создать бронирование",
+                    onClick = onAddBookingClick,
+                ), size = size.value
+            )
         }
 
         FloatingActionButton(backgroundColor = Color(0xFFFF8C00),
@@ -68,7 +85,7 @@ fun FabWithMenu(
 }
 
 @Composable
-fun FabMenuItem(item: FabMenuItem, modifier: Modifier = Modifier, size: Dp) {
+fun FabMenu(item: FabMenuItem, modifier: Modifier = Modifier, size: Dp) {
     AnimatedVisibility(
         size != 0.dp,
         enter = fadeIn(),

@@ -21,4 +21,7 @@ data class User(
     fun isUser(): Boolean {
         return role == Roles.USER.ordinal
     }
+    fun isAnonymousOrGuest(): Boolean {
+        return role == Roles.GUEST.ordinal || anonymous
+    }
 }

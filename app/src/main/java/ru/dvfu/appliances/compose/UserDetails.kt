@@ -69,7 +69,6 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
             when (detailsUser.role) {
                 Roles.GUEST.ordinal -> {}
                 Roles.USER.ordinal, Roles.ADMIN.ordinal -> {
-                    //UserAppliancesList(viewModel, navController)
                     SuperUserAppliancesList(viewModel, navController)
                 }
             }

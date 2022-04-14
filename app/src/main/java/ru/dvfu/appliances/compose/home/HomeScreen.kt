@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.himanshoe.kalendar.ui.KalendarType
@@ -28,9 +27,9 @@ import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
-import ru.dvfu.appliances.compose.components.FabMenuItem
 import ru.dvfu.appliances.compose.components.FabWithMenu
 import ru.dvfu.appliances.compose.components.MultiFabState
 import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
@@ -51,10 +50,10 @@ fun HomeScreen(
     /*val innerNavController = rememberNavController()
     val events by viewModel.events.collectAsState()
     //val dayEvents by viewModel.dayEvents.collectAsState()
-    val currentUser by viewModel.currentUser.collectAsState()
+
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current*/
-
+    val currentUser by viewModel.currentUser.collectAsState()
     val currentDate by viewModel.currentDate.collectAsState()
 
     var eventOptionDialogOpened by remember { mutableStateOf(false) }
@@ -71,45 +70,34 @@ fun HomeScreen(
             navController.navigate(MainDestinations.BOOKING_LIST)
         }, onCalendarSelected = viewModel::setCalendarType)
     }, floatingActionButton = {
-        FabWithMenu(
-            modifier = Modifier
-                .padding(bottom = 20.dp)
-                .zIndex(5f),
-            fabState = fabState,
-            items = listOf(
-                //if(currentUser.isAdmin()) {
-                FabMenuItem(
-                    icon = Icons.Default.AddTask,
-                    text = "Создать событие",
-                    onClick = {
-                        navController.navigate(
-                            MainDestinations.ADD_EVENT,
-                            Arguments.DATE to SelectedDate(currentDate)
-                        )
-                    }
-                ),
-                //},
-                FabMenuItem(
-                    icon = Icons.Default.MoreTime,
-                    text = "Создать бронирование",
-                    onClick = {
-                        navController.navigate(
-                            MainDestinations.ADD_BOOKING,
-                            Arguments.DATE to SelectedDate(currentDate)
-                        )
-                    }
-                ),
+        if (!currentUser.isAnonymousOrGuest()) {
+            FabWithMenu(
+                modifier = Modifier
+                    .padding(bottom = 20.dp)
+                    .zIndex(8f),
+                fabState = fabState,
+                currentUser = currentUser,
+                onAddEventClick = {
+                    navController.navigate(
+                        MainDestinations.ADD_EVENT,
+                        Arguments.DATE to SelectedDate(currentDate)
+                    )
+                },
+                onAddBookingClick = {
+                    navController.navigate(
+                        MainDestinations.ADD_BOOKING,
+                        Arguments.DATE to SelectedDate(currentDate)
+                    )
+                }
             )
-        )
+        }
     }
     ) {
         AnimatedVisibility(
             fabState.value == MultiFabState.EXPANDED,
             modifier = Modifier
                 .zIndex(4f)
-                .fillMaxSize(),
-            enter = fadeIn(),
-            exit = fadeOut()
+                .fillMaxSize(), enter = fadeIn(), exit = fadeOut()
         ) {
             Box(
                 modifier = Modifier
@@ -197,13 +185,12 @@ fun EventCalendar(
 
 @Composable
 fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: (CalendarType) -> Unit) {
-    var dropdownExpanded by remember {
-        mutableStateOf(false)
-    }
-    TopAppBar(
-        title = { Text(text = stringResource(id = R.string.schedule)) },
-        backgroundColor = Color(0xFFFF5470),
+    ScheduleAppBar(
+        title = stringResource(id = R.string.schedule),
+        //backgroundColor = Color(0xFFFF5470),
         actions = {
+            var dropdownExpanded by remember { mutableStateOf(false) }
+
             IconButton(onClick = onBookingListOpen) {
                 Icon(Icons.Default.Book, Icons.Default.Book.name)
             }
@@ -217,9 +204,10 @@ fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: (CalendarType)
                     DropdownMenuItem(onClick = { onCalendarSelected(it); dropdownExpanded = false }) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(text = stringResource(id = it.stringRes), maxLines = 1)
+                            Spacer(modifier = Modifier.size(12.dp))
                             Icon(it.icon, it.icon.name)
                         }
                     }
@@ -227,10 +215,6 @@ fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: (CalendarType)
             }
         }
     )
-
-    /*ScheduleAppBar(
-
-    )*/
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
