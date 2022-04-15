@@ -1,12 +1,15 @@
 package ru.dvfu.appliances.compose.home.booking_list
 
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -14,6 +17,8 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.home.*
+import ru.dvfu.appliances.compose.views.DefaultButton
 import ru.dvfu.appliances.compose.views.HeaderText
 import ru.dvfu.appliances.compose.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.UiBooking
@@ -81,6 +86,92 @@ fun BookingTabsContent(
         verticalAlignment = Alignment.Top
     ) { page ->
         tabsList[page].screen()
+    }
+}
+
+@Composable
+fun BookingRequestItemView(
+    modifier: Modifier = Modifier,
+    booking: UiBooking,
+    onClick: (UiBooking) -> Unit,
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(8.dp),
+        elevation = 8.dp,
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            BookingTime(booking.timeStart, booking.timeEnd)
+            Spacer(modifier = Modifier.size(8.dp))
+            booking.appliance?.let {
+                BookingAppliance(booking.appliance!!, onApplianceClick = {
+//                    navController.navigate(
+//                        MainDestinations.APPLIANCE_ROUTE,
+//                        Arguments.APPLIANCE to book.appliance!!
+//                    )
+                })
+            }
+            booking.user?.let {
+                BookingUser(booking.user, onUserClick = {
+//                    navController.navigate(
+//                        MainDestinations.USER_DETAILS_ROUTE,
+//                        Arguments.USER to book.user
+//                    )
+                })
+            }
+            if (booking.commentary.isNotBlank()) {
+                BookingCommentary(commentary = booking.commentary)
+            }
+
+            BookingButtons(
+                onApproveClick = { },
+                onDeclineClick = { }
+            )
+//            BookingStatus(
+//                book = booking,
+//                viewModel = viewModel,
+//                currentUser = currentUser,
+//                onApprove = viewModel::approveBook,
+//                onDecline = viewModel::declineBook,
+//                onUserClick = {
+//                    navController.navigate(
+//                        MainDestinations.USER_DETAILS_ROUTE,
+//                        Arguments.USER to it
+//                    )
+//                }
+//            )
+        }
+
+    }
+}
+
+@Composable
+fun BookingButtons(
+    modifier: Modifier = Modifier,
+    onApproveClick: () -> Unit,
+    onDeclineClick: () -> Unit
+) {
+    Row(
+        modifier = modifier.padding(16.dp).fillMaxWidth().wrapContentHeight(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        DefaultButton(
+            text = stringResource(id = R.string.decline),
+            tint = Color.Red,
+            onClick = onDeclineClick
+        )
+        DefaultButton(
+            text = stringResource(id = R.string.approve),
+            onClick = onApproveClick
+        )
     }
 }
 

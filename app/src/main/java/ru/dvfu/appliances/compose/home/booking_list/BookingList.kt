@@ -29,8 +29,7 @@ import ru.dvfu.appliances.compose.home.booking_list.BookingListTabsView
 import ru.dvfu.appliances.compose.home.booking_list.BookingTabItem
 import ru.dvfu.appliances.compose.home.booking_list.BookingTabsContent
 import ru.dvfu.appliances.compose.utils.TimeConstants
-import ru.dvfu.appliances.compose.views.ModalLoadingDialog
-import ru.dvfu.appliances.compose.views.PrimaryText
+import ru.dvfu.appliances.compose.views.*
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.BookingStatus.*
 import ru.dvfu.appliances.model.repository.entity.UiBooking
@@ -314,27 +313,45 @@ fun BookingAppliance(
     shouldShowHeader: Boolean = true,
     onApplianceClick: () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        if (shouldShowHeader) PrimaryText(
-            text = stringResource(id = R.string.appliance),
-            modifier = Modifier.fillMaxWidth()
-        )
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        if (shouldShowHeader) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SecondaryTextSmall(
+                    modifier = Modifier.padding(4.dp),
+                    text = stringResource(id = R.string.appliance)
+                )
+                Divider()
+            }
+        }
+
         InvisibleCardClickable(onClick = onApplianceClick) {
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .height(80.dp)
+                    .wrapContentHeight()
                     .padding(10.dp)
                     .fillMaxWidth()
                 //.padding(horizontal = 10.dp)
             ) {
                 ApplianceImage(
                     appliance, modifier = Modifier
-                        .fillMaxHeight()
+                        .height(48.dp)
                         .aspectRatio(1f)
+                        .fillMaxWidth(0.20f),
                 )
-                ApplianceName(appliance = appliance, modifier = Modifier.fillMaxWidth())
+                ApplianceName(
+                    appliance = appliance, modifier = Modifier.fillMaxWidth(0.80f)
+                )
             }
         }
     }
@@ -359,31 +376,50 @@ fun InvisibleCardClickable(
 
 @Composable
 fun BookingUser(user: User, shouldShowHeader: Boolean = true, onUserClick: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
         if (shouldShowHeader) {
-            PrimaryText(
-                text = stringResource(id = R.string.user),
-                modifier = Modifier.fillMaxWidth()
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SecondaryTextSmall(
+                    modifier = Modifier.padding(4.dp),
+                    text = stringResource(id = R.string.user)
+                )
+                Divider()
+            }
+
         }
         InvisibleCardClickable(onClick = onUserClick) {
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .height(80.dp)
+                    .wrapContentHeight()
                     .padding(10.dp)
                     .fillMaxWidth()
             ) {
                 UserImage(
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .aspectRatio(1f), user
+                        .height(48.dp)
+                        .aspectRatio(1f)
+                        .fillMaxWidth(0.20f),
+                    user = user
                 )
                 Column(
                     verticalArrangement = Arrangement.SpaceEvenly,
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxHeight()
+                    modifier = Modifier
+                        .fillMaxWidth(0.80f)
                 ) {
                     Text(user.userName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     Text(user.email)

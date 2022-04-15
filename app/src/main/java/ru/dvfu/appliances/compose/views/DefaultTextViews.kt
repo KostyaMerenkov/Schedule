@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -95,6 +96,58 @@ fun PrimaryTextBold(modifier: Modifier = Modifier, text: String) {
 }
 
 @Composable
+fun SecondaryText(
+    modifier: Modifier = Modifier, text: String,
+    maxLines: Int = Int.MAX_VALUE,
+    textAlign: TextAlign = TextAlign.Center,
+    textColor: Color = MaterialTheme.customColors.secondaryTextColor
+) {
+    Text(
+        textAlign = textAlign,
+        modifier = modifier,
+        style = MaterialTheme.typography.body1,
+        fontSize = 18.sp,
+        color = textColor,
+        text = text,
+        maxLines = maxLines
+    )
+}
+
+@Composable
+fun SecondaryTextSmall(
+    modifier: Modifier = Modifier, text: String,
+    maxLines: Int = Int.MAX_VALUE,
+    textAlign: TextAlign = TextAlign.Center,
+    textColor: Color = MaterialTheme.customColors.secondaryTextColor
+) {
+    Text(
+        textAlign = textAlign,
+        modifier = modifier,
+        style = MaterialTheme.typography.body1,
+        fontSize = 14.sp,
+        color = textColor,
+        text = text,
+        maxLines = maxLines,
+        overflow = TextOverflow.Ellipsis
+    )
+}
+
+@Composable
+fun SupportText(
+    modifier: Modifier = Modifier, text: String,
+    style: TextStyle = MaterialTheme.typography.body1,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    Text(
+        modifier = modifier,
+        style = style,
+        color = MaterialTheme.customColors.secondaryTextColor,
+        text = text,
+        maxLines = 1
+    )
+}
+
+@Composable
 fun DefaultButtonFilled(
     modifier: Modifier = Modifier,
     icon: Painter? = null,
@@ -123,7 +176,7 @@ fun DefaultButtonFilled(
         }
         Text(
             modifier = Modifier.padding(start = 4.dp, end = 4.dp),
-            text = text.replaceFirstChar { it.uppercase() },
+            text = text.uppercase(),
             maxLines = 1
         )
     }
@@ -134,6 +187,7 @@ fun DefaultButton(
     modifier: Modifier = Modifier,
     icon: Painter? = null,
     text: String,
+    tint: Color = MaterialTheme.colors.primaryVariant,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -149,13 +203,13 @@ fun DefaultButton(
                     .padding(start = 4.dp),
                 painter = it,
                 contentDescription = null,
-                tint = MaterialTheme.colors.primaryVariant
+                tint = tint
             )
         }
         Text(
             modifier = Modifier.padding(start = 4.dp, end = 4.dp),
-            text = text.replaceFirstChar { it.uppercase() },
-            color = MaterialTheme.colors.primaryVariant,
+            text = text.uppercase(),
+            color = tint,
             maxLines = 1
         )
     }
