@@ -87,7 +87,7 @@ class EventInfoViewModel(
         get() = MutableStateFlow(
             couldDeleteEvent.value ||
                     ((event.value.timeEnd - System.currentTimeMillis()) > (MILLISECONDS_IN_MINUTE * 10)
-                            && _appliance.value.userIds.contains(currentUser.value.userId))
+                            && _appliance.value.superuserIds.contains(currentUser.value.userId))
 
         )
 
@@ -95,7 +95,7 @@ class EventInfoViewModel(
         get() = MutableStateFlow(
             couldDeleteEvent.value ||
                     ((event.value.timeStart - System.currentTimeMillis()) < (MILLISECONDS_IN_MINUTE * 10)
-                            && _appliance.value.userIds.contains(currentUser.value.userId))
+                            && _appliance.value.superuserIds.contains(currentUser.value.userId))
 
         )
 

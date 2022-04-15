@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -60,7 +61,7 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
 
     val uiState = viewModel.uiState
     Scaffold(
-        topBar = { ScheduleAppBar(stringResource(R.string.profile), backClick = backPress) },
+        topBar = { ProfileTopBar(upPress = backPress) },
         backgroundColor = Color(0XFFE3DAC9),
         content = {
             Column(
@@ -92,7 +93,7 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
 @ExperimentalMaterialApi
 @Composable
 fun UserButtons(navController: NavController) {
-    val dialogOnLogout = rememberSaveable { mutableStateOf(false) }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -104,20 +105,13 @@ fun UserButtons(navController: NavController) {
         ColumnButton(Icons.Default.Edit, "Редактировать профиль")
         { navController.navigate(MainDestinations.EDIT_PROFILE) }
 
-
-        Spacer(modifier = Modifier.size(15.dp))
-        OutlinedButton(onClick = {
-            dialogOnLogout.value = true
-        }) { Text(stringResource(R.string.logout)) }
-        Spacer(modifier = Modifier.size(30.dp))
-        if (dialogOnLogout.value) LogoutDialog(dialogOnLogout)
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @InternalCoroutinesApi
 @Composable
-fun LogoutDialog(dialogOnLogout: MutableState<Boolean>) {
+fun LogoutDialog(onDismiss: () -> Unit) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val viewModel = getViewModel<ProfileViewModel>()
@@ -125,7 +119,7 @@ fun LogoutDialog(dialogOnLogout: MutableState<Boolean>) {
     DefaultDialog(
         primaryText = "Выход из аккаунта",
         secondaryText = "Вы уверены, что хотите выйти из своего аккаунта?",
-        onDismiss = { dialogOnLogout.value = false },
+        onDismiss = onDismiss,
         positiveButtonText = stringResource(id = R.string.Yes),
         negativeButtonText = stringResource(id = R.string.No),
         onPositiveClick = {
@@ -135,7 +129,7 @@ fun LogoutDialog(dialogOnLogout: MutableState<Boolean>) {
                 }
             }
         },
-        onNegativeClick = { dialogOnLogout.value = false },
+        onNegativeClick = onDismiss
     )
 }
 
@@ -238,5 +232,22 @@ fun ProfilePreview() {
     MaterialTheme {
         Profile(rememberNavController(), backPress = {})
     }
+}
+
+@OptIn(InternalCoroutinesApi::class)
+@Composable
+fun ProfileTopBar(upPress: () -> Unit) {
+    var dialogOnLogout by rememberSaveable { mutableStateOf(false) }
+    if (dialogOnLogout) LogoutDialog() { dialogOnLogout = false }
+
+    ScheduleAppBar(
+        stringResource(R.string.profile),
+        upPress,
+        actions = {
+            IconButton(onClick = { dialogOnLogout = true }) {
+                Icon(Icons.Default.Logout, "")
+            }
+        }
+    )
 }
 

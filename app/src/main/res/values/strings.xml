@@ -86,14 +86,14 @@
     <string name="book_approve_failed">Не удалось подтвердить бронирование</string>
     <string name="approved">Подтверждено</string>
     <string name="declined">Отклонено</string>
-    <string name="loading">Загрузка...</string>
+    <string name="loading">Загрузка…</string>
     <string name="no_books">Нет бронирований</string>
     <string name="approved_books">Подтвержденные бронирования</string>
     <string name="declined_books">Отклоненные бронирования</string>
     <string name="new_books">Ожидающие бронирования</string>
     <string name="role_changed_successfully">Роль успешно изменена</string>
-    <string name="week">Месяц</string>
-    <string name="month">Месяц</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
     <string name="three_days">3 дня</string>
     <string name="name_hint">Ваше имя</string>
     <string name="email_hint">Email</string>

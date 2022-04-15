@@ -10,7 +10,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -19,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.R
@@ -32,6 +35,7 @@ import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.getRole
 
+@OptIn(InternalCoroutinesApi::class)
 @ExperimentalComposeUiApi
 @Composable
 fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
@@ -69,7 +73,6 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
             when (detailsUser.role) {
                 Roles.GUEST.ordinal -> {}
                 Roles.USER.ordinal, Roles.ADMIN.ordinal -> {
-                    //UserAppliancesList(viewModel, navController)
                     SuperUserAppliancesList(viewModel, navController)
                 }
             }
