@@ -182,7 +182,7 @@ fun UserNameAndImage(user: User) {
                 painter = rememberImagePainter(user.userPic,
                     builder = {
                         crossfade(true)
-                        placeholder(ru.dvfu.appliances.R.drawable.ic_launcher_foreground)
+                        placeholder(R.drawable.ic_launcher_foreground)
                         transformations(CircleCropTransformation())
                     }),
                 contentDescription = stringResource(R.string.user_photo),

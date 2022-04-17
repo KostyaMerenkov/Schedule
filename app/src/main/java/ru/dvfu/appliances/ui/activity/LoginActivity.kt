@@ -169,7 +169,7 @@ class LoginActivity() : AppCompatActivity() {
                             it.toString()
                         )
                     }
-                    startMainActivity()
+                    //startMainActivity()
                     //FirebaseAuth.getInstance().signOut()
                         // The OAuth access token can also be retrieved:
                         // authResult.getCredential().getAccessToken().
@@ -261,7 +261,7 @@ class LoginActivity() : AppCompatActivity() {
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("SignInActivity", "signInWithCredential:success")
-                    startMainActivity()
+                    //startMainActivity()
                 } else {
                     // If sign in fails, display a message to the user.
                     handleError(task.exception)

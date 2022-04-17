@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
@@ -21,6 +22,7 @@ import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Roles
+import ru.dvfu.appliances.model.utils.Constants
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.ui.Progress
 import kotlin.coroutines.resume
@@ -78,6 +80,7 @@ class FirebaseUsersRepositoryImpl(
             userDatastore.saveUser(user)
             flow.emit(Progress.Complete)
         } else {
+
             val userFromDatabase =
                 dbCollections.getUsersCollection().document(user.userId).get().await()
                     .toObject(User::class.java)
@@ -87,20 +90,44 @@ class FirebaseUsersRepositoryImpl(
                 bundle.putString(FirebaseAnalytics.Param.METHOD, "Google")
                 firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)*/
                 userDatastore.saveUser(userFromDatabase)
+                uploadMessagingToken(userId = user.userId)
                 flow.tryEmit(Progress.Complete)
             } else {
                 dbCollections.getUsersCollection().document(user.userId).set(user)
                     .addOnCompleteListener {
-
-                        runBlocking { userDatastore.saveUser(user) }
-                        flow.tryEmit(Progress.Complete)
+                        runBlocking {
+                            userDatastore.saveUser(user)
+                            uploadMessagingToken(userId = user.userId)
+                            flow.tryEmit(Progress.Complete)
+                        }
                     }
-
             }
         }
 
         return flow
     }
+
+    private suspend fun uploadMessagingToken(userId: String) =
+        suspendCoroutine<Result<Unit>> { continuation ->
+            FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w(
+                        Constants.TAG,
+                        "Fetching FCM registration token failed",
+                        task.exception
+                    )
+                    continuation.resume(Result.failure(task.exception ?: Throwable()))
+                    return@OnCompleteListener
+                }
+
+                // Get new FCM registration token
+                val token = task.result
+                dbCollections.getUsersCollection().document(userId).update("msgToken", token)
+                    .addOnCompleteListener {
+                        continuation.resume(Result.success(Unit))
+                    }
+            })
+        }
 
     override suspend fun setUserListener(user: User) {
         val listeners = mutableListOf<ListenerRegistration>()
@@ -111,7 +138,10 @@ class FirebaseUsersRepositoryImpl(
         )
     }
 
-    override suspend fun setNewProfileData(userId: String, data: Map<String, Any>): Result<Unit> = suspendCoroutine {
+    override suspend fun setNewProfileData(
+        userId: String,
+        data: Map<String, Any>
+    ): Result<Unit> = suspendCoroutine {
         dbCollections.getUsersCollection().document(userId).update(data)
         it.resume(Result.success(Unit))
     }
@@ -183,28 +213,31 @@ class FirebaseUsersRepositoryImpl(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun getUser(scope: ProducerScope<Result<User>>) = OnCompleteListener<DocumentSnapshot> {
-        if (it.isSuccessful) {
-            val user = it.result.toObject<User>()
-            user?.let { scope.trySend(Result.success(it)) } ?: scope.trySend(
-                Result.failure(Throwable())
-            )
-        } else {
-            scope.trySend(Result.failure(Throwable()))
-        }
-    }
-
-    override suspend fun updateUserField(userId: String, data: Map<String, Any>) =
-        suspendCoroutine<Result<Unit>> { continuation ->
-            dbCollections.getUsersCollection().document(userId).update(data).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    continuation.resume(Result.success(Unit))
-                } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+    private fun getUser(scope: ProducerScope<Result<User>>) =
+        OnCompleteListener<DocumentSnapshot> {
+            if (it.isSuccessful) {
+                val user = it.result.toObject<User>()
+                user?.let { scope.trySend(Result.success(it)) } ?: scope.trySend(
+                    Result.failure(Throwable())
+                )
+            } else {
+                scope.trySend(Result.failure(Throwable()))
             }
         }
 
+    override suspend fun updateUserField(userId: String, data: Map<String, Any>) =
+        suspendCoroutine<Result<Unit>> { continuation ->
+            dbCollections.getUsersCollection().document(userId).update(data)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        continuation.resume(Result.success(Unit))
+                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+        }
+
     override suspend fun updateCurrentUserField(data: Map<String, Any>) {
-        dbCollections.getUsersCollection().document(userDatastore.getCurrentUser.first().userId)
+        dbCollections.getUsersCollection()
+            .document(userDatastore.getCurrentUser.first().userId)
             .update(data).addOnCompleteListener {
 
             }
@@ -214,7 +247,7 @@ class FirebaseUsersRepositoryImpl(
         return with(firebaseUser) {
             User(
                 userId = uid,
-                userName = displayName ?: "Аноним",
+                userName = displayName ?: "Anonymous",
                 email = email ?: "",
                 role = Roles.GUEST.ordinal,
                 anonymous = isAnonymous,

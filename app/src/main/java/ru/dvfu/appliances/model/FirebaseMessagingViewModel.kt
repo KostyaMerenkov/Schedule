@@ -3,10 +3,8 @@ package ru.dvfu.appliances.model
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
@@ -27,13 +25,21 @@ class FirebaseMessagingViewModel(
     private val appliancesRepository: AppliancesRepository,
 ) {
 
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
+
+
 
     @OptIn(DelicateCoroutinesApi::class)
     fun onNewToken(newToken: String) {
-        GlobalScope.launch {
+        scope.launch {
             usersRepository.setNewMessagingToken(newToken)
+            cancel()
         }
     }
 
+    fun onDestroy() {
+        job.cancel()
+    }
 
 }

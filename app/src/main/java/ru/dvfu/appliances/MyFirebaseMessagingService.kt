@@ -66,4 +66,9 @@ class MyFirebaseMessagingService() : FirebaseMessagingService() {
             .setContentInfo("Info")
         notificationManager.notify(Random().nextInt(), notificationBuilder.build())
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.onDestroy()
+    }
 }
