@@ -106,4 +106,6 @@
     <string name="reset_dialog_secondary">Вы уверены, что хотите отменить внесенные изменения?</string>
     <string name="profile_edit">Редактирование профиля</string>
     <string name="pending">Pending</string>
+    <string name="pick_color">Выберите цвет</string>
+    <string name="main_name">Название</string>
 </resources>

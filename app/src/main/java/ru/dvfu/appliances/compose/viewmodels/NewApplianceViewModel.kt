@@ -8,18 +8,37 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.compose.ui.theme.pickerColors
+import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.Progress
 
-class NewApplianceViewModel(private val repository: AppliancesRepository) : ViewModel() {
+class NewApplianceViewModel(
+    private val repository: AppliancesRepository,
+    private val userDatastore: UserDatastore
+    ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BaseViewState>(BaseViewState.Success(null))
     val uiState: StateFlow<BaseViewState>
         get() = _uiState
+
+    val _currentUser = MutableStateFlow(User())
+
+    init {
+        getCurrentUser()
+    }
+
+    private fun getCurrentUser() {
+        viewModelScope.launch {
+            userDatastore.getCurrentUser.collect {
+                _currentUser.value = it
+            }
+        }
+    }
 
     val noErrors = mutableStateOf<Boolean>(true)
 
@@ -51,6 +70,7 @@ class NewApplianceViewModel(private val repository: AppliancesRepository) : View
                     name = title.value,
                     description = description.value,
                     color = selectedColor.value.hashCode(),
+                    createdById = _currentUser.value.userId
                 )
             )
             true

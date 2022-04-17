@@ -88,4 +88,5 @@
     <string name="reset_dialog_secondary">Вы уверены, что хотите отменить внесенные изменения?</string>
     <string name="profile_edit">Редактирование профиля</string>
     <string name="pending">На рассмотрении</string>
+    <string name="pick_color">Выберите цвет</string>
 </resources>

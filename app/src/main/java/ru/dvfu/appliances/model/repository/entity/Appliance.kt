@@ -14,7 +14,7 @@ data class Appliance(
     val name: String = "",
     val description: String = "",
     val color: Int = Color.WHITE,
-    val owner: String = "",
+    val createdById: String = "",
     val superuserIds: List<String> = listOf(),
     val userIds: List<String> = listOf()
 ): Parcelable {

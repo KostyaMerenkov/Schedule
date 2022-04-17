@@ -121,7 +121,7 @@ val mainActivity = module {
 
     //Appliances
     viewModel { ApplianceDetailsViewModel(get(), get()) }
-    viewModel { NewApplianceViewModel(get()) }
+    viewModel { NewApplianceViewModel(get(), get()) }
     //viewModel { ApplianceUsersViewModel(get()) }
     viewModel { AppliancesViewModel(get(), get()) }
     viewModel { AddUserViewModel(it.get(), it.get(), get(), get()) }
