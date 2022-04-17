@@ -44,12 +44,14 @@ class EventInfoViewModel(
         getCurrentUser()
         getAppliance(eventArg.applianceId)
         getUser(eventArg.userId)
-        getSuperUser(eventArg.superUserId)
+        getSuperUser(eventArg.approvedById)
     }
 
     private fun getCurrentUser() {
         viewModelScope.launch {
-            currentUser.value = userDatastore.getCurrentUser.first()
+            userDatastore.getCurrentUser.collect {
+                currentUser.value = it
+            }
         }
     }
 
@@ -172,7 +174,9 @@ class EventInfoViewModel(
             val newTimeMillis = newTime.atDate(oldDate).toMillis
             if (oldTime.isAfter(newTime) && currentUser.value.isAdmin()) {
                 when {
-                    oldDate == LocalDate.now() && newTime.isBefore(LocalTime.now().plusMinutes(10)) -> {
+                    oldDate == LocalDate.now() && newTime.isBefore(
+                        LocalTime.now().plusMinutes(10)
+                    ) -> {
                         _timeEndChangeState.value = UiState.Error
                         SnackbarManager.showMessage(R.string.time_end_is_before_now)
                     }
@@ -212,7 +216,9 @@ class EventInfoViewModel(
             val newTimeMillis = newTime.atDate(oldDate).toMillis
             if (oldTime.isBefore(newTime) && currentUser.value.isAdmin()) {
                 when {
-                    oldDate == LocalDate.now() && newTime.isBefore(LocalTime.now().plusMinutes(10)) -> {
+                    oldDate == LocalDate.now() && newTime.isBefore(
+                        LocalTime.now().plusMinutes(10)
+                    ) -> {
                         _timeEndChangeState.value = UiState.Error
                         SnackbarManager.showMessage(R.string.time_end_is_before_now)
                     }

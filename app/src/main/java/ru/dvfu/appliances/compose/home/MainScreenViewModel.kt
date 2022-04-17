@@ -65,7 +65,7 @@ class MainScreenViewModel(
                         applianceName = currentEvent.applianceName,
                         applianceId = currentEvent.applianceId,
                         userId = currentEvent.userId,
-                        superUserId = currentEvent.superUserId,
+                        superUserId = currentEvent.approvedById,
                         start = currentEvent.timeStart.toLocalDateTime(),
                         end = currentEvent.timeEnd.toLocalDateTime(),
                         description = currentEvent.commentary
@@ -78,7 +78,7 @@ class MainScreenViewModel(
     private fun getCurrentUser() {
         viewModelScope.launch {
             userDatastore.getCurrentUser.collect{
-
+                _currentUser.value = it
             }
         }
     }
@@ -95,9 +95,12 @@ class MainScreenViewModel(
     }
 
     private fun onSuccess(user: User) {
-        viewModelScope.launch {
-            usersRepository.setUserListener(user)
+        if (user.anonymous.not()) {
+            viewModelScope.launch {
+                usersRepository.setUserListener(user)
+            }
         }
+
         mutableStateFlow.value = ViewState.Success(user)
     }
 
@@ -126,7 +129,7 @@ class MainScreenViewModel(
                             applianceName = currentEvent.applianceName,
                             applianceId = currentEvent.applianceId,
                             userId = currentEvent.userId,
-                            superUserId = currentEvent.superUserId,
+                            superUserId = currentEvent.approvedById,
                             start = currentEvent.timeStart.toLocalDateTime(),
                             end = currentEvent.timeEnd.toLocalDateTime(),
                             description = currentEvent.commentary

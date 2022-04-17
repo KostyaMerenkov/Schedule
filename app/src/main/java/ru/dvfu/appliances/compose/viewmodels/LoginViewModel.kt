@@ -9,7 +9,10 @@ import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.Progress
 
-class LoginViewModel(private val usersRepository: UsersRepository, private val repository: UsersRepository) : ViewModel() {
+class LoginViewModel(
+    private val usersRepository: UsersRepository,
+    private val repository: UsersRepository
+) : ViewModel() {
 
     private val mutableStateFlow: MutableStateFlow<BaseViewState> =
         MutableStateFlow(BaseViewState.Success(null))

@@ -96,7 +96,7 @@ class WeekCalendarViewModel(
                                     applianceName = currentEvent.applianceName,
                                     applianceId = currentEvent.applianceId,
                                     userId = currentEvent.userId,
-                                    superUserId = currentEvent.superUserId,
+                                    superUserId = currentEvent.approvedById,
                                     start = currentEvent.timeStart.toLocalDateTime(),
                                     end = currentEvent.timeEnd.toLocalDateTime(),
                                     description = currentEvent.commentary,
@@ -123,7 +123,7 @@ class WeekCalendarViewModel(
                         applianceName = currentEvent.applianceName,
                         applianceId = currentEvent.applianceId,
                         userId = currentEvent.userId,
-                        superUserId = currentEvent.superUserId,
+                        superUserId = currentEvent.approvedById,
                         start = currentEvent.timeStart.toLocalDateTime(),
                         end = currentEvent.timeEnd.toLocalDateTime(),
                         description = currentEvent.commentary
@@ -181,7 +181,7 @@ class WeekCalendarViewModel(
                     applianceName = currentEvent.applianceName,
                     applianceId = currentEvent.applianceId,
                     userId = currentEvent.userId,
-                    superUserId = currentEvent.superUserId,
+                    superUserId = currentEvent.approvedById,
                     start = currentEvent.timeStart.toLocalDateTime(),
                     end = currentEvent.timeEnd.toLocalDateTime(),
                     description = currentEvent.commentary

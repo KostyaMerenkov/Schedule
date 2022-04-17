@@ -18,7 +18,7 @@ class ProfileViewModel(
     val uiState: StateFlow<BaseViewState>
         get() = _uiState
 
-    private val _currentUser = MutableStateFlow<User?>(null)
+    private val _currentUser = MutableStateFlow<User>(User())
     val currentUser = _currentUser.asStateFlow()
 
     init {

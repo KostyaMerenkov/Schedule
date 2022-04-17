@@ -209,7 +209,7 @@ class LoginActivity() : AppCompatActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInAnonymously:success")
                     val user = auth.currentUser
-                    startMainActivity()
+                    //startMainActivity()
                 } else {
                     // If sign in fails, display a message to the user.
                     handleError(task.exception!!)
@@ -226,7 +226,6 @@ class LoginActivity() : AppCompatActivity() {
 //        } else if (firebaseUsersRepo.isUserInDatabase(user.uid)) {
 //            showSuccessToast(user.email!!)
         } else {
-            //UserMapper.
             //firebaseUsersRepo.putUserToDatabase(user)
             showSuccessToast(user.email ?: user.displayName)
         }

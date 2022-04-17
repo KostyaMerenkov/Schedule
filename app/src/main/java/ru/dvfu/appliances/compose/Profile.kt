@@ -83,7 +83,7 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                     }
 
                 }
-                UserButtons(navController)
+                if (currentUser.anonymous.not()) UserButtons(navController)
             }
         },
     )
@@ -152,22 +152,8 @@ fun ColumnButton(image: ImageVector, name: String, click: () -> Unit) {
 
 @ExperimentalCoilApi
 @Composable
-fun ProfileUserInfo(user: User?) {
-    //val user by
-    user?.let { nutNullUser ->
-        Crossfade(nutNullUser, animationSpec = tween(500)) { animatedUser ->
-            UserNameAndImage(animatedUser)
-        }
-    } ?: Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .padding(20.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        CircularProgressIndicator()
-    }
+fun ProfileUserInfo(user: User) {
+    UserNameAndImage(user)
 }
 
 
@@ -211,7 +197,8 @@ fun UserNameAndImage(user: User) {
                 true -> stringResource(R.string.anonymous_user)
                 false -> user.userName
             }, style = MaterialTheme.typography.h6,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

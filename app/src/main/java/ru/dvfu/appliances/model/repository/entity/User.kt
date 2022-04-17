@@ -11,7 +11,7 @@ data class User(
     val email: String = "",
     val birthday: Long = 0,
     val role: Int = Roles.GUEST.ordinal,
-    val anonymous: Boolean = true,
+    val anonymous: Boolean = false,
     val userPic: String = "",
     ): Parcelable {
 
@@ -24,4 +24,5 @@ data class User(
     fun isAnonymousOrGuest(): Boolean {
         return role == Roles.GUEST.ordinal || anonymous
     }
+
 }

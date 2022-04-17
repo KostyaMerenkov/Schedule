@@ -64,9 +64,7 @@ class FirebaseUsersRepositoryImpl(
     override val currentUser: Flow<User?>
         get() = callbackFlow {
             val authListener = FirebaseAuth.AuthStateListener {
-                runBlocking {
-                    send(it.currentUser?.run { mapFirebaseUserToUser(this) })
-                }
+                runBlocking { send(it.currentUser?.run { mapFirebaseUserToUser(this) }) }
             }
 
             fireBaseAuth.addAuthStateListener(authListener)
@@ -76,27 +74,31 @@ class FirebaseUsersRepositoryImpl(
     override suspend fun addNewUser(user: User): StateFlow<Progress> {
         val flow = MutableStateFlow<Progress>(Progress.Loading())
 
-        val userFromDatabase =
-            dbCollections.getUsersCollection().document(user.userId).get().await()
-                .toObject(User::class.java)
-
-        if (userFromDatabase != null) {
-            /*val bundle = Bundle()
-            bundle.putString(FirebaseAnalytics.Param.METHOD, "Google")
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)*/
-            userDatastore.saveUser(userFromDatabase)
-            flow.tryEmit(Progress.Complete)
+        if (user.anonymous) {
+            userDatastore.saveUser(user)
+            flow.emit(Progress.Complete)
         } else {
-            dbCollections.getUsersCollection().document(user.userId).set(user)
-                .addOnCompleteListener {
+            val userFromDatabase =
+                dbCollections.getUsersCollection().document(user.userId).get().await()
+                    .toObject(User::class.java)
 
-                    runBlocking {
-                        userDatastore.saveUser(user)
+            if (userFromDatabase != null) {
+                /*val bundle = Bundle()
+                bundle.putString(FirebaseAnalytics.Param.METHOD, "Google")
+                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)*/
+                userDatastore.saveUser(userFromDatabase)
+                flow.tryEmit(Progress.Complete)
+            } else {
+                dbCollections.getUsersCollection().document(user.userId).set(user)
+                    .addOnCompleteListener {
+
+                        runBlocking { userDatastore.saveUser(user) }
+                        flow.tryEmit(Progress.Complete)
                     }
-                    flow.tryEmit(Progress.Complete)
-                }
 
+            }
         }
+
         return flow
     }
 
@@ -128,7 +130,7 @@ class FirebaseUsersRepositoryImpl(
                     }
                 }
             } else {
-                Log.d("Fishing", "Current data: null")
+                Log.d("Schedule", "Current data: null")
             }
         }
 
@@ -161,6 +163,7 @@ class FirebaseUsersRepositoryImpl(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun logoutCurrentUser() = callbackFlow {
+        //userDatastore.saveUser(User())
         AuthUI.getInstance().signOut(context).addOnSuccessListener {
             trySend(true)
         }
@@ -211,7 +214,7 @@ class FirebaseUsersRepositoryImpl(
         return with(firebaseUser) {
             User(
                 userId = uid,
-                userName = displayName ?: "Anonymous",
+                userName = displayName ?: "Аноним",
                 email = email ?: "",
                 role = Roles.GUEST.ordinal,
                 anonymous = isAnonymous,

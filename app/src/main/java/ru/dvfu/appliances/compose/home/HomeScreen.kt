@@ -198,17 +198,26 @@ fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: (CalendarType)
                 Icon(Icons.Default.EditCalendar, Icons.Default.EditCalendar.name)
             }
             DropdownMenu(
+                modifier = Modifier.width(150.dp),
                 expanded = dropdownExpanded,
                 onDismissRequest = { dropdownExpanded = false }) {
                 CalendarType.values().forEach {
-                    DropdownMenuItem(onClick = { onCalendarSelected(it); dropdownExpanded = false }) {
+                    DropdownMenuItem(onClick = {
+                        onCalendarSelected(it); dropdownExpanded = false
+                    }) {
                         Row(
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(text = stringResource(id = it.stringRes), maxLines = 1)
-                            Spacer(modifier = Modifier.size(12.dp))
-                            Icon(it.icon, it.icon.name)
+                            Icon(it.icon, it.icon.name,
+                                //modifier = Modifier.fillMaxWidth(0.2f)
+                                )
+                            Text(
+                                text = stringResource(id = it.stringRes),
+                                maxLines = 1,
+                                //modifier = Modifier.fillMaxWidth(0.8f)
+                            )
                         }
                     }
                 }
