@@ -7,6 +7,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -15,7 +16,8 @@ import ru.dvfu.appliances.ui.ViewState
 
 class AppliancesViewModel(
     private val repository: AppliancesRepository,
-    private val usersRepository: UsersRepository
+    private val usersRepository: UsersRepository,
+    private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
     private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
@@ -25,7 +27,7 @@ class AppliancesViewModel(
         loadAppliances()
     }
 
-    val user = usersRepository.currentUserFromDB
+    val user = userDatastore.getCurrentUser
 
     private fun loadAppliances() {
         _appliancesState.value = ViewState.Loading()

@@ -44,7 +44,6 @@ import ru.dvfu.appliances.ui.ViewState
 fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Modifier = Modifier) {
 
     val viewModel: AppliancesViewModel = getViewModel()
-
     val appliancesState by viewModel.appliancesState.collectAsState()
 
     val user: User by viewModel.user.collectAsState(User())

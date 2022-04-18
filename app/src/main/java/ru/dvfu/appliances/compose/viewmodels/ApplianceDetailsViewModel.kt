@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.UsersRepository
@@ -14,6 +15,7 @@ import ru.dvfu.appliances.model.repository.entity.User
 class ApplianceDetailsViewModel(
     private val usersRepository: UsersRepository,
     private val repository: AppliancesRepository,
+    private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
     companion object {
@@ -24,7 +26,7 @@ class ApplianceDetailsViewModel(
 
     val currentUsers = MutableStateFlow<List<User>?>(null)
     val currentSuperUsers = MutableStateFlow<List<User>?>(null)
-    val currentUser = usersRepository.currentUserFromDB
+    val currentUser = userDatastore.getCurrentUser
 
     fun setAppliance(applianceFromArg: Appliance) {
         if (appliance.value == defAppliance) {
