@@ -6,6 +6,7 @@ import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.compose.get
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ru.dvfu.appliances.Logger
@@ -92,7 +93,9 @@ val mainActivity = module {
             eventsRepository = get(),
             offlineRepository = get(),
             userDatastore = get(),
-            getDateEventsUseCase = get()
+            getDateEventsUseCase = get(),
+            getUserUseCase = get(),
+            getApplianceUseCase = get()
         )
     }
     viewModel {
@@ -103,7 +106,9 @@ val mainActivity = module {
             userDatastore = get(),
             getDateEventsUseCase = get(),
             getEventsFromDateUseCase = get(),
-            getPeriodEventsUseCase = get()
+            getPeriodEventsUseCase = get(),
+            getUserUseCase = get(),
+            getApplianceUseCase = get()
         )
     }
 
@@ -120,10 +125,10 @@ val mainActivity = module {
     viewModel { ProfileViewModel(get(), get()) }
 
     //Appliances
-    viewModel { ApplianceDetailsViewModel(get(), get()) }
+    viewModel { ApplianceDetailsViewModel(get(), get(), get()) }
     viewModel { NewApplianceViewModel(get(), get()) }
     //viewModel { ApplianceUsersViewModel(get()) }
-    viewModel { AppliancesViewModel(get(), get()) }
+    viewModel { AppliancesViewModel(get(), get(), get()) }
     viewModel { AddUserViewModel(it.get(), it.get(), get(), get()) }
     viewModel {
         AddEventViewModel(
@@ -134,14 +139,14 @@ val mainActivity = module {
             getNewEventTimeAvailabilityUseCase = get()
         )
     }
-    viewModel {
+    /*viewModel {
         AddBookingViewModel(
             selectedDate = it[0],
             bookingRepository = get(),
             getAppliancesUseCase = get(),
             userDatastore = get()
         )
-    }
+    }*/
     viewModel {
         EventInfoViewModel(
             eventArg = it.get(),

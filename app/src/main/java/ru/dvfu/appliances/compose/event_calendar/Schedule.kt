@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
@@ -35,8 +36,8 @@ fun Schedule(
         },
     dayHeader: @Composable (day: LocalDate) -> Unit = { BasicDayHeader(day = it) },
     timeLabel: @Composable (time: LocalTime) -> Unit = { BasicSidebarLabel(time = it) },
-    minDate: LocalDate = calendarEvents.minByOrNull(CalendarEvent::start)?.start?.toLocalDate() ?: LocalDate.now(),
-    maxDate: LocalDate = calendarEvents.maxByOrNull(CalendarEvent::end)?.end?.toLocalDate() ?: LocalDate.now(),
+    minDate: LocalDate = calendarEvents.minByOrNull(CalendarEvent::timeStart)?.timeStart?.toLocalDate() ?: LocalDate.now(),
+    maxDate: LocalDate = calendarEvents.maxByOrNull(CalendarEvent::timeEnd)?.timeEnd?.toLocalDate() ?: LocalDate.now(),
     minTime: LocalTime = LocalTime.of(8,0),
     maxTime: LocalTime = LocalTime.of(23,0),
     daySize: ScheduleSize = ScheduleSize.Adaptive(256.dp),
@@ -107,8 +108,8 @@ fun BasicSchedule(
     calendarEvents: List<CalendarEvent>,
     modifier: Modifier = Modifier,
     eventContent: @Composable (positionedEvent: PositionedEvent) -> Unit = { BasicEvent(positionedEvent = it, onEventClick = {}, onEventLongClick = {}) },
-    minDate: LocalDate = calendarEvents.minByOrNull(CalendarEvent::start)?.start?.toLocalDate() ?: LocalDate.now(),
-    maxDate: LocalDate = calendarEvents.maxByOrNull(CalendarEvent::end)?.end?.toLocalDate() ?: LocalDate.now(),
+    minDate: LocalDate = calendarEvents.minByOrNull(CalendarEvent::timeStart)?.timeStart?.toLocalDate() ?: LocalDate.now(),
+    maxDate: LocalDate = calendarEvents.maxByOrNull(CalendarEvent::timeEnd)?.timeEnd?.toLocalDate() ?: LocalDate.now(),
     minTime: LocalTime = LocalTime.MIN,
     maxTime: LocalTime = LocalTime.MAX,
     dayWidth: Dp,
@@ -118,7 +119,7 @@ fun BasicSchedule(
     val numMinutes = ChronoUnit.MINUTES.between(minTime, maxTime).toInt() + 1
     val numHours = numMinutes / 60
     val dividerColor = if (MaterialTheme.colors.isLight) Color.LightGray else Color.DarkGray
-    val positionedEvents = remember(calendarEvents) { arrangeEvents(splitEvents(calendarEvents.sortedBy(CalendarEvent::start))).filter { it.end > minTime && it.start < maxTime } }
+    val positionedEvents = remember(calendarEvents) { arrangeEvents(splitEvents(calendarEvents.sortedBy(CalendarEvent::timeStart))).filter { it.end > minTime && it.start < maxTime } }
     Layout(
         content = {
             positionedEvents.forEach { positionedEvent ->

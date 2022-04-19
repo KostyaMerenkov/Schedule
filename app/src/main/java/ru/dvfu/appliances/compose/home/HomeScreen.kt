@@ -32,12 +32,12 @@ import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
 import ru.dvfu.appliances.compose.components.FabWithMenu
 import ru.dvfu.appliances.compose.components.MultiFabState
-import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
 import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.event_calendar.Schedule
 import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.compose.views.DefaultDialog
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import java.time.LocalDate
 
 @Composable
@@ -47,12 +47,6 @@ fun HomeScreen(
     //val viewModell: MainScreenViewModel = getViewModel()
     val viewModel: WeekCalendarViewModel = getViewModel()
     val calendarType by viewModel.calendarType.collectAsState()
-    /*val innerNavController = rememberNavController()
-    val events by viewModel.events.collectAsState()
-    //val dayEvents by viewModel.dayEvents.collectAsState()
-
-    val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current*/
     val currentUser by viewModel.currentUser.collectAsState()
     val currentDate by viewModel.currentDate.collectAsState()
 
@@ -128,8 +122,7 @@ fun HomeScreen(
                 MonthWeekCalendar(viewModel = viewModel, onEventClick = {
                     viewModel.getRepoEvent(it)?.let {
                         navController.navigate(
-                            MainDestinations.EVENT_INFO,
-                            Arguments.EVENT to it
+                            MainDestinations.EVENT_INFO, Arguments.EVENT to it
                         )
                     }
                 }) {
@@ -230,20 +223,19 @@ fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: (CalendarType)
 @Composable
 fun EventOptionDialog(
     calendarEvent: CalendarEvent?,
-    onDelete: (CalendarEvent) -> Unit,
+    onDelete: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-
     calendarEvent?.let {
-        DefaultDialog(primaryText = calendarEvent.applianceName,
-            secondaryText = "${calendarEvent.start.format(EventTimeFormatter)} - ${
-                calendarEvent.end.format(
+        DefaultDialog(primaryText = calendarEvent.appliance?.name ?: stringResource(id = R.string.appliance_name_failed),
+            secondaryText = "${calendarEvent.timeStart.format(EventTimeFormatter)} - ${
+                calendarEvent.timeEnd.format(
                     EventTimeFormatter
                 )
-            }\n${calendarEvent.description}",
+            }\n${calendarEvent.commentary}",
             onDismiss = onDismiss,
             neutralButtonText = stringResource(id = R.string.delete),
-            onNeutralClick = { onDelete(calendarEvent); onDismiss() }
+            onNeutralClick = { onDelete(calendarEvent.id); onDismiss() }
         )
     }
 }

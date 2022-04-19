@@ -1,3 +1,4 @@
+/*
 package ru.dvfu.appliances.compose.viewmodels
 
 import androidx.compose.runtime.mutableStateOf
@@ -138,4 +139,4 @@ class AddBookingViewModel(
         timeEnd.value = date.value.atTime(time.hour, time.minute)
     }
 
-}
+}*/

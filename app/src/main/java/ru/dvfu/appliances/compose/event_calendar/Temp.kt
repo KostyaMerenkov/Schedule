@@ -1,16 +1,17 @@
 package ru.dvfu.appliances.compose.event_calendar
 
 import androidx.compose.ui.unit.Dp
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
  fun splitEvents(calendarEvents: List<CalendarEvent>): List<PositionedEvent> {
     return calendarEvents
         .map { event ->
-            val startDate = event.start.toLocalDate()
-            val endDate = event.end.toLocalDate()
+            val startDate = event.timeStart.toLocalDate()
+            val endDate = event.timeEnd.toLocalDate()
             if (startDate == endDate) {
-                listOf(PositionedEvent(event, SplitType.None, event.start.toLocalDate(), event.start.toLocalTime(), event.end.toLocalTime()))
+                listOf(PositionedEvent(event, SplitType.None, event.timeStart.toLocalDate(), event.timeStart.toLocalTime(), event.timeEnd.toLocalTime()))
             } else {
                 val days = ChronoUnit.DAYS.between(startDate, endDate)
                 val splitEvents = mutableListOf<PositionedEvent>()
@@ -20,8 +21,8 @@ import java.time.temporal.ChronoUnit
                         event,
                         splitType = if (date == startDate) SplitType.End else if (date == endDate) SplitType.Start else SplitType.Both,
                         date = date,
-                        start = if (date == startDate) event.start.toLocalTime() else LocalTime.MIN,
-                        end = if (date == endDate) event.end.toLocalTime() else LocalTime.MAX,
+                        start = if (date == startDate) event.timeStart.toLocalTime() else LocalTime.MIN,
+                        end = if (date == endDate) event.timeEnd.toLocalTime() else LocalTime.MAX,
                     )
                 }
                 splitEvents

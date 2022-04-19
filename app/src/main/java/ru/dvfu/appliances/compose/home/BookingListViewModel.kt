@@ -8,7 +8,6 @@ import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.compose.utils.toMillis
@@ -28,7 +27,7 @@ class BookingListViewModel(
     private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
-    val selectedEvent = mutableStateOf<CalendarEvent?>(null)
+    /*val selectedEvent = mutableStateOf<CalendarEvent?>(null)
 
     private val _reposBookingList = MutableStateFlow<List<Booking>>(listOf())
 
@@ -198,7 +197,7 @@ class BookingListViewModel(
                 }
             )
         }
-    }
+    }*/
 
 
 }

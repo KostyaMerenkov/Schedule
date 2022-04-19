@@ -108,4 +108,5 @@
     <string name="pending">Pending</string>
     <string name="pick_color">Выберите цвет</string>
     <string name="main_name">Название</string>
+    <string name="appliance_name_failed">Не удалось получить название прибора</string>
 </resources>

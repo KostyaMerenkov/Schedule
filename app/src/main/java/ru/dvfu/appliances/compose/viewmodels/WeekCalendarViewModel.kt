@@ -2,7 +2,6 @@ package ru.dvfu.appliances.compose.viewmodels
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
@@ -10,17 +9,16 @@ import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.calendars.CalendarType
-import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
-import ru.dvfu.appliances.compose.use_cases.GetDateEventsUseCase
-import ru.dvfu.appliances.compose.use_cases.GetEventsFromDateUseCase
-import ru.dvfu.appliances.compose.use_cases.GetPeriodEventsUseCase
+import ru.dvfu.appliances.compose.use_cases.*
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
+import ru.dvfu.appliances.model.utils.toLocalDate
 import ru.dvfu.appliances.model.utils.toLocalDateTime
 import java.time.LocalDate
 
@@ -29,9 +27,11 @@ class WeekCalendarViewModel(
     private val eventsRepository: EventsRepository,
     private val offlineRepository: OfflineRepository,
     private val userDatastore: UserDatastore,
-    private val getDateEventsUseCase: GetDateEventsUseCase,
     private val getEventsFromDateUseCase: GetEventsFromDateUseCase,
     private val getPeriodEventsUseCase: GetPeriodEventsUseCase,
+    private val getDateEventsUseCase: GetDateEventsUseCase,
+    private val getUserUseCase: GetUserUseCase,
+    private val getApplianceUseCase: GetApplianceUseCase,
 ) : ViewModel() {
 
     private val _calendarType = MutableStateFlow<CalendarType>(CalendarType.WEEK)
@@ -84,23 +84,28 @@ class WeekCalendarViewModel(
     private fun getLatestEvents() {
         viewModelScope.launch {
             getEventsFromDateUseCase(LocalDate.now().minusMonths(2)).collectLatest {
-                it.forEach { localDate, list ->
+                it.forEach { (localDate, list) ->
                     _reposEvents.value = (_reposEvents.value.plus(list))
                     _dayEvents = _dayEvents.apply {
                         put(
                             localDate,
                             EventsState.Loaded(list.map { currentEvent ->
-                                CalendarEvent(
-                                    id = currentEvent.id,
-                                    color = Color(currentEvent.color),
-                                    applianceName = currentEvent.applianceName,
-                                    applianceId = currentEvent.applianceId,
-                                    userId = currentEvent.userId,
-                                    superUserId = currentEvent.approvedById,
-                                    start = currentEvent.timeStart.toLocalDateTime(),
-                                    end = currentEvent.timeEnd.toLocalDateTime(),
-                                    description = currentEvent.commentary,
-                                )
+                                with(currentEvent) {
+                                    CalendarEvent(
+                                        id = id,
+                                        date = this.date.toLocalDate(),
+                                        timeCreated = timeCreated.toLocalDateTime(),
+                                        timeStart = currentEvent.timeStart.toLocalDateTime(),
+                                        timeEnd = currentEvent.timeEnd.toLocalDateTime(),
+                                        commentary = currentEvent.commentary,
+                                        user = getUserUseCase(userId).first().getOrDefault(User()),
+                                        appliance = getApplianceUseCase(applianceId).first().getOrDefault(Appliance()),
+                                        managedUser = managedById?.let { getUserUseCase(managedById).first().getOrDefault(User()) },
+                                        managedTime = managedTime?.toLocalDateTime(),
+                                        managerCommentary = managerCommentary,
+                                        status = status,
+                                    )
+                                }
                             })
                         )
                     }
@@ -117,17 +122,22 @@ class WeekCalendarViewModel(
             getDateEventsUseCase(date).collectLatest {
                 _reposEvents.value = (_reposEvents.value.plus(it))
                 val dayEvents = it.map { currentEvent ->
-                    CalendarEvent(
-                        id = currentEvent.id,
-                        color = Color(currentEvent.color),
-                        applianceName = currentEvent.applianceName,
-                        applianceId = currentEvent.applianceId,
-                        userId = currentEvent.userId,
-                        superUserId = currentEvent.approvedById,
-                        start = currentEvent.timeStart.toLocalDateTime(),
-                        end = currentEvent.timeEnd.toLocalDateTime(),
-                        description = currentEvent.commentary
-                    )
+                    with(currentEvent) {
+                        CalendarEvent(
+                            id = id,
+                            date = this.date.toLocalDate(),
+                            timeCreated = timeCreated.toLocalDateTime(),
+                            timeStart = currentEvent.timeStart.toLocalDateTime(),
+                            timeEnd = currentEvent.timeEnd.toLocalDateTime(),
+                            commentary = currentEvent.commentary,
+                            user = getUserUseCase(userId).first().getOrDefault(User()),
+                            appliance = getApplianceUseCase(applianceId).first().getOrDefault(Appliance()),
+                            managedUser = managedById?.let { getUserUseCase(managedById).first().getOrDefault(User()) },
+                            managedTime = managedTime?.toLocalDateTime(),
+                            managerCommentary = managerCommentary,
+                            status = status,
+                        )
+                    }
                 }.toList()
                 _dayEvents = _dayEvents.apply {
                     put(date, EventsState.Loaded(dayEvents))
@@ -150,9 +160,9 @@ class WeekCalendarViewModel(
         getDayEvents(day)
     }
 
-    fun deleteEvent(eventToDelete: CalendarEvent) {
+    fun deleteEvent(eventIdToDelete: String) {
         viewModelScope.launch {
-            eventsRepository.deleteEvent(eventToDelete.id).fold(
+            eventsRepository.deleteEvent(eventIdToDelete).fold(
                 onSuccess = {
                     /*val newEventsList =
                         _events.value.filter { it.id != eventToDelete.id }.toMutableList()
@@ -175,25 +185,30 @@ class WeekCalendarViewModel(
                 dateStart = LocalDate.now(),
                 dateEnd = LocalDate.now().plusDays(3)
             ).first().map { currentEvent ->
-                CalendarEvent(
-                    id = currentEvent.id,
-                    color = Color(currentEvent.color),
-                    applianceName = currentEvent.applianceName,
-                    applianceId = currentEvent.applianceId,
-                    userId = currentEvent.userId,
-                    superUserId = currentEvent.approvedById,
-                    start = currentEvent.timeStart.toLocalDateTime(),
-                    end = currentEvent.timeEnd.toLocalDateTime(),
-                    description = currentEvent.commentary
-                )
+                with(currentEvent) {
+                    CalendarEvent(
+                        id = id,
+                        date = this.date.toLocalDate(),
+                        timeCreated = timeCreated.toLocalDateTime(),
+                        timeStart = currentEvent.timeStart.toLocalDateTime(),
+                        timeEnd = currentEvent.timeEnd.toLocalDateTime(),
+                        commentary = currentEvent.commentary,
+                        user = getUserUseCase(userId).first().getOrDefault(User()),
+                        appliance = getApplianceUseCase(applianceId).first().getOrDefault(Appliance()),
+                        managedUser = managedById?.let { getUserUseCase(managedById).first().getOrDefault(User()) },
+                        managedTime = managedTime?.toLocalDateTime(),
+                        managerCommentary = managerCommentary,
+                        status = status,
+                    )
+                }
             }.toList()
         }
     }
 
     fun setCalendarType(calendarType: CalendarType) {
-         viewModelScope.launch {
-             userDatastore.saveCalendarType(calendarType)
-         }
+        viewModelScope.launch {
+            userDatastore.saveCalendarType(calendarType)
+        }
     }
 }
 

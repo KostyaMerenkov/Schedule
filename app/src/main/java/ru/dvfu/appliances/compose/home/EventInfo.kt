@@ -28,6 +28,7 @@ import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.components.TimePicker
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
+import ru.dvfu.appliances.compose.home.booking_list.BookingAppliance
 import ru.dvfu.appliances.compose.viewmodels.EventInfoViewModel
 import ru.dvfu.appliances.compose.views.DefaultDialog
 import ru.dvfu.appliances.compose.views.HeaderText

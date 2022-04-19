@@ -33,7 +33,6 @@ class AppliancesViewModel(
         _appliancesState.value = ViewState.Loading()
         viewModelScope.launch {
             repository.getAppliances().collect { appliances ->
-                delay(1000)
                 _appliancesState.value = ViewState.Success(appliances)
             }
         }

@@ -22,7 +22,6 @@ import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.BookingRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.Booking
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.RepositoryCollections
@@ -36,7 +35,7 @@ class BookingRepositoryImpl(
     private val dbCollections: RepositoryCollections,
 ) : BookingRepository {
 
-    override suspend fun getAllUserBooking(userId: String) = flow<Result<List<Booking>>> {
+    /*override suspend fun getAllUserBooking(userId: String) = flow<Result<List<Booking>>> {
         val results =
             dbCollections.getBookingCollection().whereEqualTo("userId", userId).get().await()
         val bookingList = results.toObjects(Booking::class.java)
@@ -51,7 +50,7 @@ class BookingRepositoryImpl(
 
     }
 
-    /*override suspend fun getAllBooking() = channelFlow<Result<List<Booking>>> {
+    *//*override suspend fun getAllBooking() = channelFlow<Result<List<Booking>>> {
         dbCollections.getBookingCollection().get().addOnSuccessListener {
             val bookingList = it.toObjects(Booking::class.java)
             trySend(Result.success(bookingList))
@@ -60,7 +59,7 @@ class BookingRepositoryImpl(
         }
 
         awaitClose()
-    }*/
+    }*//*
 
     override suspend fun createBooking(booking: Booking) =
         suspendCoroutine<Result<Unit>> { continuation ->
@@ -116,5 +115,5 @@ class BookingRepositoryImpl(
                         continuation.resume(Result.success(Unit))
                     } else continuation.resume(Result.failure(it.exception ?: Throwable()))
                 }
-        }
+        }*/
 }

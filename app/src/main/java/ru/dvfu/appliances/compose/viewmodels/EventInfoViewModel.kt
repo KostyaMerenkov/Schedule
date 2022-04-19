@@ -44,7 +44,7 @@ class EventInfoViewModel(
         getCurrentUser()
         getAppliance(eventArg.applianceId)
         getUser(eventArg.userId)
-        getSuperUser(eventArg.approvedById)
+        getSuperUser(eventArg.managedById)
     }
 
     private fun getCurrentUser() {

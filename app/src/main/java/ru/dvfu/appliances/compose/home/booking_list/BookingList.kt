@@ -1,11 +1,8 @@
-package ru.dvfu.appliances.compose.home
+package ru.dvfu.appliances.compose.home.booking_list
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -18,28 +15,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
-import com.google.accompanist.pager.rememberPagerState
-import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.*
-import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.appliance.UserImage
-import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.compose.home.booking_list.BookingListTabsView
-import ru.dvfu.appliances.compose.home.booking_list.BookingTabItem
-import ru.dvfu.appliances.compose.home.booking_list.BookingTabsContent
-import ru.dvfu.appliances.compose.utils.TimeConstants
+import ru.dvfu.appliances.compose.home.DateAndTime
 import ru.dvfu.appliances.compose.views.*
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.BookingStatus.*
-import ru.dvfu.appliances.model.repository.entity.UiBooking
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.utils.toLocalDateTime
-import ru.dvfu.appliances.model.utils.toZonedDateTime
-import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter.ofLocalizedDateTime
-import java.time.format.FormatStyle
 
 @SuppressLint("UnrememberedMutableState")
 @OptIn(
@@ -50,7 +33,7 @@ import java.time.format.FormatStyle
 )
 @Composable
 fun BookingList(navController: NavController) {
-    val viewModel: BookingListViewModel = getViewModel()
+    /*val viewModel: BookingListViewModel = getViewModel()
     val currentUser = viewModel.currentUser.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val list by viewModel.bookingList.collectAsState()
@@ -104,7 +87,7 @@ fun BookingList(navController: NavController) {
                             pagerState = pagerState
                         )
 
-                    }
+                    }*/
 
 //                    LazyColumn(
 //                        contentPadding = PaddingValues(8.dp)
@@ -159,10 +142,10 @@ fun BookingList(navController: NavController) {
 //                                }
 //                            }
 //                    }
-                }
+                /*}
             }
         }
-    }
+    }*/
 }
 
 
@@ -187,7 +170,7 @@ fun NoBookingsView(modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
+/*@Composable
 fun BookingStatus(
     book: UiBooking,
     viewModel: BookingListViewModel,
@@ -268,7 +251,7 @@ fun BookingStatus(
             }
         }
     }
-}
+}*/
 
 @Composable
 fun BookingManagerButtons(onDecline: () -> Unit, onApprove: () -> Unit) {

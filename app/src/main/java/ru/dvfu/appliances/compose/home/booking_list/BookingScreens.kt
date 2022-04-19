@@ -1,3 +1,4 @@
+/*
 package ru.dvfu.appliances.compose.home.booking_list
 
 import androidx.compose.foundation.layout.Box
@@ -46,4 +47,4 @@ fun DeclinedAndPastBookingsList(bookings: List<UiBooking>) {
             )
         }
     }
-}
+}*/

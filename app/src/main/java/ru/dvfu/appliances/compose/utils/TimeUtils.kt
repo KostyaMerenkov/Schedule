@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose.utils
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -22,3 +23,6 @@ object TimeConstants {
 
 val LocalDateTime.toMillis: Long
     get() = this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+val LocalDate.toMillis: Long
+    get() = this.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
