@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose.event_calendar
 
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import java.time.LocalDate
 import java.time.LocalTime
 

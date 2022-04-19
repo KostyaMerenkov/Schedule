@@ -1,3 +1,4 @@
+/*
 package ru.dvfu.appliances.compose.home.booking_list
 
 import androidx.compose.foundation.layout.*
@@ -10,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.home.*
 import ru.dvfu.appliances.compose.views.DefaultButton
-import ru.dvfu.appliances.compose.views.HeaderText
 import ru.dvfu.appliances.compose.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.UiBooking
 
@@ -178,3 +177,4 @@ fun BookingButtons(
     }
 }
 
+*/

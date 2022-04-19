@@ -14,12 +14,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import ru.dvfu.appliances.R
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import ru.dvfu.appliances.model.utils.Constants
 import java.time.LocalDateTime
 
 
@@ -44,7 +48,7 @@ fun BasicEvent(
             )
             .clipToBounds()
             .background(
-                event.color,
+                event.appliance?.color?.let { Color(it) } ?: Constants.DEFAULT_EVENT_COLOR,
                 shape = RoundedCornerShape(
                     topStart = topRadius,
                     topEnd = topRadius,
@@ -59,23 +63,23 @@ fun BasicEvent(
             .padding(4.dp)
     ) {
         Text(
-            text = "${event.start.format(EventTimeFormatter)} - ${event.end.format(EventTimeFormatter)}",
+            text = "${event.timeStart.format(EventTimeFormatter)} - ${event.timeEnd.format(EventTimeFormatter)}",
             style = MaterialTheme.typography.caption,
             maxLines = 2,
             overflow = TextOverflow.Clip,
         )
 
         Text(
-            text = event.applianceName,
+            text = event.appliance?.name ?: stringResource(id = R.string.appliance_name_failed),
             style = MaterialTheme.typography.body1,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
 
-        if (event.description != null) {
+        if (event.commentary.isNotBlank()) {
             Text(
-                text = event.description,
+                text = event.commentary,
                 style = MaterialTheme.typography.body2,
 
                 overflow = TextOverflow.Ellipsis,
@@ -84,14 +88,14 @@ fun BasicEvent(
     }
 }
 
-val sampleEvents = listOf(
+/*val sampleEvents = listOf(
     CalendarEvent(
         applianceName = "Google I/O Keynote",
         color = Color(0xFFAFBBF2),
         start = LocalDateTime.parse("2021-05-18T09:00:00"),
         end = LocalDateTime.parse("2021-05-18T11:00:00"),
         description = "Tune in to find out about how we're furthering our mission to organize the world’s information and make it universally accessible and useful.",
-    ),
+    ),*/
     /*CalendarEvent(
         name = "Developer Keynote",
         color = Color(0xFFAFBBF2),
@@ -113,7 +117,7 @@ val sampleEvents = listOf(
         end = LocalDateTime.parse("2021-05-18T11:45:00"),
         description = "Learn about the latest design improvements to help you build personal dynamic experiences with Material Design.",
     ),*/
-    CalendarEvent(
+    /*CalendarEvent(
         applianceName = "What's new in Machine Learning",
         color = Color(0xFFF4BFDB),
         start = LocalDateTime.parse("2021-05-18T10:00:00"),
@@ -138,8 +142,9 @@ val sampleEvents = listOf(
 
 class EventsProvider : PreviewParameterProvider<CalendarEvent> {
     override val values = sampleEvents.asSequence()
-}
+}*/
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun EventPreview(
@@ -151,4 +156,4 @@ fun EventPreview(
             onEventClick = {},
             onEventLongClick = {}
         )
-}
+}*/

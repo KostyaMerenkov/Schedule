@@ -20,13 +20,12 @@ import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
-import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.Event
-import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.model.utils.randomUUID
 import ru.dvfu.appliances.ui.ViewState
 import java.time.*
 import java.util.*
+
 
 class AddEventViewModel(
     private val selectedDate: LocalDate,
@@ -108,7 +107,6 @@ class AddEventViewModel(
                                 SnackbarManager.showMessage(R.string.time_not_free)
                             }
                         }
-
                     }
                 }
             }
@@ -119,23 +117,19 @@ class AddEventViewModel(
         viewModelScope.launch {
             eventsRepository.addNewEvent(
                 Event(
-                    id = randomUUID(),
+                    date = date.value.toMillis,
                     timeCreated = LocalDateTime.now().toMillis,
                     timeStart = timeStart.value.toMillis,
                     timeEnd = timeEnd.value.toMillis,
                     commentary = commentary.value,
                     applianceId = appliance.id,
-                    applianceName = appliance.name,
-                    color = appliance.color,
-                    userId = userDatastore.getCurrentUser.first<User>().userId,
+                    userId = userDatastore.getCurrentUser.first().userId,
+                    status = BookingStatus.NONE,
                 )
+
             ).fold(
-                onSuccess = {
-                    _uiState.value = UiState.Success
-                },
-                onFailure = {
-                    _uiState.value = UiState.Error
-                }
+                onSuccess = { _uiState.value = UiState.Success },
+                onFailure = { _uiState.value = UiState.Error }
             )
 
         }

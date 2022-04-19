@@ -8,7 +8,7 @@ import ru.dvfu.appliances.model.repository.entity.User
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-@Parcelize
+/*@Parcelize
 data class CalendarEvent(
     val id: String = "",
     val color: Color = Color.White,
@@ -20,4 +20,4 @@ data class CalendarEvent(
     val start: LocalDateTime = LocalDateTime.now(),
     val end: LocalDateTime = LocalDateTime.now(),
     val description: String = "",
-) : Parcelable
+) : Parcelable*/

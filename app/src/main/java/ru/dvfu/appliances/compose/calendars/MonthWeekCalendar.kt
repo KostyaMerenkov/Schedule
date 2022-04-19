@@ -3,16 +3,22 @@ package ru.dvfu.appliances.compose.calendars
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -21,13 +27,16 @@ import com.himanshoe.kalendar.common.KalendarStyle
 import com.himanshoe.kalendar.common.data.KalendarEvent
 import com.himanshoe.kalendar.ui.Kalendar
 import com.himanshoe.kalendar.ui.KalendarType
-import ru.dvfu.appliances.compose.appliance.LoadingItem
+import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.NoElementsView
-import ru.dvfu.appliances.compose.event_calendar.CalendarEvent
 import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.viewmodels.EventsState
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
+import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import ru.dvfu.appliances.model.utils.Constants
 import ru.dvfu.appliances.model.utils.loadingModifier
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Composable
@@ -73,9 +82,11 @@ fun MonthWeekCalendar(
                                 EventView(
                                     childModifier = Modifier.loadingModifier(),
                                     event = CalendarEvent(
-                                        applianceName = "Appliance",
-                                        start = LocalDateTime.now(),
-                                        end = LocalDateTime.now()
+                                        appliance = Appliance(name = "Appliance"),
+                                        date = LocalDate.now(),
+                                        timeCreated = LocalDateTime.now(),
+                                        timeStart = LocalDateTime.now(),
+                                        timeEnd = LocalDateTime.now()
                                     ), onEventClick = {}, onEventLongClick = {})
                             }
                         }
@@ -101,7 +112,7 @@ fun EventView(
             .padding(4.dp)
             .clipToBounds()
             .background(
-                event.color,
+                event.appliance?.color?.let { Color(it) } ?: Constants.DEFAULT_EVENT_COLOR,
                 shape = RoundedCornerShape(4.dp)
             )
             .combinedClickable(
@@ -112,10 +123,8 @@ fun EventView(
     ) {
         Column(Modifier.padding(4.dp)) {
             Text(
-                text = "${event.start.format(EventTimeFormatter)} - ${
-                    event.end.format(
-                        EventTimeFormatter
-                    )
+                text = "${event.timeStart.format(EventTimeFormatter)} - ${
+                    event.timeEnd.format(EventTimeFormatter)
                 }",
                 style = MaterialTheme.typography.caption,
                 maxLines = 2,
@@ -124,7 +133,7 @@ fun EventView(
             )
 
             Text(
-                text = event.applianceName,
+                text = event.appliance?.name ?: stringResource(id = R.string.appliance_name_failed),
                 style = MaterialTheme.typography.body1,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -132,9 +141,9 @@ fun EventView(
                 modifier = childModifier
             )
 
-            if (event.description.isNotBlank()) {
+            if (event.commentary.isNotBlank()) {
                 Text(
-                    text = event.description,
+                    text = event.commentary,
                     style = MaterialTheme.typography.body2,
 
                     overflow = TextOverflow.Ellipsis,

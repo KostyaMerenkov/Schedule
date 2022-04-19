@@ -23,13 +23,12 @@ import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.appliance.FabWithLoading
 import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.compose.viewmodels.AddBookingViewModel
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
 import java.time.LocalDate
 
 @Composable
 fun AddBooking(selectedDate: LocalDate, navController: NavController) {
-    val viewModel: AddBookingViewModel = get(parameters = { parametersOf(selectedDate) })
+    val viewModel: AddEventViewModel = get(parameters = { parametersOf(selectedDate) })
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
 
@@ -46,7 +45,7 @@ fun AddBooking(selectedDate: LocalDate, navController: NavController) {
         floatingActionButton = {
             FabWithLoading(
                 showLoading = uiState is UiState.InProgress,
-                onClick = { viewModel.createBooking() }) {
+                onClick = { /*viewModel.createBooking()*/ }) {
                 Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
             }
         }) {
@@ -58,7 +57,7 @@ fun AddBooking(selectedDate: LocalDate, navController: NavController) {
                 .verticalScroll(state = scrollState, enabled = true)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            DateAndTime(
+            /*DateAndTime(
                 date = viewModel.date.collectAsState().value,
                 timeStart = viewModel.timeStart.collectAsState().value.toLocalTime(),
                 timeEnd = viewModel.timeEnd.collectAsState().value.toLocalTime(),
@@ -67,11 +66,11 @@ fun AddBooking(selectedDate: LocalDate, navController: NavController) {
                 onTimeEndSet = viewModel::onTimeEndSet,
                 duration = viewModel.duration.collectAsState().value,
                 isDurationError = viewModel.isDurationError.collectAsState().value,
-            )
-            Commentary(
+            )*/
+            /*Commentary(
                 commentary = viewModel.commentary.collectAsState().value,
                 onCommentarySet = viewModel::onCommentarySet
-            )
+            )*/
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
                 selectedAppliance = viewModel.selectedAppliance.collectAsState(),
