@@ -17,7 +17,7 @@ object TimeConstants {
     const val MOON_PHASE_INCREMENT_IN_DAY = 0.03f
 
 
-    val FULL_DATE_FORMAT = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)
+    val FULL_DATE_FORMAT = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
 
 }
 

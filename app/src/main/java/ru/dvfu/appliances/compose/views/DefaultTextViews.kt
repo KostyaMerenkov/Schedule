@@ -1,19 +1,21 @@
 package ru.dvfu.appliances.compose.views
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ui.theme.customColors
 
 @Composable
@@ -212,5 +214,25 @@ fun DefaultButton(
             color = tint,
             maxLines = 1
         )
+    }
+}
+
+@Composable
+fun TextDivider(
+    modifier: Modifier = Modifier,
+    text: String
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        SecondaryTextSmall(
+            modifier = Modifier.padding(4.dp),
+            text = text
+        )
+        Divider()
     }
 }

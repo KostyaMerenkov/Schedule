@@ -89,5 +89,6 @@
     <string name="profile_edit">Редактирование профиля</string>
     <string name="pending">На рассмотрении</string>
     <string name="pick_color">Выберите цвет</string>
+    <string name="no_commentary">No commentary</string>
     <string name="appliance_name_failed">Не удалось получить название прибора</string>
 </resources>

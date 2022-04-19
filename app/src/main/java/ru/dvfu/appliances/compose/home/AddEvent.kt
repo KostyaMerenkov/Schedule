@@ -322,6 +322,6 @@ fun DateAndTime(
     }
 }
 
-private fun LocalTime.toHoursAndMinutes(): String {
+fun LocalTime.toHoursAndMinutes(): String {
     return format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
 }
