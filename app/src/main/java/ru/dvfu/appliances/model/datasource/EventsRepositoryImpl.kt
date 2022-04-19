@@ -33,18 +33,6 @@ class EventsRepositoryImpl(
                 }
         }
 
-    override suspend fun getAllEventsFromDate(date: LocalDate): Flow<List<Event>> = channelFlow {
-        val listeners = mutableListOf<ListenerRegistration>()
-        listeners.add(
-            dbCollections.getEventsCollection()
-                .orderBy("timeStart").whereGreaterThan("timeStart", date.atStartOfDay().toMillis)
-                .addSnapshotListener(getEventsSuccessListener(this))
-        )
-        awaitClose {
-            listeners.forEach { it.remove() }
-        }
-    }
-
     override suspend fun deleteEvent(id: String) = suspendCoroutine<Result<Unit>> { continuation ->
         dbCollections.getEventsCollection().document(id).delete().addOnCompleteListener {
             if (it.isSuccessful) continuation.resume(Result.success(Unit))
@@ -63,15 +51,24 @@ class EventsRepositoryImpl(
 
     override suspend fun getAllEventsForOneDay(date: LocalDate): Flow<List<Event>> = callbackFlow {
         val subscription = dbCollections.getEventsCollection()
-            .whereGreaterThanOrEqualTo("timeStart", date.atStartOfDay().toMillis)
-            .whereLessThanOrEqualTo("timeStart", date.plusDays(1).atStartOfDay().toMillis)
+            .whereEqualTo("date", date.toMillis)
             .addSnapshotListener { value, error ->
-                value?.let {
-                    trySend(value.toObjects<Event>())
-                }
+                value?.let { trySend(value.toObjects<Event>()) }
             }
 
         awaitClose { subscription.remove() }
+    }
+
+    override suspend fun getAllEventsFromDate(date: LocalDate): Flow<List<Event>> = channelFlow {
+        val listeners = mutableListOf<ListenerRegistration>()
+        listeners.add(
+            dbCollections.getEventsCollection()
+                .whereGreaterThan("date", date.toMillis).orderBy("timeStart")
+                .addSnapshotListener(getEventsSuccessListener(this))
+        )
+        awaitClose {
+            listeners.forEach { it.remove() }
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -107,8 +104,8 @@ class EventsRepositoryImpl(
     ): Result<List<Event>> =
         suspendCoroutine<Result<List<Event>>> { continuation ->
             dbCollections.getEventsCollection()
-                .whereGreaterThan("timeStart", dateStart.atStartOfDay().toMillis)
-                .whereLessThan("timeStart", dateEnd.plusDays(1).atStartOfDay().toMillis)
+                .whereGreaterThan("date", dateStart.toMillis)
+                .whereLessThan("date", dateEnd.toMillis)
                 .get().addOnCompleteListener {
                     if (it.isSuccessful) {
                         val events = it.result.toObjects<Event>()
