@@ -185,6 +185,10 @@ inline fun <reified T : Parcelable> NavBackStackEntry.requiredArg(key: String): 
     }
 }
 
+fun NavController.navigateSingleTop(route: String) {
+    navigate(route, navOptions { launchSingleTop = true })
+}
+
 /**
  * If the lifecycle is not resumed it means this NavBackStackEntry already processed a nav calendarEvent.
  *

@@ -91,8 +91,8 @@ class AddEventViewModel(
     }
 
     fun addEvent() {
+        _uiState.value = UiState.InProgress
         viewModelScope.launch {
-            _uiState.value = UiState.InProgress
 
             val selectedAppliance = selectedAppliance.value
             if (isDurationError.value || selectedAppliance == null) {
@@ -157,8 +157,12 @@ class AddEventViewModel(
     private fun addNewEvent(event: Event) {
         viewModelScope.launch {
             eventsRepository.addNewEvent(event).fold(
-                onSuccess = { _uiState.value = UiState.Success },
-                onFailure = { _uiState.value = UiState.Error }
+                onSuccess = {
+                    _uiState.value = UiState.Success
+                },
+                onFailure = {
+                    _uiState.value = UiState.Error
+                }
             )
         }
     }

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.MyCard
@@ -48,27 +49,30 @@ import java.time.format.FormatStyle
 import java.util.*
 
 @Composable
-fun AddEvent(selectedDate: LocalDate, navController: NavController) {
-    val viewModel: AddEventViewModel = get(parameters = { parametersOf(selectedDate) })
+fun AddEvent(selectedDate: LocalDate, upPress: () -> Unit) {
+    val viewModel: AddEventViewModel = getViewModel(parameters = { parametersOf(selectedDate) })
     val scrollState = rememberScrollState()
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.value) {
-        when (val state = uiState.value) {
+    LaunchedEffect(uiState) {
+        when (uiState) {
             is UiState.Success -> {
-                navController.popBackStack()
+                upPress()
             }
             else -> {}
         }
     }
 
-    if (uiState.value is UiState.InProgress) ModalLoadingDialog()
+    if (uiState is UiState.InProgress) ModalLoadingDialog()
 
     Scaffold(topBar = {
-        ScheduleAppBar(title = stringResource(id = R.string.new_event), backClick = navController::popBackStack)
+        ScheduleAppBar(
+            title = stringResource(id = R.string.new_event),
+            backClick = upPress
+        )
     },
         floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.addEvent() }) {
+            FloatingActionButton(onClick = { if (uiState != UiState.Success) viewModel.addEvent() }) {
                 Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
             }
         }) {
@@ -90,7 +94,10 @@ fun AddEvent(selectedDate: LocalDate, navController: NavController) {
                 duration = viewModel.duration.collectAsState().value,
                 isDurationError = viewModel.isDurationError.collectAsState().value,
             )
-            Commentary(commentary = viewModel.commentary.value, onCommentarySet = viewModel::onCommentarySet)
+            Commentary(
+                commentary = viewModel.commentary.value,
+                onCommentarySet = viewModel::onCommentarySet
+            )
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
                 selectedAppliance = viewModel.selectedAppliance.collectAsState(),
@@ -98,11 +105,14 @@ fun AddEvent(selectedDate: LocalDate, navController: NavController) {
             )
         }
     }
-
 }
 
 @Composable
-fun Commentary(modifier: Modifier = Modifier, commentary: String, onCommentarySet: (String) -> Unit) {
+fun Commentary(
+    modifier: Modifier = Modifier,
+    commentary: String,
+    onCommentarySet: (String) -> Unit
+) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
         PrimaryText(
             text = stringResource(id = R.string.commentary),

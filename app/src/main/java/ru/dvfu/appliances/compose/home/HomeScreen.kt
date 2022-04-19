@@ -1,13 +1,9 @@
 package ru.dvfu.appliances.compose.home
 
 import android.os.Parcelable
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,24 +13,17 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.himanshoe.kalendar.ui.KalendarType
 import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.compose.Arguments
-import ru.dvfu.appliances.compose.MainDestinations
-import ru.dvfu.appliances.compose.ScheduleAppBar
+import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
-import ru.dvfu.appliances.compose.components.FabWithMenu
-import ru.dvfu.appliances.compose.components.MultiFabState
 import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.event_calendar.Schedule
-import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.compose.views.DefaultDialog
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
@@ -57,95 +46,72 @@ fun HomeScreen(
         onDelete = viewModel::deleteEvent
     )
 
-    val fabState = remember { mutableStateOf(MultiFabState.COLLAPSED) }
+    val scrollState = rememberScrollState()
 
-    Scaffold(topBar = {
-        HomeTopBar(onBookingListOpen = {
-            navController.navigate(MainDestinations.BOOKING_LIST)
-        }, onCalendarSelected = viewModel::setCalendarType)
-    }, floatingActionButton = {
-        if (!currentUser.isAnonymousOrGuest()) {
-            FabWithMenu(
-                modifier = Modifier
-                    .padding(bottom = 20.dp)
-                    .zIndex(8f),
-                fabState = fabState,
-                currentUser = currentUser,
-                onAddEventClick = {
-                    navController.navigate(
-                        MainDestinations.ADD_EVENT,
-                        Arguments.DATE to SelectedDate(currentDate)
-                    )
-                },
-                onAddBookingClick = {
-                    navController.navigate(
-                        MainDestinations.ADD_BOOKING,
-                        Arguments.DATE to SelectedDate(currentDate)
-                    )
-                }
-            )
-        }
-    }
+    Scaffold(
+        topBar = {
+            HomeTopBar(onBookingListOpen = {
+                navController.navigate(MainDestinations.BOOKING_LIST)
+            }, onCalendarSelected = viewModel::setCalendarType)
+        },
+        floatingActionButton = {
+            if (!currentUser.isAnonymousOrGuest()) {
+                FloatingActionButton(backgroundColor = Color(0xFFFF8C00),
+                    onClick = {
+                        navController.navigate(
+                            MainDestinations.ADD_EVENT,
+                            Arguments.DATE to SelectedDate(currentDate)
+                        )
+                    }) { Icon(Icons.Default.Add, "") }
+            }
+        },
     ) {
-        AnimatedVisibility(
-            fabState.value == MultiFabState.EXPANDED,
-            modifier = Modifier
-                .zIndex(4f)
-                .fillMaxSize(), enter = fadeIn(), exit = fadeOut()
-        ) {
-            Box(
-                modifier = Modifier
-                    .background(Color.Black.copy(0.6f))
-                    .clickable(role = Role.Image) {
-                        fabState.value = MultiFabState.COLLAPSED
-                    })
-        }
-
-        when (calendarType) {
-            CalendarType.MONTH -> {
-                MonthWeekCalendar(
-                    viewModel = viewModel,
-                    calendarType = KalendarType.Firey(),
-                    onEventClick = {
+        Column(modifier = Modifier.verticalScroll(scrollState)) {
+            when (calendarType) {
+                CalendarType.MONTH -> {
+                    MonthWeekCalendar(
+                        viewModel = viewModel,
+                        calendarType = KalendarType.Firey(),
+                        onEventClick = {
+                            viewModel.getRepoEvent(it)?.let {
+                                navController.navigate(
+                                    MainDestinations.EVENT_INFO,
+                                    Arguments.EVENT to it
+                                )
+                            }
+                        }) {
+                        viewModel.selectedEvent.value = it
+                        eventOptionDialogOpened = true
+                    }
+                }
+                CalendarType.WEEK -> {
+                    MonthWeekCalendar(viewModel = viewModel, onEventClick = {
                         viewModel.getRepoEvent(it)?.let {
                             navController.navigate(
-                                MainDestinations.EVENT_INFO,
-                                Arguments.EVENT to it
+                                MainDestinations.EVENT_INFO, Arguments.EVENT to it
                             )
                         }
                     }) {
-                    viewModel.selectedEvent.value = it
-                    eventOptionDialogOpened = true
-                }
-            }
-            CalendarType.WEEK -> {
-                MonthWeekCalendar(viewModel = viewModel, onEventClick = {
-                    viewModel.getRepoEvent(it)?.let {
-                        navController.navigate(
-                            MainDestinations.EVENT_INFO, Arguments.EVENT to it
-                        )
-                    }
-                }) {
-                    viewModel.selectedEvent.value = it
-                    eventOptionDialogOpened = true
-                }
-            }
-            CalendarType.THREE_DAYS -> {
-                EventCalendar(viewModel = viewModel,
-                    onEventClick = {
-                        viewModel.getRepoEvent(it)?.let {
-                            navController.navigate(
-                                MainDestinations.EVENT_INFO,
-                                Arguments.EVENT to it
-                            )
-                        }
-                    }, onEventLongClick = {
                         viewModel.selectedEvent.value = it
                         eventOptionDialogOpened = true
-                    })
+                    }
+                }
+                CalendarType.THREE_DAYS -> {
+                    EventCalendar(viewModel = viewModel,
+                        onEventClick = {
+                            viewModel.getRepoEvent(it)?.let {
+                                navController.navigate(
+                                    MainDestinations.EVENT_INFO,
+                                    Arguments.EVENT to it
+                                )
+                            }
+                        }, onEventLongClick = {
+                            viewModel.selectedEvent.value = it
+                            eventOptionDialogOpened = true
+                        })
+                }
             }
         }
-
     }
 }
 
@@ -203,9 +169,10 @@ fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: (CalendarType)
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Icon(it.icon, it.icon.name,
+                            Icon(
+                                it.icon, it.icon.name,
                                 //modifier = Modifier.fillMaxWidth(0.2f)
-                                )
+                            )
                             Text(
                                 text = stringResource(id = it.stringRes),
                                 maxLines = 1,
@@ -227,7 +194,8 @@ fun EventOptionDialog(
     onDismiss: () -> Unit
 ) {
     calendarEvent?.let {
-        DefaultDialog(primaryText = calendarEvent.appliance?.name ?: stringResource(id = R.string.appliance_name_failed),
+        DefaultDialog(primaryText = calendarEvent.appliance?.name
+            ?: stringResource(id = R.string.appliance_name_failed),
             secondaryText = "${calendarEvent.timeStart.format(EventTimeFormatter)} - ${
                 calendarEvent.timeEnd.format(
                     EventTimeFormatter

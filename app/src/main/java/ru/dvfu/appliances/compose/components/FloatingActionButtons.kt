@@ -34,7 +34,6 @@ fun FabWithMenu(
     fabState: MutableState<MultiFabState>,
     currentUser: User,
     onAddEventClick: () -> Unit,
-    onAddBookingClick: () -> Unit,
 ) {
     //val toState = remember { mutableStateOf(MultiFabState.COLLAPSED) }
     val transition = updateTransition(targetState = fabState, label = "")
