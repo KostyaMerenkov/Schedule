@@ -66,7 +66,7 @@ fun HomeScreen(
             }
         },
     ) {
-        Column(modifier = Modifier.verticalScroll(scrollState)) {
+        Column(/*modifier = Modifier.verticalScroll(scrollState)*/) {
             when (calendarType) {
                 CalendarType.MONTH -> {
                     MonthWeekCalendar(
