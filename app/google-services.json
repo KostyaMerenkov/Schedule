@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "106372275715-a59u1j06enp12tvkosstc2vsdfbupc4s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "9f7563dbca81ae4eb8c59c802407adeb984bd3fd"
+          }
+        },
+        {
           "client_id": "106372275715-koeuhmhvig26so13nmor4j2i854g8f2v.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -23,11 +31,11 @@
           }
         },
         {
-          "client_id": "106372275715-r9elkha68mkjc85lvbqgehnqprpqvf9q.apps.googleusercontent.com",
+          "client_id": "106372275715-rhctc9q9hugj1ok2kjocth0i576jlugc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "ru.dvfu.appliances",
-            "certificate_hash": "c1e2b37768b8c21bc2dc7313edb62e0438b4bcf3"
+            "certificate_hash": "b5b0153f6b2f7151d8048417aa1542c270f9b3c6"
           }
         },
         {

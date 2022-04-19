@@ -10,8 +10,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -69,7 +71,7 @@ fun BookingList(navController: NavController) {
                 title = "Бронирования",
                 backClick = { navController.popBackStack() })
         }) {
-        Crossfade(targetState = uiState) {
+        Crossfade(targetState = uiState) { it ->
             when (it) {
                 is ViewState.Error -> {
                     //ErrorView()
@@ -78,15 +80,49 @@ fun BookingList(navController: NavController) {
                     LoadingItem(Modifier.fillMaxSize())
                 }
                 is ViewState.Success -> {
-                    if (list.isEmpty()) NoBookingsView(Modifier.fillMaxSize())
 
-                    val tabs = listOf(
-                        BookingTabItem.PendingBookingsTabItem(list),
-                        BookingTabItem.ApprovedBookingsTabItem(list),
-                        BookingTabItem.DeclinedBookingsTabItem(list)
+                    if (list.isEmpty()) {
+                        NoBookingsView(Modifier.fillMaxSize())
+                    }
+
+                    val bookingTabs = mutableListOf<BookingTabItem>()
+
+                    if (currentUser.value.isAdmin()) {
+                        bookingTabs.add(
+                            BookingTabItem.PendingBookingsTabItem(
+                                bookings = list,
+                                viewModel = viewModel
+                            )
+                        )
+                    } else {
+                        val pendingBookings = list.filter {
+                            it.appliance?.isUserSuperuserOrAdmin(currentUser.value) == true
+                        }
+                        bookingTabs.add(
+                            BookingTabItem.PendingBookingsTabItem(
+                                bookings = pendingBookings,
+                                viewModel = viewModel
+                            )
+                        )
+                    }
+
+                    val bookings = list.filter { it.user?.userId == currentUser.value.userId }
+
+                    bookingTabs.add(
+                        BookingTabItem.ApprovedBookingsTabItem(
+                            bookings = bookings,
+                            viewModel = viewModel
+                        )
                     )
 
-                    val pagerState = rememberPagerState(pageCount = tabs.size)
+                    bookingTabs.add(
+                        BookingTabItem.DeclinedBookingsTabItem(
+                            bookings = bookings,
+                            viewModel = viewModel
+                        )
+                    )
+
+                    val pagerState = rememberPagerState(pageCount = bookingTabs.size)
 
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -95,12 +131,12 @@ fun BookingList(navController: NavController) {
                     ) {
 
                         BookingListTabsView(
-                            tabsList = tabs,
+                            tabsList = bookingTabs,
                             pagerState = pagerState
                         )
 
                         BookingTabsContent(
-                            tabsList = tabs,
+                            tabsList = bookingTabs,
                             pagerState = pagerState
                         )
 
@@ -182,7 +218,7 @@ fun BookingListHeader(stringResource: String) {
 
 @Composable
 fun NoBookingsView(modifier: Modifier = Modifier) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(text = stringResource(id = R.string.no_books))
     }
 }
@@ -287,24 +323,87 @@ fun BookingManagerButtons(onDecline: () -> Unit, onApprove: () -> Unit) {
 }
 
 @Composable
-fun BookingCommentary(commentary: String) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        PrimaryText(
-            text = stringResource(id = R.string.commentary),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Text(text = commentary)
+fun BookingCommentary(
+    modifier: Modifier = Modifier,
+    commentary: String
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        TextDivider(text = stringResource(id = R.string.commentary))
+
+        if (commentary.isBlank()) {
+            SecondaryText(text = stringResource(R.string.no_commentary))
+        } else {
+            PrimaryText(
+                text = stringResource(id = R.string.commentary),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun BookingTime(timeStart: LocalDateTime, timeEnd: LocalDateTime) {
-    DateAndTime(
-        date = timeStart.toLocalDate(),
-        timeStart = timeStart.toLocalTime(),
-        timeEnd = timeEnd.toLocalTime(),
-        duration = null,
-    )
+fun BookingTime(
+    modifier: Modifier = Modifier,
+    timeStart: LocalDateTime,
+    timeEnd: LocalDateTime
+) {
+
+    var dialogState by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Spacer(
+            modifier = Modifier
+                .padding(8.dp)
+                .size(24.dp)
+        )
+
+        Column(
+            modifier = Modifier.padding(4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            PrimaryText(text = timeStart.toLocalDate().format(TimeConstants.FULL_DATE_FORMAT))
+            PrimaryText(
+                text = "${
+                    timeStart.toLocalTime().toHoursAndMinutes()
+                } - ${
+                    timeEnd.toLocalTime().toHoursAndMinutes()
+                }"
+            )
+        }
+
+        IconButton(onClick = { dialogState = !dialogState }) {
+            Icon(
+                modifier = Modifier.size(24.dp),
+                painter = painterResource(id = R.drawable.ic_baseline_edit_24),
+                contentDescription = null
+            )
+        }
+    }
+
+    if (dialogState) {
+        DefaultDialog(primaryText = stringResource(id = R.string.date_and_time)) {
+            DateAndTime(
+                date = timeStart.toLocalDate(),
+                timeStart = timeStart.toLocalTime(),
+                timeEnd = timeEnd.toLocalTime(),
+                duration = null,
+            )
+        }
+    }
 }
 
 @Composable
@@ -314,23 +413,14 @@ fun BookingAppliance(
     onApplianceClick: () -> Unit
 ) {
     Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         if (shouldShowHeader) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                SecondaryTextSmall(
-                    modifier = Modifier.padding(4.dp),
-                    text = stringResource(id = R.string.appliance)
-                )
-                Divider()
-            }
+            TextDivider(text = stringResource(id = R.string.appliance))
         }
 
         InvisibleCardClickable(onClick = onApplianceClick) {
@@ -344,7 +434,8 @@ fun BookingAppliance(
                 //.padding(horizontal = 10.dp)
             ) {
                 ApplianceImage(
-                    appliance, modifier = Modifier
+                    appliance,
+                    modifier = Modifier
                         .height(48.dp)
                         .aspectRatio(1f)
                         .fillMaxWidth(0.20f),
@@ -384,20 +475,7 @@ fun BookingUser(user: User, shouldShowHeader: Boolean = true, onUserClick: () ->
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         if (shouldShowHeader) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                SecondaryTextSmall(
-                    modifier = Modifier.padding(4.dp),
-                    text = stringResource(id = R.string.user)
-                )
-                Divider()
-            }
-
+            TextDivider(text = stringResource(id = R.string.user))
         }
         InvisibleCardClickable(onClick = onUserClick) {
             Row(

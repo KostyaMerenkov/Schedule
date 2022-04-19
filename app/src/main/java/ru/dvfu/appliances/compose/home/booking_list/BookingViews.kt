@@ -26,22 +26,22 @@ import ru.dvfu.appliances.model.repository.entity.UiBooking
 
 sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Unit) {
 
-    class PendingBookingsTabItem(bookings: List<UiBooking>) :
+    class PendingBookingsTabItem(bookings: List<UiBooking>, viewModel: BookingListViewModel) :
         BookingTabItem(
             titleRes = R.string.pending,
-            screen = { PendingBookingsList(bookings) }
+            screen = { PendingBookingsList(bookings, viewModel) }
         )
 
-    class ApprovedBookingsTabItem(bookings: List<UiBooking>) :
+    class ApprovedBookingsTabItem(bookings: List<UiBooking>, viewModel: BookingListViewModel) :
         BookingTabItem(
             titleRes = R.string.approved,
-            screen = { ApprovedBookingsList(bookings) }
+            screen = { ApprovedBookingsList(bookings, viewModel) }
         )
 
-    class DeclinedBookingsTabItem(bookings: List<UiBooking>) :
+    class DeclinedBookingsTabItem(bookings: List<UiBooking>, viewModel: BookingListViewModel) :
         BookingTabItem(
             titleRes = R.string.declined,
-            screen = { DeclinedAndPastBookingsList(bookings) }
+            screen = { DeclinedAndPastBookingsList(bookings, viewModel) }
         )
 }
 
@@ -93,7 +93,8 @@ fun BookingTabsContent(
 fun BookingRequestItemView(
     modifier: Modifier = Modifier,
     booking: UiBooking,
-    onClick: (UiBooking) -> Unit,
+    onApproveClick: () -> Unit,
+    onDeclineClick: () -> Unit
 ) {
     Card(
         modifier = modifier
@@ -108,7 +109,7 @@ fun BookingRequestItemView(
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
-            BookingTime(booking.timeStart, booking.timeEnd)
+            BookingTime(timeStart = booking.timeStart, timeEnd = booking.timeEnd)
             Spacer(modifier = Modifier.size(8.dp))
             booking.appliance?.let {
                 BookingAppliance(booking.appliance!!, onApplianceClick = {
@@ -126,13 +127,12 @@ fun BookingRequestItemView(
 //                    )
                 })
             }
-            if (booking.commentary.isNotBlank()) {
-                BookingCommentary(commentary = booking.commentary)
-            }
+
+            BookingCommentary(commentary = booking.commentary)
 
             BookingButtons(
-                onApproveClick = { },
-                onDeclineClick = { }
+                onApproveClick = onApproveClick,
+                onDeclineClick = onDeclineClick
             )
 //            BookingStatus(
 //                book = booking,
@@ -159,7 +159,10 @@ fun BookingButtons(
     onDeclineClick: () -> Unit
 ) {
     Row(
-        modifier = modifier.padding(16.dp).fillMaxWidth().wrapContentHeight(),
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .wrapContentHeight(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
