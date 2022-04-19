@@ -19,6 +19,6 @@ data class Appliance(
     val userIds: List<String> = listOf()
 ): Parcelable {
     fun isUserSuperuserOrAdmin(user: User): Boolean {
-        return this.superuserIds.contains(user.userId) ||  user.role == Roles.ADMIN.ordinal
+        return superuserIds.contains(user.userId) ||  user.isAdmin()
     }
 }

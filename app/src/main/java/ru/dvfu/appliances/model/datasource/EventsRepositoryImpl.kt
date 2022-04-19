@@ -63,7 +63,8 @@ class EventsRepositoryImpl(
         val listeners = mutableListOf<ListenerRegistration>()
         listeners.add(
             dbCollections.getEventsCollection()
-                .whereGreaterThan("date", date.toMillis).orderBy("timeStart")
+                //.orderBy("timeStart")
+                .whereGreaterThan("date", date.toMillis)
                 .addSnapshotListener(getEventsSuccessListener(this))
         )
         awaitClose {
@@ -97,6 +98,21 @@ class EventsRepositoryImpl(
                     } else continuation.resume(Result.failure(it.exception ?: Throwable()))
                 }
         }
+
+    override suspend fun getApplianceDateEvents(
+        applianceId: String,
+        date: LocalDate
+    ): Result<List<Event>> = suspendCoroutine<Result<List<Event>>> { continuation ->
+        dbCollections.getEventsCollection()
+            .whereEqualTo("applianceId", applianceId)
+            .whereEqualTo("date", date.toMillis)
+            .get().addOnCompleteListener {
+                if (it.isSuccessful) {
+                    val events = it.result.toObjects<Event>()
+                    continuation.resume(Result.success(events))
+                } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+            }
+    }
 
     override suspend fun getAllEventsWithPeriod(
         dateStart: LocalDate,

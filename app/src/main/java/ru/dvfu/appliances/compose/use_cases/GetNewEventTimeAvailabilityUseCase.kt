@@ -4,15 +4,19 @@ import kotlinx.coroutines.flow.flow
 import ru.dvfu.appliances.compose.utils.AvailabilityState
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Event
+import java.time.LocalDate
 
 class GetNewEventTimeAvailabilityUseCase(
     private val eventsRepository: EventsRepository,
 ) {
 
     suspend operator fun invoke(
-        applianceId: String, timeStart: Long, timeEnd: Long
+        applianceId: String,
+        timeStart: Long,
+        timeEnd: Long,
+        date: LocalDate
     ) = flow<AvailabilityState> {
-        eventsRepository.getApplianceEventsAfterTime(applianceId, timeStart).fold(
+        eventsRepository.getApplianceDateEvents(applianceId, date).fold(
             onSuccess = {
                 if (it.isEmpty()) emit(AvailabilityState.Available)
                 else {

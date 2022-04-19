@@ -97,11 +97,6 @@ private fun NavGraphBuilder.NavGraph(
         AddEvent(selectedDate = selectedDate, navController = navController)
     }
 
-    composable(MainDestinations.ADD_BOOKING) {
-        val selectedDate = it.arguments?.getParcelable<SelectedDate>(Arguments.DATE)?.value ?: LocalDate.now()
-        AddBooking(selectedDate = selectedDate, navController = navController)
-    }
-
     composable(MainDestinations.EVENT_INFO) {
         EventInfo(navController, eventArg = it.requiredArg(Arguments.EVENT), backPress)
     }

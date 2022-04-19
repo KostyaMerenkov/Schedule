@@ -5,6 +5,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -21,12 +23,13 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.appliance.UserImage
 import ru.dvfu.appliances.compose.home.DateAndTime
+import ru.dvfu.appliances.compose.utils.TimeConstants
+import ru.dvfu.appliances.compose.utils.toHoursAndMinutes
 import ru.dvfu.appliances.compose.views.*
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import java.time.LocalDateTime
 
-@SuppressLint("UnrememberedMutableState")
 @OptIn(
     ExperimentalCoilApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class,
     androidx.compose.animation.ExperimentalAnimationApi::class,
@@ -41,11 +44,7 @@ fun BookingList(navController: NavController) {
     val list by viewModel.bookingList.collectAsState()
     val managingUiState by viewModel.managingUiState.collectAsState()
 
-    if (managingUiState is UiState.InProgress) ModalLoadingDialog(
-        mutableStateOf(true), text = stringResource(
-            id = R.string.loading
-        )
-    )
+    if (managingUiState is UiState.InProgress) ModalLoadingDialog()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -370,9 +369,8 @@ fun BookingTime(
 
         IconButton(onClick = { dialogState = !dialogState }) {
             Icon(
-                modifier = Modifier.size(24.dp),
-                painter = painterResource(id = R.drawable.ic_baseline_edit_24),
-                contentDescription = null
+                Icons.Default.Edit,
+                contentDescription = null,
             )
         }
     }

@@ -3,10 +3,8 @@ package ru.dvfu.appliances.compose.viewmodels
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
+import io.grpc.InternalChannelz.id
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
@@ -21,6 +19,7 @@ import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.*
+import ru.dvfu.appliances.model.utils.Constants
 import ru.dvfu.appliances.model.utils.randomUUID
 import ru.dvfu.appliances.ui.ViewState
 import java.time.*
@@ -43,6 +42,8 @@ class AddEventViewModel(
 
     private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
     val appliancesState = _appliancesState.asStateFlow()
+
+    private val currentUser = MutableStateFlow(User())
 
     val date = mutableStateOf(selectedDate)
     val timeStart = mutableStateOf<LocalDateTime>(LocalTime.now().atDate(selectedDate))
@@ -68,11 +69,17 @@ class AddEventViewModel(
             return MutableStateFlow(period)
         }
 
-    private val isError: MutableStateFlow<Boolean>
-        get() = MutableStateFlow(isDurationError.value || selectedAppliance.value == null)
-
     init {
+        getCurrentUser()
         loadAppliances()
+    }
+
+    private fun getCurrentUser() {
+        viewModelScope.launch {
+            userDatastore.getCurrentUser.collect {
+                currentUser.value = it
+            }
+        }
     }
 
     private fun loadAppliances() {
@@ -84,54 +91,75 @@ class AddEventViewModel(
     }
 
     fun addEvent() {
-        val selectedAppliance = _selectedAppliance.value
         viewModelScope.launch {
-            if (isError.value) {
+            _uiState.value = UiState.InProgress
+
+            val selectedAppliance = selectedAppliance.value
+            if (isDurationError.value || selectedAppliance == null) {
                 showError()
             } else {
-                selectedAppliance?.let {
-                    _uiState.value = UiState.InProgress
-                    getNewEventTimeAvailabilityUseCase(
-                        it.id,
-                        timeStart.value.toMillis,
-                        timeEnd.value.toMillis
-                    ).collect { result ->
-                        when (result) {
-                            AvailabilityState.Available -> addNewEvent(selectedAppliance)
-                            AvailabilityState.Error -> {
-                                _uiState.value = UiState.Error
-                                SnackbarManager.showMessage(R.string.new_event_failed)
-                            }
-                            AvailabilityState.NotAvailable -> {
-                                _uiState.value = UiState.Error
-                                SnackbarManager.showMessage(R.string.time_not_free)
-                            }
-                        }
+                val availabilityResult = getNewEventTimeAvailabilityUseCase.invoke(
+                    selectedAppliance.id,
+                    timeStart.value.toMillis,
+                    timeEnd.value.toMillis,
+                    date = date.value
+                ).single()
+
+                when (availabilityResult) {
+                    AvailabilityState.Available -> addNewEvent(
+                        if (selectedAppliance.isUserSuperuserOrAdmin(currentUser.value))
+                            prepareApprovedEvent(selectedAppliance)
+                        else prepareEvent(selectedAppliance)
+
+                    )
+                    AvailabilityState.Error -> {
+                        _uiState.value = UiState.Error
+                        SnackbarManager.showMessage(R.string.new_event_failed)
+                    }
+                    AvailabilityState.NotAvailable -> {
+                        _uiState.value = UiState.Error
+                        SnackbarManager.showMessage(R.string.time_not_free)
                     }
                 }
             }
         }
     }
 
-    private fun addNewEvent(appliance: Appliance) {
-        viewModelScope.launch {
-            eventsRepository.addNewEvent(
-                Event(
-                    date = date.value.toMillis,
-                    timeCreated = LocalDateTime.now().toMillis,
-                    timeStart = timeStart.value.toMillis,
-                    timeEnd = timeEnd.value.toMillis,
-                    commentary = commentary.value,
-                    applianceId = appliance.id,
-                    userId = userDatastore.getCurrentUser.first().userId,
-                    status = BookingStatus.NONE,
-                )
+    private fun prepareEvent(selectedAppliance: Appliance): Event {
+        return Event(
+            date = date.value.toMillis,
+            timeCreated = LocalDateTime.now().toMillis,
+            timeStart = timeStart.value.toMillis,
+            timeEnd = timeEnd.value.toMillis,
+            commentary = commentary.value,
+            applianceId = selectedAppliance.id,
+            userId = currentUser.value.userId,
+            status = BookingStatus.NONE,
+        )
+    }
 
-            ).fold(
+    private fun prepareApprovedEvent(selectedAppliance: Appliance): Event {
+        return Event(
+            date = date.value.toMillis,
+            timeCreated = LocalDateTime.now().toMillis,
+            timeStart = timeStart.value.toMillis,
+            timeEnd = timeEnd.value.toMillis,
+            commentary = commentary.value,
+            applianceId = selectedAppliance.id,
+            userId = currentUser.value.userId,
+            managedTime = LocalDateTime.now().toMillis,
+            managerCommentary = "",
+            managedById = currentUser.value.userId,
+            status = BookingStatus.APPROVED,
+        )
+    }
+
+    private fun addNewEvent(event: Event) {
+        viewModelScope.launch {
+            eventsRepository.addNewEvent(event).fold(
                 onSuccess = { _uiState.value = UiState.Success },
                 onFailure = { _uiState.value = UiState.Error }
             )
-
         }
     }
 
@@ -139,7 +167,7 @@ class AddEventViewModel(
         when {
             Duration.between(
                 timeStart.value, timeEnd.value,
-            ) < Duration.ofMinutes(10) -> {
+            ) < Duration.ofMinutes(Constants.MIN_EVENT_DURATION_MINS) -> {
                 SnackbarManager.showMessage(R.string.duration_error)
             }
             selectedAppliance.value == null -> {
@@ -147,6 +175,7 @@ class AddEventViewModel(
             }
             else -> SnackbarManager.showMessage(R.string.error_occured)
         }
+        _uiState.value = UiState.Error
     }
 
     fun onApplianceSelected(appliance: Appliance) {

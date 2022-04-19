@@ -86,11 +86,7 @@ fun EditProfile(onBack: () -> Unit) {
         }
     }
 
-    if (uiState is ViewState.Loading) ModalLoadingDialog(
-        dialogSate = mutableStateOf(true),
-        text = context.getString(R.string.loading)
-    )
-
+    if (uiState is ViewState.Loading) ModalLoadingDialog()
 
     Scaffold(
         modifier = Modifier

@@ -2,6 +2,7 @@ package ru.dvfu.appliances.compose.utils
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -26,3 +27,7 @@ val LocalDateTime.toMillis: Long
 
 val LocalDate.toMillis: Long
     get() = this.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+fun LocalTime.toHoursAndMinutes(): String {
+    return format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+}

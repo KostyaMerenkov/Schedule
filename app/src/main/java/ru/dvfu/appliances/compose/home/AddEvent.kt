@@ -33,7 +33,9 @@ import ru.dvfu.appliances.compose.appliance.FabWithLoading
 import ru.dvfu.appliances.compose.components.*
 import ru.dvfu.appliances.compose.utils.TimeConstants.FULL_DATE_FORMAT
 import ru.dvfu.appliances.compose.utils.TimeConstants.MILLISECONDS_IN_HOUR
+import ru.dvfu.appliances.compose.utils.toHoursAndMinutes
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
+import ru.dvfu.appliances.compose.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.ui.BaseViewState
@@ -49,21 +51,24 @@ import java.util.*
 fun AddEvent(selectedDate: LocalDate, navController: NavController) {
     val viewModel: AddEventViewModel = get(parameters = { parametersOf(selectedDate) })
     val scrollState = rememberScrollState()
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState = viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState) {
-        when (uiState) {
-            is UiState.Success -> navController.popBackStack()
+    LaunchedEffect(uiState.value) {
+        when (val state = uiState.value) {
+            is UiState.Success -> {
+                navController.popBackStack()
+            }
             else -> {}
         }
     }
 
+    if (uiState.value is UiState.InProgress) ModalLoadingDialog()
+
     Scaffold(topBar = {
-        ScheduleAppBar(title = "Создание события", backClick = navController::popBackStack)
+        ScheduleAppBar(title = stringResource(id = R.string.new_event), backClick = navController::popBackStack)
     },
         floatingActionButton = {
-            FabWithLoading(showLoading = uiState is UiState.InProgress,
-                onClick = { viewModel.addEvent() }) {
+            FloatingActionButton(onClick = { viewModel.addEvent() }) {
                 Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
             }
         }) {
@@ -320,8 +325,4 @@ fun DateAndTime(
             }
         }
     }
-}
-
-fun LocalTime.toHoursAndMinutes(): String {
-    return format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
 }

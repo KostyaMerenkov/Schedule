@@ -18,6 +18,7 @@ interface EventsRepository {
     suspend fun getAllEventsForOneDay(date: LocalDate): Flow<List<Event>>
 
     suspend fun getApplianceEventsAfterTime(applianceId: String, time: Long): Result<List<Event>>
+    suspend fun getApplianceDateEvents(applianceId: String, date: LocalDate): Result<List<Event>>
     suspend fun getAllEventsWithPeriod(dateStart: LocalDate, dateEnd: LocalDate): Result<List<Event>>
     /*suspend fun getUsers(): Flow<List<User>>
 

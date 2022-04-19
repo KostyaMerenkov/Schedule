@@ -106,12 +106,7 @@ fun SubscribeToProgress(vmuiState: State<BaseViewState>, upPress: () -> Unit) {
                 upPress()
             }
         }
-        is BaseViewState.Loading -> {
-            ModalLoadingDialog(
-                dialogSate = mutableStateOf(true),
-                text = stringResource(id = R.string.loading)
-            )
-        }
+        is BaseViewState.Loading -> { ModalLoadingDialog() }
         is BaseViewState.Error -> {
             ErrorDialog(errorDialog)
             errorDialog.value = true
