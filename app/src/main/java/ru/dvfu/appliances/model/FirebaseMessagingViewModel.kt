@@ -27,8 +27,6 @@ class FirebaseMessagingViewModel(
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
-
-
     @OptIn(DelicateCoroutinesApi::class)
     fun onNewToken(newToken: String) {
         scope.launch {

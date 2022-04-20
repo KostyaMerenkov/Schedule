@@ -1,8 +1,6 @@
 package ru.dvfu.appliances.compose.calendars
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,51 +46,49 @@ fun MonthWeekCalendar(
 ) {
     val currentDate = viewModel.currentDate.collectAsState()
     val dayEvents = viewModel.dayEvents
-    Scaffold {
-        Column {
-            Kalendar(kalendarType = calendarType, onCurrentDayClick = { day, event ->
-                viewModel.onDaySelected(day)
+    val scrollState = rememberScrollState()
+    Column(modifier = Modifier
+        .verticalScroll(scrollState)) {
+        Kalendar(kalendarType = calendarType, onCurrentDayClick = { day, event ->
+            viewModel.onDaySelected(day)
 
-            }, errorMessage = {
-                //Handle the error if any
-            },
-                kalendarStyle = KalendarStyle(kalendarSelector = KalendarSelector.Circle()),
-                kalendarEvents = dayEvents.filter { (it.value as? EventsState.Loaded)?.events?.isEmpty() == false }
-                    .map { KalendarEvent(it.key, "") }
-            )
-            LazyColumn(contentPadding = PaddingValues(8.dp)) {
-                dayEvents[currentDate.value]?.let {
-                    when (it) {
-                        is EventsState.Loaded -> {
-                            if (it.events.isEmpty()) {
-                                item {
-                                    NoElementsView(mainText = "Нет событий на выбранный день") {}
-                                }
-                            }
-                            items(it.events) { event ->
-                                EventView(
-                                    onEventClick = onEventClick,
-                                    onEventLongClick = onEventLongClick,
-                                    event = event
-                                )
-                            }
-                        }
-                        EventsState.Loading -> {
-                            items(2) {
-                                EventView(
-                                    childModifier = Modifier.loadingModifier(),
-                                    event = CalendarEvent(
-                                        appliance = Appliance(name = "Appliance"),
-                                        date = LocalDate.now(),
-                                        timeCreated = LocalDateTime.now(),
-                                        timeStart = LocalDateTime.now(),
-                                        timeEnd = LocalDateTime.now()
-                                    ), onEventClick = {}, onEventLongClick = {})
-                            }
-                        }
+        }, errorMessage = {
+            //Handle the error if any
+        },
+            kalendarStyle = KalendarStyle(kalendarSelector = KalendarSelector.Circle()),
+            kalendarEvents = dayEvents.filter { (it.value as? EventsState.Loaded)?.events?.isEmpty() == false }
+                .map { KalendarEvent(it.key, "") }
+        )
+        Column(modifier = Modifier.padding(8.dp).padding(bottom = 150.dp)) {
+        dayEvents[currentDate.value]?.let {
+            when (it) {
+                is EventsState.Loaded -> {
+                    if (it.events.isEmpty()) {
+                        NoElementsView(mainText = "Нет событий на выбранный день") {}
+                    }
+                    it.events.forEach { event ->
+                        EventView(
+                            onEventClick = onEventClick,
+                            onEventLongClick = onEventLongClick,
+                            event = event
+                        )
+                    }
+                }
+                EventsState.Loading -> {
+                    (0..2).forEach {
+                        EventView(
+                            childModifier = Modifier.loadingModifier(),
+                            event = CalendarEvent(
+                                appliance = Appliance(name = "Appliance"),
+                                date = LocalDate.now(),
+                                timeCreated = LocalDateTime.now(),
+                                timeStart = LocalDateTime.now(),
+                                timeEnd = LocalDateTime.now()
+                            ), onEventClick = {}, onEventLongClick = {})
                     }
                 }
             }
+        }
         }
     }
 }
