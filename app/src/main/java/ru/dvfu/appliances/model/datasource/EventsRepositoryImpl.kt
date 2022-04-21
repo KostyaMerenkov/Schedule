@@ -10,6 +10,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.EventsRepository
+import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.ui.Progress
@@ -48,6 +49,19 @@ class EventsRepositoryImpl(
                     else continuation.resume(Result.failure(it.exception ?: Throwable()))
                 }
         }
+
+    override suspend fun setNewEventStatus(
+        eventId: String,
+        newStatus: BookingStatus
+    ) = suspendCoroutine<Result<Unit>> { continuation ->
+        dbCollections.getEventsCollection().document(eventId).update("status", newStatus)
+            .addOnCompleteListener {
+                if (it.isSuccessful) continuation.resume(Result.success(Unit))
+                else continuation.resume(Result.failure(it.exception ?: Throwable()))
+            }
+    }
+
+
 
     override suspend fun getAllEventsForOneDay(date: LocalDate): Flow<List<Event>> = callbackFlow {
         val subscription = dbCollections.getEventsCollection()

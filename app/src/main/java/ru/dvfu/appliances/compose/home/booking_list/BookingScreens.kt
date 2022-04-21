@@ -1,5 +1,5 @@
-/*
-package ru.dvfu.appliances.compose.home.booking_list
+package ru.dvfu.appliances.compose.home.booking_list/*
+
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

@@ -1,5 +1,4 @@
-/*
-package ru.dvfu.appliances.compose.home.booking_list
+package ru.dvfu.appliances.compose.home.booking_list/*
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
