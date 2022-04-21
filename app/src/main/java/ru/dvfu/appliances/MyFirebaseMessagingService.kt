@@ -10,9 +10,8 @@ import android.util.Log
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.FirebaseMessagingService
 import org.koin.android.ext.android.get
-import org.koin.androidx.compose.getViewModel
-import org.koin.androidx.viewmodel.ext.android.getViewModel
 import ru.dvfu.appliances.model.FirebaseMessagingViewModel
+import ru.dvfu.appliances.model.utils.Constants.NOTIFICATION_CHANNEL_ID
 import java.util.*
 
 
@@ -31,7 +30,7 @@ class MyFirebaseMessagingService() : FirebaseMessagingService() {
             Log.d("MSG", it)
         }
 
-        shownotification(remoteMessage.notification)
+        showNotification(remoteMessage.notification)
     }
 
     override fun onNewToken(s: String) {
@@ -40,30 +39,17 @@ class MyFirebaseMessagingService() : FirebaseMessagingService() {
         Log.d("NEW_TOKEN", s)
     }
 
-    fun shownotification(message: RemoteMessage.Notification?) {
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val NOTIFICATION_CHANNEL_ID = "com.dvfu.appliances" //your app package name
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID, "Notification",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            notificationChannel.description = "Techrush Channel"
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.BLUE
-            notificationChannel.vibrationPattern = longArrayOf(0, 1000, 500, 1000)
-            notificationManager.createNotificationChannel(notificationChannel)
-        }
+    fun showNotification(message: RemoteMessage.Notification?) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         val notificationBuilder: Notification.Builder =
             Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
         notificationBuilder.setAutoCancel(true)
             .setDefaults(Notification.DEFAULT_ALL)
             .setWhen(System.currentTimeMillis())
-            .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(message?.title ?: "")
             .setContentText(message?.body ?: "")
-            .setContentInfo("Info")
         notificationManager.notify(Random().nextInt(), notificationBuilder.build())
     }
 
