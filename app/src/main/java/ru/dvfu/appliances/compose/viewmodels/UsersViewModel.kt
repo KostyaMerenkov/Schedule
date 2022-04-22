@@ -34,7 +34,6 @@ class UsersViewModel(
         _usersState.value = ViewState.Loading()
         viewModelScope.launch {
             repository.getUsers().collect { users ->
-                delay(1000)
                 _usersState.value = ViewState.Success(users)
             }
         }
