@@ -1,6 +1,6 @@
 package ru.dvfu.appliances.compose.home.booking_list
 
-import android.annotation.SuppressLint
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,23 +12,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
+import com.google.accompanist.pager.rememberPagerState
+import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.*
+import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.appliance.UserImage
 import ru.dvfu.appliances.compose.home.DateAndTime
 import ru.dvfu.appliances.compose.utils.TimeConstants
 import ru.dvfu.appliances.compose.utils.toHoursAndMinutes
+import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.views.*
 import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.BookingStatus
+import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter.ofLocalizedDateTime
+import java.time.format.FormatStyle
 
 @OptIn(
     ExperimentalCoilApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class,
@@ -38,13 +46,11 @@ import java.time.LocalDateTime
 )
 @Composable
 fun BookingList(navController: NavController) {
-    /*val viewModel: BookingListViewModel = getViewModel()
+    val viewModel: BookingListViewModel = getViewModel()
     val currentUser = viewModel.currentUser.collectAsState()
-    val uiState by viewModel.uiState.collectAsState()
-    val list by viewModel.bookingList.collectAsState()
-    val managingUiState by viewModel.managingUiState.collectAsState()
+    val uiState by viewModel.viewState.collectAsState()
 
-    if (managingUiState is UiState.InProgress) ModalLoadingDialog()
+//    if (managingUiState is UiState.InProgress) ModalLoadingDialog()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -53,15 +59,17 @@ fun BookingList(navController: NavController) {
                 title = "Бронирования",
                 backClick = { navController.popBackStack() })
         }) {
-        Crossfade(targetState = uiState) { it ->
-            when (it) {
+        Crossfade(targetState = uiState) { state ->
+            when (state) {
                 is ViewState.Error -> {
-                    //ErrorView()
+                    Text(text = "Error")
                 }
                 is ViewState.Loading -> {
                     LoadingItem(Modifier.fillMaxSize())
                 }
                 is ViewState.Success -> {
+
+                    val list = state.data
 
                     if (list.isEmpty()) {
                         NoBookingsView(Modifier.fillMaxSize())
@@ -122,7 +130,7 @@ fun BookingList(navController: NavController) {
                             pagerState = pagerState
                         )
 
-                    }*/
+                    }
 
 //                    LazyColumn(
 //                        contentPadding = PaddingValues(8.dp)
@@ -177,10 +185,10 @@ fun BookingList(navController: NavController) {
 //                                }
 //                            }
 //                    }
-                /*}
+                }
             }
         }
-    }*/
+    }
 }
 
 
@@ -205,20 +213,20 @@ fun NoBookingsView(modifier: Modifier = Modifier) {
     }
 }
 
-/*@Composable
+@Composable
 fun BookingStatus(
-    book: UiBooking,
+    book: CalendarEvent,
     viewModel: BookingListViewModel,
     currentUser: State<User>,
-    onDecline: (UiBooking) -> Unit,
-    onApprove: (UiBooking) -> Unit,
+    onDecline: (CalendarEvent) -> Unit,
+    onApprove: (CalendarEvent) -> Unit,
     onUserClick: (User) -> Unit,
 
     ) {
     Divider()
     Spacer(modifier = Modifier.size(12.dp))
     when (book.status) {
-        APPROVED -> {
+        BookingStatus.APPROVED -> {
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
@@ -235,7 +243,7 @@ fun BookingStatus(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = book.managedTime.toLocalDateTime().format(TimeConstants.FULL_DATE_FORMAT)
+                    text = book.managedTime?.format(TimeConstants.FULL_DATE_FORMAT) ?: ""
                 )
                 book.managedUser?.let {
                     BookingUser(
@@ -246,7 +254,7 @@ fun BookingStatus(
             }
 
         }
-        DECLINED -> {
+        BookingStatus.DECLINED -> {
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
@@ -263,8 +271,7 @@ fun BookingStatus(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = book.managedTime.toZonedDateTime()
-                        .format(ofLocalizedDateTime(FormatStyle.MEDIUM))
+                    text = book.managedTime?.format(ofLocalizedDateTime(FormatStyle.MEDIUM)) ?: ""
                 )
                 book.managedUser?.let {
                     BookingUser(
@@ -276,7 +283,7 @@ fun BookingStatus(
             }
 
         }
-        NONE -> {
+        BookingStatus.NONE -> {
             if (currentUser.value.isAdmin() || currentUser.value.let {
                     book.appliance?.superuserIds?.contains(it.userId) == true
                 }) {
@@ -286,7 +293,7 @@ fun BookingStatus(
             }
         }
     }
-}*/
+}
 
 @Composable
 fun BookingManagerButtons(onDecline: () -> Unit, onApprove: () -> Unit) {

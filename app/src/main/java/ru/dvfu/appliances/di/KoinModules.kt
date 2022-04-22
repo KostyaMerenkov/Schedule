@@ -6,12 +6,11 @@ import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.compose.get
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ru.dvfu.appliances.Logger
 import ru.dvfu.appliances.application.SnackbarManager
-import ru.dvfu.appliances.compose.home.BookingListViewModel
+import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.home.MainScreenViewModel
 import ru.dvfu.appliances.compose.use_cases.*
 import ru.dvfu.appliances.compose.viewmodels.*
@@ -67,6 +66,7 @@ val application = module {
     factory { GetEventsFromDateUseCase(get()) }
     factory { GetPeriodEventsUseCase(get()) }
     factory { UpdateEventStatusUseCase(get()) }
+    factory { UpdateEventUseCase(get()) }
 }
 
 fun getFirebase(): FirebaseFirestore {
@@ -78,11 +78,11 @@ val mainActivity = module {
     viewModel { UsersViewModel(get()) }
     viewModel {
         BookingListViewModel(
-            bookingRepository = get(),
-            offlineRepository = get(),
             getUserUseCase = get(),
             getApplianceUseCase = get(),
-            userDatastore = get()
+            userDatastore = get(),
+            updateEvent = get(),
+            eventsRepository = get()
         )
     }
 

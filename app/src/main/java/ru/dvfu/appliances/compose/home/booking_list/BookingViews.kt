@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.compose.home.booking_list/*
+package ru.dvfu.appliances.compose.home.booking_list
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,26 +17,27 @@ import com.google.accompanist.pager.pagerTabIndicatorOffset
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.home.*
+import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.views.DefaultButton
 import ru.dvfu.appliances.compose.views.PrimaryText
-import ru.dvfu.appliances.model.repository.entity.UiBooking
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 
 
 sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Unit) {
 
-    class PendingBookingsTabItem(bookings: List<UiBooking>, viewModel: BookingListViewModel) :
+    class PendingBookingsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
         BookingTabItem(
             titleRes = R.string.pending,
             screen = { PendingBookingsList(bookings, viewModel) }
         )
 
-    class ApprovedBookingsTabItem(bookings: List<UiBooking>, viewModel: BookingListViewModel) :
+    class ApprovedBookingsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
         BookingTabItem(
             titleRes = R.string.approved,
             screen = { ApprovedBookingsList(bookings, viewModel) }
         )
 
-    class DeclinedBookingsTabItem(bookings: List<UiBooking>, viewModel: BookingListViewModel) :
+    class DeclinedBookingsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
         BookingTabItem(
             titleRes = R.string.declined,
             screen = { DeclinedAndPastBookingsList(bookings, viewModel) }
@@ -90,7 +91,7 @@ fun BookingTabsContent(
 @Composable
 fun BookingRequestItemView(
     modifier: Modifier = Modifier,
-    booking: UiBooking,
+    booking: CalendarEvent,
     onApproveClick: () -> Unit,
     onDeclineClick: () -> Unit
 ) {
@@ -176,4 +177,3 @@ fun BookingButtons(
     }
 }
 
-*/

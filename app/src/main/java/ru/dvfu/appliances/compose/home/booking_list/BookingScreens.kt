@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.compose.home.booking_list/*
+package ru.dvfu.appliances.compose.home.booking_list
 
 
 import androidx.compose.foundation.layout.Box
@@ -12,16 +12,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import ru.dvfu.appliances.compose.home.BookingListViewModel
-import ru.dvfu.appliances.compose.home.NoBookingsView
+import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
-import ru.dvfu.appliances.model.repository.entity.UiBooking
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import java.util.*
 
 @Composable
 fun PendingBookingsList(
-    bookings: List<UiBooking>,
+    bookings: List<CalendarEvent>,
     viewModel: BookingListViewModel
 ) {
     LazyColumn(
@@ -34,8 +33,18 @@ fun PendingBookingsList(
                 items(count = it.size) { index ->
                     BookingRequestItemView(
                         booking = it[index],
-                        onApproveClick = { viewModel.approveBook(it[index]) },
-                        onDeclineClick = { viewModel.declineBook(it[index]) }
+                        onApproveClick = {
+                            viewModel.manageBookStatus(
+                                event = it[index],
+                                status = BookingStatus.APPROVED
+                            )
+                        },
+                        onDeclineClick = {
+                            viewModel.manageBookStatus(
+                                event = it[index],
+                                status = BookingStatus.DECLINED
+                            )
+                        }
                     )
                 }
             }
@@ -45,7 +54,7 @@ fun PendingBookingsList(
 
 @Composable
 fun ApprovedBookingsList(
-    bookings: List<UiBooking>,
+    bookings: List<CalendarEvent>,
     viewModel: BookingListViewModel
 ) {
     LazyColumn(
@@ -59,8 +68,14 @@ fun ApprovedBookingsList(
                     items(count = bookings.size) { index ->
                         BookingRequestItemView(
                             booking = bookings[index],
-                            onApproveClick = { viewModel.approveBook(it[index]) },
-                            onDeclineClick = { viewModel.declineBook(it[index]) }
+                            onApproveClick = { viewModel.manageBookStatus(
+                                event = it[index],
+                                status = BookingStatus.APPROVED
+                            ) },
+                            onDeclineClick = { viewModel.manageBookStatus(
+                                event = it[index],
+                                status = BookingStatus.DECLINED
+                            ) }
                         )
                     }
                 }
@@ -70,7 +85,7 @@ fun ApprovedBookingsList(
 
 @Composable
 fun DeclinedAndPastBookingsList(
-    bookings: List<UiBooking>,
+    bookings: List<CalendarEvent>,
     viewModel: BookingListViewModel
 ) {
     LazyColumn(
@@ -84,11 +99,17 @@ fun DeclinedAndPastBookingsList(
                     items(count = bookings.size) { index ->
                         BookingRequestItemView(
                             booking = bookings[index],
-                            onApproveClick = { viewModel.approveBook(it[index]) },
-                            onDeclineClick = { viewModel.declineBook(it[index]) }
+                            onApproveClick = { viewModel.manageBookStatus(
+                                event = it[index],
+                                status = BookingStatus.APPROVED
+                            ) },
+                            onDeclineClick = { viewModel.manageBookStatus(
+                                event = it[index],
+                                status = BookingStatus.DECLINED
+                            ) }
                         )
                     }
                 }
             }
     }
-}*/
+}

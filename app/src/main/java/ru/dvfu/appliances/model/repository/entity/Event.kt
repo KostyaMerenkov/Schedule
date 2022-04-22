@@ -2,8 +2,11 @@ package ru.dvfu.appliances.model.repository.entity
 
 import android.os.Parcelable
 import androidx.compose.ui.graphics.Color
+import kotlinx.coroutines.flow.first
 import kotlinx.parcelize.Parcelize
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
+import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.model.utils.StringOperation
 import ru.dvfu.appliances.model.utils.toLocalDate
 import ru.dvfu.appliances.model.utils.toLocalDateTime
@@ -46,8 +49,32 @@ data class CalendarEvent(
 ) : Parcelable
 
 @Parcelize
-enum class BookingStatus(override val stringRes: Int): StringOperation, Parcelable {
+enum class BookingStatus(override val stringRes: Int) : StringOperation, Parcelable {
     NONE(R.string.new_books),
     APPROVED(R.string.approved_books),
     DECLINED(R.string.declined_books),
+}
+
+suspend fun Event.toCalendarEvent(
+    getUserUseCase: GetUserUseCase,
+    getApplianceUseCase: GetApplianceUseCase
+): CalendarEvent = run {
+    CalendarEvent(
+        id = id,
+        date = date.toLocalDate(),
+        timeCreated = timeCreated.toLocalDateTime(),
+        timeStart = timeStart.toLocalDateTime(),
+        timeEnd = timeEnd.toLocalDateTime(),
+        commentary = commentary,
+        user = getUserUseCase(userId).first().getOrDefault(User()),
+        appliance = getApplianceUseCase(applianceId).first().getOrDefault(Appliance()),
+        managedUser = managedById?.let {
+            getUserUseCase(managedById).first().getOrDefault(
+                User()
+            )
+        },
+        managedTime = managedTime?.toLocalDateTime(),
+        managerCommentary = managerCommentary,
+        status = status,
+    )
 }

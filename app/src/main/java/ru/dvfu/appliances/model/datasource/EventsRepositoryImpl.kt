@@ -61,7 +61,22 @@ class EventsRepositoryImpl(
             }
     }
 
+    override suspend fun updateEvent(eventId: String, data: Map<String, Any?>) =
+        suspendCoroutine<Result<Unit>> { continuation ->
+            dbCollections.getEventsCollection().document(eventId).update(data)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) continuation.resume(Result.success(Unit))
+                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+        }
 
+    override suspend fun getAllEvents(): Flow<List<Event>> = callbackFlow {
+        val subscription = dbCollections.getEventsCollection().addSnapshotListener { value, error ->
+            value?.let { trySend(value.toObjects<Event>()) }
+        }
+
+        awaitClose { subscription.remove() }
+    }
 
     override suspend fun getAllEventsForOneDay(date: LocalDate): Flow<List<Event>> = callbackFlow {
         val subscription = dbCollections.getEventsCollection()
