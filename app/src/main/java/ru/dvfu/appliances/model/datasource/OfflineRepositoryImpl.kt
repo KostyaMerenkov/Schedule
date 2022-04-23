@@ -20,10 +20,7 @@ import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import kotlin.Exception
 
-class OfflineRepositoryImpl(
-    private val db: FirebaseFirestore = Firebase.firestore,
-    private val dbCollections: RepositoryCollections,
-) : OfflineRepository {
+class OfflineRepositoryImpl(private val dbCollections: RepositoryCollections) : OfflineRepository {
 
     override suspend fun getUser(userId: String) = flow {
         val doc = dbCollections.getUsersCollection().document(userId).get(Source.CACHE).await()
@@ -50,7 +47,6 @@ class OfflineRepositoryImpl(
         } ?: kotlin.run {
             emit(Result.failure(Throwable()))
         }
-
     }
 
 

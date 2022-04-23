@@ -21,7 +21,12 @@ import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
+import org.koin.core.Koin
+import org.koin.core.KoinApplication
+import org.koin.core.context.GlobalContext.loadKoinModules
+import org.koin.core.context.unloadKoinModules
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.di.repositoryModule
 import java.time.Duration
 import java.util.*
 
@@ -61,11 +66,14 @@ suspend inline fun <T> suspendCoroutineWithTimeout(
     return withTimeoutOrNull(timeout) {
         if (isNetworkAvailable(Firebase.app.applicationContext)) {
             suspendCancellableCoroutine(block)
-        } else Result.failure<T>(Throwable())
+        } else Result.failure<T>(Throwable("Отсутствует интернет соединение"))
     } ?: run {
         Firebase.firestore.terminate()
         Firebase.firestore.clearPersistence().await()
-        FirebaseFirestore.getInstance()
+        Firebase.app.applicationContext.apply {
+            unloadKoinModules(repositoryModule)
+            loadKoinModules(repositoryModule)
+        }
         Result.failure<T>(Throwable())
     }
 

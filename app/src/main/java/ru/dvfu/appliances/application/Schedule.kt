@@ -31,6 +31,7 @@ class Schedule : Application() {
             modules(
                 listOf(
                     application,
+                    repositoryModule,
                     mainActivity
                 )
             )

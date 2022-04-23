@@ -25,20 +25,9 @@ import ru.dvfu.appliances.model.repository.*
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 
-val application = module {
-    factory<RepositoryCollections> { RepositoryCollections() }
-    single<UserDatastore> { UserDatastoreImpl(androidContext()) }
-    viewModel { MainViewModel() }
-    single {
-        FirebaseMessagingViewModel(
-            getUserUseCase = get(),
-            usersRepository = get(),
-            userDatastore = get(),
-            appliancesRepository = get()
-        )
-    }
-
+val repositoryModule = module {
     single<OfflineRepository> { OfflineRepositoryImpl(dbCollections = get()) }
+    single<RepositoryCollections> { RepositoryCollections() }
 
     single<Repository> { CloudFirestoreDatabaseImpl(dbCollections = get()) }
     single<EventsRepository> { EventsRepositoryImpl(dbCollections = get()) }
@@ -49,6 +38,19 @@ val application = module {
             androidContext(),
             dbCollections = get(),
             userDatastore = get()
+        )
+    }
+}
+
+val application = module {
+    single<UserDatastore> { UserDatastoreImpl(androidContext()) }
+    viewModel { MainViewModel() }
+    single {
+        FirebaseMessagingViewModel(
+            getUserUseCase = get(),
+            usersRepository = get(),
+            userDatastore = get(),
+            appliancesRepository = get()
         )
     }
 

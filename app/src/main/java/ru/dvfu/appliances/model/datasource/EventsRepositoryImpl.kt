@@ -2,9 +2,9 @@ package ru.dvfu.appliances.model.datasource
 
 import android.util.Log
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.toObjects
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
@@ -15,14 +15,12 @@ import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.model.utils.suspendCoroutineWithTimeout
-import ru.dvfu.appliances.ui.Progress
 import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class EventsRepositoryImpl(
-    private val dbCollections: RepositoryCollections,
+    private val dbCollections: RepositoryCollections
 ) : EventsRepository {
 
     private var TAG = "EventsFirestoreDatabase"
@@ -30,46 +28,35 @@ class EventsRepositoryImpl(
     override suspend fun addNewEvent(event: Event) =
         suspendCoroutineWithTimeout<Unit> { continuation ->
             dbCollections.getEventsCollection().document(event.id).set(event)
-                .addOnCompleteListener {
-                    if (it.isSuccessful) continuation.resume(Result.success(Unit))
-                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
-                }
+                .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
 
-    override suspend fun deleteEvent(id: String) = suspendCoroutine<Result<Unit>> { continuation ->
-        dbCollections.getEventsCollection().document(id).delete().addOnCompleteListener {
-            if (it.isSuccessful) continuation.resume(Result.success(Unit))
-            else continuation.resume(Result.failure(it.exception ?: Throwable()))
+    override suspend fun deleteEvent(id: String) =
+        suspendCoroutineWithTimeout<Unit> { continuation ->
+            dbCollections.getEventsCollection().document(id).delete()
+                .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
-    }
+
+
 
     override suspend fun setNewTimeEnd(eventId: String, timeEnd: Long) =
-        suspendCoroutine<Result<Unit>> { continuation ->
+        suspendCoroutineWithTimeout<Unit> { continuation ->
             dbCollections.getEventsCollection().document(eventId).update("timeEnd", timeEnd)
-                .addOnCompleteListener {
-                    if (it.isSuccessful) continuation.resume(Result.success(Unit))
-                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
-                }
+                .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
 
     override suspend fun setNewEventStatus(
         eventId: String,
         newStatus: BookingStatus
-    ) = suspendCoroutine<Result<Unit>> { continuation ->
+    ) = suspendCoroutineWithTimeout<Unit> { continuation ->
         dbCollections.getEventsCollection().document(eventId).update("status", newStatus)
-            .addOnCompleteListener {
-                if (it.isSuccessful) continuation.resume(Result.success(Unit))
-                else continuation.resume(Result.failure(it.exception ?: Throwable()))
-            }
+            .addOnCompleteListener(simpleOnCompleteListener(continuation))
     }
 
     override suspend fun updateEvent(eventId: String, data: Map<String, Any?>) =
-        suspendCoroutine<Result<Unit>> { continuation ->
+        suspendCoroutineWithTimeout<Unit> { continuation ->
             dbCollections.getEventsCollection().document(eventId).update(data)
-                .addOnCompleteListener {
-                    if (it.isSuccessful) continuation.resume(Result.success(Unit))
-                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
-                }
+                .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
 
     override suspend fun getAllEvents(): Flow<List<Event>> = callbackFlow {
