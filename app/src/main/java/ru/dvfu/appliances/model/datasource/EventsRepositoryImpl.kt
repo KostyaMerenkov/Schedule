@@ -99,7 +99,7 @@ class EventsRepositoryImpl(
             }
 
             if (snapshots != null) {
-                val events = snapshots.toObjects(Event::class.java)
+                val events = snapshots.toObjects<Event>()
                 scope.trySend(events)
             }
         }
