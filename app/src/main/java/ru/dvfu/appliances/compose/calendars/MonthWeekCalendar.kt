@@ -55,6 +55,7 @@ fun MonthWeekCalendar(
         }, errorMessage = {
             //Handle the error if any
         },
+            selectedDay = currentDate.value,
             kalendarStyle = KalendarStyle(kalendarSelector = KalendarSelector.Circle()),
             kalendarEvents = dayEvents.filter { (it.value as? EventsState.Loaded)?.events?.isEmpty() == false }
                 .map { KalendarEvent(it.key, "") }

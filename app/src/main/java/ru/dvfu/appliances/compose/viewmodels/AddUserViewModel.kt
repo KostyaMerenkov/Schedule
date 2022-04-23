@@ -38,7 +38,7 @@ class AddUserViewModel(
     fun refresh() = loadUsers()
 
     private fun loadUsers() {
-        _usersState.value = ViewState.Loading()
+        _usersState.value = ViewState.Loading
         viewModelScope.launch {
             usersRepository.getUsers().collect { users ->
                 delay(1000)

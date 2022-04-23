@@ -92,4 +92,6 @@
     <string name="no_commentary">No commentary</string>
     <string name="appliance_name_failed">Не удалось получить название прибора</string>
     <string name="new_event">Новое событие</string>
+    <string name="add_event_failed">Не удалось добавить событие</string>
+    <string name="add_event_success">Событие успешно создано</string>
 </resources>

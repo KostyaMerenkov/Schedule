@@ -39,7 +39,7 @@ class BookingListViewModel(
     private val _currentUser = MutableStateFlow<User>(User())
     val currentUser = _currentUser.asStateFlow()
 
-    private val _viewState = MutableStateFlow<ViewState<List<CalendarEvent>>>(ViewState.Loading())
+    private val _viewState = MutableStateFlow<ViewState<List<CalendarEvent>>>(ViewState.Loading)
     val viewState = _viewState.asStateFlow()
 
 //    private val _uiState = MutableStateFlow<ViewState<MutableList<CalendarEvent>>>(ViewState.Loading())
@@ -63,11 +63,11 @@ class BookingListViewModel(
     }
 
     val mutableStateFlow: MutableStateFlow<ViewState<User>> =
-        MutableStateFlow(ViewState.Loading(null))
+        MutableStateFlow(ViewState.Loading)
 
     private fun getEvents() {
         viewModelScope.launch {
-            _viewState.value = ViewState.Loading()
+            _viewState.value = ViewState.Loading
 
             eventsRepository.getAllEvents().collect { events ->
 

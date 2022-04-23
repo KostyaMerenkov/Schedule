@@ -20,7 +20,7 @@ class AppliancesViewModel(
     private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
-    private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
+    private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading)
     val appliancesState = _appliancesState.asStateFlow()
 
     init {
@@ -30,7 +30,7 @@ class AppliancesViewModel(
     val user = userDatastore.getCurrentUser
 
     private fun loadAppliances() {
-        _appliancesState.value = ViewState.Loading()
+        _appliancesState.value = ViewState.Loading
         viewModelScope.launch {
             repository.getAppliances().collect { appliances ->
                 _appliancesState.value = ViewState.Success(appliances)

@@ -1,6 +1,8 @@
 package ru.dvfu.appliances.model.utils
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.widget.Toast
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Modifier
@@ -10,8 +12,19 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.ktx.app
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeoutOrNull
 import ru.dvfu.appliances.R
+import java.time.Duration
 import java.util.*
+
 
 fun randomUUID() = UUID.randomUUID().toString()
 
@@ -31,10 +44,43 @@ fun Modifier.loadingModifier(
 }
 
 fun showError(applicationContext: Context, text: String?) {
-    showToast(applicationContext.applicationContext,
-        text ?: applicationContext.resources.getString(R.string.error_occured))
+    showToast(
+        applicationContext.applicationContext,
+        text ?: applicationContext.resources.getString(R.string.error_occured)
+    )
 }
 
 fun showToast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+}
+
+suspend inline fun <T> suspendCoroutineWithTimeout(
+    timeout: Long = Duration.ofSeconds(5L).toMillis(),
+    crossinline block: (CancellableContinuation<Result<T>>) -> Unit,
+): Result<T> {
+    return withTimeoutOrNull(timeout) {
+        if (isNetworkAvailable(Firebase.app.applicationContext)) {
+            suspendCancellableCoroutine(block)
+        } else Result.failure<T>(Throwable())
+    } ?: run {
+        Firebase.firestore.terminate()
+        Firebase.firestore.clearPersistence().await()
+        FirebaseFirestore.getInstance()
+        Result.failure<T>(Throwable())
+    }
+
+
+}
+
+fun isNetworkAvailable(context: Context): Boolean {
+    (context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).apply {
+        return getNetworkCapabilities(activeNetwork)?.run {
+            when {
+                hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } ?: false
+    }
 }

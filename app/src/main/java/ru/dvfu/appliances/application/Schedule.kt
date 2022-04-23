@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
@@ -34,7 +35,6 @@ class Schedule : Application() {
                 )
             )
         }
-
         createNotificationChannels()
     }
 

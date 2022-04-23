@@ -64,7 +64,7 @@ class EditProfileViewModel(
     }
 
     fun updateProfile() {
-        _uiState.value = ViewState.Loading()
+        _uiState.value = ViewState.Loading
         viewModelScope.launch {
             userRepository.setNewProfileData(
                 _currentUser.value.userId,

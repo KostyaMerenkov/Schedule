@@ -3,6 +3,8 @@ package ru.dvfu.appliances.compose.viewmodels
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.FirebaseApp
+import com.google.firebase.database.FirebaseDatabase
 import io.grpc.InternalChannelz.id
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -40,7 +42,7 @@ class AddEventViewModel(
     private val _uiState = MutableStateFlow<UiState?>(null)
     val uiState = _uiState.asStateFlow()
 
-    private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
+    private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading)
     val appliancesState = _appliancesState.asStateFlow()
 
     private val currentUser = MutableStateFlow(User())
@@ -158,9 +160,12 @@ class AddEventViewModel(
         viewModelScope.launch {
             eventsRepository.addNewEvent(event).fold(
                 onSuccess = {
+                    SnackbarManager.showMessage(R.string.add_event_success)
                     _uiState.value = UiState.Success
                 },
                 onFailure = {
+                    FirebaseDatabase.getInstance(FirebaseApp.getInstance()).purgeOutstandingWrites()
+                    SnackbarManager.showMessage(R.string.add_event_failed)
                     _uiState.value = UiState.Error
                 }
             )

@@ -17,7 +17,7 @@ class UsersViewModel(
     private val repository: UsersRepository
 ) : ViewModel() {
 
-    private val _usersState = MutableStateFlow<ViewState<List<User>>>(ViewState.Loading())
+    private val _usersState = MutableStateFlow<ViewState<List<User>>>(ViewState.Loading)
     val userState = _usersState.asStateFlow()
 
     init {
@@ -31,7 +31,7 @@ class UsersViewModel(
     fun refresh() = loadUsers()
 
     private fun loadUsers() {
-        _usersState.value = ViewState.Loading()
+        _usersState.value = ViewState.Loading
         viewModelScope.launch {
             repository.getUsers().collect { users ->
                 _usersState.value = ViewState.Success(users)

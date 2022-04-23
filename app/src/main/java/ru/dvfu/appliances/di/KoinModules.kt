@@ -26,7 +26,7 @@ import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 
 val application = module {
-    single { RepositoryCollections(getFirebase()) }
+    factory<RepositoryCollections> { RepositoryCollections() }
     single<UserDatastore> { UserDatastoreImpl(androidContext()) }
     viewModel { MainViewModel() }
     single {
@@ -67,11 +67,6 @@ val application = module {
     factory { GetPeriodEventsUseCase(get()) }
     factory { UpdateEventStatusUseCase(get()) }
     factory { UpdateEventUseCase(get()) }
-}
-
-fun getFirebase(): FirebaseFirestore {
-    val settings = firestoreSettings { isPersistenceEnabled = false }
-    return Firebase.firestore.apply { firestoreSettings = settings }
 }
 
 val mainActivity = module {

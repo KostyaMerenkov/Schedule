@@ -90,7 +90,7 @@ class MainScreenViewModel(
     }
 
     val mutableStateFlow: MutableStateFlow<ViewState<User>> =
-        MutableStateFlow(ViewState.Loading(null))
+        MutableStateFlow(ViewState.Loading)
 
     private fun loadCurrentUser() {
         viewModelScope.launch {

@@ -67,7 +67,7 @@ class WeekCalendarViewModel(
     private val appliances = MutableStateFlow<List<Appliance>>(listOf())
 
     init {
-        getDayEvents(LocalDate.now())
+        //getDayEvents(LocalDate.now())
         getLatestEvents()
         getCurrentUser()
         getCalendarTypeListener()
@@ -157,7 +157,7 @@ class WeekCalendarViewModel(
 
     fun onDaySelected(day: LocalDate) {
         _currentDate.value = day
-        getDayEvents(day)
+        //getDayEvents(day)
     }
 
     fun deleteEvent(eventIdToDelete: String) {

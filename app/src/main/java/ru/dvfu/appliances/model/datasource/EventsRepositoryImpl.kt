@@ -2,6 +2,7 @@ package ru.dvfu.appliances.model.datasource
 
 import android.util.Log
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.toObjects
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -13,6 +14,7 @@ import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.RepositoryCollections
+import ru.dvfu.appliances.model.utils.suspendCoroutineWithTimeout
 import ru.dvfu.appliances.ui.Progress
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -26,7 +28,7 @@ class EventsRepositoryImpl(
     private var TAG = "EventsFirestoreDatabase"
 
     override suspend fun addNewEvent(event: Event) =
-        suspendCoroutine<Result<Unit>> { continuation ->
+        suspendCoroutineWithTimeout<Unit> { continuation ->
             dbCollections.getEventsCollection().document(event.id).set(event)
                 .addOnCompleteListener {
                     if (it.isSuccessful) continuation.resume(Result.success(Unit))
