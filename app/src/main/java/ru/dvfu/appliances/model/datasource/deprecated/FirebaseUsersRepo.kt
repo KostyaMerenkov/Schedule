@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.model.datasource
+package ru.dvfu.appliances.model.datasource.deprecated
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseUser

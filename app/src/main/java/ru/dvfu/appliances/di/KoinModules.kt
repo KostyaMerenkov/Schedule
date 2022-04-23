@@ -1,9 +1,5 @@
 package ru.dvfu.appliances.di
 
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.firestoreSettings
-import com.google.firebase.ktx.Firebase
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -20,6 +16,7 @@ import ru.dvfu.appliances.compose.viewmodels.MainViewModel
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
 import ru.dvfu.appliances.model.FirebaseMessagingViewModel
 import ru.dvfu.appliances.model.datasource.*
+import ru.dvfu.appliances.model.datasource.deprecated.CloudFirestoreDatabaseImpl
 import ru.dvfu.appliances.model.datastore.UserDatastoreImpl
 import ru.dvfu.appliances.model.repository.*
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository

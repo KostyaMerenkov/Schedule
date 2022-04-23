@@ -3,6 +3,7 @@ package ru.dvfu.appliances.compose.use_cases
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.fold
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
@@ -31,15 +32,13 @@ class GetUserUseCase(
         flowCollector: FlowCollector<Result<User>>,
         userId: String
     ) {
-        usersRepository.getUser(userId).collect {
-            it.fold(
-                onSuccess = {
-                    flowCollector.emit(Result.success(it))
-                },
-                onFailure = {
-                    flowCollector.emit(Result.failure(it))
-                }
-            )
-        }
+        usersRepository.getUser(userId).fold(
+            onSuccess = {
+                flowCollector.emit(Result.success(it))
+            },
+            onFailure = {
+                flowCollector.emit(Result.failure(it))
+            }
+        )
     }
 }

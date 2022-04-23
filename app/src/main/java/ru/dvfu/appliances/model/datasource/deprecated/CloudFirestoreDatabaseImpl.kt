@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.model.datasource
+package ru.dvfu.appliances.model.datasource.deprecated
 
 import com.google.firebase.database.FirebaseDatabase
 import ru.dvfu.appliances.model.repository.Repository

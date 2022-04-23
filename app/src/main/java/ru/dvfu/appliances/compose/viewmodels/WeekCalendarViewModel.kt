@@ -67,7 +67,7 @@ class WeekCalendarViewModel(
     private val appliances = MutableStateFlow<List<Appliance>>(listOf())
 
     init {
-        //getDayEvents(LocalDate.now())
+        getDayEvents(LocalDate.now())
         getLatestEvents()
         getCurrentUser()
         getCalendarTypeListener()
@@ -156,17 +156,17 @@ class WeekCalendarViewModel(
     }
 
     fun onDaySelected(day: LocalDate) {
-        _currentDate.value = day
-        //getDayEvents(day)
+        if (currentDate.value != day) {
+            _currentDate.value = day
+            getDayEvents(day)
+        }
     }
 
     fun deleteEvent(eventIdToDelete: String) {
         viewModelScope.launch {
             eventsRepository.deleteEvent(eventIdToDelete).fold(
                 onSuccess = {
-                    /*val newEventsList =
-                        _events.value.filter { it.id != eventToDelete.id }.toMutableList()
-                    _events.value = newEventsList*/
+                    SnackbarManager.showMessage(R.string.event_delete_successfully)
                 },
                 onFailure = {
                     SnackbarManager.showMessage(R.string.event_delete_failed)

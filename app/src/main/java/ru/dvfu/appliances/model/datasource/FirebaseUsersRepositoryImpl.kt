@@ -24,6 +24,7 @@ import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.utils.Constants
 import ru.dvfu.appliances.model.utils.RepositoryCollections
+import ru.dvfu.appliances.model.utils.suspendCoroutineWithTimeout
 import ru.dvfu.appliances.ui.Progress
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -109,7 +110,7 @@ class FirebaseUsersRepositoryImpl(
 
     private suspend fun uploadMessagingToken(userId: String) =
         suspendCoroutine<Result<Unit>> { continuation ->
-            FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 if (!task.isSuccessful) {
                     Log.w(
                         Constants.TAG,
@@ -117,7 +118,6 @@ class FirebaseUsersRepositoryImpl(
                         task.exception
                     )
                     continuation.resume(Result.failure(task.exception ?: Throwable()))
-                    return@OnCompleteListener
                 }
 
                 // Get new FCM registration token
@@ -126,7 +126,7 @@ class FirebaseUsersRepositoryImpl(
                     .addOnCompleteListener {
                         continuation.resume(Result.success(Unit))
                     }
-            })
+            }
         }
 
     override suspend fun setUserListener(user: User) {
@@ -165,21 +165,6 @@ class FirebaseUsersRepositoryImpl(
         }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val currentUserFromDB: Flow<User>
-        get() = callbackFlow {
-            val listeners = mutableListOf<ListenerRegistration>()
-
-            val userId = fireBaseAuth.currentUser?.uid
-            userId?.let { id ->
-                listeners.add(
-                    dbCollections.getUsersCollection().document(id)
-                        .addSnapshotListener(getUserListener(this))
-                )
-            }
-            awaitClose { listeners.remove(listeners.first()) }
-        }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
     private fun getUserListener(scope: ProducerScope<User>) =
         EventListener<DocumentSnapshot> { snapshot, error ->
             if (error != null) {
@@ -201,32 +186,21 @@ class FirebaseUsersRepositoryImpl(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun getUser(userId: String) = flow<Result<User>> {
-        val doc = dbCollections.getUsersCollection().document(userId).get().await()
-        val user = doc.toObject<User>()
-        user?.let {
-            emit(Result.success(it))
-        } ?: run {
-            emit(Result.failure(Throwable()))
-        }
-
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun getUser(scope: ProducerScope<Result<User>>) =
-        OnCompleteListener<DocumentSnapshot> {
+    override suspend fun getUser(userId: String) = suspendCoroutine<Result<User>> { continuation ->
+        val doc = dbCollections.getUsersCollection().document(userId).get().addOnCompleteListener {
             if (it.isSuccessful) {
                 val user = it.result.toObject<User>()
-                user?.let { scope.trySend(Result.success(it)) } ?: scope.trySend(
-                    Result.failure(Throwable())
-                )
-            } else {
-                scope.trySend(Result.failure(Throwable()))
-            }
+                user?.let {
+                    continuation.resume(Result.success(it))
+                } ?: run {
+                    continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
         }
+    }
 
     override suspend fun updateUserField(userId: String, data: Map<String, Any>) =
-        suspendCoroutine<Result<Unit>> { continuation ->
+        suspendCoroutineWithTimeout<Unit> { continuation ->
             dbCollections.getUsersCollection().document(userId).update(data)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
@@ -238,16 +212,14 @@ class FirebaseUsersRepositoryImpl(
     override suspend fun updateCurrentUserField(data: Map<String, Any>) {
         dbCollections.getUsersCollection()
             .document(userDatastore.getCurrentUser.first().userId)
-            .update(data).addOnCompleteListener {
-
-            }
+            .update(data)
     }
 
     private fun mapFirebaseUserToUser(firebaseUser: FirebaseUser): User {
         return with(firebaseUser) {
             User(
                 userId = uid,
-                userName = displayName ?: "Anonymous",
+                userName = displayName ?: "Аноним",
                 email = email ?: "",
                 role = Roles.GUEST.ordinal,
                 anonymous = isAnonymous,

@@ -70,7 +70,7 @@ class EventsRepositoryImpl(
     override suspend fun getAllEventsForOneDay(date: LocalDate): Flow<List<Event>> = callbackFlow {
         val subscription = dbCollections.getEventsCollection()
             .whereEqualTo("date", date.toMillis)
-            .addSnapshotListener { value, error ->
+            .addSnapshotListener { value, _ ->
                 value?.let { trySend(value.toObjects<Event>()) }
             }
 

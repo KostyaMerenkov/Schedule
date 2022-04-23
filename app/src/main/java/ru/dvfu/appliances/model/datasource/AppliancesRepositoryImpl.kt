@@ -21,6 +21,7 @@ import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.RepositoryCollections
+import ru.dvfu.appliances.model.utils.suspendCoroutineWithTimeout
 import ru.dvfu.appliances.ui.Progress
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -30,14 +31,10 @@ class AppliancesRepositoryImpl(
 ) : AppliancesRepository {
 
     override suspend fun deleteUserFromAppliance(userToDelete: User, from: Appliance) =
-        suspendCoroutine<Result<Unit>> { continuation ->
+        suspendCoroutineWithTimeout<Unit> { continuation ->
             dbCollections.getAppliancesCollection().document(from.id)
                 .update("userIds", from.userIds.filter { it != userToDelete.userId })
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        continuation.resume(Result.success(Unit))
-                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
-                }
+                .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
 
     override suspend fun deleteSuperUserFromAppliance(userToDelete: User, from: Appliance) =
@@ -106,27 +103,19 @@ class AppliancesRepositoryImpl(
     override suspend fun addUsersToAppliance(
         appliance: Appliance,
         userIds: List<String>
-    ) = suspendCoroutine<Result<Unit>> { continuation ->
+    ) = suspendCoroutineWithTimeout<Unit> { continuation ->
 
         dbCollections.getAppliancesCollection().document(appliance.id).update(
-            "userIds", userIds).addOnCompleteListener {
-            if (it.isSuccessful) {
-                continuation.resume(Result.success(Unit))
-            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
-        }
+            "userIds", userIds).addOnCompleteListener(simpleOnCompleteListener(continuation))
     }
 
     override suspend fun addSuperUsersToAppliance(
         appliance: Appliance,
         superuserIds: List<String>
-    ) = suspendCoroutine<Result<Unit>> { continuation ->
+    ) = suspendCoroutineWithTimeout<Unit> { continuation ->
         dbCollections.getAppliancesCollection().document(appliance.id).update(
             "superuserIds", superuserIds
-        ).addOnCompleteListener {
-            if (it.isSuccessful) {
-                continuation.resume(Result.success(Unit))
-            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
-        }
+        ).addOnCompleteListener(simpleOnCompleteListener(continuation))
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -224,40 +213,15 @@ class AppliancesRepositoryImpl(
             }
         }
 
-
-/*    override suspend fun addUser(user: User): StateFlow<Progress> {
-        //val firebaseUser = ru.students.dvfu.mvp.model.userdata.FirebaseUser(user.displayName, user.email, user.photoUrl.toString(), "new_user")
-        *//*cloudFirestore.collection("users").document(user.uid).set(
-            hashMapOf(
-                "name" to user.displayName,
-                "email" to user.email,
-                "avatar" to user.photoUrl?.toString(),
-                "role" to "new_user"
-            )
-        ).addOnSuccessListener {
-            Log.d(TAG, "DocumentSnapshot added with ID: $it")
-        }.addOnFailureListener { e ->
-            Log.w(TAG, "Error adding document", e)
-        }*//*
-
-//        val firebaseUser = ru.students.dvfu.mvp.model.userdata.FirebaseUser(user.displayName!!, user.email!!, user.photoUrl!!.toString(), "Logged user")
-//        realtimeDatabase.reference.child("users").child(user.uid).setValue(firebaseUser)
-    }*/
-
-    override suspend fun addAppliance(appliance: Appliance)= suspendCoroutine<Result<Unit>> { continuation ->
+    override suspend fun addAppliance(appliance: Appliance)
+    = suspendCoroutineWithTimeout<Unit> { continuation ->
         dbCollections.getAppliancesCollection().document(appliance.id).set(appliance)
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    continuation.resume(Result.success(Unit))
-                } else continuation.resume(Result.failure(it.exception ?: Throwable()))
-            }
+            .addOnCompleteListener(simpleOnCompleteListener(continuation))
     }
 
-    override suspend fun deleteAppliance(appliance: Appliance) = suspendCoroutine<Result<Unit>> { continuation ->
-        dbCollections.getAppliancesCollection().document(appliance.id).delete().addOnCompleteListener {
-            if (it.isSuccessful) {
-                continuation.resume(Result.success(Unit))
-            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
-        }
+    override suspend fun deleteAppliance(appliance: Appliance)
+    = suspendCoroutineWithTimeout<Unit> { continuation ->
+        dbCollections.getAppliancesCollection().document(appliance.id).delete()
+            .addOnCompleteListener(simpleOnCompleteListener(continuation))
     }
 }
