@@ -49,9 +49,7 @@ class EventInfoViewModel(
 
     private fun getCurrentUser() {
         viewModelScope.launch {
-            userDatastore.getCurrentUser.collect {
-                currentUser.value = it
-            }
+            userDatastore.getCurrentUser.collect { currentUser.value = it }
         }
     }
 

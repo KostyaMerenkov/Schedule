@@ -39,7 +39,7 @@ class MyFirebaseMessagingService() : FirebaseMessagingService() {
         Log.d("NEW_TOKEN", s)
     }
 
-    fun showNotification(message: RemoteMessage.Notification?) {
+    private fun showNotification(message: RemoteMessage.Notification?) {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val notificationBuilder: Notification.Builder =

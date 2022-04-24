@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.utils.EventMapper
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.use_cases.*
@@ -18,9 +19,8 @@ import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
-import ru.dvfu.appliances.model.utils.toLocalDate
-import ru.dvfu.appliances.model.utils.toLocalDateTime
 import java.time.LocalDate
+
 
 class WeekCalendarViewModel(
     private val usersRepository: UsersRepository,
@@ -30,8 +30,7 @@ class WeekCalendarViewModel(
     private val getEventsFromDateUseCase: GetEventsFromDateUseCase,
     private val getPeriodEventsUseCase: GetPeriodEventsUseCase,
     private val getDateEventsUseCase: GetDateEventsUseCase,
-    private val getUserUseCase: GetUserUseCase,
-    private val getApplianceUseCase: GetApplianceUseCase,
+    private val eventMapper: EventMapper,
 ) : ViewModel() {
 
     private val _calendarType = MutableStateFlow<CalendarType>(CalendarType.WEEK)
@@ -87,27 +86,7 @@ class WeekCalendarViewModel(
                 it.forEach { (localDate, list) ->
                     _reposEvents.value = (_reposEvents.value.plus(list))
                     _dayEvents = _dayEvents.apply {
-                        put(
-                            localDate,
-                            EventsState.Loaded(list.map { currentEvent ->
-                                with(currentEvent) {
-                                    CalendarEvent(
-                                        id = id,
-                                        date = this.date.toLocalDate(),
-                                        timeCreated = timeCreated.toLocalDateTime(),
-                                        timeStart = currentEvent.timeStart.toLocalDateTime(),
-                                        timeEnd = currentEvent.timeEnd.toLocalDateTime(),
-                                        commentary = currentEvent.commentary,
-                                        user = getUserUseCase(userId).first().getOrDefault(User()),
-                                        appliance = getApplianceUseCase(applianceId).first().getOrDefault(Appliance()),
-                                        managedUser = managedById?.let { getUserUseCase(managedById).first().getOrDefault(User()) },
-                                        managedTime = managedTime?.toLocalDateTime(),
-                                        managerCommentary = managerCommentary,
-                                        status = status,
-                                    )
-                                }
-                            })
-                        )
+                        put(localDate, EventsState.Loaded(eventMapper.mapEvents(list)))
                     }
                 }
             }
@@ -121,26 +100,11 @@ class WeekCalendarViewModel(
             }
             getDateEventsUseCase(date).collectLatest {
                 _reposEvents.value = (_reposEvents.value.plus(it))
-                val dayEvents = it.map { currentEvent ->
-                    with(currentEvent) {
-                        CalendarEvent(
-                            id = id,
-                            date = this.date.toLocalDate(),
-                            timeCreated = timeCreated.toLocalDateTime(),
-                            timeStart = currentEvent.timeStart.toLocalDateTime(),
-                            timeEnd = currentEvent.timeEnd.toLocalDateTime(),
-                            commentary = currentEvent.commentary,
-                            user = getUserUseCase(userId).first().getOrDefault(User()),
-                            appliance = getApplianceUseCase(applianceId).first().getOrDefault(Appliance()),
-                            managedUser = managedById?.let { getUserUseCase(managedById).first().getOrDefault(User()) },
-                            managedTime = managedTime?.toLocalDateTime(),
-                            managerCommentary = managerCommentary,
-                            status = status,
-                        )
-                    }
-                }.toList()
+                val dayEvents = eventMapper.mapEvents(it)
                 _dayEvents = _dayEvents.apply {
-                    put(date, EventsState.Loaded(dayEvents))
+                    replace(date, EventsState.Loaded(dayEvents))?.let {
+                        put(date, EventsState.Loaded(dayEvents))
+                    }
                 }
             }
         }
@@ -181,27 +145,12 @@ class WeekCalendarViewModel(
 
     fun getThreeDaysEvents() {
         viewModelScope.launch {
-            _threeDaysEvents.value = getPeriodEventsUseCase.invoke(
-                dateStart = LocalDate.now(),
-                dateEnd = LocalDate.now().plusDays(3)
-            ).first().map { currentEvent ->
-                with(currentEvent) {
-                    CalendarEvent(
-                        id = id,
-                        date = this.date.toLocalDate(),
-                        timeCreated = timeCreated.toLocalDateTime(),
-                        timeStart = currentEvent.timeStart.toLocalDateTime(),
-                        timeEnd = currentEvent.timeEnd.toLocalDateTime(),
-                        commentary = currentEvent.commentary,
-                        user = getUserUseCase(userId).first().getOrDefault(User()),
-                        appliance = getApplianceUseCase(applianceId).first().getOrDefault(Appliance()),
-                        managedUser = managedById?.let { getUserUseCase(managedById).first().getOrDefault(User()) },
-                        managedTime = managedTime?.toLocalDateTime(),
-                        managerCommentary = managerCommentary,
-                        status = status,
-                    )
-                }
-            }.toList()
+            _threeDaysEvents.value = eventMapper.mapEvents(
+                getPeriodEventsUseCase.invoke(
+                    dateStart = LocalDate.now(),
+                    dateEnd = LocalDate.now().plusDays(3)
+                ).first()
+            )
         }
     }
 

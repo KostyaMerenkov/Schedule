@@ -23,10 +23,10 @@ object TimeConstants {
 }
 
 val LocalDateTime.toMillis: Long
-    get() = this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    get() = this.atZone(ZoneId.of("Asia/Vladivostok")).toInstant().toEpochMilli()
 
 val LocalDate.toMillis: Long
-    get() = this.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    get() = this.atStartOfDay().toMillis
 
 fun LocalTime.toHoursAndMinutes(): String {
     return format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
