@@ -6,7 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-class RepositoryCollections(private val cloudFirestore: FirebaseFirestore = Firebase.firestore) {
+class RepositoryCollections(private val cloudFirestore: FirebaseFirestore) {
 
     companion object {
         private const val USERS_COLLECTION = "users"
@@ -31,7 +31,7 @@ class RepositoryCollections(private val cloudFirestore: FirebaseFirestore = Fire
     }
 
     fun getEventsCollection(): CollectionReference {
-        return cloudFirestore.collection(EVENTS_COLLECTION)
+        return Firebase.firestore.collection(EVENTS_COLLECTION)
     }
 
     fun getBookingCollection(): CollectionReference {

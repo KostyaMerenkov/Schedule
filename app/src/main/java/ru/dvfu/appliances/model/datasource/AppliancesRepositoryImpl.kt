@@ -31,7 +31,7 @@ class AppliancesRepositoryImpl(
 ) : AppliancesRepository {
 
     override suspend fun deleteUserFromAppliance(userToDelete: User, from: Appliance) =
-        suspendCoroutineWithTimeout<Unit> { continuation ->
+        suspendCoroutineWithTimeout { continuation ->
             dbCollections.getAppliancesCollection().document(from.id)
                 .update("userIds", from.userIds.filter { it != userToDelete.userId })
                 .addOnCompleteListener(simpleOnCompleteListener(continuation))
@@ -103,7 +103,7 @@ class AppliancesRepositoryImpl(
     override suspend fun addUsersToAppliance(
         appliance: Appliance,
         userIds: List<String>
-    ) = suspendCoroutineWithTimeout<Unit> { continuation ->
+    ) = suspendCoroutineWithTimeout { continuation ->
 
         dbCollections.getAppliancesCollection().document(appliance.id).update(
             "userIds", userIds).addOnCompleteListener(simpleOnCompleteListener(continuation))
@@ -112,7 +112,7 @@ class AppliancesRepositoryImpl(
     override suspend fun addSuperUsersToAppliance(
         appliance: Appliance,
         superuserIds: List<String>
-    ) = suspendCoroutineWithTimeout<Unit> { continuation ->
+    ) = suspendCoroutineWithTimeout { continuation ->
         dbCollections.getAppliancesCollection().document(appliance.id).update(
             "superuserIds", superuserIds
         ).addOnCompleteListener(simpleOnCompleteListener(continuation))
@@ -214,13 +214,13 @@ class AppliancesRepositoryImpl(
         }
 
     override suspend fun addAppliance(appliance: Appliance)
-    = suspendCoroutineWithTimeout<Unit> { continuation ->
+    = suspendCoroutineWithTimeout { continuation ->
         dbCollections.getAppliancesCollection().document(appliance.id).set(appliance)
             .addOnCompleteListener(simpleOnCompleteListener(continuation))
     }
 
     override suspend fun deleteAppliance(appliance: Appliance)
-    = suspendCoroutineWithTimeout<Unit> { continuation ->
+    = suspendCoroutineWithTimeout { continuation ->
         dbCollections.getAppliancesCollection().document(appliance.id).delete()
             .addOnCompleteListener(simpleOnCompleteListener(continuation))
     }

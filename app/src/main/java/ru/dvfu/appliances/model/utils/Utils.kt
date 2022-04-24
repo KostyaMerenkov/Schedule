@@ -59,25 +59,24 @@ fun showToast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
 }
 
-suspend inline fun <T> suspendCoroutineWithTimeout(
-    timeout: Long = Duration.ofSeconds(5L).toMillis(),
-    crossinline block: (CancellableContinuation<Result<T>>) -> Unit,
-): Result<T> {
+suspend inline fun suspendCoroutineWithTimeout(
+    timeout: Long = Duration.ofSeconds(8L).toMillis(),
+    crossinline block: (CancellableContinuation<Result<Unit>>) -> Unit,
+): Result<Unit> {
     return withTimeoutOrNull(timeout) {
         if (isNetworkAvailable(Firebase.app.applicationContext)) {
             suspendCancellableCoroutine(block)
-        } else Result.failure<T>(Throwable("Отсутствует интернет соединение"))
+        } else Result.failure(Throwable("Отсутствует интернет соединение"))
     } ?: run {
-        Firebase.firestore.terminate()
+        Result.success(Unit)
+        /*Firebase.firestore.terminate()
         Firebase.firestore.clearPersistence().await()
         Firebase.app.applicationContext.apply {
             unloadKoinModules(repositoryModule)
             loadKoinModules(repositoryModule)
         }
-        Result.failure<T>(Throwable())
+        Result.failure<T>(Throwable())*/
     }
-
-
 }
 
 fun isNetworkAvailable(context: Context): Boolean {

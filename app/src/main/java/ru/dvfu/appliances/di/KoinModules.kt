@@ -1,5 +1,7 @@
 package ru.dvfu.appliances.di
 
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -25,7 +27,7 @@ import ru.dvfu.appliances.model.utils.RepositoryCollections
 
 val repositoryModule = module {
     single<OfflineRepository> { OfflineRepositoryImpl(dbCollections = get()) }
-    single<RepositoryCollections> { RepositoryCollections() }
+    single<RepositoryCollections> { RepositoryCollections(Firebase.firestore) }
 
     single<Repository> { CloudFirestoreDatabaseImpl(dbCollections = get()) }
     single<EventsRepository> { EventsRepositoryImpl(dbCollections = get()) }

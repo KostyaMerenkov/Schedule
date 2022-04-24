@@ -1,14 +1,19 @@
 package ru.dvfu.appliances.model.datasource
 
 import android.util.Log
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.firestore.*
+import androidx.core.os.bundleOf
+import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.toObjects
-import kotlinx.coroutines.CancellableContinuation
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.channelFlow
 import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
@@ -26,13 +31,16 @@ class EventsRepositoryImpl(
     private var TAG = "EventsFirestoreDatabase"
 
     override suspend fun addNewEvent(event: Event) =
-        suspendCoroutineWithTimeout<Unit> { continuation ->
+        suspendCoroutineWithTimeout { continuation ->
             dbCollections.getEventsCollection().document(event.id).set(event)
-                .addOnCompleteListener(simpleOnCompleteListener(continuation))
+                .addOnCompleteListener {
+                    if (it.isSuccessful) continuation.resume(Result.success(Unit))
+                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
         }
 
     override suspend fun deleteEvent(id: String) =
-        suspendCoroutineWithTimeout<Unit> { continuation ->
+        suspendCoroutineWithTimeout{ continuation ->
             dbCollections.getEventsCollection().document(id).delete()
                 .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
@@ -40,7 +48,7 @@ class EventsRepositoryImpl(
 
 
     override suspend fun setNewTimeEnd(eventId: String, timeEnd: Long) =
-        suspendCoroutineWithTimeout<Unit> { continuation ->
+        suspendCoroutineWithTimeout { continuation ->
             dbCollections.getEventsCollection().document(eventId).update("timeEnd", timeEnd)
                 .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
@@ -48,13 +56,13 @@ class EventsRepositoryImpl(
     override suspend fun setNewEventStatus(
         eventId: String,
         newStatus: BookingStatus
-    ) = suspendCoroutineWithTimeout<Unit> { continuation ->
+    ) = suspendCoroutineWithTimeout { continuation ->
         dbCollections.getEventsCollection().document(eventId).update("status", newStatus)
             .addOnCompleteListener(simpleOnCompleteListener(continuation))
     }
 
     override suspend fun updateEvent(eventId: String, data: Map<String, Any?>) =
-        suspendCoroutineWithTimeout<Unit> { continuation ->
+        suspendCoroutineWithTimeout { continuation ->
             dbCollections.getEventsCollection().document(eventId).update(data)
                 .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }

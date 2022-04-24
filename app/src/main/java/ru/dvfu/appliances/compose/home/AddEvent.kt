@@ -33,7 +33,6 @@ import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.appliance.FabWithLoading
 import ru.dvfu.appliances.compose.components.*
 import ru.dvfu.appliances.compose.utils.TimeConstants.FULL_DATE_FORMAT
-import ru.dvfu.appliances.compose.utils.TimeConstants.MILLISECONDS_IN_HOUR
 import ru.dvfu.appliances.compose.utils.toHoursAndMinutes
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
 import ru.dvfu.appliances.compose.views.ModalLoadingDialog

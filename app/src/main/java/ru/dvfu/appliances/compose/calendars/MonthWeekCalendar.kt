@@ -111,7 +111,7 @@ fun EventView(
         BookingStatus.NONE -> { ContentAlpha.disabled }
         else -> ContentAlpha.high
     }
-    CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
+    CompositionLocalProvider(LocalContentAlpha provides contentAlpha){
 
         Column(
             modifier = modifier

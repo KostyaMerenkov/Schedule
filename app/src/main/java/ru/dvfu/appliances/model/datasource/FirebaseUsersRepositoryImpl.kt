@@ -200,7 +200,7 @@ class FirebaseUsersRepositoryImpl(
     }
 
     override suspend fun updateUserField(userId: String, data: Map<String, Any>) =
-        suspendCoroutineWithTimeout<Unit> { continuation ->
+        suspendCoroutineWithTimeout { continuation ->
             dbCollections.getUsersCollection().document(userId).update(data)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {

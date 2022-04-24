@@ -14,6 +14,12 @@ class EventMapper(
     private val getApplianceUseCase: GetApplianceUseCase,
 ) {
 
+    suspend fun mapEvents(list: List<Event>) = list.map { mapEventToCalendarEvent(it) }
+
+    suspend fun mapEvent(event: Event) = listOf(event).map { mapEventToCalendarEvent(it) }.first()
+
+
+
     private suspend fun mapEventToCalendarEvent(currentEvent: Event) = with(currentEvent) {
         CalendarEvent(
             id = id,
@@ -30,6 +36,4 @@ class EventMapper(
             status = status,
         )
     }
-
-    suspend fun mapEvents(list: List<Event>) = list.map { mapEventToCalendarEvent(it) }
 }

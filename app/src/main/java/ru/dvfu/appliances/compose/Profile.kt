@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
@@ -84,6 +85,9 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
 
                 }
                 if (currentUser.anonymous.not()) UserButtons(navController)
+
+                ColumnButton(Icons.Default.Error, "Выдать ошибку")
+                { throw RuntimeException("Test Crash")  }// Force a crash
             }
         },
     )
