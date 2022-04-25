@@ -1,17 +1,15 @@
 package ru.dvfu.appliances.compose.calendars
 
 import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
@@ -19,14 +17,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.himanshoe.kalendar.common.KalendarSelector
-import com.himanshoe.kalendar.common.KalendarStyle
-import com.himanshoe.kalendar.common.data.KalendarEvent
-import com.himanshoe.kalendar.ui.Kalendar
-import com.himanshoe.kalendar.ui.KalendarType
+import androidx.navigation.NavController
+import io.github.boguszpawlowski.composecalendar.SelectableCalendar
+import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.Arguments
+import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.appliance.NoElementsView
 import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
+import ru.dvfu.appliances.compose.home.HomeTopBar
+import ru.dvfu.appliances.compose.home.SelectedDate
+import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.EventsState
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -36,65 +37,105 @@ import ru.dvfu.appliances.model.utils.Constants
 import ru.dvfu.appliances.model.utils.loadingModifier
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MonthWeekCalendar(
     viewModel: WeekCalendarViewModel,
-    calendarType: KalendarType = KalendarType.Oceanic(),
+    navController: NavController,
     onEventClick: (CalendarEvent) -> Unit,
     onEventLongClick: (CalendarEvent) -> Unit,
 ) {
-    val currentDate = viewModel.currentDate.collectAsState()
+    val currentDate by viewModel.currentDate.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
     val dayEvents = viewModel.dayEvents
     val scrollState = rememberScrollState()
-    Column(
-        modifier = Modifier
-            .verticalScroll(scrollState)
-    ) {
-        Kalendar(kalendarType = calendarType, onCurrentDayClick = { day, event ->
-            viewModel.onDaySelected(day)
+    val backdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Concealed)
+    val calendarState = rememberSelectableCalendarState()
 
-        }, errorMessage = {
-            //Handle the error if any
+    Scaffold(
+        floatingActionButton = {
+            if (!currentUser.isAnonymousOrGuest()) {
+                FloatingActionButton(backgroundColor = Color(0xFFFF8C00),
+                    onClick = {
+                        navController.navigate(
+                            MainDestinations.ADD_EVENT,
+                            Arguments.DATE to SelectedDate(currentDate)
+                        )
+                    }) { Icon(Icons.Default.Add, "") }
+            }
         },
-            selectedDay = currentDate.value,
-            kalendarStyle = KalendarStyle(kalendarSelector = KalendarSelector.Circle()),
-            kalendarEvents = dayEvents.filter { (it.value as? EventsState.Loaded)?.events?.isEmpty() == false }
-                .map { KalendarEvent(it.key, "") }
-        )
-        Column(modifier = Modifier
-            .padding(8.dp)
-            .padding(bottom = 150.dp)) {
-            dayEvents[currentDate.value]?.let {
-                when (it) {
-                    is EventsState.Loaded -> {
-                        if (it.events.isEmpty()) {
-                            NoElementsView(mainText = "Нет событий на выбранный день") {}
-                        }
-                        it.events.forEach { event ->
-                            EventView(
-                                onEventClick = onEventClick,
-                                onEventLongClick = onEventLongClick,
-                                event = event
-                            )
-                        }
-                    }
-                    EventsState.Loading -> {
-                        (0..2).forEach {
-                            EventView(
-                                childModifier = Modifier.loadingModifier(),
-                                event = CalendarEvent(
-                                    appliance = Appliance(name = "Appliance"),
-                                    date = LocalDate.now(),
-                                    timeCreated = LocalDateTime.now(),
-                                    timeStart = LocalDateTime.now(),
-                                    timeEnd = LocalDateTime.now()
-                                ), onEventClick = {}, onEventLongClick = {})
+    ) {
+
+        BackdropScaffold(
+            appBar = {
+                HomeTopBar(onBookingListOpen = {
+                    navController.navigate(MainDestinations.BOOKING_LIST)
+                }, onCalendarSelected = viewModel::setCalendarType)
+            },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it),
+            scaffoldState = backdropScaffoldState,
+            backLayerBackgroundColor = MaterialTheme.colors.surface,
+            frontLayerElevation = 16.dp,
+            frontLayerScrimColor = MaterialTheme.colors.surface.copy(alpha = 0f),
+            frontLayerBackgroundColor = MaterialTheme.colors.surface,
+            backLayerContent = {
+                SelectableCalendar(
+                    modifier = Modifier.padding(8.dp),
+                    calendarState = calendarState,
+                    dayContent = {
+                        AiutaCalendarDate(
+                            it,
+                            currentDayEvents = dayEvents.filter { (it.value as? EventsState.Loaded)?.events?.isEmpty() == false })
+                    },
+                    monthHeader = { SchedulerMonthHeader(it) }
+                )
+            },
+            frontLayerContent = {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(scrollState)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .padding(bottom = 150.dp)
+                    ) {
+                        dayEvents[currentDate]?.let {
+                            when (it) {
+                                is EventsState.Loaded -> {
+                                    if (it.events.isEmpty()) {
+                                        NoElementsView(mainText = "Нет событий на выбранный день") {}
+                                    }
+                                    it.events.forEach { event ->
+                                        EventView(
+                                            onEventClick = onEventClick,
+                                            onEventLongClick = onEventLongClick,
+                                            event = event
+                                        )
+                                    }
+                                }
+                                EventsState.Loading -> {
+                                    (0..2).forEach {
+                                        EventView(
+                                            childModifier = Modifier.loadingModifier(),
+                                            event = CalendarEvent(
+                                                appliance = Appliance(name = "Appliance"),
+                                                date = LocalDate.now(),
+                                                timeCreated = LocalDateTime.now(),
+                                                timeStart = LocalDateTime.now(),
+                                                timeEnd = LocalDateTime.now()
+                                            ), onEventClick = {}, onEventLongClick = {})
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
+            })
     }
 }
 
@@ -108,10 +149,12 @@ fun EventView(
     event: CalendarEvent
 ) {
     val contentAlpha = when (event.status) {
-        BookingStatus.NONE -> { ContentAlpha.disabled }
+        BookingStatus.NONE -> {
+            ContentAlpha.disabled
+        }
         else -> ContentAlpha.high
     }
-    CompositionLocalProvider(LocalContentAlpha provides contentAlpha){
+    CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
 
         Column(
             modifier = modifier
@@ -147,7 +190,8 @@ fun EventView(
                 )
 
                 Text(
-                    text = event.appliance?.name ?: stringResource(id = R.string.appliance_name_failed),
+                    text = event.appliance?.name
+                        ?: stringResource(id = R.string.appliance_name_failed),
                     style = MaterialTheme.typography.body1,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -169,3 +213,5 @@ fun EventView(
         }
     }
 }
+
+

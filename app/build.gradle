@@ -52,7 +52,8 @@ dependencies {
     implementation 'com.github.alorma:compose-settings-ui:0.7.2'
 
     implementation 'de.charlex.compose:revealswipe:1.0.0'
-    implementation("com.himanshoe:kalendar:1.0.0-RC5")
+    //Calendar
+    implementation "io.github.boguszpawlowski.composecalendar:composecalendar:0.4.2"
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'

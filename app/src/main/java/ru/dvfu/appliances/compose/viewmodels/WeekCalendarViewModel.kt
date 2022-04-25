@@ -33,7 +33,7 @@ class WeekCalendarViewModel(
     private val eventMapper: EventMapper,
 ) : ViewModel() {
 
-    private val _calendarType = MutableStateFlow<CalendarType>(CalendarType.WEEK)
+    private val _calendarType = MutableStateFlow<CalendarType>(CalendarType.MONTH)
     val calendarType = _calendarType.asStateFlow()
 
     private val _currentDate = MutableStateFlow<LocalDate>(LocalDate.now())

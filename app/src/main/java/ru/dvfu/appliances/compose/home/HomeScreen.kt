@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.himanshoe.kalendar.ui.KalendarType
 import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
@@ -36,8 +35,6 @@ fun HomeScreen(
     //val viewModell: MainScreenViewModel = getViewModel()
     val viewModel: WeekCalendarViewModel = getViewModel()
     val calendarType by viewModel.calendarType.collectAsState()
-    val currentUser by viewModel.currentUser.collectAsState()
-    val currentDate by viewModel.currentDate.collectAsState()
 
     var eventOptionDialogOpened by remember { mutableStateOf(false) }
     if (eventOptionDialogOpened) EventOptionDialog(
@@ -48,68 +45,37 @@ fun HomeScreen(
 
     val scrollState = rememberScrollState()
 
-    Scaffold(
-        topBar = {
-            HomeTopBar(onBookingListOpen = {
-                navController.navigate(MainDestinations.BOOKING_LIST)
-            }, onCalendarSelected = viewModel::setCalendarType)
-        },
-        floatingActionButton = {
-            if (!currentUser.isAnonymousOrGuest()) {
-                FloatingActionButton(backgroundColor = Color(0xFFFF8C00),
-                    onClick = {
-                        navController.navigate(
-                            MainDestinations.ADD_EVENT,
-                            Arguments.DATE to SelectedDate(currentDate)
-                        )
-                    }) { Icon(Icons.Default.Add, "") }
-            }
-        },
-    ) {
-        Column(/*modifier = Modifier.verticalScroll(scrollState)*/) {
-            when (calendarType) {
-                CalendarType.MONTH -> {
-                    MonthWeekCalendar(
-                        viewModel = viewModel,
-                        calendarType = KalendarType.Firey(),
-                        onEventClick = {
-                            viewModel.getRepoEvent(it)?.let {
-                                navController.navigate(
-                                    MainDestinations.EVENT_INFO,
-                                    Arguments.EVENT to it
-                                )
-                            }
-                        }) {
-                        viewModel.selectedEvent.value = it
-                        eventOptionDialogOpened = true
-                    }
-                }
-                CalendarType.WEEK -> {
-                    MonthWeekCalendar(viewModel = viewModel, onEventClick = {
+    Column(/*modifier = Modifier.verticalScroll(scrollState)*/) {
+        when (calendarType) {
+            CalendarType.MONTH -> {
+                MonthWeekCalendar(
+                    viewModel = viewModel,
+                    navController = navController,
+                    onEventClick = {
                         viewModel.getRepoEvent(it)?.let {
                             navController.navigate(
-                                MainDestinations.EVENT_INFO, Arguments.EVENT to it
+                                MainDestinations.EVENT_INFO,
+                                Arguments.EVENT to it
                             )
                         }
                     }) {
+                    viewModel.selectedEvent.value = it
+                    eventOptionDialogOpened = true
+                }
+            }
+            CalendarType.THREE_DAYS -> {
+                EventCalendar(viewModel = viewModel,
+                    onEventClick = {
+                        viewModel.getRepoEvent(it)?.let {
+                            navController.navigate(
+                                MainDestinations.EVENT_INFO,
+                                Arguments.EVENT to it
+                            )
+                        }
+                    }, onEventLongClick = {
                         viewModel.selectedEvent.value = it
                         eventOptionDialogOpened = true
-                    }
-                }
-                CalendarType.THREE_DAYS -> {
-                    EventCalendar(viewModel = viewModel,
-                        onEventClick = {
-                            viewModel.getRepoEvent(it)?.let {
-                                navController.navigate(
-                                    MainDestinations.EVENT_INFO,
-                                    Arguments.EVENT to it
-                                )
-                            }
-                        }, onEventLongClick = {
-                            viewModel.selectedEvent.value = it
-                            eventOptionDialogOpened = true
-                        })
-                }
+                    })
             }
         }
     }

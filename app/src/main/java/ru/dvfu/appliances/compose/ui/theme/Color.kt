@@ -44,3 +44,5 @@ val supportFigmaTextColor = Color(0x42000000)
 val primaryFigmaBackgroundTint = Color(0xFFFFF7E6)
 val backgroundWhiteColor = Color(0xFFFFFFFF)
 val backgroundGreenColor = Color(0x2043A047)
+
+val Blue500 = Color(0xFF42A5F5)
