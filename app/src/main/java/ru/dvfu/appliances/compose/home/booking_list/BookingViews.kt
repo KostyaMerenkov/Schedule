@@ -82,7 +82,8 @@ fun BookingTabsContent(
     HorizontalPager(
         modifier = modifier.fillMaxSize(),
         state = pagerState,
-        verticalAlignment = Alignment.Top
+        verticalAlignment = Alignment.Top,
+        count = tabsList.size
     ) { page ->
         tabsList[page].screen()
     }

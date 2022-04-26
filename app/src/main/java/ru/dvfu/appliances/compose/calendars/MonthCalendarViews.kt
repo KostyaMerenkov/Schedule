@@ -21,20 +21,19 @@ import io.github.boguszpawlowski.composecalendar.header.MonthState
 import io.github.boguszpawlowski.composecalendar.selection.SelectionState
 import ru.dvfu.appliances.compose.ui.theme.Blue500
 import ru.dvfu.appliances.compose.viewmodels.EventsState
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.*
 
 @Composable
-fun <T : SelectionState> AiutaCalendarDate(
+fun <T : SelectionState> ScheduleCalendarDate(
     state: DayState<T>,
-    todayDate: LocalDate = LocalDate.now(),
-    currentDayEvents: Map<LocalDate, EventsState>,
-    selectionColor: Color = Blue500,
-    currentDayColor: Color = MaterialTheme.colors.primary,
+    currentDayEvents: List<CalendarEvent>,
     onClick: (LocalDate) -> Unit = {},
     modifier: Modifier = Modifier,
-    oldSelectionColor: Color = if (!isSystemInDarkTheme()) Color.LightGray else Color.Black,
+    todayDate: LocalDate = LocalDate.now(),
+    selectionColor: Color = MaterialTheme.colors.secondaryVariant,
 ) {
     val date = state.date
     val selectionState = state.selectionState
@@ -47,8 +46,11 @@ fun <T : SelectionState> AiutaCalendarDate(
         shape = CircleShape,
         elevation = if (state.isFromCurrentMonth) 4.dp else 0.dp,
         border =
-        if (currentDayEvents.isEmpty()) null else BorderStroke(2.dp, MaterialTheme.colors.primary),
-        backgroundColor = if (isSelected) selectionColor else Color.Unspecified
+        if (currentDayEvents.isNotEmpty()) BorderStroke(
+            2.dp,
+            MaterialTheme.colors.primary
+        ) else null,
+        backgroundColor = if (isSelected) selectionColor else MaterialTheme.colors.surface
     ) {
         Box(
             modifier = Modifier.clickable {
@@ -61,7 +63,6 @@ fun <T : SelectionState> AiutaCalendarDate(
                 text = date.dayOfMonth.toString(),
                 fontWeight = if (date == todayDate) FontWeight.Bold else FontWeight.Normal,
                 fontSize = if (date == todayDate) 16.sp else 14.sp,
-                //color = if (backgroundColor != MaterialTheme.colors.surface && isSelected) Color.White else MaterialTheme.colors.onSurface
             )
         }
     }

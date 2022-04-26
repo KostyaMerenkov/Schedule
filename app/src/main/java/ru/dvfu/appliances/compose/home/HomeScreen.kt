@@ -1,6 +1,7 @@
 package ru.dvfu.appliances.compose.home
 
 import android.os.Parcelable
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
@@ -36,6 +38,10 @@ fun HomeScreen(
     val viewModel: WeekCalendarViewModel = getViewModel()
     val calendarType by viewModel.calendarType.collectAsState()
 
+    BackHandler(calendarType == CalendarType.THREE_DAYS) {
+        viewModel.setCalendarType(CalendarType.MONTH)
+    }
+
     var eventOptionDialogOpened by remember { mutableStateOf(false) }
     if (eventOptionDialogOpened) EventOptionDialog(
         calendarEvent = viewModel.selectedEvent.value,
@@ -43,9 +49,7 @@ fun HomeScreen(
         onDelete = viewModel::deleteEvent
     )
 
-    val scrollState = rememberScrollState()
-
-    Column(/*modifier = Modifier.verticalScroll(scrollState)*/) {
+    Column() {
         when (calendarType) {
             CalendarType.MONTH -> {
                 MonthWeekCalendar(
@@ -64,18 +68,14 @@ fun HomeScreen(
                 }
             }
             CalendarType.THREE_DAYS -> {
-                EventCalendar(viewModel = viewModel,
-                    onEventClick = {
-                        viewModel.getRepoEvent(it)?.let {
-                            navController.navigate(
-                                MainDestinations.EVENT_INFO,
-                                Arguments.EVENT to it
-                            )
-                        }
-                    }, onEventLongClick = {
+                EventCalendar(
+                    viewModel = viewModel,
+                    navController = navController,
+                    onEventLongClick = {
                         viewModel.selectedEvent.value = it
                         eventOptionDialogOpened = true
-                    })
+                    }
+                )
             }
         }
     }
@@ -87,7 +87,7 @@ data class SelectedDate(val value: LocalDate = LocalDate.now()) : Parcelable
 @Composable
 fun EventCalendar(
     viewModel: WeekCalendarViewModel,
-    onEventClick: (CalendarEvent) -> Unit,
+    navController: NavController,
     onEventLongClick: (CalendarEvent) -> Unit,
 ) {
     SideEffect {
@@ -98,14 +98,29 @@ fun EventCalendar(
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
 
-    Schedule(
-        calendarEvents = events, minDate = LocalDate.now().minusDays(1),
-        maxDate = LocalDate.now().plusDays(6),
-        onEventClick = onEventClick,
-        onEventLongClick = onEventLongClick,
-        verticalScrollState = verticalScrollState,
-        horizontalScrollState = horizontalScrollState
-    )
+    Scaffold(topBar = {
+        HomeTopBar(onBookingListOpen = {
+            navController.navigate(MainDestinations.BOOKING_LIST)
+        }, onCalendarSelected = viewModel::setCalendarType)
+    }) {
+        Schedule(
+            modifier = Modifier.padding(it),
+            calendarEvents = events, minDate = LocalDate.now().minusDays(1),
+            maxDate = LocalDate.now().plusDays(6),
+            onEventClick = {
+                viewModel.getRepoEvent(it)?.let {
+                    navController.navigate(
+                        MainDestinations.EVENT_INFO,
+                        Arguments.EVENT to it
+                    )
+                }
+            },
+            onEventLongClick = onEventLongClick,
+            verticalScrollState = verticalScrollState,
+            horizontalScrollState = horizontalScrollState
+        )
+    }
+
 }
 
 @Composable

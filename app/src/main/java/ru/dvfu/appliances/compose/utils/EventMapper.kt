@@ -14,6 +14,9 @@ class EventMapper(
     private val getApplianceUseCase: GetApplianceUseCase,
 ) {
 
+    /**
+     * fun mapEvents @returns listOf CalendarEvent
+     */
     suspend fun mapEvents(list: List<Event>) = list.map { mapEventToCalendarEvent(it) }
 
     suspend fun mapEvent(event: Event) = listOf(event).map { mapEventToCalendarEvent(it) }.first()

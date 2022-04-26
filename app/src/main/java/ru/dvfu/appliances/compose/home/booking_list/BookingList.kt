@@ -112,7 +112,7 @@ fun BookingList(navController: NavController) {
                         )
                     )
 
-                    val pagerState = rememberPagerState(pageCount = bookingTabs.size)
+                    val pagerState = rememberPagerState()
 
                     Column(
                         modifier = Modifier.fillMaxSize(),

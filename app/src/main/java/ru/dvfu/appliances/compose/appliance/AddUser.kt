@@ -219,7 +219,7 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
 
 @Composable
 fun UserImage(modifier: Modifier, user: User) {
-    Box(modifier= modifier, contentAlignment = Alignment.Center) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
         if (user.userPic.isEmpty()) {
             Icon(
                 Icons.Default.Person, "",

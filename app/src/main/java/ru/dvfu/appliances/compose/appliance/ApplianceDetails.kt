@@ -52,7 +52,7 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
     }
 
     val tabs = listOf(TabItem.Users, TabItem.SuperUsers)
-    val pagerState = rememberPagerState(pageCount = tabs.size)
+    val pagerState = rememberPagerState()
 
     Scaffold(topBar = {
         ApplianceTopBar(user, updatedAppliance, upPress, deleteClick = {
@@ -204,7 +204,8 @@ fun TabsContent(
     appliance: Appliance
 ) {
     HorizontalPager(
-        state = pagerState
+        state = pagerState,
+        count = tabs.size
     ) { page ->
         tabs[page].screen(navController, appliance)
     }

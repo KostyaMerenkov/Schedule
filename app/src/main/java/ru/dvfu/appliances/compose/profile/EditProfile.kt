@@ -67,7 +67,6 @@ fun EditProfile(onBack: () -> Unit) {
         onReset = viewModel::resetChanges
     )
 
-
     var datePickerShown by remember { mutableStateOf(false) }
     if (datePickerShown) {
         DatePicker(context,
@@ -114,7 +113,7 @@ fun EditProfile(onBack: () -> Unit) {
 
                 Spacer(modifier = Modifier.size(16.dp))
                 EditUserPhoto(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.size(100.dp),
                     currentUser = currentUser,
                     hintText = stringResource(id = R.string.user_photo)
                 )

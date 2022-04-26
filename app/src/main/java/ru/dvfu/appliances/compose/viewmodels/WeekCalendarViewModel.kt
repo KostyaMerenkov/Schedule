@@ -20,6 +20,7 @@ import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import java.time.LocalDate
+import java.time.YearMonth
 
 
 class WeekCalendarViewModel(
@@ -108,7 +109,6 @@ class WeekCalendarViewModel(
                 }
             }
         }
-
     }
 
     private fun getCurrentUser() {
@@ -116,13 +116,6 @@ class WeekCalendarViewModel(
             userDatastore.getCurrentUser.collect {
                 _currentUser.value = it
             }
-        }
-    }
-
-    fun onDaySelected(day: LocalDate) {
-        if (currentDate.value != day) {
-            _currentDate.value = day
-            getDayEvents(day)
         }
     }
 
@@ -145,12 +138,12 @@ class WeekCalendarViewModel(
 
     fun getThreeDaysEvents() {
         viewModelScope.launch {
-            _threeDaysEvents.value = eventMapper.mapEvents(
+            /*_threeDaysEvents.value = eventMapper.mapEvents(
                 getPeriodEventsUseCase.invoke(
                     dateStart = LocalDate.now(),
                     dateEnd = LocalDate.now().plusDays(3)
                 ).first()
-            )
+            )*/
         }
     }
 
@@ -159,7 +152,41 @@ class WeekCalendarViewModel(
             userDatastore.saveCalendarType(calendarType)
         }
     }
+
+    fun onDateSelectionChanged(selectedDateList: List<LocalDate>) {
+        val selectedDate = selectedDateList.first()
+        if (currentDate.value != selectedDate) {
+            _currentDate.value = selectedDate
+            getDayEvents(selectedDate)
+        }
+    }
+
+    fun onMonthChanged(currentMonth: YearMonth) {
+        getEventsForMonth(currentMonth)
+    }
+
+    private fun getEventsForMonth(currentMonth: YearMonth) {
+        viewModelScope.launch {
+            val dates = currentMonth.getDates()
+            _dayEvents = _dayEvents.apply {
+                dates.forEach { date ->
+                    put(date, EventsState.Loading)
+                }
+            }
+            getPeriodEventsUseCase(dates.first(), dates.last()).collectLatest { result ->
+                result.values.forEach { _reposEvents.value = (_reposEvents.value.plus(it)) }
+                /*val dayEvents = eventMapper.mapEvents(result.)
+                _dayEvents = _dayEvents.apply {
+                    replace(date, EventsState.Loaded(dayEvents))?.let {
+                        put(date, EventsState.Loaded(dayEvents))
+                    }
+                }*/
+            }
+        }
+    }
 }
+
+private fun YearMonth.getDates(): List<LocalDate> = (1..lengthOfMonth()).map { atDay(it) }
 
 sealed class EventsState() {
     object Loading : EventsState()

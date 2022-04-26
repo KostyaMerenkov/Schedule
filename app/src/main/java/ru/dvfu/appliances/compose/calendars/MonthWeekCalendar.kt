@@ -1,15 +1,13 @@
 package ru.dvfu.appliances.compose.calendars
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
@@ -20,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
+import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
@@ -37,7 +36,6 @@ import ru.dvfu.appliances.model.utils.Constants
 import ru.dvfu.appliances.model.utils.loadingModifier
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -47,12 +45,29 @@ fun MonthWeekCalendar(
     onEventClick: (CalendarEvent) -> Unit,
     onEventLongClick: (CalendarEvent) -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val currentDate by viewModel.currentDate.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
     val dayEvents = viewModel.dayEvents
     val scrollState = rememberScrollState()
-    val backdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Concealed)
-    val calendarState = rememberSelectableCalendarState()
+
+    val backdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
+
+    BackHandler(backdropScaffoldState.isConcealed) {
+        coroutineScope.launch {
+            backdropScaffoldState.animateTo(BackdropValue.Revealed)
+        }
+    }
+
+    val calendarState = rememberSelectableCalendarState(
+        initialSelection = listOf(currentDate),
+        onSelectionChanged = viewModel::onDateSelectionChanged,
+    )
+
+    LaunchedEffect(calendarState.monthState.currentMonth) {
+        viewModel.onMonthChanged(calendarState.monthState.currentMonth)
+    }
+
 
     Scaffold(
         floatingActionButton = {
@@ -67,7 +82,6 @@ fun MonthWeekCalendar(
             }
         },
     ) {
-
         BackdropScaffold(
             appBar = {
                 HomeTopBar(onBookingListOpen = {
@@ -86,10 +100,11 @@ fun MonthWeekCalendar(
                 SelectableCalendar(
                     modifier = Modifier.padding(8.dp),
                     calendarState = calendarState,
-                    dayContent = {
-                        AiutaCalendarDate(
-                            it,
-                            currentDayEvents = dayEvents.filter { (it.value as? EventsState.Loaded)?.events?.isEmpty() == false })
+                    dayContent = { dayState ->
+                        ScheduleCalendarDate(
+                            state = dayState,
+                            currentDayEvents = (dayEvents[dayState.date] as? EventsState.Loaded)?.events.orEmpty()
+                        )
                     },
                     monthHeader = { SchedulerMonthHeader(it) }
                 )

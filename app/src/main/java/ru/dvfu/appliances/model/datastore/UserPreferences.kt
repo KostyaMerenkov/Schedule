@@ -27,9 +27,9 @@ class UserDatastoreImpl(private val context: Context): UserDatastore {
 
     override val getCalendarType: Flow<CalendarType> = context.dataStore.data
         .map { preferences ->
-            CalendarType.valueOf(preferences[CALENDAR_TYPE] ?: CalendarType.WEEK.name)
+            CalendarType.valueOf(preferences[CALENDAR_TYPE] ?: CalendarType.MONTH.name)
         }.catch { e ->
-            if (e is IllegalArgumentException) { emit(CalendarType.WEEK) }
+            if (e is IllegalArgumentException) { emit(CalendarType.MONTH) }
         }
 
     override suspend fun saveCalendarType(calendarType: CalendarType) {

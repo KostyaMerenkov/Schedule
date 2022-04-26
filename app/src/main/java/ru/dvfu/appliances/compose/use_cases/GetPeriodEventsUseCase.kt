@@ -3,6 +3,7 @@ package ru.dvfu.appliances.compose.use_cases
 import kotlinx.coroutines.flow.flow
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Event
+import ru.dvfu.appliances.model.utils.toLocalDate
 import java.time.LocalDate
 
 class GetPeriodEventsUseCase(
@@ -12,13 +13,13 @@ class GetPeriodEventsUseCase(
     suspend operator fun invoke(
         dateStart: LocalDate,
         dateEnd: LocalDate,
-    ) = flow<List<Event>> {
+    ) = flow<Map<LocalDate, List<Event>>> {
         eventsRepository.getAllEventsWithPeriod(dateStart, dateEnd).fold(
-            onSuccess = {
-                emit(it)
+            onSuccess = { list ->
+                emit(list.groupBy { it.date.toLocalDate() })
             },
             onFailure = {
-                emit(listOf())
+                emit(mapOf())
             })
     }
 
