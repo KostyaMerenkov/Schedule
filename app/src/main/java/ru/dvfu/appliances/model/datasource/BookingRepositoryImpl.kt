@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
-import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.BookingRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance

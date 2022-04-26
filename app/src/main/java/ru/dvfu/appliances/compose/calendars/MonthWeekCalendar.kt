@@ -95,7 +95,7 @@ fun MonthWeekCalendar(
             backLayerBackgroundColor = MaterialTheme.colors.surface,
             frontLayerElevation = 16.dp,
             frontLayerScrimColor = MaterialTheme.colors.surface.copy(alpha = 0f),
-            frontLayerBackgroundColor = MaterialTheme.colors.surface,
+            frontLayerBackgroundColor = Color(0XFFE3DAC9),
             backLayerContent = {
                 SelectableCalendar(
                     modifier = Modifier.padding(8.dp),

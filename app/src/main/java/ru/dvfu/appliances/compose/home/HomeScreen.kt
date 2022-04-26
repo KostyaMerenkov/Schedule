@@ -4,7 +4,6 @@ import android.os.Parcelable
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,11 +11,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
@@ -91,7 +88,7 @@ fun EventCalendar(
     onEventLongClick: (CalendarEvent) -> Unit,
 ) {
     SideEffect {
-        viewModel.getThreeDaysEvents()
+        viewModel.getWeekEvents()
     }
     val events by viewModel.threeDaysEvents.collectAsState()
     val coroutineScope = rememberCoroutineScope()

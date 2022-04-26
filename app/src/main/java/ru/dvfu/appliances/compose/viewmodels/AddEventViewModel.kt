@@ -15,14 +15,16 @@ import ru.dvfu.appliances.compose.use_cases.GetEventNewTimeEndAvailabilityUseCas
 import ru.dvfu.appliances.compose.use_cases.GetAppliancesUseCase
 import ru.dvfu.appliances.compose.use_cases.GetNewEventTimeAvailabilityUseCase
 import ru.dvfu.appliances.compose.utils.AvailabilityState
-import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.model.utils.Constants
+import ru.dvfu.appliances.model.utils.TimeConstants
+import ru.dvfu.appliances.model.utils.TimeConstants.MIN_EVENT_DURATION
 import ru.dvfu.appliances.model.utils.randomUUID
+import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
 import java.time.*
 import java.util.*
@@ -164,7 +166,6 @@ class AddEventViewModel(
                     _uiState.value = UiState.Success
                 },
                 onFailure = {
-                    FirebaseDatabase.getInstance(FirebaseApp.getInstance()).purgeOutstandingWrites()
                     SnackbarManager.showMessage(R.string.add_event_failed)
                     _uiState.value = UiState.Error
                 }
@@ -174,9 +175,7 @@ class AddEventViewModel(
 
     private fun showError() {
         when {
-            Duration.between(
-                timeStart.value, timeEnd.value,
-            ) < Duration.ofMinutes(Constants.MIN_EVENT_DURATION_MINS) -> {
+            Duration.between(timeStart.value, timeEnd.value) < MIN_EVENT_DURATION -> {
                 SnackbarManager.showMessage(R.string.duration_error)
             }
             selectedAppliance.value == null -> {

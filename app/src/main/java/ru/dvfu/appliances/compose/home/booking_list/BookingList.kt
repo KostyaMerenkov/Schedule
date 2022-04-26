@@ -25,14 +25,14 @@ import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.appliance.UserImage
 import ru.dvfu.appliances.compose.home.DateAndTime
-import ru.dvfu.appliances.compose.utils.TimeConstants
-import ru.dvfu.appliances.compose.utils.toHoursAndMinutes
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.views.*
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
+import ru.dvfu.appliances.model.utils.TimeConstants
+import ru.dvfu.appliances.model.utils.toHoursAndMinutes
 import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ofLocalizedDateTime

@@ -13,7 +13,6 @@ import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.compose.use_cases.UpdateEventStatusUseCase
 import ru.dvfu.appliances.compose.use_cases.UpdateEventUseCase
-import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.BookingRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
