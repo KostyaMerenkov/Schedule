@@ -12,6 +12,7 @@ import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetEventNewTimeEndAvailabilityUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.compose.utils.AvailabilityState
+import ru.dvfu.appliances.compose.utils.EventMapper
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -22,7 +23,6 @@ import ru.dvfu.appliances.model.utils.toLocalDate
 import ru.dvfu.appliances.model.utils.toLocalTime
 import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
-import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -33,6 +33,7 @@ class EventInfoViewModel(
     private val getApplianceUseCase: GetApplianceUseCase,
     private val getUserUseCase: GetUserUseCase,
     private val getEventNewTimeEndAvailabilityUseCase: GetEventNewTimeEndAvailabilityUseCase,
+    private val eventMapper: EventMapper,
 ) : ViewModel() {
 
     private val currentUser = MutableStateFlow(User())
@@ -153,7 +154,7 @@ class EventInfoViewModel(
 
     fun deleteEvent() {
         viewModelScope.launch {
-            eventsRepository.deleteEvent(eventArg.id).fold(
+            eventsRepository.deleteEvent(eventMapper.mapEvent(eventArg)).fold(
                 onSuccess = {
                     _eventDeleteState.value = UiState.Success
                 },

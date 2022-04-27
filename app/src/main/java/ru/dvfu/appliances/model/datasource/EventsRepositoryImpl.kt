@@ -1,12 +1,10 @@
 package ru.dvfu.appliances.model.datasource
 
 import android.util.Log
-import androidx.core.os.bundleOf
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.toObjects
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
@@ -14,8 +12,12 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.runBlocking
+import ru.dvfu.appliances.compose.utils.EventMapper
+import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.model.utils.suspendCoroutineWithTimeout
@@ -25,7 +27,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class EventsRepositoryImpl(
-    private val dbCollections: RepositoryCollections
+    private val dbCollections: RepositoryCollections,
+    private val notificationManager: NotificationManager,
 ) : EventsRepository {
 
     private var TAG = "EventsFirestoreDatabase"
@@ -39,10 +42,12 @@ class EventsRepositoryImpl(
                 }
         }
 
-    override suspend fun deleteEvent(id: String) =
+    override suspend fun deleteEvent(eventToDelete: CalendarEvent) =
         suspendCoroutineWithTimeout { continuation ->
-            dbCollections.getEventsCollection().document(id).delete()
-                .addOnCompleteListener(simpleOnCompleteListener(continuation))
+            dbCollections.getEventsCollection().document(eventToDelete.id).delete()
+                .addOnCompleteListener(simpleOnCompleteListener(continuation) {
+                    runBlocking { notificationManager.eventDeleted(eventToDelete) }
+                })
         }
 
     override suspend fun setNewTimeEnd(eventId: String, timeEnd: Long) =

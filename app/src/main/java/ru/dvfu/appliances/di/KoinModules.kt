@@ -12,6 +12,7 @@ import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.home.MainScreenViewModel
 import ru.dvfu.appliances.compose.use_cases.*
+import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.compose.viewmodels.*
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
@@ -26,11 +27,26 @@ import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 
 val repositoryModule = module {
+    single {
+        NotificationManager(
+            userDatastore = get(),
+            usersRepository = get(),
+            getUserUseCase = get(),
+            appliancesRepository = get(),
+
+        )
+    }
+
     single<OfflineRepository> { OfflineRepositoryImpl(dbCollections = get()) }
     single<RepositoryCollections> { RepositoryCollections(Firebase.firestore) }
 
     single<Repository> { CloudFirestoreDatabaseImpl(dbCollections = get()) }
-    single<EventsRepository> { EventsRepositoryImpl(dbCollections = get()) }
+    single<EventsRepository> {
+        EventsRepositoryImpl(
+            dbCollections = get(),
+            notificationManager = get()
+        )
+    }
     single<AppliancesRepository> { AppliancesRepositoryImpl(dbCollections = get()) }
     single<BookingRepository> { BookingRepositoryImpl(dbCollections = get()) }
     single<UsersRepository> {
@@ -95,7 +111,8 @@ val mainActivity = module {
             userDatastore = get(),
             getDateEventsUseCase = get(),
             getUserUseCase = get(),
-            getApplianceUseCase = get()
+            getApplianceUseCase = get(),
+            eventMapper = get()
         )
     }
     viewModel {
@@ -135,7 +152,8 @@ val mainActivity = module {
             eventsRepository = get(),
             getAppliancesUseCase = get(),
             userDatastore = get(),
-            getNewEventTimeAvailabilityUseCase = get()
+            getNewEventTimeAvailabilityUseCase = get(),
+            notificationManager = get()
         )
     }
     /*viewModel {
@@ -153,7 +171,8 @@ val mainActivity = module {
             eventsRepository = get(),
             getApplianceUseCase = get(),
             getUserUseCase = get(),
-            getEventNewTimeEndAvailabilityUseCase = get()
+            getEventNewTimeEndAvailabilityUseCase = get(),
+            eventMapper = get()
         )
     }
     viewModel {

@@ -105,9 +105,9 @@ class WeekCalendarViewModel(
         }
     }
 
-    fun deleteEvent(eventIdToDelete: String) {
+    fun deleteEvent(eventToDelete: CalendarEvent) {
         viewModelScope.launch {
-            eventsRepository.deleteEvent(eventIdToDelete).fold(
+            eventsRepository.deleteEvent(eventToDelete).fold(
                 onSuccess = {
                     SnackbarManager.showMessage(R.string.event_delete_successfully)
                 },
