@@ -1,6 +1,7 @@
 package ru.dvfu.appliances.compose.calendars
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -81,7 +82,7 @@ fun MonthWeekCalendar(
                     }) { Icon(Icons.Default.Add, "") }
             }
         },
-    ) {
+    ) { it ->
         BackdropScaffold(
             appBar = {
                 HomeTopBar(onBookingListOpen = {
@@ -95,7 +96,7 @@ fun MonthWeekCalendar(
             backLayerBackgroundColor = MaterialTheme.colors.surface,
             frontLayerElevation = 16.dp,
             frontLayerScrimColor = MaterialTheme.colors.surface.copy(alpha = 0f),
-            frontLayerBackgroundColor = MaterialTheme.colors.surface,
+            frontLayerBackgroundColor = Color(0XFFE3DAC9),
             backLayerContent = {
                 SelectableCalendar(
                     modifier = Modifier.padding(8.dp),
@@ -110,22 +111,20 @@ fun MonthWeekCalendar(
                 )
             },
             frontLayerContent = {
-                Column(
-                    modifier = Modifier
-                        .verticalScroll(scrollState)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .padding(bottom = 150.dp)
-                    ) {
-                        dayEvents[currentDate]?.let {
-                            when (it) {
+                dayEvents[currentDate]?.let { state ->
+                    Crossfade(state) { eventsState ->
+                        Column(
+                            modifier = Modifier
+                                .verticalScroll(scrollState)
+                                .padding(8.dp)
+                                .padding(bottom = 150.dp)
+                        ) {
+                            when (eventsState) {
                                 is EventsState.Loaded -> {
-                                    if (it.events.isEmpty()) {
+                                    if (eventsState.events.isEmpty()) {
                                         NoElementsView(mainText = "Нет событий на выбранный день") {}
                                     }
-                                    it.events.forEach { event ->
+                                    eventsState.events.forEach { event ->
                                         EventView(
                                             onEventClick = onEventClick,
                                             onEventLongClick = onEventLongClick,
@@ -138,11 +137,15 @@ fun MonthWeekCalendar(
                                         EventView(
                                             childModifier = Modifier.loadingModifier(),
                                             event = CalendarEvent(
-                                                appliance = Appliance(name = "Appliance"),
+                                                appliance = Appliance(
+                                                    name = "Appliance",
+                                                    color = Color.White.copy(0f).hashCode()
+                                                ),
                                                 date = LocalDate.now(),
                                                 timeCreated = LocalDateTime.now(),
                                                 timeStart = LocalDateTime.now(),
-                                                timeEnd = LocalDateTime.now()
+                                                timeEnd = LocalDateTime.now(),
+                                                status = BookingStatus.APPROVED
                                             ), onEventClick = {}, onEventLongClick = {})
                                     }
                                 }
@@ -150,7 +153,8 @@ fun MonthWeekCalendar(
                         }
                     }
                 }
-            })
+            }
+        )
     }
 }
 

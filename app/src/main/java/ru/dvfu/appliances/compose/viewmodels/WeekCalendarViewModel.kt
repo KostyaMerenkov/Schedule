@@ -68,7 +68,6 @@ class WeekCalendarViewModel(
 
     init {
         getDayEvents(LocalDate.now())
-        getLatestEvents()
         getCurrentUser()
         getCalendarTypeListener()
     }
@@ -77,19 +76,6 @@ class WeekCalendarViewModel(
         viewModelScope.launch {
             userDatastore.getCalendarType.collect {
                 _calendarType.value = it
-            }
-        }
-    }
-
-    private fun getLatestEvents() {
-        viewModelScope.launch {
-            getEventsFromDateUseCase(LocalDate.now().minusMonths(2)).collectLatest {
-                it.forEach { (localDate, list) ->
-                    _reposEvents.value = (_reposEvents.value.plus(list))
-                    _dayEvents = _dayEvents.apply {
-                        put(localDate, EventsState.Loaded(eventMapper.mapEvents(list)))
-                    }
-                }
             }
         }
     }
@@ -136,28 +122,33 @@ class WeekCalendarViewModel(
         return _reposEvents.value.find { it.id == calendarEvent.id }
     }
 
-    fun getThreeDaysEvents() {
+    fun getWeekEvents() {
         viewModelScope.launch {
-            /*_threeDaysEvents.value = eventMapper.mapEvents(
+            _threeDaysEvents.value = eventMapper.mapEvents(
                 getPeriodEventsUseCase.invoke(
                     dateStart = LocalDate.now(),
-                    dateEnd = LocalDate.now().plusDays(3)
+                    dateEnd = LocalDate.now().plusDays(7)
                 ).first()
-            )*/
+            )
         }
     }
 
-    fun setCalendarType(calendarType: CalendarType) {
+    fun setCalendarType() {
         viewModelScope.launch {
-            userDatastore.saveCalendarType(calendarType)
+            val newCalendarType = when (userDatastore.getCalendarType.first()) {
+                CalendarType.MONTH -> CalendarType.THREE_DAYS
+                else -> CalendarType.MONTH
+            }
+            userDatastore.saveCalendarType(newCalendarType)
         }
     }
 
     fun onDateSelectionChanged(selectedDateList: List<LocalDate>) {
-        val selectedDate = selectedDateList.first()
-        if (currentDate.value != selectedDate) {
-            _currentDate.value = selectedDate
-            getDayEvents(selectedDate)
+        selectedDateList.firstOrNull()?.let { selectedDate ->
+            if (currentDate.value != selectedDate) {
+                _currentDate.value = selectedDate
+                getDayEvents(selectedDate)
+            }
         }
     }
 
@@ -174,13 +165,15 @@ class WeekCalendarViewModel(
                 }
             }
             getPeriodEventsUseCase(dates.first(), dates.last()).collectLatest { result ->
-                result.values.forEach { _reposEvents.value = (_reposEvents.value.plus(it)) }
-                /*val dayEvents = eventMapper.mapEvents(result.)
+                _reposEvents.value = (_reposEvents.value.plus(result))
+                val dayEvents = eventMapper.mapEvents(result).groupBy { it.date }
                 _dayEvents = _dayEvents.apply {
-                    replace(date, EventsState.Loaded(dayEvents))?.let {
-                        put(date, EventsState.Loaded(dayEvents))
+                    dayEvents.forEach { date, events ->
+                        replace(date, EventsState.Loaded(events))?.let {
+                            put(date, EventsState.Loaded(events))
+                        }
                     }
-                }*/
+                }
             }
         }
     }

@@ -13,9 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
-import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import ru.dvfu.appliances.model.utils.toMillis
 import java.time.LocalDateTime
 import java.util.*
 

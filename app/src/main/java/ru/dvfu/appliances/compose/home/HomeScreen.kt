@@ -2,9 +2,9 @@ package ru.dvfu.appliances.compose.home
 
 import android.os.Parcelable
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -13,10 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
@@ -28,19 +28,19 @@ import ru.dvfu.appliances.compose.event_calendar.Schedule
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.compose.views.DefaultDialog
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import ru.dvfu.appliances.model.utils.Constants.TIME_TO_EXIT
+import ru.dvfu.appliances.model.utils.showToast
 import java.time.LocalDate
 
 @Composable
 fun HomeScreen(
     navController: NavController,
+    backPress: () -> Unit,
 ) {
     //val viewModell: MainScreenViewModel = getViewModel()
     val viewModel: WeekCalendarViewModel = getViewModel()
     val calendarType by viewModel.calendarType.collectAsState()
-
-    BackHandler(calendarType == CalendarType.THREE_DAYS) {
-        viewModel.setCalendarType(CalendarType.MONTH)
-    }
+    val context = LocalContext.current
 
     var eventOptionDialogOpened by remember { mutableStateOf(false) }
     if (eventOptionDialogOpened) EventOptionDialog(
@@ -49,8 +49,10 @@ fun HomeScreen(
         onDelete = viewModel::deleteEvent
     )
 
-    Column() {
-        when (calendarType) {
+    BackPressHandler(upPress = { (context as MainActivity).finishAffinity() })
+
+    Crossfade(targetState = calendarType) { type ->
+        when (type) {
             CalendarType.MONTH -> {
                 MonthWeekCalendar(
                     viewModel = viewModel,
@@ -85,24 +87,56 @@ fun HomeScreen(
 data class SelectedDate(val value: LocalDate = LocalDate.now()) : Parcelable
 
 @Composable
+fun BackPressHandler(
+    upPress: () -> Unit
+) {
+    val context = LocalContext.current
+    var lastPressed by remember { mutableStateOf(0L) }
+
+    BackHandler(true) {
+
+        val currentMillis = System.currentTimeMillis()
+        if (currentMillis - lastPressed < TIME_TO_EXIT) {
+            upPress()
+        } else {
+            showToast(
+                context.applicationContext,
+                context.getString(R.string.app_exit_message)
+            )
+        }
+        lastPressed = currentMillis
+    }
+}
+
+@Composable
 fun EventCalendar(
     viewModel: WeekCalendarViewModel,
     navController: NavController,
     onEventLongClick: (CalendarEvent) -> Unit,
 ) {
     SideEffect {
-        viewModel.getThreeDaysEvents()
+        viewModel.getWeekEvents()
     }
     val events by viewModel.threeDaysEvents.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
 
-    Scaffold(topBar = {
-        HomeTopBar(onBookingListOpen = {
-            navController.navigate(MainDestinations.BOOKING_LIST)
-        }, onCalendarSelected = viewModel::setCalendarType)
-    }) {
+    Scaffold(
+        topBar = {
+            HomeTopBar(onBookingListOpen = {
+                navController.navigate(MainDestinations.BOOKING_LIST)
+            }, onCalendarSelected = viewModel::setCalendarType)
+        },
+        floatingActionButton = {
+            if (!currentUser.isAnonymousOrGuest()) {
+                FloatingActionButton(backgroundColor = Color(0xFFFF8C00),
+                    onClick = { navController.navigate(MainDestinations.ADD_EVENT) })
+                { Icon(Icons.Default.Add, "") }
+            }
+        },
+    ) {
         Schedule(
             modifier = Modifier.padding(it),
             calendarEvents = events, minDate = LocalDate.now().minusDays(1),
@@ -124,44 +158,16 @@ fun EventCalendar(
 }
 
 @Composable
-fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: (CalendarType) -> Unit) {
+fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: () -> Unit) {
     ScheduleAppBar(
         title = stringResource(id = R.string.schedule),
         //backgroundColor = Color(0xFFFF5470),
         actions = {
-            var dropdownExpanded by remember { mutableStateOf(false) }
-
             IconButton(onClick = onBookingListOpen) {
                 Icon(Icons.Default.Book, Icons.Default.Book.name)
             }
-            IconButton(onClick = { dropdownExpanded = true }) {
+            IconButton(onClick = { onCalendarSelected() }) {
                 Icon(Icons.Default.EditCalendar, Icons.Default.EditCalendar.name)
-            }
-            DropdownMenu(
-                modifier = Modifier.width(150.dp),
-                expanded = dropdownExpanded,
-                onDismissRequest = { dropdownExpanded = false }) {
-                CalendarType.values().forEach {
-                    DropdownMenuItem(onClick = {
-                        onCalendarSelected(it); dropdownExpanded = false
-                    }) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Icon(
-                                it.icon, it.icon.name,
-                                //modifier = Modifier.fillMaxWidth(0.2f)
-                            )
-                            Text(
-                                text = stringResource(id = it.stringRes),
-                                maxLines = 1,
-                                //modifier = Modifier.fillMaxWidth(0.8f)
-                            )
-                        }
-                    }
-                }
             }
         }
     )

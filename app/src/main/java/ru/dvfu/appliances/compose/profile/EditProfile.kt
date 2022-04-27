@@ -37,7 +37,6 @@ import ru.dvfu.appliances.compose.components.DatePicker
 import ru.dvfu.appliances.compose.components.GrayText
 import ru.dvfu.appliances.compose.components.toDate
 import ru.dvfu.appliances.compose.ui.theme.customColors
-import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.compose.viewmodels.EditProfileViewModel
 import ru.dvfu.appliances.compose.views.DefaultButton
 import ru.dvfu.appliances.compose.views.DefaultDialog
@@ -45,6 +44,7 @@ import ru.dvfu.appliances.compose.views.ModalLoadingDialog
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.showError
 import ru.dvfu.appliances.model.utils.toLocalDate
+import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -73,7 +73,7 @@ fun EditProfile(onBack: () -> Unit) {
             date = currentUser.birthday.takeIf { it != 0L }?.toLocalDate()
                 ?: LocalDate.now().minusYears(18),
             onDismiss = { datePickerShown = false }, onDateSet = {
-                viewModel.birthdaySelected(it.atStartOfDay().toMillis)
+                viewModel.birthdaySelected(it.toMillis)
             })
     }
 

@@ -45,7 +45,7 @@ fun NavGraphBuilder.addHomeGraph(
     composable(
         HomeSections.CALENDAR.route
     ) {
-        HomeScreen(navController)
+        HomeScreen(navController, backPress)
     }
 
     composable(

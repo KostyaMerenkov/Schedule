@@ -1,9 +1,9 @@
 package ru.dvfu.appliances.compose.use_cases
 
-import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import ru.dvfu.appliances.model.utils.toMillis
 
 class UpdateEventUseCase(val repository: EventsRepository) {
     suspend operator fun invoke(eventId: String, event: CalendarEvent): Result<Unit> {

@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
@@ -13,16 +12,17 @@ import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetEventNewTimeEndAvailabilityUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.compose.utils.AvailabilityState
-import ru.dvfu.appliances.compose.utils.TimeConstants.MILLISECONDS_IN_MINUTE
-import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.utils.TimeConstants.MIN_EVENT_DURATION
 import ru.dvfu.appliances.model.utils.toLocalDate
 import ru.dvfu.appliances.model.utils.toLocalTime
+import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -86,7 +86,7 @@ class EventInfoViewModel(
     val couldEditTimeEnd: MutableStateFlow<Boolean>
         get() = MutableStateFlow(
             couldDeleteEvent.value ||
-                    ((event.value.timeEnd - System.currentTimeMillis()) > (MILLISECONDS_IN_MINUTE * 10)
+                    ((event.value.timeEnd - System.currentTimeMillis()) > MIN_EVENT_DURATION.toMillis()
                             && _appliance.value.superuserIds.contains(currentUser.value.userId))
 
         )
@@ -94,7 +94,7 @@ class EventInfoViewModel(
     val couldEditTimeStart: MutableStateFlow<Boolean>
         get() = MutableStateFlow(
             couldDeleteEvent.value ||
-                    ((event.value.timeStart - System.currentTimeMillis()) < (MILLISECONDS_IN_MINUTE * 10)
+                    ((event.value.timeStart - System.currentTimeMillis()) < MIN_EVENT_DURATION.toMillis()
                             && _appliance.value.superuserIds.contains(currentUser.value.userId))
 
         )

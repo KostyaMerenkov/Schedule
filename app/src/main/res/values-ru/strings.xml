@@ -99,4 +99,5 @@
     <string name="booking_approved">Бронирование одобрено</string>
     <string name="refuse">Отказаться</string>
     <string name="declined_booking">Бронирование отклонено</string>
+    <string name="app_exit_message">Нажмите еще раз, чтобы выйти</string>
 </resources>

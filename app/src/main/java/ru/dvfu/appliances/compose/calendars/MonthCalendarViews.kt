@@ -1,17 +1,23 @@
 package ru.dvfu.appliances.compose.calendars
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -79,7 +85,7 @@ fun SchedulerMonthHeader(
             .padding(bottom = 4.dp),
         horizontalArrangement = Arrangement.Center,
     ) {
-        /*IconButton(
+        IconButton(
             modifier = Modifier.testTag("Decrement"),
             onClick = { monthState.currentMonth = monthState.currentMonth.minusMonths(1) }
         ) {
@@ -88,10 +94,10 @@ fun SchedulerMonthHeader(
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
                 contentDescription = "Previous",
             )
-        }*/
+        }
         Text(
             modifier = Modifier.testTag("MonthLabel"),
-            text = "План на " + monthState.currentMonth.month
+            text = monthState.currentMonth.month
                 .getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())
                 .lowercase()
                 .replaceFirstChar { it.titlecase() },
@@ -99,7 +105,7 @@ fun SchedulerMonthHeader(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = monthState.currentMonth.year.toString(), style = MaterialTheme.typography.h4)
-        /*IconButton(
+        IconButton(
             modifier = Modifier.testTag("Increment"),
             onClick = { monthState.currentMonth = monthState.currentMonth.plusMonths(1) }
         ) {
@@ -108,6 +114,6 @@ fun SchedulerMonthHeader(
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
                 contentDescription = "Next",
             )
-        }*/
+        }
     }
 }

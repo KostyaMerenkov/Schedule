@@ -14,12 +14,12 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.channelFlow
-import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.model.utils.suspendCoroutineWithTimeout
+import ru.dvfu.appliances.model.utils.toMillis
 import java.time.LocalDate
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -40,12 +40,10 @@ class EventsRepositoryImpl(
         }
 
     override suspend fun deleteEvent(id: String) =
-        suspendCoroutineWithTimeout{ continuation ->
+        suspendCoroutineWithTimeout { continuation ->
             dbCollections.getEventsCollection().document(id).delete()
                 .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
-
-
 
     override suspend fun setNewTimeEnd(eventId: String, timeEnd: Long) =
         suspendCoroutineWithTimeout { continuation ->
