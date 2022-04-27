@@ -177,7 +177,7 @@ fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: () -> Unit) {
 @Composable
 fun EventOptionDialog(
     calendarEvent: CalendarEvent?,
-    onDelete: (String) -> Unit,
+    onDelete: (CalendarEvent) -> Unit,
     onDismiss: () -> Unit
 ) {
     calendarEvent?.let {
@@ -190,7 +190,7 @@ fun EventOptionDialog(
             }\n${calendarEvent.commentary}",
             onDismiss = onDismiss,
             neutralButtonText = stringResource(id = R.string.delete),
-            onNeutralClick = { onDelete(calendarEvent.id); onDismiss() }
+            onNeutralClick = { onDelete(calendarEvent); onDismiss() }
         )
     }
 }

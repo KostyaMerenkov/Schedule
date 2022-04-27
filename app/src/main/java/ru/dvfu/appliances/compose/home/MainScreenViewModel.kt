@@ -10,6 +10,7 @@ import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetDateEventsUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
+import ru.dvfu.appliances.compose.utils.EventMapper
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
@@ -28,6 +29,7 @@ class MainScreenViewModel(
     private val getDateEventsUseCase: GetDateEventsUseCase,
     private val getUserUseCase: GetUserUseCase,
     private val getApplianceUseCase: GetApplianceUseCase,
+    private val eventMapper: EventMapper,
 ) : ViewModel() {
 
     val currentDate = MutableStateFlow(LocalDate.now())
@@ -151,7 +153,7 @@ class MainScreenViewModel(
 
     fun deleteEvent(eventToDelete: CalendarEvent) {
         viewModelScope.launch {
-            eventsRepository.deleteEvent(eventToDelete.id).fold(
+            eventsRepository.deleteEvent(eventToDelete).fold(
                 onSuccess = {
                     val newEventsList =
                         _events.value.filter { it.id != eventToDelete.id }.toMutableList()

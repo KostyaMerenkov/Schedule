@@ -106,8 +106,7 @@ dependencies {
     implementation Libs.Accompanist.permissions
     implementation Libs.Accompanist.placeholder
 
-    implementation 'com.google.firebase:firebase-inappmessaging-display-ktx:20.1.2'
-    implementation 'com.google.firebase:firebase-messaging-ktx:23.0.2'
+
 
     debugImplementation Libs.AndroidX.Compose.uiTestManifest
 
@@ -143,10 +142,17 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.6.2'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
+
     // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:26.8.0')
+    implementation platform('com.google.firebase:firebase-bom:29.3.1')
     // When using the BoM, you don't specify versions in Firebase library dependencies
-    // Declare the dependency for the Firebase SDK for Google Analytics
+    // Declare the dependencies for the Firebase Cloud Messaging and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-messaging-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-crashlytics'
     // Declare the dependencies for any other desired Firebase products
@@ -154,11 +160,12 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-firestore-ktx'
     // Also declare the dependency for the Google Play services library and specify its version
-    implementation 'com.google.android.gms:play-services-auth:20.0.1'
+    implementation 'com.google.android.gms:play-services-auth:20.1.0'
     // Realtime Database library
     implementation 'com.google.firebase:firebase-database'
     // Cloud Firestore library
     implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-inappmessaging-display-ktx:20.1.2'
 
 
     implementation 'com.firebaseui:firebase-ui-auth:7.1.1'

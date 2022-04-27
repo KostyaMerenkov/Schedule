@@ -2,10 +2,7 @@ package ru.dvfu.appliances.model.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.BookingStatus
-import ru.dvfu.appliances.model.repository.entity.Event
+import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.ui.Progress
 import java.time.LocalDate
 
@@ -14,7 +11,7 @@ interface EventsRepository {
 
     suspend fun getAllEvents(): Flow<List<Event>>
     suspend fun getAllEventsFromDate(date: LocalDate): Flow<List<Event>>
-    suspend fun deleteEvent(id: String): Result<Unit>
+    suspend fun deleteEvent(eventToDelete: CalendarEvent): Result<Unit>
     suspend fun setNewTimeEnd(eventId: String, timeEnd: Long): Result<Unit>
     suspend fun setNewEventStatus(eventId: String, newStatus: BookingStatus): Result<Unit>
     suspend fun updateEvent(eventId: String, data: Map<String, Any?>): Result<Unit>

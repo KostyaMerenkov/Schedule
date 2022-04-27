@@ -15,6 +15,7 @@ import ru.dvfu.appliances.compose.use_cases.GetEventNewTimeEndAvailabilityUseCas
 import ru.dvfu.appliances.compose.use_cases.GetAppliancesUseCase
 import ru.dvfu.appliances.compose.use_cases.GetNewEventTimeAvailabilityUseCase
 import ru.dvfu.appliances.compose.utils.AvailabilityState
+import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
@@ -36,7 +37,9 @@ class AddEventViewModel(
     private val getAppliancesUseCase: GetAppliancesUseCase,
     private val getNewEventTimeAvailabilityUseCase: GetNewEventTimeAvailabilityUseCase,
     private val userDatastore: UserDatastore,
-) : ViewModel() {
+    private val notificationManager: NotificationManager,
+
+    ) : ViewModel() {
 
     private val _selectedAppliance = MutableStateFlow<Appliance?>(null)
     val selectedAppliance = _selectedAppliance.asStateFlow()
@@ -162,6 +165,7 @@ class AddEventViewModel(
         viewModelScope.launch {
             eventsRepository.addNewEvent(event).fold(
                 onSuccess = {
+                    notificationManager.newEvent(event)
                     SnackbarManager.showMessage(R.string.add_event_success)
                     _uiState.value = UiState.Success
                 },

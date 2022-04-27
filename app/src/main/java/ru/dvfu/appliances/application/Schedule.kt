@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.firestoreSettings
@@ -36,19 +37,25 @@ class Schedule : Application() {
                 )
             )
         }
+
+        if (BuildConfig.DEBUG) {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+        }
+
         createNotificationChannels()
     }
 
     private fun createNotificationChannels() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            val notificationChannel = NotificationChannel(
-                Constants.NOTIFICATION_CHANNEL_ID, "Notifications",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            notificationChannel.description = "Main notifications channel"
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.BLUE
-            notificationManager.createNotificationChannel(notificationChannel)
+        val notificationChannel = NotificationChannel(
+            Constants.NOTIFICATION_CHANNEL_ID, "Notifications",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        notificationChannel.description = "Main notifications channel"
+        notificationChannel.enableLights(true)
+        notificationChannel.lightColor = Color.BLUE
+        notificationManager.createNotificationChannel(notificationChannel)
     }
 }

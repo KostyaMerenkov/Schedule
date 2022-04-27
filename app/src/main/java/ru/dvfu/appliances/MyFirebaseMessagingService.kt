@@ -2,10 +2,7 @@ package ru.dvfu.appliances
 
 import android.app.Notification
 import android.app.NotificationManager
-import android.app.NotificationChannel
 import android.content.Context
-import android.graphics.Color
-import android.os.Build
 import android.util.Log
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -17,12 +14,6 @@ import java.util.*
 
 class MyFirebaseMessagingService() : FirebaseMessagingService() {
 
-    companion object {
-        const val BASE_URL = "https://fcm.googleapis.com"
-        const val SERVER_KEY = "ENTER SERVER KEY HERE"
-        const val CONTENT_TYPE = "application/json"
-    }
-
     val viewModel: FirebaseMessagingViewModel = get()
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -30,7 +21,23 @@ class MyFirebaseMessagingService() : FirebaseMessagingService() {
             Log.d("MSG", it)
         }
 
-        showNotification(remoteMessage.notification)
+        remoteMessage.notification?.let {
+            showNotification(notification = it, data = remoteMessage.data)
+        }
+    }
+
+    private fun showNotification(notification: RemoteMessage.Notification, data: Map<String, String>) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val notificationBuilder: Notification.Builder =
+            Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
+        notificationBuilder.setAutoCancel(true)
+            .setDefaults(Notification.DEFAULT_ALL)
+            .setWhen(System.currentTimeMillis())
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(notification.title ?: "")
+            .setContentText(notification.body ?: "")
+        notificationManager.notify(Random().nextInt(), notificationBuilder.build())
     }
 
     override fun onNewToken(s: String) {
@@ -47,7 +54,7 @@ class MyFirebaseMessagingService() : FirebaseMessagingService() {
         notificationBuilder.setAutoCancel(true)
             .setDefaults(Notification.DEFAULT_ALL)
             .setWhen(System.currentTimeMillis())
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(message?.title ?: "")
             .setContentText(message?.body ?: "")
         notificationManager.notify(Random().nextInt(), notificationBuilder.build())

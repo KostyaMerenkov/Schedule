@@ -8,6 +8,7 @@ import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.toLocalDate
 import ru.dvfu.appliances.model.utils.toLocalDateTime
+import ru.dvfu.appliances.model.utils.toMillis
 
 class EventMapper(
     private val getUserUseCase: GetUserUseCase,
@@ -21,6 +22,24 @@ class EventMapper(
 
     suspend fun mapEvent(event: Event) = listOf(event).map { mapEventToCalendarEvent(it) }.first()
 
+    suspend fun mapEvent(event: CalendarEvent) = listOf(event).map { mapCalendarEventToEvent(it) }.first()
+
+    private fun mapCalendarEventToEvent(calendarEvent: CalendarEvent) = with(calendarEvent) {
+        Event(
+            id = id,
+            date = this.date.toMillis,
+            timeCreated = timeCreated.toMillis,
+            timeStart = timeStart.toMillis,
+            timeEnd = timeEnd.toMillis,
+            commentary = commentary,
+            userId = user?.userId ?: "",
+            applianceId = appliance?.id ?: "",
+            managedById = managedUser?.userId,
+            managedTime = managedTime?.toMillis,
+            managerCommentary = managerCommentary,
+            status = status,
+        )
+    }
 
 
     private suspend fun mapEventToCalendarEvent(currentEvent: Event) = with(currentEvent) {
