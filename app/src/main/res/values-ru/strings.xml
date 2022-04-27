@@ -89,10 +89,15 @@
     <string name="profile_edit">Редактирование профиля</string>
     <string name="pending">На рассмотрении</string>
     <string name="pick_color">Выберите цвет</string>
-    <string name="no_commentary">No commentary</string>
+    <string name="no_commentary">Нет комментария</string>
     <string name="appliance_name_failed">Не удалось получить название прибора</string>
     <string name="new_event">Новое событие</string>
     <string name="add_event_failed">Не удалось добавить событие</string>
     <string name="add_event_success">Событие успешно создано</string>
+    <string name="booking_request">Запрос на бронирование</string>
+    <string name="past_booking">Истекшее бронирование</string>
+    <string name="booking_approved">Бронирование одобрено</string>
+    <string name="refuse">Отказаться</string>
+    <string name="declined_booking">Бронирование отклонено</string>
     <string name="app_exit_message">Нажмите еще раз, чтобы выйти</string>
 </resources>

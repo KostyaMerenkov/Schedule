@@ -69,9 +69,9 @@ fun BookingList(navController: NavController) {
                 }
                 is ViewState.Success -> {
 
-                    val list = state.data
+//                    val list = state.data
 
-                    if (list.isEmpty()) {
+                    if (state.data.isEmpty()) {
                         NoBookingsView(Modifier.fillMaxSize())
                     }
 
@@ -80,12 +80,12 @@ fun BookingList(navController: NavController) {
                     if (currentUser.value.isAdmin()) {
                         bookingTabs.add(
                             BookingTabItem.PendingBookingsTabItem(
-                                bookings = list,
+                                bookings = state.data,
                                 viewModel = viewModel
                             )
                         )
                     } else {
-                        val pendingBookings = list.filter {
+                        val pendingBookings = state.data.filter {
                             it.appliance?.isUserSuperuserOrAdmin(currentUser.value) == true
                         }
                         bookingTabs.add(
@@ -96,7 +96,7 @@ fun BookingList(navController: NavController) {
                         )
                     }
 
-                    val bookings = list.filter { it.user?.userId == currentUser.value.userId }
+                    val bookings = state.data.filter { it.user?.userId == currentUser.value.userId }
 
                     bookingTabs.add(
                         BookingTabItem.ApprovedBookingsTabItem(
@@ -208,8 +208,12 @@ fun BookingListHeader(stringResource: String) {
 
 @Composable
 fun NoBookingsView(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = stringResource(id = R.string.no_books))
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        PrimaryText(text = stringResource(id = R.string.no_books))
     }
 }
 
