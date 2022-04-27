@@ -113,4 +113,5 @@
     <string name="new_event">Новое событие</string>
     <string name="add_event_failed">Не удалось добавить событие</string>
     <string name="add_event_success">Событие успешно создано</string>
+    <string name="app_exit_message">Нажмите еще раз, чтобы выйти</string>
 </resources>

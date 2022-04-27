@@ -133,9 +133,13 @@ class WeekCalendarViewModel(
         }
     }
 
-    fun setCalendarType(calendarType: CalendarType) {
+    fun setCalendarType() {
         viewModelScope.launch {
-            userDatastore.saveCalendarType(calendarType)
+            val newCalendarType = when (userDatastore.getCalendarType.first()) {
+                CalendarType.MONTH -> CalendarType.THREE_DAYS
+                else -> CalendarType.MONTH
+            }
+            userDatastore.saveCalendarType(newCalendarType)
         }
     }
 
