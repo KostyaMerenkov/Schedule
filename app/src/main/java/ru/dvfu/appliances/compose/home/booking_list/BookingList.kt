@@ -33,8 +33,10 @@ import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.utils.TimeConstants
 import ru.dvfu.appliances.model.utils.toHoursAndMinutes
+import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter.ofLocalizedDateTime
 import java.time.format.FormatStyle
 
@@ -69,28 +71,24 @@ fun BookingList(navController: NavController) {
                 }
                 is ViewState.Success -> {
 
-//                    val list = state.data
-
                     if (state.data.isEmpty()) {
                         NoBookingsView(Modifier.fillMaxSize())
                     }
 
                     val bookingTabs = mutableListOf<BookingTabItem>()
 
-                    if (currentUser.value.isAdmin()) {
-                        bookingTabs.add(
-                            BookingTabItem.PendingBookingsTabItem(
-                                bookings = state.data,
-                                viewModel = viewModel
-                            )
-                        )
-                    } else {
-                        val pendingBookings = state.data.filter {
+                    if (currentUser.value.isAdmin() || state.data.find {
                             it.appliance?.isUserSuperuserOrAdmin(currentUser.value) == true
-                        }
+                        } != null) {
                         bookingTabs.add(
                             BookingTabItem.PendingBookingsTabItem(
-                                bookings = pendingBookings,
+                                bookings = if (currentUser.value.isAdmin()) {
+                                    state.data
+                                } else {
+                                    state.data.filter {
+                                        it.appliance?.isUserSuperuserOrAdmin(currentUser.value) == true
+                                    }
+                                },
                                 viewModel = viewModel
                             )
                         )
@@ -99,15 +97,36 @@ fun BookingList(navController: NavController) {
                     val bookings = state.data.filter { it.user?.userId == currentUser.value.userId }
 
                     bookingTabs.add(
+                        BookingTabItem.BookingRequestsTabItem(
+                            bookings = bookings.filter { it.status == BookingStatus.NONE },
+                            viewModel = viewModel
+                        )
+                    )
+
+                    bookingTabs.add(
                         BookingTabItem.ApprovedBookingsTabItem(
-                            bookings = bookings,
+                            bookings = bookings
+                                .filter { it.status == BookingStatus.APPROVED
+                                        && it.timeEnd.toMillis > LocalDateTime.now().toMillis },
                             viewModel = viewModel
                         )
                     )
 
                     bookingTabs.add(
                         BookingTabItem.DeclinedBookingsTabItem(
-                            bookings = bookings,
+                            bookings = bookings.filter { it.status == BookingStatus.DECLINED
+                                    && it.timeEnd.toMillis > LocalDateTime.now().toMillis },
+                            viewModel = viewModel
+                        )
+                    )
+
+                    bookingTabs.add(
+                        BookingTabItem.PastBookingsTabItem(
+                            bookings = bookings
+                                .filter {
+                                    (it.status == BookingStatus.APPROVED || it.status == BookingStatus.DECLINED)
+                                            && it.timeEnd.toMillis < LocalDateTime.now().toMillis
+                                },
                             viewModel = viewModel
                         )
                     )
@@ -209,7 +228,7 @@ fun BookingListHeader(stringResource: String) {
 @Composable
 fun NoBookingsView(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -333,8 +352,10 @@ fun BookingCommentary(
             SecondaryText(text = stringResource(R.string.no_commentary))
         } else {
             PrimaryText(
-                text = stringResource(id = R.string.commentary),
-                modifier = Modifier.fillMaxWidth()
+                text = commentary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
             )
         }
     }
@@ -344,6 +365,7 @@ fun BookingCommentary(
 @Composable
 fun BookingTime(
     modifier: Modifier = Modifier,
+    editable: Boolean = false,
     timeStart: LocalDateTime,
     timeEnd: LocalDateTime
 ) {
@@ -378,12 +400,21 @@ fun BookingTime(
             )
         }
 
-        IconButton(onClick = { dialogState = !dialogState }) {
-            Icon(
-                Icons.Default.Edit,
-                contentDescription = null,
+        if (editable) {
+            IconButton(onClick = { dialogState = !dialogState }) {
+                Icon(
+                    Icons.Default.Edit,
+                    contentDescription = null,
+                )
+            }
+        } else {
+            Spacer(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(24.dp)
             )
         }
+
     }
 
     if (dialogState) {
@@ -458,7 +489,12 @@ fun InvisibleCardClickable(
 }
 
 @Composable
-fun BookingUser(user: User, shouldShowHeader: Boolean = true, onUserClick: () -> Unit) {
+fun BookingUser(
+    user: User,
+    shouldShowHeader: Boolean = true,
+    header: String = stringResource(id = R.string.user),
+    onUserClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -467,7 +503,7 @@ fun BookingUser(user: User, shouldShowHeader: Boolean = true, onUserClick: () ->
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         if (shouldShowHeader) {
-            TextDivider(text = stringResource(id = R.string.user))
+            TextDivider(text = header)
         }
         InvisibleCardClickable(onClick = onUserClick) {
             Row(

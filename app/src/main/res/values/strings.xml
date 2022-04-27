@@ -119,4 +119,9 @@
     <string name="refuse">Refuse</string>
     <string name="declined_booking">Declined booking</string>
     <string name="app_exit_message">Нажмите еще раз, чтобы выйти</string>
+    <string name="my_requests">My requests</string>
+    <string name="managed_by">Managed by</string>
+    <string name="past_bookings">Past bookings</string>
+    <string name="declined_by_user">Declined by user</string>
+    <string name="status_changed">Booking status changed</string>
 </resources>

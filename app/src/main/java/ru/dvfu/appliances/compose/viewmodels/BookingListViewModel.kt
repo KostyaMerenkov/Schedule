@@ -1,25 +1,17 @@
 package ru.dvfu.appliances.compose.viewmodels
 
-import android.app.usage.EventStats
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
-import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
-import ru.dvfu.appliances.compose.use_cases.UpdateEventStatusUseCase
 import ru.dvfu.appliances.compose.use_cases.UpdateEventUseCase
 import ru.dvfu.appliances.model.datastore.UserDatastore
-import ru.dvfu.appliances.model.repository.BookingRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.*
-import ru.dvfu.appliances.model.repository_offline.OfflineRepository
-import ru.dvfu.appliances.model.utils.toLocalDate
-import ru.dvfu.appliances.model.utils.toLocalDateTime
 import ru.dvfu.appliances.ui.ViewState
 import java.time.*
 
@@ -80,7 +72,12 @@ class BookingListViewModel(
         }
     }
 
-    fun manageBookStatus(event: CalendarEvent, status: BookingStatus, commentary: String = "") {
+    fun manageBookStatus(
+        event: CalendarEvent,
+        status: BookingStatus,
+        managerCommentary: String = event.managerCommentary,
+        userCommentary: String = event.commentary
+    ) {
         viewModelScope.launch {
 
             val dateAndTime = LocalDateTime.now()
@@ -89,12 +86,13 @@ class BookingListViewModel(
                 eventId = event.id, event = event.copy(
                     status = status,
                     managedUser = currentUser.value,
-                    managerCommentary = commentary,
+                    managerCommentary = managerCommentary,
+                    commentary = userCommentary,
                     managedTime = dateAndTime
                 )
             ).fold(
                 onSuccess = {
-                    SnackbarManager.showMessage(R.string.book_declined)
+                    SnackbarManager.showMessage(R.string.status_changed)
                 },
                 onFailure = {
                     SnackbarManager.showMessage(R.string.book_decline_failed)

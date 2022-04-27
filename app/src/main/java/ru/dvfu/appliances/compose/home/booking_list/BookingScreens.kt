@@ -1,23 +1,17 @@
 package ru.dvfu.appliances.compose.home.booking_list
 
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.compose.ui.res.stringResource
+import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.utils.toMillis
 import java.time.LocalDateTime
-import java.util.*
 
 @Composable
 fun PendingBookingsList(
@@ -32,7 +26,7 @@ fun PendingBookingsList(
                 item { NoBookingsView() }
             } else {
                 items(count = it.size) { index ->
-                    BookingRequestItemView(
+                    PendingBookingItemView(
                         booking = it[index],
                         onApproveClick = {
                             viewModel.manageBookStatus(
@@ -54,6 +48,35 @@ fun PendingBookingsList(
 }
 
 @Composable
+fun MyBookingRequestsList(
+    bookings: List<CalendarEvent>,
+    viewModel: BookingListViewModel
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        bookings.filter { it.status == BookingStatus.NONE }.let {
+            if (it.isEmpty()) {
+                item { NoBookingsView() }
+            } else {
+                items(count = it.size) { index ->
+                    MyBookingRequestItemView(
+                        booking = it[index],
+                        onDeclineClick = {
+                            viewModel.manageBookStatus(
+                                event = it[index],
+                                status = BookingStatus.DECLINED,
+                                userCommentary = "Отклонено пользователем"
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun ApprovedBookingsList(
     bookings: List<CalendarEvent>,
     viewModel: BookingListViewModel
@@ -61,8 +84,7 @@ fun ApprovedBookingsList(
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        bookings.filter { it.status == BookingStatus.APPROVED }
-            .let {
+        bookings.let {
                 if (it.isEmpty()) {
                     item { NoBookingsView() }
                 } else {
@@ -72,7 +94,8 @@ fun ApprovedBookingsList(
                             onDeclineClick = {
                                 viewModel.manageBookStatus(
                                     event = it[index],
-                                    status = BookingStatus.NONE
+                                    status = BookingStatus.NONE,
+                                    userCommentary = "Отклонено пользователем"
                                 )
                             }
                         )
@@ -83,24 +106,44 @@ fun ApprovedBookingsList(
 }
 
 @Composable
-fun DeclinedAndPastBookingsList(
+fun DeclinedBookingsList(
     bookings: List<CalendarEvent>,
     viewModel: BookingListViewModel
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        bookings.filter {
-            it.status == BookingStatus.DECLINED ||
-                    ((it.status == BookingStatus.APPROVED)
-                            && it.timeEnd.toMillis > LocalDateTime.now().toMillis)
-        }
+        bookings
             .let {
                 if (it.isEmpty()) {
                     item { NoBookingsView() }
                 } else {
                     items(count = bookings.size) { index ->
-                        BookingDeclinedItemView(
+                        BookingDeclinedOrPastItemView(
+                            booking = bookings[index]
+                        )
+                    }
+                }
+            }
+    }
+}
+
+@Composable
+fun PastBookingsList(
+    bookings: List<CalendarEvent>,
+    viewModel: BookingListViewModel
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        bookings
+            .sortedByDescending { it.date }
+            .let {
+                if (it.isEmpty()) {
+                    item { NoBookingsView() }
+                } else {
+                    items(count = bookings.size) { index ->
+                        BookingDeclinedOrPastItemView(
                             booking = bookings[index]
                         )
                     }

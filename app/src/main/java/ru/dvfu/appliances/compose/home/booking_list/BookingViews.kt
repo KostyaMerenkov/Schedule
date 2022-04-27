@@ -16,7 +16,6 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.compose.home.*
 import ru.dvfu.appliances.compose.ui.theme.customColors
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.views.DefaultButton
@@ -24,6 +23,8 @@ import ru.dvfu.appliances.compose.views.HeaderText
 import ru.dvfu.appliances.compose.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
+import ru.dvfu.appliances.model.utils.toMillis
+import java.time.LocalDateTime
 
 
 sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Unit) {
@@ -32,6 +33,12 @@ sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Uni
         BookingTabItem(
             titleRes = R.string.pending,
             screen = { PendingBookingsList(bookings, viewModel) }
+        )
+
+    class BookingRequestsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
+        BookingTabItem(
+            titleRes = R.string.my_requests,
+            screen = { MyBookingRequestsList(bookings, viewModel) }
         )
 
     class ApprovedBookingsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
@@ -43,7 +50,13 @@ sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Uni
     class DeclinedBookingsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
         BookingTabItem(
             titleRes = R.string.declined,
-            screen = { DeclinedAndPastBookingsList(bookings, viewModel) }
+            screen = { DeclinedBookingsList(bookings, viewModel) }
+        )
+
+    class PastBookingsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
+        BookingTabItem(
+            titleRes = R.string.past_bookings,
+            screen = { PastBookingsList(bookings, viewModel) }
         )
 }
 
@@ -93,7 +106,7 @@ fun BookingTabsContent(
 }
 
 @Composable
-fun BookingRequestItemView(
+fun PendingBookingItemView(
     modifier: Modifier = Modifier,
     booking: CalendarEvent,
     onApproveClick: () -> Unit,
@@ -117,7 +130,11 @@ fun BookingRequestItemView(
                 modifier = Modifier.padding(8.dp),
                 text = stringResource(R.string.booking_request)
             )
-            BookingTime(timeStart = booking.timeStart, timeEnd = booking.timeEnd)
+            BookingTime(
+                editable = true,
+                timeStart = booking.timeStart,
+                timeEnd = booking.timeEnd
+            )
             Spacer(modifier = Modifier.size(8.dp))
             booking.appliance?.let {
                 BookingAppliance(booking.appliance!!, onApplianceClick = {
@@ -163,9 +180,10 @@ fun BookingRequestItemView(
 }
 
 @Composable
-fun BookingDeclinedItemView(
+fun MyBookingRequestItemView(
     modifier: Modifier = Modifier,
     booking: CalendarEvent,
+    onDeclineClick: () -> Unit
 ) {
     Card(
         modifier = modifier
@@ -183,18 +201,13 @@ fun BookingDeclinedItemView(
         ) {
             HeaderText(
                 modifier = Modifier.padding(8.dp),
-                text = if (booking.status == BookingStatus.DECLINED) {
-                    stringResource(R.string.declined_booking)
-                } else {
-                    stringResource(R.string.past_booking)
-                },
-                textColor = if (booking.status == BookingStatus.DECLINED) {
-                    Color.Red
-                } else {
-                    MaterialTheme.customColors.secondaryTextColor
-                }
+                text = stringResource(R.string.booking_request)
             )
-            BookingTime(timeStart = booking.timeStart, timeEnd = booking.timeEnd)
+            BookingTime(
+                editable = true,
+                timeStart = booking.timeStart,
+                timeEnd = booking.timeEnd
+            )
             Spacer(modifier = Modifier.size(8.dp))
             booking.appliance?.let {
                 BookingAppliance(booking.appliance!!, onApplianceClick = {
@@ -204,19 +217,20 @@ fun BookingDeclinedItemView(
 //                    )
                 })
             }
-            booking.user?.let {
-                BookingUser(booking.user, onUserClick = {
-//                    navController.navigate(
-//                        MainDestinations.USER_DETAILS_ROUTE,
-//                        Arguments.USER to book.user
-//                    )
-                })
-            }
+//            booking.user?.let {
+//                BookingUser(booking.user, onUserClick = {
+////                    navController.navigate(
+////                        MainDestinations.USER_DETAILS_ROUTE,
+////                        Arguments.USER to book.user
+////                    )
+//                })
+//            }
 
-            BookingCommentary(commentary = booking.managerCommentary)
+            BookingCommentary(commentary = booking.commentary)
 
-            Spacer(modifier = Modifier.size(32.dp))
+            DeclineBookingButton(onDeclineClick = onDeclineClick)
 
+            Spacer(modifier = Modifier.size(16.dp))
 //            BookingStatus(
 //                book = booking,
 //                viewModel = viewModel,
@@ -260,7 +274,11 @@ fun BookingApprovedItemView(
                 text = stringResource(R.string.booking_approved),
                 textColor = MaterialTheme.colors.primaryVariant
             )
-            BookingTime(timeStart = booking.timeStart, timeEnd = booking.timeEnd)
+            BookingTime(
+                editable = true,
+                timeStart = booking.timeStart,
+                timeEnd = booking.timeEnd
+            )
             Spacer(modifier = Modifier.size(8.dp))
             booking.appliance?.let {
                 BookingAppliance(booking.appliance!!, onApplianceClick = {
@@ -270,31 +288,23 @@ fun BookingApprovedItemView(
 //                    )
                 })
             }
-            booking.user?.let {
-                BookingUser(booking.user, onUserClick = {
+            booking.managedUser?.let {
+                BookingUser(
+                    user = booking.managedUser,
+                    header = stringResource(id = R.string.managed_by),
+                    onUserClick = {
 //                    navController.navigate(
 //                        MainDestinations.USER_DETAILS_ROUTE,
 //                        Arguments.USER to book.user
 //                    )
-                })
+                    })
             }
 
             BookingCommentary(commentary = booking.managerCommentary)
 
-            Row(
-                modifier = modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
-            ) {
-                DefaultButton(
-                    text = stringResource(R.string.refuse),
-                    tint = Color.Red,
-                    onClick = onDeclineClick
-                )
-            }
+            DeclineBookingButton(onDeclineClick = onDeclineClick)
+
+
 //            BookingStatus(
 //                book = booking,
 //                viewModel = viewModel,
@@ -310,6 +320,104 @@ fun BookingApprovedItemView(
 //            )
         }
 
+    }
+}
+
+@Composable
+fun BookingDeclinedOrPastItemView(
+    modifier: Modifier = Modifier,
+    booking: CalendarEvent,
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(8.dp),
+        elevation = 8.dp,
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            HeaderText(
+                modifier = Modifier.padding(8.dp),
+                text = if (booking.status == BookingStatus.DECLINED) {
+                    stringResource(R.string.declined_booking)
+                } else {
+                    stringResource(id = R.string.book_approved)
+                },
+                textColor = if(booking.timeEnd.toMillis > LocalDateTime.now().toMillis) {
+                    Color.Red
+                } else {
+                    MaterialTheme.customColors.secondaryTextColor
+                }
+            )
+            BookingTime(timeStart = booking.timeStart, timeEnd = booking.timeEnd)
+            Spacer(modifier = Modifier.size(8.dp))
+            booking.appliance?.let {
+                BookingAppliance(booking.appliance!!, onApplianceClick = {
+//                    navController.navigate(
+//                        MainDestinations.APPLIANCE_ROUTE,
+//                        Arguments.APPLIANCE to book.appliance!!
+//                    )
+                })
+            }
+            booking.managedUser?.let {
+                BookingUser(
+                    user = booking.managedUser,
+                    header = stringResource(R.string.managed_by),
+                    onUserClick = {
+//                    navController.navigate(
+//                        MainDestinations.USER_DETAILS_ROUTE,
+//                        Arguments.USER to book.user
+//                    )
+                    })
+            }
+
+            BookingCommentary(commentary = booking.managerCommentary)
+
+            Spacer(modifier = Modifier.size(32.dp))
+
+//            BookingStatus(
+//                book = booking,
+//                viewModel = viewModel,
+//                currentUser = currentUser,
+//                onApprove = viewModel::approveBook,
+//                onDecline = viewModel::declineBook,
+//                onUserClick = {
+//                    navController.navigate(
+//                        MainDestinations.USER_DETAILS_ROUTE,
+//                        Arguments.USER to it
+//                    )
+//                }
+//            )
+        }
+
+    }
+}
+
+
+@Composable
+fun DeclineBookingButton(
+    modifier: Modifier = Modifier,
+    onDeclineClick: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.End
+    ) {
+        DefaultButton(
+            text = stringResource(R.string.refuse),
+            tint = Color.Red,
+            onClick = onDeclineClick
+        )
     }
 }
 
