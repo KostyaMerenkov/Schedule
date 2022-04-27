@@ -16,6 +16,7 @@ import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.utils.toMillis
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import java.time.LocalDateTime
 import java.util.*
 
 @Composable
@@ -60,22 +61,20 @@ fun ApprovedBookingsList(
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        bookings.filter { it.status == BookingStatus.APPROVED && (it.timeEnd.toMillis >= Date().time) }
+        bookings.filter { it.status == BookingStatus.APPROVED }
             .let {
                 if (it.isEmpty()) {
                     item { NoBookingsView() }
                 } else {
                     items(count = bookings.size) { index ->
-                        BookingRequestItemView(
+                        BookingApprovedItemView(
                             booking = bookings[index],
-                            onApproveClick = { viewModel.manageBookStatus(
-                                event = it[index],
-                                status = BookingStatus.APPROVED
-                            ) },
-                            onDeclineClick = { viewModel.manageBookStatus(
-                                event = it[index],
-                                status = BookingStatus.DECLINED
-                            ) }
+                            onDeclineClick = {
+                                viewModel.manageBookStatus(
+                                    event = it[index],
+                                    status = BookingStatus.NONE
+                                )
+                            }
                         )
                     }
                 }
@@ -91,22 +90,18 @@ fun DeclinedAndPastBookingsList(
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        bookings.filter { it.status == BookingStatus.DECLINED && (it.timeEnd.toMillis < Date().time) }
+        bookings.filter {
+            it.status == BookingStatus.DECLINED ||
+                    ((it.status == BookingStatus.APPROVED)
+                            && it.timeEnd.toMillis > LocalDateTime.now().toMillis)
+        }
             .let {
                 if (it.isEmpty()) {
                     item { NoBookingsView() }
                 } else {
                     items(count = bookings.size) { index ->
-                        BookingRequestItemView(
-                            booking = bookings[index],
-                            onApproveClick = { viewModel.manageBookStatus(
-                                event = it[index],
-                                status = BookingStatus.APPROVED
-                            ) },
-                            onDeclineClick = { viewModel.manageBookStatus(
-                                event = it[index],
-                                status = BookingStatus.DECLINED
-                            ) }
+                        BookingDeclinedItemView(
+                            booking = bookings[index]
                         )
                     }
                 }

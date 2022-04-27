@@ -71,8 +71,9 @@ class BookingListViewModel(
 
             eventsRepository.getAllEvents().collect { events ->
 
-                val calendarEvents =
-                    events.map { it.toCalendarEvent(getUserUseCase, getApplianceUseCase) }
+                val calendarEvents = events
+                    .map { it.toCalendarEvent(getUserUseCase, getApplianceUseCase) }
+                    .sortedBy { it.date }
 
                 _viewState.value = ViewState.Success(calendarEvents)
             }

@@ -113,4 +113,9 @@
     <string name="new_event">Новое событие</string>
     <string name="add_event_failed">Не удалось добавить событие</string>
     <string name="add_event_success">Событие успешно создано</string>
+    <string name="booking_request">Booking request</string>
+    <string name="past_booking">Past booking</string>
+    <string name="booking_approved">Booking approved</string>
+    <string name="refuse">Refuse</string>
+    <string name="declined_booking">Declined booking</string>
 </resources>
