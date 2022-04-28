@@ -12,7 +12,7 @@
     <string name="users">Пользователи</string>
     <string name="delete">Удалить</string>
     <string name="try_again">Попробовать еще раз</string>
-    <string name="cancel">Отменить</string>
+    <string name="cancel">Отмена</string>
     <string name="superusers">Суперпользователи</string>
     <string name="add">Добавить</string>
     <string name="appliance">Прибор</string>
@@ -105,4 +105,7 @@
     <string name="past_bookings">Истекшие бронирования</string>
     <string name="declined_by_user">Отклонено пользователем</string>
     <string name="status_changed">Статус бронироваия успешно изменен</string>
+    <string name="edit_booking_date_and_time">Редактирование вренмени бронирования</string>
+    <string name="apply">Применить</string>
+    <string name="event_time_updated">Время бронирования успешно изменено</string>
 </resources>

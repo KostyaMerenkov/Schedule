@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
@@ -21,23 +22,29 @@ fun PendingBookingsList(
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        bookings.filter { it.status == BookingStatus.NONE }.let {
-            if (it.isEmpty()) {
+        bookings.filter { it.status == BookingStatus.NONE }.let { events ->
+            if (events.isEmpty()) {
                 item { NoBookingsView() }
             } else {
-                items(count = it.size) { index ->
+                items(count = events.size) { index ->
                     PendingBookingItemView(
-                        booking = it[index],
+                        booking = events[index],
                         onApproveClick = {
                             viewModel.manageBookStatus(
-                                event = it[index],
+                                event = events[index],
                                 status = BookingStatus.APPROVED
                             )
                         },
                         onDeclineClick = {
                             viewModel.manageBookStatus(
-                                event = it[index],
+                                event = events[index],
                                 status = BookingStatus.DECLINED
+                            )
+                        },
+                        onSetDateAndTime = {
+                            viewModel.updateEventDateAndTime(
+                                event = events[index],
+                                eventDateAndTime = it
                             )
                         }
                     )
@@ -55,18 +62,24 @@ fun MyBookingRequestsList(
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        bookings.filter { it.status == BookingStatus.NONE }.let {
-            if (it.isEmpty()) {
+        bookings.filter { it.status == BookingStatus.NONE }.let { events ->
+            if (events.isEmpty()) {
                 item { NoBookingsView() }
             } else {
-                items(count = it.size) { index ->
+                items(count = events.size) { index ->
                     MyBookingRequestItemView(
-                        booking = it[index],
+                        booking = events[index],
                         onDeclineClick = {
                             viewModel.manageBookStatus(
-                                event = it[index],
+                                event = events[index],
                                 status = BookingStatus.DECLINED,
                                 userCommentary = "Отклонено пользователем"
+                            )
+                        },
+                        onSetDateAndTime = {
+                            viewModel.updateEventDateAndTime(
+                                event = events[index],
+                                eventDateAndTime = it
                             )
                         }
                     )
@@ -85,23 +98,23 @@ fun ApprovedBookingsList(
         modifier = Modifier.fillMaxSize()
     ) {
         bookings.let {
-                if (it.isEmpty()) {
-                    item { NoBookingsView() }
-                } else {
-                    items(count = bookings.size) { index ->
-                        BookingApprovedItemView(
-                            booking = bookings[index],
-                            onDeclineClick = {
-                                viewModel.manageBookStatus(
-                                    event = it[index],
-                                    status = BookingStatus.NONE,
-                                    userCommentary = "Отклонено пользователем"
-                                )
-                            }
-                        )
-                    }
+            if (it.isEmpty()) {
+                item { NoBookingsView() }
+            } else {
+                items(count = bookings.size) { index ->
+                    BookingApprovedItemView(
+                        booking = bookings[index],
+                        onDeclineClick = {
+                            viewModel.manageBookStatus(
+                                event = it[index],
+                                status = BookingStatus.NONE,
+                                userCommentary = "Отклонено пользователем"
+                            )
+                        }
+                    )
                 }
             }
+        }
     }
 }
 

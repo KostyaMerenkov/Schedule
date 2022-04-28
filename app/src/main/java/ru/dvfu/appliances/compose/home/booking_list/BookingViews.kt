@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ui.theme.customColors
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
+import ru.dvfu.appliances.compose.viewmodels.CalendarEventDateAndTime
 import ru.dvfu.appliances.compose.views.DefaultButton
 import ru.dvfu.appliances.compose.views.HeaderText
 import ru.dvfu.appliances.compose.views.PrimaryText
@@ -110,7 +111,8 @@ fun PendingBookingItemView(
     modifier: Modifier = Modifier,
     booking: CalendarEvent,
     onApproveClick: () -> Unit,
-    onDeclineClick: () -> Unit
+    onDeclineClick: () -> Unit,
+    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit
 ) {
     Card(
         modifier = modifier
@@ -133,7 +135,8 @@ fun PendingBookingItemView(
             BookingTime(
                 editable = true,
                 timeStart = booking.timeStart,
-                timeEnd = booking.timeEnd
+                timeEnd = booking.timeEnd,
+                onSetNewDateAndTime = onSetDateAndTime
             )
             Spacer(modifier = Modifier.size(8.dp))
             booking.appliance?.let {
@@ -183,7 +186,8 @@ fun PendingBookingItemView(
 fun MyBookingRequestItemView(
     modifier: Modifier = Modifier,
     booking: CalendarEvent,
-    onDeclineClick: () -> Unit
+    onDeclineClick: () -> Unit,
+    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit
 ) {
     Card(
         modifier = modifier
@@ -206,7 +210,8 @@ fun MyBookingRequestItemView(
             BookingTime(
                 editable = true,
                 timeStart = booking.timeStart,
-                timeEnd = booking.timeEnd
+                timeEnd = booking.timeEnd,
+                onSetNewDateAndTime = onSetDateAndTime
             )
             Spacer(modifier = Modifier.size(8.dp))
             booking.appliance?.let {
@@ -277,7 +282,10 @@ fun BookingApprovedItemView(
             BookingTime(
                 editable = true,
                 timeStart = booking.timeStart,
-                timeEnd = booking.timeEnd
+                timeEnd = booking.timeEnd,
+                onSetNewDateAndTime = {
+
+                }
             )
             Spacer(modifier = Modifier.size(8.dp))
             booking.appliance?.let {
@@ -349,13 +357,16 @@ fun BookingDeclinedOrPastItemView(
                 } else {
                     stringResource(id = R.string.book_approved)
                 },
-                textColor = if(booking.timeEnd.toMillis > LocalDateTime.now().toMillis) {
+                textColor = if (booking.timeEnd.toMillis > LocalDateTime.now().toMillis) {
                     Color.Red
                 } else {
                     MaterialTheme.customColors.secondaryTextColor
                 }
             )
-            BookingTime(timeStart = booking.timeStart, timeEnd = booking.timeEnd)
+            BookingTime(
+                timeStart = booking.timeStart,
+                timeEnd = booking.timeEnd
+            )
             Spacer(modifier = Modifier.size(8.dp))
             booking.appliance?.let {
                 BookingAppliance(booking.appliance!!, onApplianceClick = {

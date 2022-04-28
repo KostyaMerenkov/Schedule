@@ -124,4 +124,7 @@
     <string name="past_bookings">Past bookings</string>
     <string name="declined_by_user">Declined by user</string>
     <string name="status_changed">Booking status changed</string>
+    <string name="edit_booking_date_and_time">Edit booking date and time</string>
+    <string name="apply">Apply</string>
+    <string name="event_time_updated">Event time updated</string>
 </resources>
