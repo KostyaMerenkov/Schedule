@@ -12,16 +12,12 @@ import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetEventNewTimeEndAvailabilityUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.compose.utils.AvailabilityState
-import ru.dvfu.appliances.compose.utils.EventMapper
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
-import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.TimeConstants.MIN_EVENT_DURATION
-import ru.dvfu.appliances.model.utils.toLocalDate
-import ru.dvfu.appliances.model.utils.toLocalTime
 import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
 import java.time.Duration

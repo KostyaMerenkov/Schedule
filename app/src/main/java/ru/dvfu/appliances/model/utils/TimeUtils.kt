@@ -48,3 +48,15 @@ val LocalDate.toMillis: Long
 fun LocalTime.toHoursAndMinutes(): String {
     return format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
 }
+
+fun formattedTime(timeStart: LocalDateTime, timeEnd: LocalDateTime): String {
+    return "${
+        timeStart.toLocalTime().toHoursAndMinutes()
+    } - ${
+        timeEnd.toLocalTime().toHoursAndMinutes()
+    }"
+}
+
+fun formattedDate(date: LocalDate): String {
+    return date.format(DateTimeFormatter.ofPattern("d MMMM"))
+}

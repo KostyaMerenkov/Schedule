@@ -24,11 +24,9 @@ import java.time.YearMonth
 
 
 class WeekCalendarViewModel(
-    private val usersRepository: UsersRepository,
     private val eventsRepository: EventsRepository,
     private val offlineRepository: OfflineRepository,
     private val userDatastore: UserDatastore,
-    private val getEventsFromDateUseCase: GetEventsFromDateUseCase,
     private val getPeriodEventsUseCase: GetPeriodEventsUseCase,
     private val getDateEventsUseCase: GetDateEventsUseCase,
     private val eventMapper: EventMapper,
@@ -67,7 +65,7 @@ class WeekCalendarViewModel(
     private val appliances = MutableStateFlow<List<Appliance>>(listOf())
 
     init {
-        //getDayEvents(LocalDate.now())
+        getDayEvents(LocalDate.now())
         getCurrentUser()
         getCalendarTypeListener()
     }

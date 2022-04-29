@@ -14,13 +14,14 @@ interface EventsRepository {
     suspend fun deleteEvent(eventToDelete: CalendarEvent): Result<Unit>
     suspend fun setNewTimeEnd(eventId: String, timeEnd: Long): Result<Unit>
     suspend fun setNewEventStatus(eventId: String, newStatus: BookingStatus): Result<Unit>
-    suspend fun updateEvent(eventId: String, data: Map<String, Any?>): Result<Unit>
+    suspend fun updateEvent(event: CalendarEvent, data: Map<String, Any?>): Result<Unit>
 
     suspend fun getAllEventsForOneDay(date: LocalDate): Flow<List<Event>>
 
     suspend fun getApplianceEventsAfterTime(applianceId: String, time: Long): Result<List<Event>>
     suspend fun getApplianceDateEvents(applianceId: String, date: LocalDate): Result<List<Event>>
     suspend fun getAllEventsWithPeriod(dateStart: LocalDate, dateEnd: LocalDate): Result<List<Event>>
+    suspend fun deleteAllApplianceEvents(id: String): Result<Unit>
     /*suspend fun getUsers(): Flow<List<User>>
 
     suspend fun addUsersToAppliance(appliance: Appliance, userIds: List<String>): StateFlow<Progress>

@@ -34,6 +34,7 @@ import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.utils.TimeConstants
+import ru.dvfu.appliances.model.utils.formattedTime
 import ru.dvfu.appliances.model.utils.toHoursAndMinutes
 import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
@@ -378,11 +379,7 @@ fun BookingTime(
         ) {
             PrimaryText(text = timeStart.toLocalDate().format(TimeConstants.FULL_DATE_FORMAT))
             PrimaryText(
-                text = "${
-                    timeStart.toLocalTime().toHoursAndMinutes()
-                } - ${
-                    timeEnd.toLocalTime().toHoursAndMinutes()
-                }"
+                text = formattedTime(timeStart, timeEnd)
             )
         }
 

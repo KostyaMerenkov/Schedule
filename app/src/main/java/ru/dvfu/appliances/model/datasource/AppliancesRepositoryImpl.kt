@@ -12,35 +12,36 @@ import com.google.firebase.firestore.ktx.toObjects
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
+import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.model.repository.AppliancesRepository
+import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.model.utils.suspendCoroutineWithTimeout
-import ru.dvfu.appliances.ui.Progress
+import java.time.Duration
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class AppliancesRepositoryImpl(
     private val dbCollections: RepositoryCollections,
+    //private val eventsRepository: EventsRepository
+    //private val notificationManager: NotificationManager
 ) : AppliancesRepository {
 
-    override suspend fun deleteUserFromAppliance(userToDelete: User, from: Appliance) =
+    override suspend fun deleteUserFromAppliance(userIdToDelete: String, from: Appliance) =
         suspendCoroutineWithTimeout { continuation ->
             dbCollections.getAppliancesCollection().document(from.id)
-                .update("userIds", from.userIds.filter { it != userToDelete.userId })
+                .update("userIds", from.userIds.filter { it != userIdToDelete })
                 .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
 
-    override suspend fun deleteSuperUserFromAppliance(userToDelete: User, from: Appliance) =
+    override suspend fun deleteSuperUserFromAppliance(userIdToDelete: String, from: Appliance) =
         suspendCoroutine<Result<Unit>> { continuation ->
             dbCollections.getAppliancesCollection().document(from.id)
-                .update("superuserIds", from.superuserIds.filter { it != userToDelete.userId })
+                .update("superuserIds", from.superuserIds.filter { it != userIdToDelete })
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
                         continuation.resume(Result.success(Unit))
@@ -106,7 +107,8 @@ class AppliancesRepositoryImpl(
     ) = suspendCoroutineWithTimeout { continuation ->
 
         dbCollections.getAppliancesCollection().document(appliance.id).update(
-            "userIds", userIds).addOnCompleteListener(simpleOnCompleteListener(continuation))
+            "userIds", userIds
+        ).addOnCompleteListener(simpleOnCompleteListener(continuation))
     }
 
     override suspend fun addSuperUsersToAppliance(
@@ -191,13 +193,14 @@ class AppliancesRepositoryImpl(
         }
     }
 
-    override suspend fun getAppliancesOneTime() = suspendCoroutine<Result<List<Appliance>>> { continuation ->
-        dbCollections.getAppliancesCollection().get().addOnCompleteListener {
-            if (it.isSuccessful) {
-                continuation.resume(Result.success(it.result.toObjects<Appliance>()))
-            } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+    override suspend fun getAppliancesOneTime() =
+        suspendCoroutine<Result<List<Appliance>>> { continuation ->
+            dbCollections.getAppliancesCollection().get().addOnCompleteListener {
+                if (it.isSuccessful) {
+                    continuation.resume(Result.success(it.result.toObjects<Appliance>()))
+                } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+            }
         }
-    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getAppliancesSuccessListener(scope: ProducerScope<List<Appliance>>): EventListener<QuerySnapshot> =
@@ -213,15 +216,22 @@ class AppliancesRepositoryImpl(
             }
         }
 
-    override suspend fun addAppliance(appliance: Appliance)
-    = suspendCoroutineWithTimeout { continuation ->
-        dbCollections.getAppliancesCollection().document(appliance.id).set(appliance)
-            .addOnCompleteListener(simpleOnCompleteListener(continuation))
-    }
+    override suspend fun addAppliance(appliance: Appliance) =
+        suspendCoroutineWithTimeout { continuation ->
+            dbCollections.getAppliancesCollection().document(appliance.id).set(appliance)
+                .addOnCompleteListener(simpleOnCompleteListener(continuation))
+        }
 
-    override suspend fun deleteAppliance(appliance: Appliance)
-    = suspendCoroutineWithTimeout { continuation ->
-        dbCollections.getAppliancesCollection().document(appliance.id).delete()
-            .addOnCompleteListener(simpleOnCompleteListener(continuation))
-    }
+    override suspend fun deleteAppliance(appliance: Appliance) =
+        suspendCoroutineWithTimeout(Duration.ofMinutes(1).toMillis()) { continuation ->
+            runBlocking {
+                //eventsRepository.deleteAllApplianceEvents(appliance.id)
+            }
+            dbCollections.getAppliancesCollection().document(appliance.id).delete()
+                .addOnCompleteListener(simpleOnCompleteListener(continuation) {
+                    runBlocking {
+                        //notificationManager.applianceDeleted(appliance)
+                    }
+                })
+        }
 }

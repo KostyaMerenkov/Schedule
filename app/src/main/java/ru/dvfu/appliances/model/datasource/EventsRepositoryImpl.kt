@@ -5,7 +5,6 @@ import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.toObjects
-import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.runBlocking
-import ru.dvfu.appliances.compose.utils.EventMapper
 import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
@@ -64,10 +62,12 @@ class EventsRepositoryImpl(
             .addOnCompleteListener(simpleOnCompleteListener(continuation))
     }
 
-    override suspend fun updateEvent(eventId: String, data: Map<String, Any?>) =
+    override suspend fun updateEvent(event: CalendarEvent, data: Map<String, Any?>) =
         suspendCoroutineWithTimeout { continuation ->
-            dbCollections.getEventsCollection().document(eventId).update(data)
-                .addOnCompleteListener(simpleOnCompleteListener(continuation))
+            dbCollections.getEventsCollection().document(event.id).update(data)
+                .addOnCompleteListener(simpleOnCompleteListener(continuation) {
+                    runBlocking { notificationManager.eventUpdated(event, data) }
+                })
         }
 
     override suspend fun getAllEvents(): Flow<List<Event>> = callbackFlow {
@@ -157,6 +157,23 @@ class EventsRepositoryImpl(
                         continuation.resume(Result.success(events))
                     } else continuation.resume(Result.failure(it.exception ?: Throwable()))
                 }
+        }
+
+    override suspend fun deleteAllApplianceEvents(applianceId: String): Result<Unit> =
+        suspendCoroutine { continuation ->
+            dbCollections.getEventsCollection()
+                .whereEqualTo("applianceId", applianceId).get().continueWith {
+                    it.result.toObjects<Event>().forEach { event ->
+                        dbCollections.getEventsCollection().document(event.id).delete()
+                    }
+                }.addOnCompleteListener{
+                    if (it.isSuccessful) {
+                        //onSuccess()
+                        continuation.resume(Result.success(Unit))
+                    }
+                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+
         }
 
 }

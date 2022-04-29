@@ -5,12 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Color
-import android.os.Build
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.firestoreSettings
-import com.google.firebase.ktx.Firebase
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -30,10 +25,10 @@ class Schedule : Application() {
             //inject Android context
             androidContext(this@Schedule)
             modules(
-                listOf(
+                listOf(repositoryModule,
                     application,
-                    repositoryModule,
-                    mainActivity
+                    mainActivity,
+
                 )
             )
         }

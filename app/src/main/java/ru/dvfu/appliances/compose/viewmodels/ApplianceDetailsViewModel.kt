@@ -82,13 +82,13 @@ class ApplianceDetailsViewModel(
 
     fun deleteUser(userToDelete: User, from: Appliance) {
         viewModelScope.launch {
-            repository.deleteUserFromAppliance(userToDelete, from)
+            repository.deleteUserFromAppliance(userToDelete.userId, from)
         }
     }
 
     fun deleteSuperUser(superUserToDelete: User, from: Appliance) {
         viewModelScope.launch {
-            repository.deleteSuperUserFromAppliance(superUserToDelete, from)
+            repository.deleteSuperUserFromAppliance(superUserToDelete.userId, from)
         }
     }
 

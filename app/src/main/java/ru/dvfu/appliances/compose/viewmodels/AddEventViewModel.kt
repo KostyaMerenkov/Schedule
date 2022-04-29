@@ -3,28 +3,19 @@ package ru.dvfu.appliances.compose.viewmodels
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.FirebaseApp
-import com.google.firebase.database.FirebaseDatabase
-import io.grpc.InternalChannelz.id
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.compose.use_cases.GetEventNewTimeEndAvailabilityUseCase
 import ru.dvfu.appliances.compose.use_cases.GetAppliancesUseCase
 import ru.dvfu.appliances.compose.use_cases.GetNewEventTimeAvailabilityUseCase
 import ru.dvfu.appliances.compose.utils.AvailabilityState
 import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.model.datastore.UserDatastore
-import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
-import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.*
-import ru.dvfu.appliances.model.utils.Constants
-import ru.dvfu.appliances.model.utils.TimeConstants
 import ru.dvfu.appliances.model.utils.TimeConstants.MIN_EVENT_DURATION
-import ru.dvfu.appliances.model.utils.randomUUID
 import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
 import java.time.*
@@ -38,7 +29,6 @@ class AddEventViewModel(
     private val getNewEventTimeAvailabilityUseCase: GetNewEventTimeAvailabilityUseCase,
     private val userDatastore: UserDatastore,
     private val notificationManager: NotificationManager,
-
     ) : ViewModel() {
 
     private val _selectedAppliance = MutableStateFlow<Appliance?>(null)

@@ -183,7 +183,7 @@ fun EventView(
                 .background(
                     when (event.status) {
                         BookingStatus.NONE -> {
-                            event.appliance?.color?.let { Color(it).copy(alpha = 0.5f) }
+                            event.appliance.color?.let { Color(it).copy(alpha = 0.5f) }
                                 ?: Constants.DEFAULT_EVENT_COLOR.copy(alpha = 0.5f)
                         }
                         else -> event.appliance?.color?.let { Color(it) }
