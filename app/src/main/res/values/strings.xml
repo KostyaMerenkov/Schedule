@@ -127,4 +127,10 @@
     <string name="edit_booking_date_and_time">Edit booking date and time</string>
     <string name="apply">Apply</string>
     <string name="event_time_updated">Event time updated</string>
+    <string name="event_is_already_started">Event is already started</string>
+    <string name="leave_a_commentary">Leave a comment</string>
+    <string name="not_necessary">(Not necessary)</string>
+    <string name="too_many_symbols">Too many symbols</string>
+    <string name="manager_commentary">Manager commentary</string>
+    <string name="bookings">Bookings</string>
 </resources>

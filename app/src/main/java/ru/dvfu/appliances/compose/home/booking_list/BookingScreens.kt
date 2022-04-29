@@ -32,6 +32,7 @@ fun PendingBookingsList(
                         onApproveClick = {
                             viewModel.manageBookStatus(
                                 event = events[index],
+                                managerCommentary = it,
                                 status = BookingStatus.APPROVED
                             )
                         },
