@@ -83,7 +83,8 @@ class BookingListViewModel(
             val dateAndTime = LocalDateTime.now()
 
             updateEvent(
-                eventId = event.id, event = event.copy(
+                eventId = event.id,
+                event = event.copy(
                     status = status,
                     managedUser = currentUser.value,
                     managerCommentary = managerCommentary,
@@ -93,6 +94,30 @@ class BookingListViewModel(
             ).fold(
                 onSuccess = {
                     SnackbarManager.showMessage(R.string.status_changed)
+                },
+                onFailure = {
+                    SnackbarManager.showMessage(R.string.book_decline_failed)
+                }
+            )
+        }
+    }
+
+    fun updateEventDateAndTime(
+        event: CalendarEvent,
+        eventDateAndTime: CalendarEventDateAndTime
+    ) {
+        viewModelScope.launch {
+
+            updateEvent(
+                eventId = event.id,
+                event = event.copy(
+                    date = eventDateAndTime.date,
+                    timeStart = eventDateAndTime.timeStart.atDate(eventDateAndTime.date),
+                    timeEnd = eventDateAndTime.timeEnd.atDate(eventDateAndTime.date)
+                )
+            ).fold(
+                onSuccess = {
+                    SnackbarManager.showMessage(R.string.event_time_updated)
                 },
                 onFailure = {
                     SnackbarManager.showMessage(R.string.book_decline_failed)
@@ -121,3 +146,9 @@ class BookingListViewModel(
 //    }
 
 }
+
+data class CalendarEventDateAndTime(
+    val date: LocalDate,
+    val timeStart: LocalTime,
+    val timeEnd: LocalTime
+)

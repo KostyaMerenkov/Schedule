@@ -21,11 +21,13 @@ import coil.annotation.ExperimentalCoilApi
 import com.google.accompanist.pager.rememberPagerState
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.appliance.UserImage
 import ru.dvfu.appliances.compose.home.DateAndTime
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
+import ru.dvfu.appliances.compose.viewmodels.CalendarEventDateAndTime
 import ru.dvfu.appliances.compose.views.*
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
@@ -35,10 +37,13 @@ import ru.dvfu.appliances.model.utils.TimeConstants
 import ru.dvfu.appliances.model.utils.toHoursAndMinutes
 import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
+import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter.ofLocalizedDateTime
 import java.time.format.FormatStyle
+import java.util.*
 
 @OptIn(
     ExperimentalCoilApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class,
@@ -75,61 +80,19 @@ fun BookingList(navController: NavController) {
                         NoBookingsView(Modifier.fillMaxSize())
                     }
 
-                    val bookingTabs = mutableListOf<BookingTabItem>()
+                    val bookingTabs = remember { mutableStateListOf<BookingTabItem>() }
 
-                    if (currentUser.value.isAdmin() || state.data.find {
-                            it.appliance?.isUserSuperuserOrAdmin(currentUser.value) == true
-                        } != null) {
-                        bookingTabs.add(
-                            BookingTabItem.PendingBookingsTabItem(
-                                bookings = if (currentUser.value.isAdmin()) {
-                                    state.data
-                                } else {
-                                    state.data.filter {
-                                        it.appliance?.isUserSuperuserOrAdmin(currentUser.value) == true
-                                    }
-                                },
+                    LaunchedEffect(key1 = state.data) {
+                        bookingTabs.clear()
+                        bookingTabs.addAll(
+                            initTabs(
+                                bookings = state.data,
+                                currentUser = currentUser.value,
                                 viewModel = viewModel
                             )
                         )
                     }
 
-                    val bookings = state.data.filter { it.user?.userId == currentUser.value.userId }
-
-                    bookingTabs.add(
-                        BookingTabItem.BookingRequestsTabItem(
-                            bookings = bookings.filter { it.status == BookingStatus.NONE },
-                            viewModel = viewModel
-                        )
-                    )
-
-                    bookingTabs.add(
-                        BookingTabItem.ApprovedBookingsTabItem(
-                            bookings = bookings
-                                .filter { it.status == BookingStatus.APPROVED
-                                        && it.timeEnd.toMillis > LocalDateTime.now().toMillis },
-                            viewModel = viewModel
-                        )
-                    )
-
-                    bookingTabs.add(
-                        BookingTabItem.DeclinedBookingsTabItem(
-                            bookings = bookings.filter { it.status == BookingStatus.DECLINED
-                                    && it.timeEnd.toMillis > LocalDateTime.now().toMillis },
-                            viewModel = viewModel
-                        )
-                    )
-
-                    bookingTabs.add(
-                        BookingTabItem.PastBookingsTabItem(
-                            bookings = bookings
-                                .filter {
-                                    (it.status == BookingStatus.APPROVED || it.status == BookingStatus.DECLINED)
-                                            && it.timeEnd.toMillis < LocalDateTime.now().toMillis
-                                },
-                            viewModel = viewModel
-                        )
-                    )
 
                     val pagerState = rememberPagerState()
 
@@ -210,6 +173,73 @@ fun BookingList(navController: NavController) {
     }
 }
 
+private fun initTabs(
+    bookings: List<CalendarEvent>,
+    currentUser: User,
+    viewModel: BookingListViewModel
+): List<BookingTabItem> {
+
+    val result = mutableListOf<BookingTabItem>()
+
+    if (currentUser.isAdmin() || bookings.find {
+            it.appliance?.isUserSuperuserOrAdmin(currentUser) == true
+        } != null) {
+        result.add(
+            BookingTabItem.PendingBookingsTabItem(
+                bookings = if (currentUser.isAdmin()) {
+                    bookings
+                } else {
+                    bookings.filter {
+                        it.appliance?.isUserSuperuserOrAdmin(currentUser) == true
+                    }
+                },
+                viewModel = viewModel
+            )
+        )
+    }
+
+    val myBookings = bookings.filter { it.user?.userId == currentUser.userId }
+
+    result.add(
+        BookingTabItem.BookingRequestsTabItem(
+            bookings = myBookings.filter { it.status == BookingStatus.NONE },
+            viewModel = viewModel
+        )
+    )
+
+    result.add(
+        BookingTabItem.ApprovedBookingsTabItem(
+            bookings = myBookings
+                .filter {
+                    it.status == BookingStatus.APPROVED
+                            && it.timeEnd.toMillis > LocalDateTime.now().toMillis
+                },
+            viewModel = viewModel
+        )
+    )
+
+    result.add(
+        BookingTabItem.DeclinedBookingsTabItem(
+            bookings = myBookings.filter {
+                it.status == BookingStatus.DECLINED
+                        && it.timeEnd.toMillis > LocalDateTime.now().toMillis
+            },
+            viewModel = viewModel
+        )
+    )
+
+    result.add(
+        BookingTabItem.PastBookingsTabItem(
+            bookings = myBookings
+                .filter {
+                    (it.status == BookingStatus.APPROVED || it.status == BookingStatus.DECLINED)
+                            && it.timeEnd.toMillis < LocalDateTime.now().toMillis
+                },
+            viewModel = viewModel
+        )
+    )
+    return result
+}
 
 @Composable
 fun BookingListHeader(stringResource: String) {
@@ -228,7 +258,9 @@ fun BookingListHeader(stringResource: String) {
 @Composable
 fun NoBookingsView(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(vertical = 64.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -367,7 +399,8 @@ fun BookingTime(
     modifier: Modifier = Modifier,
     editable: Boolean = false,
     timeStart: LocalDateTime,
-    timeEnd: LocalDateTime
+    timeEnd: LocalDateTime,
+    onSetNewDateAndTime: ((CalendarEventDateAndTime) -> Unit)? = null
 ) {
 
     var dialogState by remember { mutableStateOf(false) }
@@ -418,13 +451,72 @@ fun BookingTime(
     }
 
     if (dialogState) {
-        DefaultDialog(primaryText = stringResource(id = R.string.date_and_time)) {
-            DateAndTime(
-                date = timeStart.toLocalDate(),
-                timeStart = timeStart.toLocalTime(),
-                timeEnd = timeEnd.toLocalTime(),
-                duration = null,
+
+        var dialogDate by remember { mutableStateOf(timeStart.toLocalDate()) }
+        var dialogTimeStart by remember { mutableStateOf(timeStart.toLocalTime()) }
+        var dialogTimeEnd by remember { mutableStateOf(timeEnd.toLocalTime()) }
+        val isError by remember(dialogTimeStart, dialogTimeEnd) {
+            mutableStateOf(
+                dialogTimeEnd.isBefore(dialogTimeStart) || Duration.between(
+                    dialogTimeStart,
+                    dialogTimeEnd
+                ) < Duration.ofMinutes(30)
             )
+        }
+        val duration by remember(dialogTimeStart, dialogTimeEnd) {
+            val dur = Duration.between(dialogTimeStart, dialogTimeEnd)
+            val period = String.format(
+                Locale.getDefault(),
+                "%02d:%02d",
+                dur.toHours(),
+                dur.minusHours(dur.toHours()).toMinutes(),
+            )
+            mutableStateOf(period)
+        }
+
+
+        DefaultDialog(
+            primaryText = stringResource(R.string.edit_booking_date_and_time),
+            positiveButtonText = stringResource(id = R.string.apply),
+            neutralButtonText = stringResource(id = R.string.cancel),
+            onDismiss = { dialogState = false },
+            onPositiveClick = {
+                if (isError) {
+                    SnackbarManager.showMessage(R.string.time_end_is_before_start)
+                } else {
+                    dialogState = false
+                    if (onSetNewDateAndTime != null) {
+                        onSetNewDateAndTime(
+                            CalendarEventDateAndTime(
+                                date = dialogDate,
+                                timeStart = dialogTimeStart,
+                                timeEnd = dialogTimeEnd
+                            )
+                        )
+                    }
+                }
+
+            },
+            onNeutralClick = { dialogState = false }
+
+        ) {
+            Column(
+                modifier = Modifier.padding(vertical = 32.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+
+            ) {
+                DateAndTime(
+                    date = dialogDate,
+                    timeStart = dialogTimeStart,
+                    timeEnd = dialogTimeEnd,
+                    duration = duration,
+                    onDateSet = { dialogDate = it },
+                    onTimeStartSet = { dialogTimeStart = it },
+                    onTimeEndSet = { dialogTimeEnd = it },
+                    isDurationError = isError,
+                )
+            }
         }
     }
 }
