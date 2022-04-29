@@ -68,7 +68,7 @@ dependencies {
 
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
 
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.1"
 
     implementation Libs.Kotlin.stdlib
     implementation Libs.Coroutines.android
@@ -107,8 +107,6 @@ dependencies {
     implementation Libs.Accompanist.permissions
     implementation Libs.Accompanist.placeholder
 
-
-
     debugImplementation Libs.AndroidX.Compose.uiTestManifest
 
     androidTestImplementation Libs.AndroidX.Test.core
@@ -131,9 +129,6 @@ dependencies {
     //SwipeRefreshLayout
     implementation "com.google.accompanist:accompanist-swiperefresh:0.19.0"
 
-    //Calendar
-    //implementation 'com.michalsvec:single-row-calednar:1.0.0'
-
     implementation "com.google.accompanist:accompanist-flowlayout:0.24.1-alpha"
 
     //ConstraintLayout
@@ -142,7 +137,6 @@ dependencies {
     //RX java
     implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-
 
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
