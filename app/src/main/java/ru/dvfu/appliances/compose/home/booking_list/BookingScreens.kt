@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavController
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
@@ -17,7 +18,8 @@ import java.time.LocalDateTime
 @Composable
 fun PendingBookingsList(
     bookings: List<CalendarEvent>,
-    viewModel: BookingListViewModel
+    viewModel: BookingListViewModel,
+    navController: NavController
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -29,6 +31,7 @@ fun PendingBookingsList(
                 items(count = events.size) { index ->
                     PendingBookingItemView(
                         booking = events[index],
+                        navController = navController,
                         onApproveClick = {
                             viewModel.manageBookStatus(
                                 event = events[index],

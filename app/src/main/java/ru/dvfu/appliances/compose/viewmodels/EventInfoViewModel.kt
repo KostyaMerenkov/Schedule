@@ -16,6 +16,7 @@ import ru.dvfu.appliances.compose.utils.EventMapper
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.TimeConstants.MIN_EVENT_DURATION
@@ -23,34 +24,34 @@ import ru.dvfu.appliances.model.utils.toLocalDate
 import ru.dvfu.appliances.model.utils.toLocalTime
 import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
+import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 class EventInfoViewModel(
-    private val eventArg: Event,
+    private val eventArg: CalendarEvent,
     private val userDatastore: UserDatastore,
     private val eventsRepository: EventsRepository,
     private val getApplianceUseCase: GetApplianceUseCase,
     private val getUserUseCase: GetUserUseCase,
     private val getEventNewTimeEndAvailabilityUseCase: GetEventNewTimeEndAvailabilityUseCase,
-    private val eventMapper: EventMapper,
 ) : ViewModel() {
 
-    private val currentUser = MutableStateFlow(User())
+    private val _currentUser = MutableStateFlow(User())
+    val currentUser = _currentUser.asStateFlow()
+
 
     private val _userState = MutableStateFlow<ViewState<User>>(ViewState.Loading)
     val userState = _userState.asStateFlow()
 
     init {
         getCurrentUser()
-        getAppliance(eventArg.applianceId)
-        getUser(eventArg.userId)
-        getSuperUser(eventArg.managedById)
     }
 
     private fun getCurrentUser() {
         viewModelScope.launch {
-            userDatastore.getCurrentUser.collect { currentUser.value = it }
+            userDatastore.getCurrentUser.collect { _currentUser.value = it }
         }
     }
 
@@ -64,7 +65,7 @@ class EventInfoViewModel(
     private val _eventDeleteState = MutableStateFlow<UiState?>(null)
     val eventDeleteState = _eventDeleteState.asStateFlow()
 
-    private val _event = MutableStateFlow(eventArg)
+    private val _event = MutableStateFlow<CalendarEvent>(eventArg)
     val event = _event.asStateFlow()
 
     val canUpdate: MutableStateFlow<Boolean>
@@ -85,20 +86,18 @@ class EventInfoViewModel(
         )
 
     val couldEditTimeEnd: MutableStateFlow<Boolean>
-        get() = MutableStateFlow(
+        get() = MutableStateFlow<Boolean>(
             couldDeleteEvent.value ||
-                    ((event.value.timeEnd - System.currentTimeMillis()) > MIN_EVENT_DURATION.toMillis()
+                    Duration.between(event.value.timeEnd, LocalDateTime.now()) > MIN_EVENT_DURATION
                             && _appliance.value.superuserIds.contains(currentUser.value.userId))
 
-        )
 
     val couldEditTimeStart: MutableStateFlow<Boolean>
         get() = MutableStateFlow(
             couldDeleteEvent.value ||
-                    ((event.value.timeStart - System.currentTimeMillis()) < MIN_EVENT_DURATION.toMillis()
+                    Duration.between(event.value.timeStart, LocalDateTime.now()) < MIN_EVENT_DURATION
                             && _appliance.value.superuserIds.contains(currentUser.value.userId))
 
-        )
 
     private fun getSuperUser(superUserId: String?) {
         superUserId?.let {
@@ -154,7 +153,7 @@ class EventInfoViewModel(
 
     fun deleteEvent() {
         viewModelScope.launch {
-            eventsRepository.deleteEvent(eventMapper.mapEvent(eventArg)).fold(
+            eventsRepository.deleteEvent(eventArg).fold(
                 onSuccess = {
                     _eventDeleteState.value = UiState.Success
                 },
@@ -170,7 +169,7 @@ class EventInfoViewModel(
             _timeEndChangeState.value = UiState.InProgress
             val oldDate = event.value.timeEnd.toLocalDate()
             val oldTime = event.value.timeEnd.toLocalTime()
-            val newTimeMillis = newTime.atDate(oldDate).toMillis
+            val newLocalTime = newTime.atDate(oldDate)
             if (oldTime.isAfter(newTime) && currentUser.value.isAdmin()) {
                 when {
                     oldDate == LocalDate.now() && newTime.isBefore(
@@ -182,17 +181,17 @@ class EventInfoViewModel(
                     newTime.isBefore(event.value.timeStart.toLocalTime()) -> {
                         SnackbarManager.showMessage(R.string.time_end_is_before_start)
                     }
-                    else -> saveNewTimeEnd(newTimeMillis)
+                    else -> saveNewTimeEnd(newLocalTime)
                 }
             } else {
                 getEventNewTimeEndAvailabilityUseCase(
                     eventId = eventArg.id,
-                    applianceId = eventArg.applianceId,
-                    timeEnd = eventArg.timeEnd,
-                    newTimeEnd = newTimeMillis
+                    applianceId = eventArg.appliance?.id ?: "0",
+                    timeEnd = eventArg.timeEnd.toMillis,
+                    newTimeEnd = newLocalTime.toMillis
                 ).collect { result ->
                     when (result) {
-                        AvailabilityState.Available -> saveNewTimeEnd(newTimeMillis)
+                        AvailabilityState.Available -> saveNewTimeEnd(newLocalTime)
                         AvailabilityState.Error -> {
                             _timeEndChangeState.value = UiState.Error
                             SnackbarManager.showMessage(R.string.new_event_time_end_failed)
@@ -212,7 +211,7 @@ class EventInfoViewModel(
             _timeEndChangeState.value = UiState.InProgress
             val oldDate = event.value.timeEnd.toLocalDate()
             val oldTime = event.value.timeEnd.toLocalTime()
-            val newTimeMillis = newTime.atDate(oldDate).toMillis
+            val newLocalDateTime = newTime.atDate(oldDate)
             if (oldTime.isBefore(newTime) && currentUser.value.isAdmin()) {
                 when {
                     oldDate == LocalDate.now() && newTime.isBefore(
@@ -224,17 +223,17 @@ class EventInfoViewModel(
                     newTime.isBefore(event.value.timeStart.toLocalTime()) -> {
                         SnackbarManager.showMessage(R.string.time_end_is_before_start)
                     }
-                    else -> saveNewTimeEnd(newTimeMillis)
+                    else -> saveNewTimeEnd(newLocalDateTime)
                 }
             } else {
                 getEventNewTimeEndAvailabilityUseCase(
                     eventId = eventArg.id,
-                    applianceId = eventArg.applianceId,
-                    timeEnd = eventArg.timeEnd,
-                    newTimeEnd = newTimeMillis
+                    applianceId = eventArg.appliance?.id ?: "0",
+                    timeEnd = eventArg.timeEnd.toMillis,
+                    newTimeEnd = newLocalDateTime.toMillis
                 ).collect { result ->
                     when (result) {
-                        AvailabilityState.Available -> saveNewTimeEnd(newTimeMillis)
+                        AvailabilityState.Available -> saveNewTimeEnd(newLocalDateTime)
                         AvailabilityState.Error -> {
                             _timeEndChangeState.value = UiState.Error
                             SnackbarManager.showMessage(R.string.new_event_time_end_failed)
@@ -249,11 +248,11 @@ class EventInfoViewModel(
         }
     }
 
-    private fun saveNewTimeEnd(newTime: Long) {
+    private fun saveNewTimeEnd(newTime: LocalDateTime) {
         viewModelScope.launch {
             eventsRepository.setNewTimeEnd(
                 eventId = event.value.id,
-                timeEnd = newTime
+                timeEnd = newTime.toMillis
             ).fold(
                 onSuccess = {
                     _timeEndChangeState.value = UiState.Success

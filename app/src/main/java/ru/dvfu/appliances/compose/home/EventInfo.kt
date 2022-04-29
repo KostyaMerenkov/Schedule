@@ -29,10 +29,12 @@ import ru.dvfu.appliances.compose.components.TimePicker
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.home.booking_list.BookingAppliance
+import ru.dvfu.appliances.compose.home.booking_list.EventInfoScreen
 import ru.dvfu.appliances.compose.viewmodels.EventInfoViewModel
 import ru.dvfu.appliances.compose.views.DefaultDialog
 import ru.dvfu.appliances.compose.views.HeaderText
 import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.toLocalTime
@@ -40,13 +42,13 @@ import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalTime
 
 @Composable
-fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Unit) {
+fun EventInfo(navController: NavController, eventArg: CalendarEvent, backPress: () -> Unit) {
 
     val viewModel: EventInfoViewModel = getViewModel(parameters = { parametersOf(eventArg) })
     val eventDeleteState by viewModel.eventDeleteState.collectAsState()
     val applianceState by viewModel.applianceState.collectAsState()
     val event by viewModel.event.collectAsState()
-    val userState by viewModel.userState.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
     val superUserState by viewModel.userState.collectAsState()
     val canUpdate by viewModel.canUpdate.collectAsState()
     val timeEndChangeState by viewModel.timeEndChangeState.collectAsState()
@@ -90,98 +92,27 @@ fun EventInfo(navController: NavController, eventArg: Event, backPress: () -> Un
         )
     }
 
-    Scaffold(
-        topBar = {
-            EventInfoTopBar(
-                couldDeleteEvent = viewModel.couldDeleteEvent.collectAsState(),
-                backPress
-            ) { eventDeleteDialog = true }
 
-        },
-        floatingActionButton = {
-            if (canUpdate) {
-                EventInfoFAB(eventDeleteState, onSave = viewModel::saveChanges)
-            }
-        }
-    ) {
+    Scaffold(topBar = {
+        EventInfoTopBar(
+            couldDeleteEvent = viewModel.couldDeleteEvent.collectAsState(),
+            backPress
+        ) { eventDeleteDialog = true }
+    }) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(horizontal = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HeaderText(text = stringResource(id = R.string.time))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                OutlinedTextField(
-                    modifier = Modifier.weight(1f),
-                    value = event.timeStart.toLocalTime().format(EventTimeFormatter),
-                    onValueChange = {},
-                    label = { Text(text = stringResource(id = R.string.timeStart)) },
-                    trailingIcon = {
-                        Crossfade(targetState = timeStartChangeState) {
-                            when (it) {
-                                is UiState.InProgress -> CircularProgressIndicator()
-                                else -> {
-                                    AnimatedVisibility(visible = viewModel.couldEditTimeStart.collectAsState().value) {
-                                        IconButton(onClick = { timeStartEditDialog = true }) {
-                                            Icon(Icons.Default.Edit, Icons.Default.Edit.name)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    readOnly = true,
-                )
-                OutlinedTextField(
-                    modifier = Modifier.weight(1f),
-                    value = event.timeEnd.toLocalTime().format(EventTimeFormatter),
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text(text = stringResource(id = R.string.timeEnd)) },
-                    trailingIcon = {
-                        Crossfade(targetState = timeEndChangeState) {
-                            when (it) {
-                                is UiState.InProgress -> CircularProgressIndicator()
-                                else -> {
-                                    AnimatedVisibility(visible = viewModel.couldEditTimeEnd.collectAsState().value) {
-                                        IconButton(onClick = { timeEndEditDialog = true }) {
-                                            Icon(Icons.Default.Edit, Icons.Default.Edit.name)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    })
-            }
-            HeaderText(text = stringResource(id = R.string.appliance))
-            EventAppliance(applianceState) {
-                navController.navigate(
-                    MainDestinations.APPLIANCE_ROUTE,
-                    Arguments.APPLIANCE to it
-                )
-            }
-            HeaderText(text = stringResource(id = R.string.user))
-            EventUser(userState) {
-                navController.navigate(
-                    MainDestinations.USER_DETAILS_ROUTE,
-                    Arguments.USER to it
-                )
-            }
-            HeaderText(text = stringResource(id = R.string.superuser))
-            EventUser(superUserState) {
-                navController.navigate(
-                    MainDestinations.USER_DETAILS_ROUTE,
-                    Arguments.USER to it
-                )
-            }
-
-
+            EventInfoScreen(
+                currentUser = currentUser,
+                navController = navController,
+                event = event,
+                onApproveClick = {},
+                onDeclineClick = {},
+                onSetDateAndTime = {}
+            )
         }
     }
 
@@ -255,7 +186,6 @@ fun EventAppliance(applianceState: ViewState<Appliance>, applianceClicked: (Appl
 @Composable
 fun EventInfoTopBar(couldDeleteEvent: State<Boolean>, upPress: () -> Unit, onDelete: () -> Unit) {
     ScheduleAppBar(
-        stringResource(R.string.event_info),
         backClick = upPress,
         actionDelete = couldDeleteEvent.value,
         deleteClick = onDelete,

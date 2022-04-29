@@ -108,4 +108,5 @@
     <string name="edit_booking_date_and_time">Редактирование вренмени бронирования</string>
     <string name="apply">Применить</string>
     <string name="event_time_updated">Время бронирования успешно изменено</string>
+    <string name="event_finished">Событие завершено</string>
 </resources>

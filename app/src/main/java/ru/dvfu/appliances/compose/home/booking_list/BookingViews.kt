@@ -1,6 +1,7 @@
 package ru.dvfu.appliances.compose.home.booking_list
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -10,12 +11,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.Arguments
+import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.ui.theme.customColors
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.viewmodels.CalendarEventDateAndTime
@@ -24,16 +29,22 @@ import ru.dvfu.appliances.compose.views.HeaderText
 import ru.dvfu.appliances.compose.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.toMillis
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 
 sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Unit) {
 
-    class PendingBookingsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
+    class PendingBookingsTabItem(
+        bookings: List<CalendarEvent>,
+        viewModel: BookingListViewModel,
+        navController: NavController
+    ) :
         BookingTabItem(
             titleRes = R.string.pending,
-            screen = { PendingBookingsList(bookings, viewModel) }
+            screen = { PendingBookingsList(bookings, viewModel, navController) }
         )
 
     class BookingRequestsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
@@ -110,8 +121,11 @@ fun BookingTabsContent(
 fun PendingBookingItemView(
     modifier: Modifier = Modifier,
     booking: CalendarEvent,
+    title: String = stringResource(R.string.booking_request),
+    navController: NavController,
     onApproveClick: () -> Unit,
     onDeclineClick: () -> Unit,
+    approveButtons: Boolean = true,
     onSetDateAndTime: (CalendarEventDateAndTime) -> Unit
 ) {
     Card(
@@ -130,7 +144,7 @@ fun PendingBookingItemView(
         ) {
             HeaderText(
                 modifier = Modifier.padding(8.dp),
-                text = stringResource(R.string.booking_request)
+                text = title
             )
             BookingTime(
                 editable = true,
@@ -141,27 +155,22 @@ fun PendingBookingItemView(
             Spacer(modifier = Modifier.size(8.dp))
             booking.appliance?.let {
                 BookingAppliance(booking.appliance!!, onApplianceClick = {
-//                    navController.navigate(
-//                        MainDestinations.APPLIANCE_ROUTE,
-//                        Arguments.APPLIANCE to book.appliance!!
-//                    )
+                    navController.navigate(
+                        MainDestinations.APPLIANCE_ROUTE,
+                        Arguments.APPLIANCE to it
+                    )
                 })
             }
             booking.user?.let {
                 BookingUser(booking.user, onUserClick = {
-//                    navController.navigate(
-//                        MainDestinations.USER_DETAILS_ROUTE,
-//                        Arguments.USER to book.user
-//                    )
+                    navController.navigate(
+                        MainDestinations.USER_DETAILS_ROUTE,
+                        Arguments.USER to it
+                    )
                 })
             }
 
             BookingCommentary(commentary = booking.commentary)
-
-            BookingButtons(
-                onApproveClick = onApproveClick,
-                onDeclineClick = onDeclineClick
-            )
 
             Spacer(modifier = Modifier.size(16.dp))
 //            BookingStatus(
@@ -456,5 +465,68 @@ fun BookingButtons(
             onClick = onApproveClick
         )
     }
+}
+
+@Composable
+fun EventInfoScreen(
+    currentUser: User,
+    modifier: Modifier = Modifier,
+    event: CalendarEvent,
+    navController: NavController,
+    onApproveClick: () -> Unit,
+    onDeclineClick: () -> Unit,
+    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit
+) {
+
+    HeaderText(
+        modifier = Modifier.padding(8.dp),
+        text = when (event.status) {
+            BookingStatus.NONE -> {
+                if (event.timeEnd.isAfter(LocalDateTime.now())) stringResource(R.string.event_finished) else stringResource(R.string.booking_request)
+            }
+            BookingStatus.APPROVED -> stringResource(id = R.string.booking_approved)
+            BookingStatus.DECLINED -> stringResource(id = R.string.book_declined)
+        }
+    )
+    BookingTime(
+        editable = true,
+        timeStart = event.timeStart,
+        timeEnd = event.timeEnd,
+        onSetNewDateAndTime = onSetDateAndTime
+    )
+    Spacer(modifier = Modifier.size(8.dp))
+    event.appliance.let {
+        BookingAppliance(it, onApplianceClick = {
+            navController.navigate(
+                MainDestinations.APPLIANCE_ROUTE,
+                Arguments.APPLIANCE to it
+            )
+        })
+    }
+    BookingUser(event.user, onUserClick = {
+        navController.navigate(
+            MainDestinations.USER_DETAILS_ROUTE,
+            Arguments.USER to event.user
+        )
+    })
+
+    BookingCommentary(commentary = event.commentary)
+
+    Spacer(modifier = Modifier.size(16.dp))
+
+    BookingStatus(
+        book = event,
+        currentUser = currentUser,
+        onUserClick = {
+            navController.navigate(
+                MainDestinations.USER_DETAILS_ROUTE,
+                Arguments.USER to it
+            )
+        },
+        onApprove = { onApproveClick() },
+        onDecline = { onDeclineClick() },
+    )
+
+
 }
 

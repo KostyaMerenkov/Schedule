@@ -61,16 +61,12 @@ class AddEventViewModel(
         get() = MutableStateFlow(
             timeEnd.value.isBefore(timeStart.value) || Duration.between(
                 timeStart.value, timeEnd.value,
-            ) < Duration.ofMinutes(10)
+            ) < MIN_EVENT_DURATION
         )
     val duration: MutableStateFlow<String>
         get() {
             val dur = Duration.between(timeStart.value, timeEnd.value)
-
-            val period = String.format(
-                Locale.getDefault(),
-                "%02d:%02d",
-                dur.toHours(),
+            val period = String.format(Locale.getDefault(), "%02d:%02d", dur.toHours(),
                 dur.minusHours(dur.toHours()).toMinutes(),
             )
             return MutableStateFlow(period)

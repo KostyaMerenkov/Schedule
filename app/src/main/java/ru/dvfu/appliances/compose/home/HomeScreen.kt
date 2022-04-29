@@ -58,12 +58,10 @@ fun HomeScreen(
                     viewModel = viewModel,
                     navController = navController,
                     onEventClick = {
-                        viewModel.getRepoEvent(it)?.let {
                             navController.navigate(
                                 MainDestinations.EVENT_INFO,
                                 Arguments.EVENT to it
                             )
-                        }
                     }) {
                     viewModel.selectedEvent.value = it
                     eventOptionDialogOpened = true
@@ -142,12 +140,10 @@ fun EventCalendar(
             calendarEvents = events, minDate = LocalDate.now().minusDays(1),
             maxDate = LocalDate.now().plusDays(6),
             onEventClick = {
-                viewModel.getRepoEvent(it)?.let {
-                    navController.navigate(
-                        MainDestinations.EVENT_INFO,
-                        Arguments.EVENT to it
-                    )
-                }
+                navController.navigate(
+                    MainDestinations.EVENT_INFO,
+                    Arguments.EVENT to it
+                )
             },
             onEventLongClick = onEventLongClick,
             verticalScrollState = verticalScrollState,

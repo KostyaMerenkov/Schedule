@@ -67,7 +67,7 @@ class WeekCalendarViewModel(
     private val appliances = MutableStateFlow<List<Appliance>>(listOf())
 
     init {
-        getDayEvents(LocalDate.now())
+        //getDayEvents(LocalDate.now())
         getCurrentUser()
         getCalendarTypeListener()
     }
@@ -83,7 +83,7 @@ class WeekCalendarViewModel(
     private fun getDayEvents(date: LocalDate = LocalDate.now()) {
         viewModelScope.launch {
             _dayEvents = _dayEvents.apply {
-                put(date, EventsState.Loading)
+                get(date)?.let { put(date, EventsState.Loading) }
             }
             getDateEventsUseCase(date).collectLatest {
                 _reposEvents.value = (_reposEvents.value.plus(it))
@@ -161,7 +161,7 @@ class WeekCalendarViewModel(
             val dates = currentMonth.getDates()
             _dayEvents = _dayEvents.apply {
                 dates.forEach { date ->
-                    put(date, EventsState.Loading)
+                    if (get(date) !is EventsState.Loaded) { put(date, EventsState.Loading) }
                 }
             }
             getPeriodEventsUseCase(dates.first(), dates.last()).collectLatest { result ->

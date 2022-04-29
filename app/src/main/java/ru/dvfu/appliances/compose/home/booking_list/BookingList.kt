@@ -88,7 +88,8 @@ fun BookingList(navController: NavController) {
                             initTabs(
                                 bookings = state.data,
                                 currentUser = currentUser.value,
-                                viewModel = viewModel
+                                viewModel = viewModel,
+                                navController = navController
                             )
                         )
                     }
@@ -176,7 +177,8 @@ fun BookingList(navController: NavController) {
 private fun initTabs(
     bookings: List<CalendarEvent>,
     currentUser: User,
-    viewModel: BookingListViewModel
+    viewModel: BookingListViewModel,
+    navController: NavController,
 ): List<BookingTabItem> {
 
     val result = mutableListOf<BookingTabItem>()
@@ -193,7 +195,8 @@ private fun initTabs(
                         it.appliance?.isUserSuperuserOrAdmin(currentUser) == true
                     }
                 },
-                viewModel = viewModel
+                viewModel = viewModel,
+                navController = navController
             )
         )
     }
@@ -271,62 +274,58 @@ fun NoBookingsView(modifier: Modifier = Modifier) {
 @Composable
 fun BookingStatus(
     book: CalendarEvent,
-    viewModel: BookingListViewModel,
-    currentUser: State<User>,
-    onDecline: (CalendarEvent) -> Unit,
-    onApprove: (CalendarEvent) -> Unit,
+    currentUser: User,
     onUserClick: (User) -> Unit,
+    onDecline: ((CalendarEvent) -> Unit),
+    onApprove: ((CalendarEvent) -> Unit),
 
     ) {
     Divider()
     Spacer(modifier = Modifier.size(12.dp))
-    when (book.status) {
-        BookingStatus.APPROVED -> {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                TextButton(
-                    onClick = {}, enabled = false
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        when (book.status) {
+            BookingStatus.APPROVED -> {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text(text = stringResource(id = R.string.approved), color = Color.Green)
+                    TextButton(
+                        onClick = {}, enabled = false
+                    ) {
+                        Text(text = stringResource(id = R.string.approved), color = Color.Green)
+                    }
                 }
-            }
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
                 Text(
                     text = book.managedTime?.format(TimeConstants.FULL_DATE_FORMAT) ?: ""
                 )
                 book.managedUser?.let {
+
                     BookingUser(
                         user = book.managedUser,
                         shouldShowHeader = false
                     ) { onUserClick(it) }
                 }
-            }
 
-        }
-        BookingStatus.DECLINED -> {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                TextButton(
-                    onClick = {}, enabled = false
-                ) {
-                    Text(text = stringResource(id = R.string.declined), color = Color.Red)
-                }
             }
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
+            BookingStatus.DECLINED -> {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    TextButton(
+                        onClick = {}, enabled = false
+                    ) {
+                        Text(text = stringResource(id = R.string.declined), color = Color.Red)
+                    }
+                }
+
                 Text(
-                    text = book.managedTime?.format(ofLocalizedDateTime(FormatStyle.MEDIUM)) ?: ""
+                    text = book.managedTime?.format(ofLocalizedDateTime(FormatStyle.MEDIUM))
+                        ?: ""
                 )
                 book.managedUser?.let {
                     BookingUser(
@@ -334,17 +333,27 @@ fun BookingStatus(
                         shouldShowHeader = false
                     ) { onUserClick(it) }
                 }
-
             }
 
-        }
-        BookingStatus.NONE -> {
-            if (currentUser.value.isAdmin() || currentUser.value.let {
-                    book.appliance?.superuserIds?.contains(it.userId) == true
-                }) {
-                BookingManagerButtons(
-                    onDecline = { onDecline(book) },
-                    onApprove = { onApprove(book) })
+            BookingStatus.NONE -> {
+                if (currentUser.isAdmin() || currentUser.let {
+                        book.appliance.superuserIds.contains(it.userId)
+                    }) {
+                    BookingManagerButtons(
+                        onDecline = { onDecline(book) },
+                        onApprove = { onApprove(book) })
+                } else {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        TextButton(
+                            onClick = {}, enabled = false
+                        ) {
+                            Text(text = "В рассмотрении", color = Color.Red)
+                        }
+                    }
+                }
             }
         }
     }

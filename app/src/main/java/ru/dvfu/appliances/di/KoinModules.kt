@@ -172,7 +172,6 @@ val mainActivity = module {
             getApplianceUseCase = get(),
             getUserUseCase = get(),
             getEventNewTimeEndAvailabilityUseCase = get(),
-            eventMapper = get()
         )
     }
     viewModel {
