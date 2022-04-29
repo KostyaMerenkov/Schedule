@@ -1,9 +1,6 @@
 package ru.dvfu.appliances.compose.calendars
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
@@ -16,6 +13,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
@@ -27,6 +25,7 @@ import io.github.boguszpawlowski.composecalendar.header.MonthState
 import io.github.boguszpawlowski.composecalendar.selection.SelectionState
 import ru.dvfu.appliances.compose.ui.theme.Blue500
 import ru.dvfu.appliances.compose.viewmodels.EventsState
+import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -70,6 +69,20 @@ fun <T : SelectionState> ScheduleCalendarDate(
                 fontWeight = if (date == todayDate) FontWeight.Bold else FontWeight.Normal,
                 fontSize = if (date == todayDate) 16.sp else 14.sp,
             )
+        }
+        if (currentDayEvents.any { it.status == BookingStatus.NONE }) {
+            Box(
+                contentAlignment = Alignment.BottomCenter,
+                modifier = Modifier.padding(bottom = 6.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(Color.LightGray)
+                        .size(8.dp)
+
+                )
+            }
         }
     }
 }
