@@ -57,13 +57,11 @@ fun BookingList(navController: NavController) {
     val currentUser = viewModel.currentUser.collectAsState()
     val uiState by viewModel.viewState.collectAsState()
 
-//    if (managingUiState is UiState.InProgress) ModalLoadingDialog()
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             ScheduleAppBar(
-                title = "Бронирования",
+                title = stringResource(R.string.bookings),
                 backClick = { navController.popBackStack() })
         }) {
         Crossfade(targetState = uiState) { state ->
@@ -94,7 +92,6 @@ fun BookingList(navController: NavController) {
                         )
                     }
 
-
                     val pagerState = rememberPagerState()
 
                     Column(
@@ -114,60 +111,6 @@ fun BookingList(navController: NavController) {
                         )
 
                     }
-
-//                    LazyColumn(
-//                        contentPadding = PaddingValues(8.dp)
-//                    ) {
-//                        list.groupBy { it.status }
-//                            .apply { keys.sortedWith(compareBy { it.ordinal }) }
-//                            .forEach { (status, books) ->
-//                                stickyHeader { BookingListHeader(stringResource(status.stringRes)) }
-//                                items(books) { book ->
-//                                    Card(
-//                                        modifier = Modifier.padding(8.dp),
-//                                        elevation = 12.dp,
-//                                        shape = RoundedCornerShape(12.dp)
-//                                    ) {
-//                                        Column(modifier = Modifier.padding(16.dp)) {
-//                                            BookingTime(book.timeStart, book.timeEnd)
-//                                            Spacer(modifier = Modifier.size(8.dp))
-//                                            book.appliance?.let {
-//                                                BookingAppliance(book.appliance!!, onApplianceClick = {
-//                                                    navController.navigate(
-//                                                        MainDestinations.APPLIANCE_ROUTE,
-//                                                        Arguments.APPLIANCE to book.appliance!!
-//                                                    )
-//                                                })
-//                                            }
-//                                            book.user?.let {
-//                                                BookingUser(book.user, onUserClick = {
-//                                                    navController.navigate(
-//                                                        MainDestinations.USER_DETAILS_ROUTE,
-//                                                        Arguments.USER to book.user
-//                                                    )
-//                                                })
-//                                            }
-//                                            if (book.commentary.isNotBlank()) {
-//                                                BookingCommentary(commentary = book.commentary)
-//                                            }
-//                                            BookingStatus(
-//                                                book = book,
-//                                                viewModel = viewModel,
-//                                                currentUser = currentUser,
-//                                                onApprove = viewModel::approveBook,
-//                                                onDecline = viewModel::declineBook,
-//                                                onUserClick = {
-//                                                    navController.navigate(
-//                                                        MainDestinations.USER_DETAILS_ROUTE,
-//                                                        Arguments.USER to it
-//                                                    )
-//                                                }
-//                                            )
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                    }
                 }
             }
         }
@@ -378,6 +321,7 @@ fun BookingManagerButtons(onDecline: () -> Unit, onApprove: () -> Unit) {
 @Composable
 fun BookingCommentary(
     modifier: Modifier = Modifier,
+    header: String = stringResource(id = R.string.commentary),
     commentary: String
 ) {
     Column(
@@ -387,7 +331,7 @@ fun BookingCommentary(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        TextDivider(text = stringResource(id = R.string.commentary))
+        TextDivider(text = header)
 
         if (commentary.isBlank()) {
             SecondaryText(text = stringResource(R.string.no_commentary))
@@ -483,7 +427,6 @@ fun BookingTime(
             mutableStateOf(period)
         }
 
-
         DefaultDialog(
             primaryText = stringResource(R.string.edit_booking_date_and_time),
             positiveButtonText = stringResource(id = R.string.apply),
@@ -504,7 +447,6 @@ fun BookingTime(
                         )
                     }
                 }
-
             },
             onNeutralClick = { dialogState = false }
 
@@ -520,8 +462,16 @@ fun BookingTime(
                     timeStart = dialogTimeStart,
                     timeEnd = dialogTimeEnd,
                     duration = duration,
-                    onDateSet = { dialogDate = it },
-                    onTimeStartSet = { dialogTimeStart = it },
+                    onDateSet = if (dialogTimeStart.atDate(dialogDate).isBefore(LocalDateTime.now())) {
+                        null
+                    } else {
+                        { dialogDate = it }
+                    },
+                    onTimeStartSet = if (dialogTimeStart.atDate(dialogDate).isBefore(LocalDateTime.now())) {
+                        null
+                    } else {
+                        { dialogTimeStart = it }
+                    },
                     onTimeEndSet = { dialogTimeEnd = it },
                     isDurationError = isError,
                 )
