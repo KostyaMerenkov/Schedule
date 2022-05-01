@@ -13,10 +13,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.runBlocking
 import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.model.repository.AppliancesRepository
-import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.RepositoryCollections
@@ -27,8 +25,6 @@ import kotlin.coroutines.suspendCoroutine
 
 class AppliancesRepositoryImpl(
     private val dbCollections: RepositoryCollections,
-    //private val eventsRepository: EventsRepository
-    //private val notificationManager: NotificationManager
 ) : AppliancesRepository {
 
     override suspend fun deleteUserFromAppliance(userIdToDelete: String, from: Appliance) =
@@ -222,16 +218,9 @@ class AppliancesRepositoryImpl(
                 .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
 
-    override suspend fun deleteAppliance(appliance: Appliance) =
+    override suspend fun deleteAppliance(applianceId: String) =
         suspendCoroutineWithTimeout(Duration.ofMinutes(1).toMillis()) { continuation ->
-            runBlocking {
-                //eventsRepository.deleteAllApplianceEvents(appliance.id)
-            }
-            dbCollections.getAppliancesCollection().document(appliance.id).delete()
-                .addOnCompleteListener(simpleOnCompleteListener(continuation) {
-                    runBlocking {
-                        //notificationManager.applianceDeleted(appliance)
-                    }
-                })
+            dbCollections.getAppliancesCollection().document(applianceId).delete()
+                .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
 }

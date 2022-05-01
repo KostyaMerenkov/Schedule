@@ -10,6 +10,7 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.utils.EventMapper
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.calendars.CalendarType
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.*
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
@@ -31,6 +32,9 @@ class WeekCalendarViewModel(
     private val getDateEventsUseCase: GetDateEventsUseCase,
     private val eventMapper: EventMapper,
 ) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<UiState>(UiState.InProgress)
+    val uiState = _uiState.asStateFlow()
 
     private val _calendarType = MutableStateFlow<CalendarType>(CalendarType.MONTH)
     val calendarType = _calendarType.asStateFlow()
@@ -156,6 +160,7 @@ class WeekCalendarViewModel(
 
     private fun getEventsForMonth(currentMonth: YearMonth) {
         viewModelScope.launch {
+            _uiState.value = UiState.InProgress
             val dates = currentMonth.getDates()
             _dayEvents = _dayEvents.apply {
                 dates.forEach { date ->
@@ -166,12 +171,13 @@ class WeekCalendarViewModel(
                 _reposEvents.value = (_reposEvents.value.plus(result))
                 val dayEvents = eventMapper.mapEvents(result).groupBy { it.date }
                 _dayEvents = _dayEvents.apply {
-                    dayEvents.forEach { date, events ->
+                    dayEvents.forEach { (date, events) ->
                         replace(date, EventsState.Loaded(events))?.let {
                             put(date, EventsState.Loaded(events))
                         }
                     }
                 }
+                _uiState.value = UiState.Success
             }
         }
     }

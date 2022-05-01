@@ -134,4 +134,6 @@
     <string name="manager_commentary">Manager commentary</string>
     <string name="bookings">Bookings</string>
     <string name="event_finished">Событие завершено</string>
+    <string name="appliance_deleted">Прибор удален</string>
+    <string name="appliance_delete_failed">Не удалось удалить прибор</string>
 </resources>

@@ -25,10 +25,10 @@ class Schedule : Application() {
             //inject Android context
             androidContext(this@Schedule)
             modules(
-                listOf(repositoryModule,
+                listOf(
                     application,
                     mainActivity,
-
+                    repositoryModule
                 )
             )
         }

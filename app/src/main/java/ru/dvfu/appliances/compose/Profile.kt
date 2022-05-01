@@ -86,8 +86,8 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                 }
                 if (currentUser.anonymous.not()) UserButtons(navController)
 
-                ColumnButton(Icons.Default.Error, "Выдать ошибку")
-                { throw RuntimeException("Test Crash")  }// Force a crash
+/*                ColumnButton(Icons.Default.Error, "Выдать ошибку")
+                { throw RuntimeException("Test Crash")  }// Force a crash*/
             }
         },
     )

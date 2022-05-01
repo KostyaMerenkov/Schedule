@@ -13,6 +13,7 @@ import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.home.MainScreenViewModel
 import ru.dvfu.appliances.compose.use_cases.*
 import ru.dvfu.appliances.compose.utils.NotificationManager
+import ru.dvfu.appliances.compose.utils.NotificationManagerImpl
 import ru.dvfu.appliances.compose.viewmodels.*
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
@@ -27,15 +28,6 @@ import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 
 val repositoryModule = module {
-    single {
-        NotificationManager(
-            userDatastore = get(),
-            usersRepository = get(),
-            getUserUseCase = get(),
-            appliancesRepository = get(),
-            getApplianceUseCase = get()
-        )
-    }
 
     single<OfflineRepository> { OfflineRepositoryImpl(dbCollections = get()) }
     single<RepositoryCollections> { RepositoryCollections(Firebase.firestore) }
@@ -50,11 +42,7 @@ val repositoryModule = module {
     single<AppliancesRepository> { AppliancesRepositoryImpl(dbCollections = get()) }
     single<BookingRepository> { BookingRepositoryImpl(dbCollections = get()) }
     single<UsersRepository> {
-        FirebaseUsersRepositoryImpl(
-            androidContext(),
-            dbCollections = get(),
-            userDatastore = get()
-        )
+        FirebaseUsersRepositoryImpl(androidContext(), dbCollections = get(), userDatastore = get())
     }
 }
 
@@ -73,11 +61,20 @@ val application = module {
     single { Logger() }
     single { SnackbarManager }
 
+    single<NotificationManager> {
+        NotificationManagerImpl(
+            userDatastore = get(),
+            usersRepository = get(),
+            getUserUseCase = get(),
+            getApplianceUseCase = get()
+        )
+    }
 
 
+factory { DeleteApplianceUseCase(appliancesRepository = get(), eventsRepository = get()) }
     factory { GetApplianceUseCase(offlineRepository = get(), appliancesRepository = get()) }
     factory { GetAppliancesUseCase(offlineRepository = get(), appliancesRepository = get()) }
-    factory { GetUserUseCase(get(), get()) }
+    factory { GetUserUseCase(offlineRepository = get(), usersRepository = get()) }
     factory { GetEventNewTimeEndAvailabilityUseCase(get()) }
     factory { GetNewEventTimeAvailabilityUseCase(get()) }
     factory { GetDateEventsUseCase(get()) }
@@ -86,7 +83,7 @@ val application = module {
     factory { UpdateEventStatusUseCase(get()) }
     factory { UpdateEventUseCase(get()) }
 
-    single { EventMapper(get(), get()) }
+    single { EventMapper(getUserUseCase = get(), getApplianceUseCase = get()) }
 }
 
 val mainActivity = module {
@@ -139,7 +136,7 @@ val mainActivity = module {
     viewModel { ProfileViewModel(get(), get()) }
 
     //Appliances
-    viewModel { ApplianceDetailsViewModel(get(), get(), get()) }
+    viewModel { ApplianceDetailsViewModel(get(), get(), get(), get()) }
     viewModel { NewApplianceViewModel(get(), get()) }
     //viewModel { ApplianceUsersViewModel(get()) }
     viewModel { AppliancesViewModel(get(), get(), get()) }

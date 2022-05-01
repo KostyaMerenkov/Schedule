@@ -134,7 +134,7 @@ fun PendingBookingItemView(
         elevation = 8.dp,
         shape = RoundedCornerShape(12.dp)
     ) {
-        val dialogState = remember{ mutableStateOf(false) }
+        val dialogState = remember { mutableStateOf(false) }
 
         Column(
             modifier = Modifier
@@ -502,14 +502,15 @@ fun EventInfoScreen(
         modifier = Modifier.padding(8.dp),
         text = when (event.status) {
             BookingStatus.NONE -> {
-                if (event.timeEnd.isAfter(LocalDateTime.now())) stringResource(R.string.event_finished) else stringResource(R.string.booking_request)
+                if (event.timeEnd.isBefore( LocalDateTime.now())) stringResource(R.string.event_finished)
+                else stringResource(R.string.booking_request)
             }
             BookingStatus.APPROVED -> stringResource(id = R.string.booking_approved)
             BookingStatus.DECLINED -> stringResource(id = R.string.book_declined)
         }
     )
     BookingTime(
-        editable = true,
+        editable = canManageEvent(event, currentUser),
         timeStart = event.timeStart,
         timeEnd = event.timeEnd,
         onSetNewDateAndTime = onSetDateAndTime
@@ -548,5 +549,9 @@ fun EventInfoScreen(
     )
 
 
+}
+
+fun canManageEvent(event: CalendarEvent, currentUser: User): Boolean {
+    return event.appliance.superuserIds.contains(currentUser.userId) || currentUser.isAdmin()
 }
 

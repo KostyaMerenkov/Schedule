@@ -60,3 +60,6 @@ fun formattedTime(timeStart: LocalDateTime, timeEnd: LocalDateTime): String {
 fun formattedDate(date: LocalDate): String {
     return date.format(DateTimeFormatter.ofPattern("d MMMM"))
 }
+
+val LocalDateTime.toDateAndTime: String
+get() = this.format(DateTimeFormatter.ofPattern("d MMMM, HH:mm"))

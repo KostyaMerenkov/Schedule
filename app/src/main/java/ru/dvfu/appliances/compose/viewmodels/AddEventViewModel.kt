@@ -12,6 +12,7 @@ import ru.dvfu.appliances.compose.use_cases.GetAppliancesUseCase
 import ru.dvfu.appliances.compose.use_cases.GetNewEventTimeAvailabilityUseCase
 import ru.dvfu.appliances.compose.utils.AvailabilityState
 import ru.dvfu.appliances.compose.utils.NotificationManager
+import ru.dvfu.appliances.compose.utils.NotificationManagerImpl
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.*

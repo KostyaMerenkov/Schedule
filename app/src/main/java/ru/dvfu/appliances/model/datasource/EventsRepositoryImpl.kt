@@ -20,6 +20,7 @@ import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.model.utils.suspendCoroutineWithTimeout
 import ru.dvfu.appliances.model.utils.toMillis
+import java.time.Duration
 import java.time.LocalDate
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -160,7 +161,7 @@ class EventsRepositoryImpl(
         }
 
     override suspend fun deleteAllApplianceEvents(applianceId: String): Result<Unit> =
-        suspendCoroutine { continuation ->
+        suspendCoroutineWithTimeout(Duration.ofMinutes(1).toMillis()) { continuation ->
             dbCollections.getEventsCollection()
                 .whereEqualTo("applianceId", applianceId).get().continueWith {
                     it.result.toObjects<Event>().forEach { event ->

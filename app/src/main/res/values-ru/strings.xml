@@ -115,4 +115,6 @@
     <string name="manager_commentary">Комментарий администратора</string>
     <string name="bookings">Бронирования</string>
     <string name="event_finished">Событие завершено</string>
+    <string name="appliance_deleted">Прибор удален</string>
+    <string name="appliance_delete_failed">Не удалось удалить прибор</string>
 </resources>

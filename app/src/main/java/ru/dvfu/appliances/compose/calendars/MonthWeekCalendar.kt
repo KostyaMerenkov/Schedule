@@ -46,6 +46,7 @@ fun MonthWeekCalendar(
     onEventClick: (CalendarEvent) -> Unit,
     onEventLongClick: (CalendarEvent) -> Unit,
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val currentDate by viewModel.currentDate.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
@@ -85,7 +86,7 @@ fun MonthWeekCalendar(
     ) { it ->
         BackdropScaffold(
             appBar = {
-                HomeTopBar(onBookingListOpen = {
+                HomeTopBar(uiState = uiState, onBookingListOpen = {
                     navController.navigate(MainDestinations.BOOKING_LIST)
                 }, onCalendarSelected = viewModel::setCalendarType)
             },

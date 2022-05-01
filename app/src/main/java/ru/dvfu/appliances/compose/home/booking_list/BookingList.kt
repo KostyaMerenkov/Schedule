@@ -33,10 +33,7 @@ import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
-import ru.dvfu.appliances.model.utils.TimeConstants
-import ru.dvfu.appliances.model.utils.formattedTime
-import ru.dvfu.appliances.model.utils.toHoursAndMinutes
-import ru.dvfu.appliances.model.utils.toMillis
+import ru.dvfu.appliances.model.utils.*
 import ru.dvfu.appliances.ui.ViewState
 import java.time.Duration
 import java.time.LocalDate
@@ -45,6 +42,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter.ofLocalizedDateTime
 import java.time.format.FormatStyle
 import java.util.*
+
 
 @OptIn(
     ExperimentalCoilApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class,
@@ -243,11 +241,8 @@ fun BookingStatus(
                         Text(text = stringResource(id = R.string.approved), color = Color.Green)
                     }
                 }
-                Text(
-                    text = book.managedTime?.format(TimeConstants.FULL_DATE_FORMAT) ?: ""
-                )
+                Text(text = book.managedTime?.toDateAndTime ?: "")
                 book.managedUser?.let {
-
                     BookingUser(
                         user = book.managedUser,
                         shouldShowHeader = false
@@ -266,11 +261,7 @@ fun BookingStatus(
                         Text(text = stringResource(id = R.string.declined), color = Color.Red)
                     }
                 }
-
-                Text(
-                    text = book.managedTime?.format(ofLocalizedDateTime(FormatStyle.MEDIUM))
-                        ?: ""
-                )
+                Text(text = book.managedTime?.toDateAndTime ?: "")
                 book.managedUser?.let {
                     BookingUser(
                         user = book.managedUser,
@@ -280,9 +271,7 @@ fun BookingStatus(
             }
 
             BookingStatus.NONE -> {
-                if (currentUser.isAdmin() || currentUser.let {
-                        book.appliance.superuserIds.contains(it.userId)
-                    }) {
+                if (canManageEvent(book, currentUser)) {
                     BookingManagerButtons(
                         onDecline = { onDecline(book) },
                         onApprove = { onApprove(book) })

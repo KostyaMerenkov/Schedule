@@ -2,6 +2,7 @@ package ru.dvfu.appliances.compose.home
 
 import android.os.Parcelable
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,13 +10,11 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.getViewModel
@@ -23,6 +22,7 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.event_calendar.Schedule
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
@@ -115,6 +115,7 @@ fun EventCalendar(
     SideEffect {
         viewModel.getWeekEvents()
     }
+    val uiState by viewModel.uiState.collectAsState()
     val events by viewModel.threeDaysEvents.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -123,7 +124,7 @@ fun EventCalendar(
 
     Scaffold(
         topBar = {
-            HomeTopBar(onBookingListOpen = {
+            HomeTopBar(uiState = uiState, onBookingListOpen = {
                 navController.navigate(MainDestinations.BOOKING_LIST)
             }, onCalendarSelected = viewModel::setCalendarType)
         },
@@ -154,9 +155,38 @@ fun EventCalendar(
 }
 
 @Composable
-fun HomeTopBar(onBookingListOpen: () -> Unit, onCalendarSelected: () -> Unit) {
+fun HomeTopBar(uiState: UiState, onBookingListOpen: () -> Unit, onCalendarSelected: () -> Unit, ) {
     ScheduleAppBar(
         title = stringResource(id = R.string.schedule),
+        navigationIcon = {
+            AnimatedVisibility(visible = uiState is UiState.Success) {
+                IconButton(onClick = {}) {
+                    Icon(Icons.Default.CloudDone, "")
+                }
+            }
+            AnimatedVisibility(visible = uiState is UiState.Error) {
+                IconButton(onClick = {}) {
+                    Icon(Icons.Default.ErrorOutline, "")
+                }
+            }
+            AnimatedVisibility(visible = uiState is UiState.InProgress) {
+                IconButton(onClick = {}) {
+                    CircularProgressIndicator(color = MaterialTheme.colors.surface)//modifier = Modifier.fillMaxSize())
+                }
+            }
+
+            /*when(uiState) {
+                UiState.Error -> {
+                    IconButton(onClick = {}) {
+                        Icon(Icons.Default.ErrorOutline, "")
+                    }
+                }
+                UiState.InProgress -> IconButton(onClick = {}) {
+                    CircularProgressIndicator()
+                }
+                UiState.Success ->
+            }*/
+        },
         //backgroundColor = Color(0xFFFF5470),
         actions = {
             IconButton(onClick = onBookingListOpen) {

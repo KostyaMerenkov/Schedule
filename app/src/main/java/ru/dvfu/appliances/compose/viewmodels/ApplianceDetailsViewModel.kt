@@ -4,7 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.R
+import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.use_cases.DeleteApplianceUseCase
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.Repository
@@ -15,6 +19,7 @@ import ru.dvfu.appliances.model.repository.entity.User
 class ApplianceDetailsViewModel(
     private val usersRepository: UsersRepository,
     private val repository: AppliancesRepository,
+    private val deleteApplianceUseCase: DeleteApplianceUseCase,
     private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
@@ -59,7 +64,13 @@ class ApplianceDetailsViewModel(
     fun deleteAppliance() {
         viewModelScope.launch {
             appliance.value.let {
-                repository.deleteAppliance(it)
+                deleteApplianceUseCase(it.id).single().fold(
+                    onSuccess = {
+                        SnackbarManager.showMessage(R.string.appliance_deleted)
+                    }, onFailure = {
+                        SnackbarManager.showMessage(R.string.appliance_delete_failed)
+                    }
+                )
             }
         }
     }
