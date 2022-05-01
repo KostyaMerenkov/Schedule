@@ -4,17 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
-import ru.dvfu.appliances.compose.use_cases.GetEventNewTimeEndAvailabilityUseCase
-import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
+import ru.dvfu.appliances.compose.use_cases.*
 import ru.dvfu.appliances.compose.utils.AvailabilityState
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.TimeConstants.MIN_EVENT_DURATION
@@ -32,11 +32,15 @@ class EventInfoViewModel(
     private val getApplianceUseCase: GetApplianceUseCase,
     private val getUserUseCase: GetUserUseCase,
     private val getEventNewTimeEndAvailabilityUseCase: GetEventNewTimeEndAvailabilityUseCase,
+    private val updateEventStatusUseCase: UpdateEventStatusUseCase,
+    private val updateEventUseCase: UpdateEventUseCase,
 ) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<UiState>(UiState.Success)
+    val uiState = _uiState.asStateFlow()
 
     private val _currentUser = MutableStateFlow(User())
     val currentUser = _currentUser.asStateFlow()
-
 
     private val _userState = MutableStateFlow<ViewState<User>>(ViewState.Loading)
     val userState = _userState.asStateFlow()
@@ -56,7 +60,6 @@ class EventInfoViewModel(
 
     private val _timeEndChangeState = MutableStateFlow<UiState?>(null)
     val timeEndChangeState = _timeEndChangeState.asStateFlow()
-
 
     private val _eventDeleteState = MutableStateFlow<UiState?>(null)
     val eventDeleteState = _eventDeleteState.asStateFlow()
@@ -85,14 +88,19 @@ class EventInfoViewModel(
         get() = MutableStateFlow<Boolean>(
             couldDeleteEvent.value ||
                     Duration.between(event.value.timeEnd, LocalDateTime.now()) > MIN_EVENT_DURATION
-                            && _appliance.value.superuserIds.contains(currentUser.value.userId))
+                    && _appliance.value.superuserIds.contains(currentUser.value.userId)
+        )
 
 
     val couldEditTimeStart: MutableStateFlow<Boolean>
         get() = MutableStateFlow(
             couldDeleteEvent.value ||
-                    Duration.between(event.value.timeStart, LocalDateTime.now()) < MIN_EVENT_DURATION
-                            && _appliance.value.superuserIds.contains(currentUser.value.userId))
+                    Duration.between(
+                        event.value.timeStart,
+                        LocalDateTime.now()
+                    ) < MIN_EVENT_DURATION
+                    && _appliance.value.superuserIds.contains(currentUser.value.userId)
+        )
 
 
     private fun getSuperUser(superUserId: String?) {
@@ -260,8 +268,46 @@ class EventInfoViewModel(
                 }
             )
         }
+    }
+
+    fun onApproveClick(event: CalendarEvent, commentary: String) {
+        updateEventStatus(BookingStatus.APPROVED, event)
+    }
+
+    fun onDeclineClick(event: CalendarEvent, commentary: String) {
+        updateEventStatus(BookingStatus.DECLINED, event)
+    }
+
+    fun onCommentarySave(event: CalendarEvent, comment: String) {
+        _uiState.value = UiState.InProgress
+        viewModelScope.launch {
+
+            //updateEventUseCase(event)
+            _uiState.value = UiState.Success
+        }
+    }
+
+    private fun updateEventStatus(
+        bookingStatus: BookingStatus,
+        event: CalendarEvent
+    ) {
+        _uiState.value = UiState.InProgress
+        viewModelScope.launch {
+            updateEventStatusUseCase(event, bookingStatus).first().fold(
+                onSuccess = {
+                    SnackbarManager.showMessage(R.string.status_changed)
+                    _uiState.value = UiState.Success
+                },
+                onFailure = {
+                    SnackbarManager.showMessage(R.string.change_status_failed)
+                    _uiState.value = UiState.Error
+                }
+            )
+
+        }
 
     }
+
 
 
 }

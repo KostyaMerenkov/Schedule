@@ -104,6 +104,7 @@ fun MonthWeekCalendar(
                     calendarState = calendarState,
                     dayContent = { dayState ->
                         ScheduleCalendarDate(
+                            currentUser = currentUser,
                             state = dayState,
                             currentDayEvents = (dayEvents[dayState.date] as? EventsState.Loaded)?.events.orEmpty()
                         )

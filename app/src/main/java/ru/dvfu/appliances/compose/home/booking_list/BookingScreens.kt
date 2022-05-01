@@ -32,16 +32,17 @@ fun PendingBookingsList(
                     PendingBookingItemView(
                         booking = events[index],
                         navController = navController,
-                        onApproveClick = {
+                        onApproveClick = { event, comment ->
                             viewModel.manageBookStatus(
-                                event = events[index],
-                                managerCommentary = it,
+                                event = event,
+                                managerCommentary = comment,
                                 status = BookingStatus.APPROVED
                             )
                         },
-                        onDeclineClick = {
+                        onDeclineClick = { event, comment ->
                             viewModel.manageBookStatus(
-                                event = events[index],
+                                event = event,
+                                managerCommentary = comment,
                                 status = BookingStatus.DECLINED
                             )
                         },
@@ -50,6 +51,9 @@ fun PendingBookingsList(
                                 event = events[index],
                                 eventDateAndTime = it
                             )
+                        },
+                        onApplyCommentary = { event, userComment ->
+                            // TODO: change user comment
                         }
                     )
                 }
@@ -85,63 +89,14 @@ fun MyBookingRequestsList(
                                 event = events[index],
                                 eventDateAndTime = it
                             )
+                        },
+                        onApplyCommentary = { _, _ ->
+                            // TODO:
                         }
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ApprovedBookingsList(
-    bookings: List<CalendarEvent>,
-    viewModel: BookingListViewModel
-) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        bookings.let {
-            if (it.isEmpty()) {
-                item { NoBookingsView() }
-            } else {
-                items(count = bookings.size) { index ->
-                    BookingApprovedItemView(
-                        booking = bookings[index],
-                        onDeclineClick = {
-                            viewModel.manageBookStatus(
-                                event = it[index],
-                                status = BookingStatus.NONE,
-                                userCommentary = "Отклонено пользователем"
-                            )
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun DeclinedBookingsList(
-    bookings: List<CalendarEvent>,
-    viewModel: BookingListViewModel
-) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        bookings
-            .let {
-                if (it.isEmpty()) {
-                    item { NoBookingsView() }
-                } else {
-                    items(count = bookings.size) { index ->
-                        BookingDeclinedOrPastItemView(
-                            booking = bookings[index]
-                        )
-                    }
-                }
-            }
     }
 }
 

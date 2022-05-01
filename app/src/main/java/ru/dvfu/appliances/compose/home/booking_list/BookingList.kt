@@ -36,11 +36,7 @@ import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.utils.*
 import ru.dvfu.appliances.ui.ViewState
 import java.time.Duration
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter.ofLocalizedDateTime
-import java.time.format.FormatStyle
 import java.util.*
 
 
@@ -143,32 +139,11 @@ private fun initTabs(
         )
     }
 
-    val myBookings = bookings.filter { it.user?.userId == currentUser.userId }
+    val myBookings = bookings.filter { it.user.userId == currentUser.userId }
 
     result.add(
         BookingTabItem.BookingRequestsTabItem(
             bookings = myBookings.filter { it.status == BookingStatus.NONE },
-            viewModel = viewModel
-        )
-    )
-
-    result.add(
-        BookingTabItem.ApprovedBookingsTabItem(
-            bookings = myBookings
-                .filter {
-                    it.status == BookingStatus.APPROVED
-                            && it.timeEnd.toMillis > LocalDateTime.now().toMillis
-                },
-            viewModel = viewModel
-        )
-    )
-
-    result.add(
-        BookingTabItem.DeclinedBookingsTabItem(
-            bookings = myBookings.filter {
-                it.status == BookingStatus.DECLINED
-                        && it.timeEnd.toMillis > LocalDateTime.now().toMillis
-            },
             viewModel = viewModel
         )
     )
@@ -218,10 +193,9 @@ fun BookingStatus(
     book: CalendarEvent,
     currentUser: User,
     onUserClick: (User) -> Unit,
-    onDecline: ((CalendarEvent) -> Unit),
-    onApprove: ((CalendarEvent) -> Unit),
-
-    ) {
+    onDecline: ((CalendarEvent, String) -> Unit),
+    onApprove: ((CalendarEvent, String) -> Unit),
+) {
     Divider()
     Spacer(modifier = Modifier.size(12.dp))
     Column(
@@ -271,10 +245,10 @@ fun BookingStatus(
             }
 
             BookingStatus.NONE -> {
-                if (canManageEvent(book, currentUser)) {
-                    BookingManagerButtons(
-                        onDecline = { onDecline(book) },
-                        onApprove = { onApprove(book) })
+                if (currentUser.canManageEvent(book)) {
+                    BookingButtons(
+                        onDeclineClick = { onDecline(book, it) },
+                        onApproveClick = { onApprove(book, it) })
                 } else {
                     Row(
                         Modifier.fillMaxWidth(),
@@ -293,27 +267,25 @@ fun BookingStatus(
 }
 
 @Composable
-fun BookingManagerButtons(onDecline: () -> Unit, onApprove: () -> Unit) {
-    Row(Modifier.fillMaxWidth()) {
-        TextButton(
-            modifier = Modifier.weight(1f), onClick = onDecline,
-        ) {
-            Text(text = stringResource(id = R.string.decline), color = Color.Red)
-        }
-        TextButton(
-            modifier = Modifier.weight(1f), onClick = onApprove,
-        ) {
-            Text(text = stringResource(id = R.string.approve), color = Color.Green)
-        }
-    }
-}
-
-@Composable
 fun BookingCommentary(
     modifier: Modifier = Modifier,
     header: String = stringResource(id = R.string.commentary),
-    commentary: String
+    commentary: String,
+    onCommentarySave: ((String) -> Unit)? = null,
 ) {
+
+    var commentaryDialog by remember {
+        mutableStateOf(false)
+    }
+
+    if (commentaryDialog) {
+        BookingCommentaryDialog(
+            commentArg = commentary,
+            onApplyCommentary = onCommentarySave ?: {},
+            onCancel = { commentaryDialog = false }
+        )
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -322,17 +294,24 @@ fun BookingCommentary(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         TextDivider(text = header)
-
-        if (commentary.isBlank()) {
-            SecondaryText(text = stringResource(R.string.no_commentary))
-        } else {
-            PrimaryText(
-                text = commentary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-            )
+        Row {
+            if (commentary.isBlank()) {
+                SecondaryText(text = stringResource(R.string.no_commentary))
+            } else {
+                PrimaryText(
+                    text = commentary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                )
+            }
+            if (onCommentarySave != null) {
+                IconButton(onClick = { commentaryDialog = true }) {
+                    Icon(Icons.Default.Edit, "")
+                }
+            }
         }
+
     }
 }
 
@@ -390,7 +369,6 @@ fun BookingTime(
     }
 
     if (dialogState) {
-
         var dialogDate by remember { mutableStateOf(timeStart.toLocalDate()) }
         var dialogTimeStart by remember { mutableStateOf(timeStart.toLocalTime()) }
         var dialogTimeEnd by remember { mutableStateOf(timeEnd.toLocalTime()) }
@@ -414,7 +392,6 @@ fun BookingTime(
         }
 
         DefaultDialog(
-            primaryText = stringResource(R.string.edit_booking_date_and_time),
             positiveButtonText = stringResource(id = R.string.apply),
             neutralButtonText = stringResource(id = R.string.cancel),
             onDismiss = { dialogState = false },
@@ -448,12 +425,16 @@ fun BookingTime(
                     timeStart = dialogTimeStart,
                     timeEnd = dialogTimeEnd,
                     duration = duration,
-                    onDateSet = if (dialogTimeStart.atDate(dialogDate).isBefore(LocalDateTime.now())) {
+                    onDateSet = if (dialogTimeStart.atDate(dialogDate)
+                            .isBefore(LocalDateTime.now())
+                    ) {
                         null
                     } else {
                         { dialogDate = it }
                     },
-                    onTimeStartSet = if (dialogTimeStart.atDate(dialogDate).isBefore(LocalDateTime.now())) {
+                    onTimeStartSet = if (dialogTimeStart.atDate(dialogDate)
+                            .isBefore(LocalDateTime.now())
+                    ) {
                         null
                     } else {
                         { dialogTimeStart = it }

@@ -98,7 +98,7 @@ private fun NavGraphBuilder.NavGraph(
     }
 
     composable(MainDestinations.EVENT_INFO) {
-        EventInfo(navController, eventArg = it.requiredArg(Arguments.EVENT), backPress)
+        EventInfoScreen(navController, eventArg = it.requiredArg(Arguments.EVENT), backPress)
     }
 
     composable(MainDestinations.EDIT_PROFILE) {

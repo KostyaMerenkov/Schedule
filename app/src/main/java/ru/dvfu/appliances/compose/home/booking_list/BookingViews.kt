@@ -1,7 +1,6 @@
 package ru.dvfu.appliances.compose.home.booking_list
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -12,11 +11,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
@@ -31,7 +30,6 @@ import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.toMillis
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 
@@ -51,18 +49,6 @@ sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Uni
         BookingTabItem(
             titleRes = R.string.my_requests,
             screen = { MyBookingRequestsList(bookings, viewModel) }
-        )
-
-    class ApprovedBookingsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
-        BookingTabItem(
-            titleRes = R.string.approved,
-            screen = { ApprovedBookingsList(bookings, viewModel) }
-        )
-
-    class DeclinedBookingsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
-        BookingTabItem(
-            titleRes = R.string.declined,
-            screen = { DeclinedBookingsList(bookings, viewModel) }
         )
 
     class PastBookingsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
@@ -122,70 +108,22 @@ fun PendingBookingItemView(
     modifier: Modifier = Modifier,
     booking: CalendarEvent,
     navController: NavController,
-    onApproveClick: (String) -> Unit,
-    onDeclineClick: () -> Unit,
-    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit
+    onApproveClick: (CalendarEvent, String) -> Unit,
+    onDeclineClick: (CalendarEvent, String) -> Unit,
+    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit,
+    onApplyCommentary: (CalendarEvent, String) -> Unit,
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(8.dp),
-        elevation = 8.dp,
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        val dialogState = remember { mutableStateOf(false) }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            HeaderText(
-                modifier = Modifier.padding(8.dp),
-                text = stringResource(R.string.booking_request)
-            )
-            BookingTime(
-                editable = true,
-                timeStart = booking.timeStart,
-                timeEnd = booking.timeEnd,
-                onSetNewDateAndTime = onSetDateAndTime
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            booking.appliance?.let {
-                BookingAppliance(booking.appliance!!, onApplianceClick = {
-                    navController.navigate(
-                        MainDestinations.APPLIANCE_ROUTE,
-                        Arguments.APPLIANCE to it
-                    )
-                })
-            }
-            booking.user?.let {
-                BookingUser(booking.user, onUserClick = {
-                    navController.navigate(
-                        MainDestinations.USER_DETAILS_ROUTE,
-                        Arguments.USER to it
-                    )
-                })
-            }
-
-            BookingCommentary(commentary = booking.commentary)
-
-            BookingButtons(
-                onApproveClick = { dialogState.value = true },
-                onDeclineClick = onDeclineClick
-            )
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            BookingCommentaryDialog(
-                dialogState = dialogState.value,
-                onApplyCommentary = onApproveClick,
-                onCancel = { dialogState.value = false }
-            )
-        }
-
+    BookingItem {
+        EventInfo(
+            // TODO: currentUser handle
+            currentUser = User(),
+            event = booking,
+            navController = navController,
+            onApproveClick = onApproveClick,
+            onDeclineClick = onDeclineClick,
+            onSetDateAndTime = onSetDateAndTime,
+            onCommentarySave = onApplyCommentary
+        )
     }
 }
 
@@ -194,49 +132,25 @@ fun MyBookingRequestItemView(
     modifier: Modifier = Modifier,
     booking: CalendarEvent,
     onDeclineClick: () -> Unit,
-    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit
+    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit,
+    onApplyCommentary: (CalendarEvent, String) -> Unit,
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(8.dp),
-        elevation = 8.dp,
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            HeaderText(
-                modifier = Modifier.padding(8.dp),
-                text = stringResource(R.string.booking_request)
-            )
-            BookingTime(
-                editable = true,
-                timeStart = booking.timeStart,
-                timeEnd = booking.timeEnd,
-                onSetNewDateAndTime = onSetDateAndTime
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            booking.appliance?.let {
-                BookingAppliance(booking.appliance!!, onApplianceClick = {
-//                    navController.navigate(
-//                        MainDestinations.APPLIANCE_ROUTE,
-//                        Arguments.APPLIANCE to book.appliance!!
-//                    )
-                })
-            }
+    BookingItem {
+        EventInfo(
+            // TODO: currentUser handle
+            currentUser = User(),
+            event = booking,
+            navController = rememberNavController(),
+            // TODO: give navController for real
+            onApproveClick = { _, _ ->
 
-            BookingCommentary(commentary = booking.commentary)
+            },
+            onDeclineClick = { _, _ ->
 
-            DeclineBookingButton(onDeclineClick = onDeclineClick)
-
-            Spacer(modifier = Modifier.size(16.dp))
-        }
-
+            },
+            onSetDateAndTime = onSetDateAndTime,
+            onCommentarySave = onApplyCommentary
+        )
     }
 }
 
@@ -398,9 +312,28 @@ fun DeclineBookingButton(
 @Composable
 fun BookingButtons(
     modifier: Modifier = Modifier,
-    onApproveClick: () -> Unit,
-    onDeclineClick: () -> Unit
+    onApproveClick: (String) -> Unit,
+    onDeclineClick: (String) -> Unit
 ) {
+    var approveDialogState by remember { mutableStateOf(false) }
+    var declineDialogState by remember { mutableStateOf(false) }
+
+    if (approveDialogState) {
+        BookingCommentaryDialog(
+            commentArg = "",
+            onCancel = { approveDialogState = false },
+            onApplyCommentary = onApproveClick
+        )
+    }
+
+    if (declineDialogState) {
+        BookingCommentaryDialog(
+            commentArg = "",
+            onCancel = { approveDialogState = false },
+            onApplyCommentary = onDeclineClick
+        )
+    }
+
     Row(
         modifier = modifier
             .padding(16.dp)
@@ -412,11 +345,11 @@ fun BookingButtons(
         DefaultButton(
             text = stringResource(id = R.string.decline),
             tint = Color.Red,
-            onClick = onDeclineClick
+            onClick = { declineDialogState = true }
         )
         DefaultButton(
             text = stringResource(id = R.string.approve),
-            onClick = onApproveClick
+            onClick = { approveDialogState = true }
         )
     }
 }
@@ -424,134 +357,151 @@ fun BookingButtons(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BookingCommentaryDialog(
-    dialogState: Boolean,
-    onApplyCommentary: (String) -> Unit,
-    onCancel: () -> Unit
+    commentArg: String,
+    onCancel: () -> Unit,
+    onApplyCommentary: (String) -> Unit
 ) {
     val maxSymbols = remember { 256 }
-    val commentary = remember { mutableStateOf("") }
-    val symbolsCount = remember(commentary.value) { mutableStateOf(commentary.value.length) }
+    var commentary by remember { mutableStateOf(commentArg) }
+    val symbolsCount = remember(commentary) { mutableStateOf(commentary.length) }
     val isError = remember(symbolsCount.value) { mutableStateOf(symbolsCount.value >= maxSymbols) }
 
-    if (dialogState) {
-        DefaultDialog(
-            primaryText = stringResource(R.string.leave_a_commentary),
-            secondaryText = stringResource(R.string.not_necessary),
-            positiveButtonText = stringResource(id = R.string.apply),
-            onPositiveClick = {
-                if (!isError.value) {
-                    onApplyCommentary(commentary.value)
-                } else {
-                    SnackbarManager.showMessage(R.string.too_many_symbols)
-                }
-            },
-            neutralButtonText = stringResource(id = R.string.cancel),
-            onNeutralClick = onCancel,
-            onDismiss = onCancel
+    DefaultDialog(
+        primaryText = stringResource(R.string.leave_a_commentary),
+        secondaryText = stringResource(R.string.not_necessary),
+        positiveButtonText = stringResource(id = R.string.apply),
+        onPositiveClick = {
+            if (!isError.value) {
+                onApplyCommentary(commentary)
+            } else {
+                SnackbarManager.showMessage(R.string.too_many_symbols)
+            }
+        },
+        neutralButtonText = stringResource(id = R.string.cancel),
+        onNeutralClick = onCancel,
+        onDismiss = onCancel
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 32.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.End
         ) {
-
-            Column(
+            OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.End
-            ) {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(128.dp),
-                    value = commentary.value,
-                    onValueChange = {
-                        commentary.value = it
-                    },
-                    label = {
-                        Text(text = stringResource(id = R.string.commentary))
-                    },
-                    isError = isError.value,
-                    singleLine = false,
-                    maxLines = 5
-                )
-                SecondaryText(
-                    modifier = Modifier,
-                    text = "${symbolsCount.value}/$maxSymbols",
-                    textColor = if (isError.value) {
-                        Color.Red
-                    } else {
-                        MaterialTheme.customColors.secondaryTextColor
-                    }
-                )
-            }
+                    .height(128.dp),
+                value = commentary,
+                onValueChange = {
+                    commentary = it
+                },
+                label = {
+                    Text(text = stringResource(id = R.string.commentary))
+                },
+                isError = isError.value,
+                singleLine = false,
+                maxLines = 5
+            )
+            SecondaryText(
+                modifier = Modifier,
+                text = "${symbolsCount.value}/$maxSymbols",
+                textColor = if (isError.value) {
+                    Color.Red
+                } else {
+                    MaterialTheme.customColors.secondaryTextColor
+                }
+            )
         }
     }
 
 }
 
 @Composable
-fun EventInfoScreen(
+fun EventInfo(
     currentUser: User,
     modifier: Modifier = Modifier,
     event: CalendarEvent,
     navController: NavController,
-    onApproveClick: () -> Unit,
-    onDeclineClick: () -> Unit,
-    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit
+    onApproveClick: (CalendarEvent, String) -> Unit,
+    onDeclineClick: (CalendarEvent, String) -> Unit,
+    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit,
+    onCommentarySave: (CalendarEvent, String) -> Unit,
 ) {
-
-    HeaderText(
-        modifier = Modifier.padding(8.dp),
-        text = when (event.status) {
-            BookingStatus.NONE -> {
-                if (event.timeEnd.isBefore( LocalDateTime.now())) stringResource(R.string.event_finished)
-                else stringResource(R.string.booking_request)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HeaderText(
+            modifier = Modifier.padding(8.dp),
+            text = when (event.status) {
+                BookingStatus.NONE -> {
+                    if (event.timeEnd.isBefore(LocalDateTime.now())) stringResource(R.string.event_finished)
+                    else stringResource(R.string.booking_request)
+                }
+                BookingStatus.APPROVED -> stringResource(id = R.string.booking_approved)
+                BookingStatus.DECLINED -> stringResource(id = R.string.book_declined)
             }
-            BookingStatus.APPROVED -> stringResource(id = R.string.booking_approved)
-            BookingStatus.DECLINED -> stringResource(id = R.string.book_declined)
-        }
-    )
-    BookingTime(
-        editable = canManageEvent(event, currentUser),
-        timeStart = event.timeStart,
-        timeEnd = event.timeEnd,
-        onSetNewDateAndTime = onSetDateAndTime
-    )
-    Spacer(modifier = Modifier.size(8.dp))
-    event.appliance.let {
-        BookingAppliance(it, onApplianceClick = {
-            navController.navigate(
-                MainDestinations.APPLIANCE_ROUTE,
-                Arguments.APPLIANCE to it
-            )
-        })
-    }
-    BookingUser(event.user, onUserClick = {
-        navController.navigate(
-            MainDestinations.USER_DETAILS_ROUTE,
-            Arguments.USER to event.user
         )
-    })
-
-    BookingCommentary(commentary = event.commentary)
-
-    Spacer(modifier = Modifier.size(16.dp))
-
-    BookingStatus(
-        book = event,
-        currentUser = currentUser,
-        onUserClick = {
+        BookingTime(
+            editable = currentUser.canManageEvent(event),
+            timeStart = event.timeStart,
+            timeEnd = event.timeEnd,
+            onSetNewDateAndTime = onSetDateAndTime
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        event.appliance.let {
+            BookingAppliance(it, onApplianceClick = {
+                navController.navigate(
+                    MainDestinations.APPLIANCE_ROUTE,
+                    Arguments.APPLIANCE to it
+                )
+            })
+        }
+        BookingUser(event.user, onUserClick = {
             navController.navigate(
                 MainDestinations.USER_DETAILS_ROUTE,
-                Arguments.USER to it
+                Arguments.USER to event.user
             )
-        },
-        onApprove = { onApproveClick() },
-        onDecline = { onDeclineClick() },
-    )
+        })
 
+        BookingCommentary(
+            commentary = event.commentary,
+            onCommentarySave = { comment ->
+                if (event.user.userId == currentUser.userId) onCommentarySave(event, comment)
+            }
+        )
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        BookingStatus(
+            book = event,
+            currentUser = currentUser,
+            onUserClick = {
+                navController.navigate(
+                    MainDestinations.USER_DETAILS_ROUTE,
+                    Arguments.USER to it
+                )
+            },
+            onApprove = onApproveClick,
+            onDecline = onDeclineClick,
+        )
+    }
 
 }
 
-fun canManageEvent(event: CalendarEvent, currentUser: User): Boolean {
-    return event.appliance.superuserIds.contains(currentUser.userId) || currentUser.isAdmin()
+@Composable
+fun BookingItem(content: @Composable () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(8.dp),
+        elevation = 8.dp,
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        content()
+    }
 }
-

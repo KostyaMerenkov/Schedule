@@ -25,4 +25,8 @@ data class User(
         return role == Roles.GUEST.ordinal || anonymous
     }
 
+    fun canManageEvent(event: CalendarEvent): Boolean {
+        return event.appliance.superuserIds.contains(userId) || isAdmin()
+    }
+
 }

@@ -27,12 +27,14 @@ import ru.dvfu.appliances.compose.ui.theme.Blue500
 import ru.dvfu.appliances.compose.viewmodels.EventsState
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import ru.dvfu.appliances.model.repository.entity.User
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.*
 
 @Composable
 fun <T : SelectionState> ScheduleCalendarDate(
+    currentUser: User,
     state: DayState<T>,
     currentDayEvents: List<CalendarEvent>,
     onClick: (LocalDate) -> Unit = {},
@@ -71,6 +73,8 @@ fun <T : SelectionState> ScheduleCalendarDate(
             )
         }
         if (currentDayEvents.any { it.status == BookingStatus.NONE }) {
+            val color = if (currentDayEvents.any { it.user.userId == currentUser.userId })
+            { MaterialTheme.colors.primary } else Color.LightGray
             Box(
                 contentAlignment = Alignment.BottomCenter,
                 modifier = Modifier.padding(bottom = 6.dp)
@@ -78,7 +82,7 @@ fun <T : SelectionState> ScheduleCalendarDate(
                 Box(
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(Color.LightGray)
+                        .background(color)
                         .size(8.dp)
 
                 )

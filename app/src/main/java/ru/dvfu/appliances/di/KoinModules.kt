@@ -80,7 +80,7 @@ factory { DeleteApplianceUseCase(appliancesRepository = get(), eventsRepository 
     factory { GetDateEventsUseCase(get()) }
     factory { GetEventsFromDateUseCase(get()) }
     factory { GetPeriodEventsUseCase(get()) }
-    factory { UpdateEventStatusUseCase(get()) }
+    factory { UpdateEventStatusUseCase(get(), get()) }
     factory { UpdateEventUseCase(get()) }
 
     single { EventMapper(getUserUseCase = get(), getApplianceUseCase = get()) }
@@ -167,6 +167,8 @@ val mainActivity = module {
             getApplianceUseCase = get(),
             getUserUseCase = get(),
             getEventNewTimeEndAvailabilityUseCase = get(),
+            updateEventStatusUseCase = get(),
+            updateEventUseCase = get()
         )
     }
     viewModel {

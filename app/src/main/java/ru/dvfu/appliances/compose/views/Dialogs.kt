@@ -22,7 +22,7 @@ import ru.dvfu.appliances.R
 @ExperimentalComposeUiApi
 @Composable
 fun DefaultDialog(
-    primaryText: String,
+    primaryText: String = "",
     secondaryText: String? = null,
     neutralButtonText: String = "",
     onNeutralClick: (() -> Unit) = { },
@@ -42,7 +42,7 @@ fun DefaultDialog(
                 .wrapContentHeight()
                 .animateContentSize()
         ) {
-            ConstraintLayout (
+            ConstraintLayout(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
@@ -50,13 +50,15 @@ fun DefaultDialog(
             ) {
                 val (title, subtitle, mainContent, neutralButton, negativeButton, positiveButton) = createRefs()
 
-                PrimaryText(
-                    modifier = Modifier.constrainAs(title) {
-                        top.linkTo(parent.top)
-                        absoluteLeft.linkTo(parent.absoluteLeft)
-                    },
-                    text = primaryText,
-                )
+                if (primaryText.isNotEmpty()) {
+                    PrimaryText(
+                        modifier = Modifier.constrainAs(title) {
+                            top.linkTo(parent.top)
+                            absoluteLeft.linkTo(parent.absoluteLeft)
+                        },
+                        text = primaryText,
+                    )
+                }
 
                 if (secondaryText != null) {
                     PrimaryTextSmall(
@@ -143,27 +145,27 @@ fun DefaultDialog(
 fun ModalLoadingDialog(
     text: String = stringResource(id = R.string.loading)
 ) {
-        Dialog(
-            onDismissRequest = { },
-            properties = DialogProperties(
-                dismissOnBackPress = false,
-                dismissOnClickOutside = false
-            )
+    Dialog(
+        onDismissRequest = { },
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(64.dp)
-                )
-                PrimaryText(
-                    text = text,
-                    textColor = Color.White
-                )
-            }
+            CircularProgressIndicator(
+                modifier = Modifier.size(64.dp)
+            )
+            PrimaryText(
+                text = text,
+                textColor = Color.White
+            )
         }
+    }
 }

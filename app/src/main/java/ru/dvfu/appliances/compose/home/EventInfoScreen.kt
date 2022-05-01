@@ -1,6 +1,5 @@
 package ru.dvfu.appliances.compose.home
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -9,7 +8,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,29 +25,25 @@ import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.components.TimePicker
 import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.home.booking_list.BookingAppliance
-import ru.dvfu.appliances.compose.home.booking_list.EventInfoScreen
+import ru.dvfu.appliances.compose.home.booking_list.EventInfo
 import ru.dvfu.appliances.compose.viewmodels.EventInfoViewModel
 import ru.dvfu.appliances.compose.views.DefaultDialog
-import ru.dvfu.appliances.compose.views.HeaderText
+import ru.dvfu.appliances.compose.views.ModalLoadingDialog
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
-import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.utils.toLocalTime
 import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalTime
 
 @Composable
-fun EventInfo(navController: NavController, eventArg: CalendarEvent, backPress: () -> Unit) {
+fun EventInfoScreen(navController: NavController, eventArg: CalendarEvent, backPress: () -> Unit) {
 
     val viewModel: EventInfoViewModel = getViewModel(parameters = { parametersOf(eventArg) })
     val eventDeleteState by viewModel.eventDeleteState.collectAsState()
-    val applianceState by viewModel.applianceState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val event by viewModel.event.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
-    val superUserState by viewModel.userState.collectAsState()
     val canUpdate by viewModel.canUpdate.collectAsState()
     val timeEndChangeState by viewModel.timeEndChangeState.collectAsState()
     val timeStartChangeState by viewModel.timeStartChangeState.collectAsState()
@@ -60,6 +54,8 @@ fun EventInfo(navController: NavController, eventArg: CalendarEvent, backPress: 
     if (eventDeleteDialog) {
         EventDeleteDialog(onDismiss = { eventDeleteDialog = false }) { viewModel.deleteEvent() }
     }
+
+    if (uiState is UiState.InProgress) ModalLoadingDialog()
 
     LaunchedEffect(eventDeleteState) {
         when (eventDeleteState) {
@@ -74,25 +70,6 @@ fun EventInfo(navController: NavController, eventArg: CalendarEvent, backPress: 
         }
     }
 
-    var timeEndEditDialog by remember { mutableStateOf(false) }
-    if (timeEndEditDialog) {
-        TimeEditDialog(
-            eventTimeEnd = event.timeEnd.toLocalTime(),
-            onDismiss = { timeEndEditDialog = false },
-            onTimeChange = viewModel::onTimeEndChange
-        )
-    }
-
-    var timeStartEditDialog by remember { mutableStateOf(false) }
-    if (timeStartEditDialog) {
-        TimeEditDialog(
-            eventTimeEnd = event.timeStart.toLocalTime(),
-            onDismiss = { timeStartEditDialog = false },
-            onTimeChange = viewModel::onTimeStartChange
-        )
-    }
-
-
     Scaffold(topBar = {
         EventInfoTopBar(
             couldDeleteEvent = viewModel.couldDeleteEvent.collectAsState(),
@@ -105,13 +82,14 @@ fun EventInfo(navController: NavController, eventArg: CalendarEvent, backPress: 
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            EventInfoScreen(
+            EventInfo(
                 currentUser = currentUser,
                 navController = navController,
                 event = event,
-                onApproveClick = {},
-                onDeclineClick = {},
-                onSetDateAndTime = {}
+                onApproveClick = viewModel::onApproveClick,
+                onDeclineClick = viewModel::onDeclineClick,
+                onSetDateAndTime = {},
+                onCommentarySave = viewModel::onCommentarySave,
             )
         }
     }
