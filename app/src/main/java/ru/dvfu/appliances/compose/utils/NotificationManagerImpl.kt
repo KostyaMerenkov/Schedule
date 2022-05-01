@@ -47,11 +47,7 @@ class NotificationManagerImpl(
 
     override suspend fun eventUpdated(event: CalendarEvent, data: Map<String, Any?>) {
         //if (userDatastore.getCurrentUser.first().userId != event.user.userId)
-        val status = when (event.status) {
-            BookingStatus.DECLINED -> "Отклонено"
-            BookingStatus.APPROVED -> "Подтверждено"
-            BookingStatus.NONE -> "На рассмотрении"
-        }
+        val status = getStatus(event.status)
 
         sendMessage(
             PushNotification(
@@ -111,6 +107,28 @@ class NotificationManagerImpl(
                     ).build()
                 )*/
             }
+        }
+    }
+
+    override suspend fun newEventStatus(event: CalendarEvent, newStatus: BookingStatus) {
+
+        sendMessage(
+            PushNotification(
+                to = event.user.msgToken,
+                notification = NotificationData(
+                    title = "Ваше бронирование на прибор \"${event.appliance.name}\" ${getStatus(event.status)}",
+                    body = "${formattedDate(event.date)}, ${formattedTime(event.timeStart, event.timeEnd)}"
+                    // TODO: Добавить комментарий суперпользователя при наличии
+                )
+            )
+        )
+    }
+
+    private fun getStatus(status: BookingStatus): String {
+       return when (status) {
+            BookingStatus.DECLINED -> "Отклонено"
+            BookingStatus.APPROVED -> "Подтверждено"
+            BookingStatus.NONE -> "На рассмотрении"
         }
     }
 

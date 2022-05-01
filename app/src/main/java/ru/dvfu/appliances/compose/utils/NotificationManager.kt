@@ -25,4 +25,5 @@ interface NotificationManager {
     suspend fun eventUpdated(event: CalendarEvent, data: Map<String, Any?>)
     suspend fun eventDeleted(event: CalendarEvent)
     suspend fun newEvent(newEvent: Event)
+    suspend fun newEventStatus(event: CalendarEvent, newStatus: BookingStatus)
 }
