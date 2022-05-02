@@ -9,6 +9,7 @@ import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.isNetworkAvailable
+import ru.dvfu.appliances.model.utils.toLocalTime
 import ru.dvfu.appliances.model.utils.toMillis
 
 class GetEventTimeAvailabilityUseCase(
@@ -28,7 +29,9 @@ class GetEventTimeAvailabilityUseCase(
                     else {
                         if (isTimeFree(list = events, eventDateAndTime))
                             emit(AvailabilityState.Available)
-                        else { emit(AvailabilityState.NotAvailable) }
+                        else {
+                            emit(AvailabilityState.NotAvailable)
+                        }
                     }
                 },
                 onFailure = { emit(AvailabilityState.Error) }
@@ -40,8 +43,9 @@ class GetEventTimeAvailabilityUseCase(
         val timeStart = eventDateAndTime.timeStart.atDate(eventDateAndTime.date).toMillis
         val timeEnd = eventDateAndTime.timeEnd.atDate(eventDateAndTime.date).toMillis
 
-        return list.any {
-            it.timeEnd in (timeStart + 1) until timeEnd || it.timeStart in (timeStart + 1) until timeEnd
+        return !list.any {
+            (timeStart > it.timeStart && timeEnd < it.timeEnd)
+                    || (it.timeEnd in (timeStart + 1) until timeEnd || it.timeStart in (timeStart + 1) until timeEnd)
         }
     }
 }
