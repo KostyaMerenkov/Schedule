@@ -3,6 +3,7 @@ package ru.dvfu.appliances.compose.home.booking_list
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -350,16 +351,23 @@ fun BookingTime(
         Row(
             modifier = Modifier
                 .padding(2.dp)
-                .weight(6f),
+                .weight(7f),
             horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.Start),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            PrimaryText(text = timeStart.toLocalDate().format(TimeConstants.FULL_DATE_FORMAT))
-            Text(
-                text = formattedTime(timeStart, timeEnd),
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.h6
+            PrimaryText(
+                text = timeStart.toLocalDate().format(TimeConstants.FULL_DATE_FORMAT),
+                textColor = MaterialTheme.colors.onSurface.copy(0.6f)
             )
+            Card(elevation = 6.dp, shape = CircleShape) {
+                Text(
+                    text = formattedTime(timeStart, timeEnd),
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.h6,
+                    modifier = Modifier.padding(10.dp)
+                )
+            }
+
         }
 
         if (editable) {

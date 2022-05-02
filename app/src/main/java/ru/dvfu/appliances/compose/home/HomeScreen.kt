@@ -65,7 +65,7 @@ fun HomeScreen(
                         )
                     },
                     onEventLongClick = {
-                        if (currentUser.isAdmin() || currentUser.canManageEvent(it)) {
+                        if (currentUser.canManageEvent(it)) {
                             viewModel.selectedEvent.value = it
                             eventOptionDialogOpened = true
                         }
@@ -76,7 +76,7 @@ fun HomeScreen(
                     viewModel = viewModel,
                     navController = navController,
                     onEventLongClick = {
-                        if (currentUser.isAdmin() || currentUser.canManageEvent(it)) {
+                        if (currentUser.canManageEvent(it)) {
                             viewModel.selectedEvent.value = it
                             eventOptionDialogOpened = true
                         }
