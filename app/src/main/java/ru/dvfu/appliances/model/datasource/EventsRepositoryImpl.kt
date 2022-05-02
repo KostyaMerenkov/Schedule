@@ -172,6 +172,7 @@ class EventsRepositoryImpl(
         suspendCoroutineWithTimeout(Duration.ofMinutes(1).toMillis()) { continuation ->
             dbCollections.getEventsCollection()
                 .whereEqualTo("applianceId", applianceId).get().continueWith {
+
                     it.result.toObjects<Event>().forEach { event ->
                         dbCollections.getEventsCollection().document(event.id).delete()
                     }

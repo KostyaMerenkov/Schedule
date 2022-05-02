@@ -9,10 +9,9 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.GetAppliancesUseCase
-import ru.dvfu.appliances.compose.use_cases.GetNewEventTimeAvailabilityUseCase
+import ru.dvfu.appliances.compose.use_cases.GetEventTimeAvailabilityUseCase
 import ru.dvfu.appliances.compose.utils.AvailabilityState
 import ru.dvfu.appliances.compose.utils.NotificationManager
-import ru.dvfu.appliances.compose.utils.NotificationManagerImpl
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.*
@@ -27,7 +26,7 @@ class AddEventViewModel(
     private val selectedDate: LocalDate,
     private val eventsRepository: EventsRepository,
     private val getAppliancesUseCase: GetAppliancesUseCase,
-    private val getNewEventTimeAvailabilityUseCase: GetNewEventTimeAvailabilityUseCase,
+    private val getEventTimeAvailabilityUseCase: GetEventTimeAvailabilityUseCase,
     private val userDatastore: UserDatastore,
     private val notificationManager: NotificationManager,
     ) : ViewModel() {
@@ -92,11 +91,13 @@ class AddEventViewModel(
             if (isDurationError.value || selectedAppliance == null) {
                 showError()
             } else {
-                val availabilityResult = getNewEventTimeAvailabilityUseCase.invoke(
+                val availabilityResult = getEventTimeAvailabilityUseCase.invoke(
                     selectedAppliance.id,
-                    timeStart.value.toMillis,
-                    timeEnd.value.toMillis,
-                    date = date.value
+                    eventDateAndTime = EventDateAndTime(
+                        timeStart = timeStart.value.toLocalTime(),
+                        timeEnd = timeEnd.value.toLocalTime(),
+                        date = date.value
+                    )
                 ).single()
 
                 when (availabilityResult) {

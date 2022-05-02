@@ -27,7 +27,7 @@ import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.appliance.UserImage
 import ru.dvfu.appliances.compose.home.DateAndTime
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
-import ru.dvfu.appliances.compose.viewmodels.CalendarEventDateAndTime
+import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
 import ru.dvfu.appliances.compose.views.*
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
@@ -326,7 +326,7 @@ fun BookingTime(
     editable: Boolean = false,
     timeStart: LocalDateTime,
     timeEnd: LocalDateTime,
-    onSetNewDateAndTime: ((CalendarEventDateAndTime) -> Unit)? = null
+    onSetNewDateAndTime: ((EventDateAndTime) -> Unit)? = null
 ) {
 
     var dialogState by remember { mutableStateOf(false) }
@@ -410,7 +410,7 @@ fun BookingTime(
                     dialogState = false
                     if (onSetNewDateAndTime != null) {
                         onSetNewDateAndTime(
-                            CalendarEventDateAndTime(
+                            EventDateAndTime(
                                 date = dialogDate,
                                 timeStart = dialogTimeStart,
                                 timeEnd = dialogTimeEnd

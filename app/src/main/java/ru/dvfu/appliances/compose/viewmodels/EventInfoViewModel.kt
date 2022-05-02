@@ -8,20 +8,13 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.*
-import ru.dvfu.appliances.compose.utils.AvailabilityState
+import ru.dvfu.appliances.compose.use_cases.event.EventTimeUpdateResult
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
-import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.utils.TimeConstants.MIN_EVENT_DURATION
-import ru.dvfu.appliances.model.utils.toMillis
-import ru.dvfu.appliances.ui.ViewState
-import java.time.Duration
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 
 class EventInfoViewModel(
     private val eventArg: CalendarEvent,
@@ -89,10 +82,27 @@ class EventInfoViewModel(
         }
     }
 
-    fun onSetDateAndTime(event: CalendarEvent, dateAndTime: CalendarEventDateAndTime) {
+    fun onSetDateAndTime(event: CalendarEvent, dateAndTime: EventDateAndTime) {
         _uiState.value = UiState.InProgress
         viewModelScope.launch {
-            updateEventUseCase.updateTimeUseCase(event, dateAndTime).single().fold(
+            val result = updateEventUseCase.updateTimeUseCase(event, dateAndTime).single()
+            when(result) {
+                EventTimeUpdateResult.Error -> {
+                    SnackbarManager.showMessage(R.string.error_occured)
+                }
+                EventTimeUpdateResult.Success -> {
+                    _event.value = _event.value.copy(
+                        date = dateAndTime.date,
+                        timeStart = dateAndTime.timeStart.atDate(dateAndTime.date),
+                        timeEnd = dateAndTime.timeEnd.atDate(dateAndTime.date)
+                    )
+                    SnackbarManager.showMessage(R.string.event_time_updated)
+                }
+                EventTimeUpdateResult.TimeNotFree -> {
+                    SnackbarManager.showMessage(R.string.time_not_free)
+                }
+            }
+            /*.fold(
                 onSuccess = {
                     _event.value = _event.value.copy(
                         date = dateAndTime.date,
@@ -103,7 +113,7 @@ class EventInfoViewModel(
                 onFailure = {
                     SnackbarManager.showMessage(R.string.error_occured)
                 }
-            )
+            )*/
             _uiState.value = UiState.Success
         }
     }

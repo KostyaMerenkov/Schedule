@@ -77,17 +77,25 @@ val application = module {
     factory { GetApplianceUseCase(offlineRepository = get(), appliancesRepository = get()) }
     factory { GetAppliancesUseCase(offlineRepository = get(), appliancesRepository = get()) }
     factory { GetUserUseCase(offlineRepository = get(), usersRepository = get()) }
-    factory { GetEventNewTimeEndAvailabilityUseCase(get()) }
-    factory { GetNewEventTimeAvailabilityUseCase(get()) }
+    factory { GetEventTimeAvailabilityUseCase(get()) }
     factory { GetDateEventsUseCase(get()) }
     factory { GetEventsFromDateUseCase(get()) }
     factory { GetPeriodEventsUseCase(get()) }
-    factory { UpdateEventStatusUseCase(eventsRepository = get(), userDatastore = get(), notificationManager = get()) }
+    factory {
+        UpdateEventStatusUseCase(
+            eventsRepository = get(),
+            userDatastore = get(),
+            notificationManager = get()
+        )
+    }
     factory {
         UpdateEventUseCase(
             updateUserCommentUseCase = UpdateEventUserCommentUseCase(eventsRepository = get()),
             updateEventStatusUseCase = get(),
-            updateTimeUseCase = UpdateTimeUseCase(eventsRepository = get())
+            updateTimeUseCase = UpdateTimeUseCase(
+                eventsRepository = get(),
+                getEventTimeAvailabilityUseCase = get()
+            )
         )
     }
 
@@ -152,8 +160,8 @@ val mainActivity = module {
             selectedDate = it[0],
             eventsRepository = get(),
             getAppliancesUseCase = get(),
+            getEventTimeAvailabilityUseCase = get(),
             userDatastore = get(),
-            getNewEventTimeAvailabilityUseCase = get(),
             notificationManager = get()
         )
     }

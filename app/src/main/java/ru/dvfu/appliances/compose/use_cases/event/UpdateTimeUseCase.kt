@@ -1,40 +1,58 @@
 package ru.dvfu.appliances.compose.use_cases.event
 
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
-import ru.dvfu.appliances.R
-import ru.dvfu.appliances.application.SnackbarManager
-import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.compose.use_cases.GetNewEventTimeAvailabilityUseCase
-import ru.dvfu.appliances.compose.utils.NotificationManager
-import ru.dvfu.appliances.compose.viewmodels.CalendarEventDateAndTime
+import kotlinx.coroutines.flow.single
+import ru.dvfu.appliances.compose.use_cases.GetEventTimeAvailabilityUseCase
+import ru.dvfu.appliances.compose.utils.AvailabilityState
+import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
 import ru.dvfu.appliances.model.repository.EventsRepository
-import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.utils.toMillis
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 class UpdateTimeUseCase(
     private val eventsRepository: EventsRepository,
-    //private val getEventNewTimeAvailabilityUseCase: GetEventNewTimeAvailabilityUseCase,
+    private val getEventTimeAvailabilityUseCase: GetEventTimeAvailabilityUseCase,
 ) {
     suspend operator fun invoke(
         event: CalendarEvent,
-        eventDateAndTime: CalendarEventDateAndTime,
-    ) = flow<Result<Unit>> {
+        eventDateAndTime: EventDateAndTime,
+    ) = flow<EventTimeUpdateResult> {
 
-        // TODO: addTimeCheck availability
-        val result = eventsRepository.updateEvent(
-            event.id, mapOf(
-                "date" to eventDateAndTime.date.toMillis,
-                "timeStart" to eventDateAndTime.timeStart.atDate(eventDateAndTime.date).toMillis,
-                "timeEnd" to eventDateAndTime.timeEnd.atDate(eventDateAndTime.date).toMillis
-            )
-        )
-        emit(result)
+        checkNewEventTime(eventDateAndTime)
+
+        val availabilityState = getEventTimeAvailabilityUseCase(
+            applianceId = event.appliance.id,
+            eventDateAndTime = eventDateAndTime,
+            event = event
+        ).single()
+        when(availabilityState) {
+            AvailabilityState.Available -> {
+                val result = eventsRepository.updateEvent(
+                    event.id, mapOf(
+                        "date" to eventDateAndTime.date.toMillis,
+                        "timeStart" to eventDateAndTime.timeStart.atDate(eventDateAndTime.date).toMillis,
+                        "timeEnd" to eventDateAndTime.timeEnd.atDate(eventDateAndTime.date).toMillis
+                    )
+                ).fold(
+                    onSuccess = {
+                        emit(EventTimeUpdateResult.Success)
+                    },
+                    onFailure = {
+                        emit(EventTimeUpdateResult.Error)
+                    }
+                )
+
+            }
+            AvailabilityState.Error -> emit(EventTimeUpdateResult.Error)
+            AvailabilityState.NotAvailable -> emit(EventTimeUpdateResult.TimeNotFree)
+        }
+
     }
+
+    private fun checkNewEventTime(eventDateAndTime: EventDateAndTime) {
+        //TODO("Not yet implemented")
+    }
+
 
     /* val couldEditTimeEnd: MutableStateFlow<Boolean>
         get() = MutableStateFlow<Boolean>(
@@ -153,4 +171,10 @@ class UpdateTimeUseCase(
             )
         }
     }*/
+}
+
+sealed class EventTimeUpdateResult {
+    object Success : EventTimeUpdateResult()
+    object TimeNotFree : EventTimeUpdateResult()
+    object Error : EventTimeUpdateResult()
 }

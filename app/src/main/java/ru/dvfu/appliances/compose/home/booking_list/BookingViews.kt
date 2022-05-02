@@ -24,13 +24,11 @@ import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.ui.theme.customColors
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
-import ru.dvfu.appliances.compose.viewmodels.CalendarEventDateAndTime
+import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
 import ru.dvfu.appliances.compose.views.*
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.utils.toMillis
-import java.time.LocalDateTime
 
 
 sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Unit) {
@@ -110,7 +108,7 @@ fun PendingBookingItemView(
     navController: NavController,
     onApproveClick: (CalendarEvent, String) -> Unit,
     onDeclineClick: (CalendarEvent, String) -> Unit,
-    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit,
+    onSetDateAndTime: (EventDateAndTime) -> Unit,
     onApplyCommentary: (CalendarEvent, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -135,7 +133,7 @@ fun MyBookingRequestItemView(
     modifier: Modifier = Modifier,
     booking: CalendarEvent,
     onDeclineClick: () -> Unit,
-    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit,
+    onSetDateAndTime: (EventDateAndTime) -> Unit,
     onApplyCommentary: (CalendarEvent, String) -> Unit,
 ) {
     BookingItem {
@@ -457,7 +455,7 @@ fun EventInfo(
     navController: NavController,
     onApproveClick: (CalendarEvent, String) -> Unit,
     onDeclineClick: (CalendarEvent, String) -> Unit,
-    onSetDateAndTime: (CalendarEvent, CalendarEventDateAndTime) -> Unit,
+    onSetDateAndTime: (CalendarEvent, EventDateAndTime) -> Unit,
     onCommentarySave: (CalendarEvent, String) -> Unit,
 ) {
     Column(

@@ -9,6 +9,7 @@ import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.compose.use_cases.UpdateEventUseCase
+import ru.dvfu.appliances.compose.use_cases.event.EventTimeUpdateResult
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.*
@@ -97,20 +98,33 @@ class BookingListViewModel(
 
     fun updateEventDateAndTime(
         event: CalendarEvent,
-        eventDateAndTime: CalendarEventDateAndTime
+        eventDateAndTime: EventDateAndTime
     ) {
         viewModelScope.launch {
-            updateEvent.updateTimeUseCase(
+            val result = updateEvent.updateTimeUseCase(
                 event = event,
                 eventDateAndTime
-            ).single().fold(
+            ).single()
+            when (result) {
+                EventTimeUpdateResult.Error -> {
+                    SnackbarManager.showMessage(R.string.error_occured)
+                }
+                EventTimeUpdateResult.Success -> {
+                    SnackbarManager.showMessage(R.string.event_time_updated)
+                }
+                EventTimeUpdateResult.TimeNotFree -> {
+                    SnackbarManager.showMessage(R.string.time_not_free)
+                }
+            }
+
+        /*.fold(
                 onSuccess = {
                     SnackbarManager.showMessage(R.string.event_time_updated)
                 },
                 onFailure = {
                     SnackbarManager.showMessage(R.string.book_decline_failed)
                 }
-            )
+            )*/
         }
     }
 
@@ -135,7 +149,7 @@ class BookingListViewModel(
 
 }
 
-data class CalendarEventDateAndTime(
+data class EventDateAndTime(
     val date: LocalDate,
     val timeStart: LocalTime,
     val timeEnd: LocalTime
