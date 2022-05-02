@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.getViewModel
@@ -57,10 +58,10 @@ fun HomeScreen(
                     viewModel = viewModel,
                     navController = navController,
                     onEventClick = {
-                            navController.navigate(
-                                MainDestinations.EVENT_INFO,
-                                Arguments.EVENT to it
-                            )
+                        navController.navigate(
+                            MainDestinations.EVENT_INFO,
+                            Arguments.EVENT to it
+                        )
                     }) {
                     viewModel.selectedEvent.value = it
                     eventOptionDialogOpened = true
@@ -124,7 +125,10 @@ fun EventCalendar(
     Scaffold(
         topBar = {
             HomeTopBar(uiState = uiState, onBookingListOpen = {
-                navController.navigate(MainDestinations.BOOKING_LIST,Arguments.DATE to SelectedDate())
+                navController.navigate(
+                    MainDestinations.BOOKING_LIST,
+                    Arguments.DATE to SelectedDate()
+                )
             }, onCalendarSelected = viewModel::setCalendarType)
         },
         floatingActionButton = {
@@ -154,45 +158,40 @@ fun EventCalendar(
 }
 
 @Composable
-fun HomeTopBar(uiState: UiState, onBookingListOpen: () -> Unit, onCalendarSelected: () -> Unit, ) {
+fun HomeTopBar(uiState: UiState, onBookingListOpen: () -> Unit, onCalendarSelected: () -> Unit) {
     ScheduleAppBar(
         title = stringResource(id = R.string.schedule),
         navigationIcon = {
-            AnimatedVisibility(visible = uiState is UiState.Success) {
-                IconButton(onClick = {}) {
-                    Icon(Icons.Default.CloudDone, "")
-                }
-            }
-            AnimatedVisibility(visible = uiState is UiState.Error) {
-                IconButton(onClick = {}) {
-                    Icon(Icons.Default.ErrorOutline, "")
-                }
-            }
-            AnimatedVisibility(visible = uiState is UiState.InProgress) {
-                IconButton(onClick = {}) {
-                    CircularProgressIndicator(color = MaterialTheme.colors.surface)//modifier = Modifier.fillMaxSize())
-                }
-            }
-
-            /*when(uiState) {
-                UiState.Error -> {
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Default.ErrorOutline, "")
+            Crossfade(targetState = uiState) {
+                when (it) {
+                    UiState.Error -> {
+                        IconButton(onClick = {}) {
+                            Icon(Icons.Default.ErrorOutline, "")
+                        }
+                    }
+                    UiState.InProgress -> {
+                        IconButton(onClick = {}) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colors.surface,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    UiState.Success -> {
+                        IconButton(onClick = {}) {
+                            Icon(Icons.Default.CloudDone, "")
+                        }
                     }
                 }
-                UiState.InProgress -> IconButton(onClick = {}) {
-                    CircularProgressIndicator()
-                }
-                UiState.Success ->
-            }*/
+
+            }
         },
-        //backgroundColor = Color(0xFFFF5470),
         actions = {
             IconButton(onClick = onBookingListOpen) {
                 Icon(Icons.Default.Book, Icons.Default.Book.name)
             }
             IconButton(onClick = { onCalendarSelected() }) {
-                Icon(Icons.Default.EditCalendar, Icons.Default.EditCalendar.name)
+                Icon(Icons.Default.ChangeCircle, Icons.Default.ChangeCircle.name)
             }
         }
     )
