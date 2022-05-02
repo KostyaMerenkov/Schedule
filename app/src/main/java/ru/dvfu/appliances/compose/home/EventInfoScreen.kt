@@ -27,6 +27,7 @@ import ru.dvfu.appliances.compose.components.TimePicker
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.home.booking_list.BookingAppliance
 import ru.dvfu.appliances.compose.home.booking_list.EventInfo
+import ru.dvfu.appliances.compose.viewmodels.CalendarEventDateAndTime
 import ru.dvfu.appliances.compose.viewmodels.EventInfoViewModel
 import ru.dvfu.appliances.compose.views.DefaultDialog
 import ru.dvfu.appliances.compose.views.ModalLoadingDialog
@@ -44,9 +45,6 @@ fun EventInfoScreen(navController: NavController, eventArg: CalendarEvent, backP
     val uiState by viewModel.uiState.collectAsState()
     val event by viewModel.event.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
-    val canUpdate by viewModel.canUpdate.collectAsState()
-    val timeEndChangeState by viewModel.timeEndChangeState.collectAsState()
-    val timeStartChangeState by viewModel.timeStartChangeState.collectAsState()
 
     val scrollState = rememberScrollState()
 
@@ -72,10 +70,11 @@ fun EventInfoScreen(navController: NavController, eventArg: CalendarEvent, backP
 
     Scaffold(topBar = {
         EventInfoTopBar(
-            couldDeleteEvent = viewModel.couldDeleteEvent.collectAsState(),
+            currentUser.canManageEvent(event),
             backPress
         ) { eventDeleteDialog = true }
     }) {
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -88,7 +87,7 @@ fun EventInfoScreen(navController: NavController, eventArg: CalendarEvent, backP
                 event = event,
                 onApproveClick = viewModel::onApproveClick,
                 onDeclineClick = viewModel::onDeclineClick,
-                onSetDateAndTime = {},
+                onSetDateAndTime = viewModel::onSetDateAndTime,
                 onCommentarySave = viewModel::onCommentarySave,
             )
         }
@@ -111,86 +110,12 @@ fun EventDeleteDialog(onDismiss: () -> Unit, function: () -> Unit) {
 }
 
 @Composable
-fun EventInfoFAB(uiState: UiState?, onSave: () -> Unit) {
-    FloatingActionButton(onClick = onSave) {
-        Crossfade(targetState = uiState) {
-            when (it) {
-                is UiState.InProgress -> {
-                    CircularProgressIndicator()
-                }
-                else -> Icon(Icons.Default.Save, "")
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun TimeEditDialog(
-    eventTimeEnd: LocalTime,
-    onTimeChange: (LocalTime) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val context = LocalContext.current
-    TimePicker(
-        time = eventTimeEnd,
-        onTimeSet = onTimeChange,
-        context = context,
-        onDismiss = onDismiss
-    )
-}
-
-@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
-@Composable
-fun EventAppliance(applianceState: ViewState<Appliance>, applianceClicked: (Appliance) -> Unit) {
-    Crossfade(targetState = applianceState) {
-        when (it) {
-            is ViewState.Error -> TODO()
-            is ViewState.Loading -> {
-                CircularProgressIndicator()
-            }
-            is ViewState.Success -> {
-                MyCard {
-                    BookingAppliance(
-                        appliance = it.data, onApplianceClick = { applianceClicked(it.data) },
-                        shouldShowHeader = false
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun EventInfoTopBar(couldDeleteEvent: State<Boolean>, upPress: () -> Unit, onDelete: () -> Unit) {
+fun EventInfoTopBar(couldDeleteEvent: Boolean, upPress: () -> Unit, onDelete: () -> Unit) {
     ScheduleAppBar(
+        title = stringResource(id = R.string.booking),
         backClick = upPress,
-        actionDelete = couldDeleteEvent.value,
+        actionDelete = couldDeleteEvent,
         deleteClick = onDelete,
         elevation = 0.dp
     )
-}
-
-@OptIn(
-    ExperimentalCoilApi::class, androidx.compose.material.ExperimentalMaterialApi::class,
-    androidx.compose.foundation.ExperimentalFoundationApi::class,
-    androidx.compose.animation.ExperimentalAnimationApi::class
-)
-@Composable
-fun EventUser(userState: ViewState<User>, onUserClicked: (User) -> Unit) {
-    Crossfade(targetState = userState) {
-        when (it) {
-            is ViewState.Error -> TODO()
-            is ViewState.Loading -> {
-                CircularProgressIndicator()
-            }
-            is ViewState.Success -> {
-                ItemUser(
-                    user = it.data,
-                    userClicked = { onUserClicked(it.data) },
-                )
-            }
-        }
-    }
-
 }

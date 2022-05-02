@@ -143,9 +143,9 @@ fun SuperUserAppliancesList(viewModel: UserDetailsViewModel, navController: NavC
 
 @Composable
 fun UserAppliancesList(viewModel: UserDetailsViewModel, navController: NavController) {
-    val appliances by viewModel.currentUserAppliances.collectAsState()
+    /*val appliances by viewModel.currentUserAppliances.collectAsState()
     HeaderText(text = stringResource(R.string.user_appliances))
-    AppliancesLazyRow(appliances, navController)
+    AppliancesLazyRow(appliances, navController)*/
 }
 
 

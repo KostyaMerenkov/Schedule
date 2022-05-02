@@ -139,4 +139,6 @@
     <string name="change_status_failed">Не удалось изменить статус события</string>
     <string name="new_appliance_failed">Не удалось добавить новый прибор</string>
     <string name="new_appliance_success">Новый прибор успешно добавлен</string>
+    <string name="booking">Бронирование</string>
+    <string name="add_users_failed">Не удалось добавить пользователей</string>
 </resources>

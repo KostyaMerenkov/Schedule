@@ -12,6 +12,8 @@ import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.home.MainScreenViewModel
 import ru.dvfu.appliances.compose.use_cases.*
+import ru.dvfu.appliances.compose.use_cases.event.UpdateEventUserCommentUseCase
+import ru.dvfu.appliances.compose.use_cases.event.UpdateTimeUseCase
 import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.compose.utils.NotificationManagerImpl
 import ru.dvfu.appliances.compose.viewmodels.*
@@ -71,7 +73,7 @@ val application = module {
     }
 
 
-factory { DeleteApplianceUseCase(appliancesRepository = get(), eventsRepository = get()) }
+    factory { DeleteApplianceUseCase(appliancesRepository = get(), eventsRepository = get()) }
     factory { GetApplianceUseCase(offlineRepository = get(), appliancesRepository = get()) }
     factory { GetAppliancesUseCase(offlineRepository = get(), appliancesRepository = get()) }
     factory { GetUserUseCase(offlineRepository = get(), usersRepository = get()) }
@@ -80,8 +82,14 @@ factory { DeleteApplianceUseCase(appliancesRepository = get(), eventsRepository 
     factory { GetDateEventsUseCase(get()) }
     factory { GetEventsFromDateUseCase(get()) }
     factory { GetPeriodEventsUseCase(get()) }
-    factory { UpdateEventStatusUseCase(get(), get()) }
-    factory { UpdateEventUseCase(get()) }
+    factory { UpdateEventStatusUseCase(eventsRepository = get(), userDatastore = get(), notificationManager = get()) }
+    factory {
+        UpdateEventUseCase(
+            updateUserCommentUseCase = UpdateEventUserCommentUseCase(eventsRepository = get()),
+            updateEventStatusUseCase = get(),
+            updateTimeUseCase = UpdateTimeUseCase(eventsRepository = get())
+        )
+    }
 
     single { EventMapper(getUserUseCase = get(), getApplianceUseCase = get()) }
 }
@@ -132,7 +140,6 @@ val mainActivity = module {
         )
     }
 
-
     viewModel { ProfileViewModel(get(), get()) }
 
     //Appliances
@@ -155,10 +162,6 @@ val mainActivity = module {
             eventArg = it.get(),
             userDatastore = get(),
             eventsRepository = get(),
-            getApplianceUseCase = get(),
-            getUserUseCase = get(),
-            getEventNewTimeEndAvailabilityUseCase = get(),
-            updateEventStatusUseCase = get(),
             updateEventUseCase = get()
         )
     }

@@ -22,10 +22,7 @@ class BookingListViewModel(
     private val userDatastore: UserDatastore,
     private val updateEvent: UpdateEventUseCase
 ) : ViewModel() {
-//
-//    val selectedEvent = mutableStateOf<CalendarEvent?>(null)
 
-//    private val _reposBookingList = MutableStateFlow<List<Event>>(listOf())
 
     private val _currentUser = MutableStateFlow<User>(User())
     val currentUser = _currentUser.asStateFlow()
@@ -72,6 +69,8 @@ class BookingListViewModel(
         }
     }
 
+
+    // FIXME: separate user refuse and superuser status changing
     fun manageBookStatus(
         event: CalendarEvent,
         status: BookingStatus,
@@ -82,16 +81,10 @@ class BookingListViewModel(
 
             val dateAndTime = LocalDateTime.now()
 
-            updateEvent(
-                eventId = event.id,
-                event = event.copy(
-                    status = status,
-                    managedUser = currentUser.value,
-                    managerCommentary = managerCommentary,
-                    commentary = userCommentary,
-                    managedTime = dateAndTime
-                )
-            ).fold(
+            updateEvent.updateEventStatusUseCase(
+                event,
+                status, managerCommentary
+            ).single().fold(
                 onSuccess = {
                     SnackbarManager.showMessage(R.string.status_changed)
                 },
@@ -107,15 +100,10 @@ class BookingListViewModel(
         eventDateAndTime: CalendarEventDateAndTime
     ) {
         viewModelScope.launch {
-
-            updateEvent(
-                eventId = event.id,
-                event = event.copy(
-                    date = eventDateAndTime.date,
-                    timeStart = eventDateAndTime.timeStart.atDate(eventDateAndTime.date),
-                    timeEnd = eventDateAndTime.timeEnd.atDate(eventDateAndTime.date)
-                )
-            ).fold(
+            updateEvent.updateTimeUseCase(
+                event = event,
+                eventDateAndTime
+            ).single().fold(
                 onSuccess = {
                     SnackbarManager.showMessage(R.string.event_time_updated)
                 },

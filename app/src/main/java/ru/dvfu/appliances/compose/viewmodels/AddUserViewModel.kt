@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -23,8 +24,8 @@ class AddUserViewModel(
     private val usersRepository: UsersRepository,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<BaseViewState>(BaseViewState.Success(null))
-    val uiState: StateFlow<BaseViewState>
+    private val _uiState = MutableStateFlow<UiState?>(null)
+    val uiState: StateFlow<UiState?>
         get() = _uiState
 
     private val _usersState = MutableStateFlow<ViewState<List<User>>>(ViewState.Success(listOf()))
@@ -35,13 +36,10 @@ class AddUserViewModel(
         loadUsers()
     }
 
-    fun refresh() = loadUsers()
-
     private fun loadUsers() {
         _usersState.value = ViewState.Loading
         viewModelScope.launch {
             usersRepository.getUsers().collect { users ->
-                delay(1000)
                 _usersState.value = ViewState.Success(users)
             }
         }
@@ -49,7 +47,7 @@ class AddUserViewModel(
 
     fun addToAppliance(appliance: Appliance, selectedUsers: MutableList<User>) {
         if (selectedUsers.isEmpty()) SnackbarManager.showMessage(R.string.no_users_chosen)
-        else if (uiState.value !is BaseViewState.Loading) {
+        else {
             when (areSuperUsers) {
                 true -> {
                     val usersToAdd = selectedUsers
@@ -71,15 +69,15 @@ class AddUserViewModel(
     }
 
     private fun addUsersToAppliance(appliance: Appliance, selectedUsers: List<String>) {
+        _uiState.value = UiState.InProgress
         viewModelScope.launch {
-            _uiState.value = BaseViewState.Loading()
             repository.addUsersToAppliance(appliance, selectedUsers).fold(
                 onSuccess = {
-                    _uiState.value = BaseViewState.Success(it)
-
+                    _uiState.value = UiState.Success
                 },
                 onFailure = {
-                    _uiState.value = BaseViewState.Error(it)
+                    SnackbarManager.showMessage(R.string.add_users_failed)
+                    _uiState.value = UiState.Error
 
                 }
             )
@@ -88,14 +86,15 @@ class AddUserViewModel(
     }
 
     private fun addSuperUsersToAppliance(appliance: Appliance, selectedSuperUsers: List<String>) {
+        _uiState.value = UiState.InProgress
         viewModelScope.launch {
             repository.addSuperUsersToAppliance(appliance, selectedSuperUsers).fold(
                 onSuccess = {
-                    _uiState.value = BaseViewState.Success(it)
-
+                    _uiState.value = UiState.Success
                 },
                 onFailure = {
-                    _uiState.value = BaseViewState.Error(it)
+                    SnackbarManager.showMessage(R.string.add_users_failed)
+                    _uiState.value = UiState.Error
                 })
 
         }

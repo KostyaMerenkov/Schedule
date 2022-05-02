@@ -20,7 +20,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.getViewModel
-import ru.dvfu.appliances.compose.appliance.AddUser
+import ru.dvfu.appliances.compose.appliance.AddUsersToAppliance
 import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.NewAppliance
 import ru.dvfu.appliances.compose.home.*
@@ -118,11 +118,11 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(
         route = MainDestinations.ADD_USER_TO_APPLIANCE,
-    ) { AddUser(navController, it.requiredArg(Arguments.APPLIANCE)) }
+    ) { AddUsersToAppliance(navController, it.requiredArg(Arguments.APPLIANCE)) }
 
     composable(
         route = MainDestinations.ADD_SUPERUSER_TO_APPLIANCE,
-    ) { AddUser(navController, it.requiredArg(Arguments.APPLIANCE), areSuperUsers = true) }
+    ) { AddUsersToAppliance(navController, it.requiredArg(Arguments.APPLIANCE), areSuperUsers = true) }
 
     composable(
         route = MainDestinations.APPLIANCES_ROUTE,

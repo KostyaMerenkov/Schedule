@@ -48,6 +48,7 @@ import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.viewmodels.AddUserViewModel
+import ru.dvfu.appliances.compose.views.ModalLoadingDialog
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.BaseViewState
@@ -59,13 +60,13 @@ import ru.dvfu.appliances.ui.ViewState
     ExperimentalAnimationApi::class
 )
 @Composable
-fun AddUser(
+fun AddUsersToAppliance(
     navController: NavController,
     appliance: Appliance,
     areSuperUsers: Boolean = false
 ) {
     val viewModel: AddUserViewModel by viewModel(parameters = { parametersOf(areSuperUsers, appliance) })
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val usersState by viewModel.usersState.collectAsState()
     val context = LocalContext.current
 
@@ -73,29 +74,10 @@ fun AddUser(
         mutableStateOf(if (areSuperUsers) appliance.superuserIds else appliance.userIds)
     }
 
-    LaunchedEffect(uiState.value) {
-        when (uiState.value) {
-            is BaseViewState.Success<*> -> {
-                //delay(300)
-                //isSuccess = true
-                //isLoading = false
-                //delay((MainActivity.splashFadeDurationMillis * 2).toLong())
+    if (uiState is UiState.InProgress) ModalLoadingDialog()
 
-                if ((uiState.value as BaseViewState.Success<*>).data != null) {
-                    //visible = false
-                    //delay((MainActivity.splashFadeDurationMillis * 2).toLong())
-                    Toast.makeText(context, "Users added successfully", Toast.LENGTH_SHORT).show()
-                    delay(500)
-                    navController.popBackStack()
-                }
-            }
-            //is BaseViewState.Loading -> isLoading = true
-            is BaseViewState.Error -> {
-                Toast.makeText(context, "Users added unsuccessfully", Toast.LENGTH_SHORT).show()
-                //scaffoldState.snackbarHostState.showSnackbar(errorString)
-            }  //TODO: logger.log((uiState.value as BaseViewState.Error).error)
-            is BaseViewState.Loading -> {   }
-        }
+    LaunchedEffect(uiState) {
+        if (uiState is UiState.Success) navController.popBackStack()
     }
 
     val selectedUsers = remember { mutableStateListOf<User>() }
@@ -107,10 +89,10 @@ fun AddUser(
         )
     },
         floatingActionButton = {
-                FabWithLoading(showLoading = uiState.value is BaseViewState.Loading,
+            FabWithLoading(showLoading = false,
                 onClick = { viewModel.addToAppliance(appliance, selectedUsers) }) {
-                    Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
-                }
+                Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
+            }
         }) {
         AnimatedVisibility(visible = usersState is ViewState.Loading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -131,13 +113,15 @@ fun AddUser(
 }
 
 @Composable
-fun FabWithLoading(showLoading: Boolean, onClick: ()-> Unit, content: @Composable ()-> Unit) {
+fun FabWithLoading(showLoading: Boolean, onClick: () -> Unit, content: @Composable () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
         backgroundColor = MaterialTheme.colors.secondary,
     ) {
         Crossfade(targetState = showLoading) {
-            if (it) { CircularProgressIndicator() } else content.invoke()
+            if (it) {
+                CircularProgressIndicator()
+            } else content.invoke()
         }
     }
 }

@@ -17,11 +17,13 @@ import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.Event
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 import ru.dvfu.appliances.model.utils.suspendCoroutineWithTimeout
 import ru.dvfu.appliances.model.utils.toMillis
 import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -57,18 +59,24 @@ class EventsRepositoryImpl(
 
     override suspend fun setNewEventStatus(
         eventId: String,
-        newStatus: BookingStatus
+        newStatus: BookingStatus,
+        managerCommentary: String,
+        managerId: String
     ) = suspendCoroutineWithTimeout { continuation ->
-        dbCollections.getEventsCollection().document(eventId).update("status", newStatus)
-            .addOnCompleteListener(simpleOnCompleteListener(continuation))
+        dbCollections.getEventsCollection().document(eventId).update(
+            mapOf(
+                "status" to newStatus,
+                "managerCommentary" to managerCommentary,
+                "managedById" to managerId,
+                "managedTime" to LocalDateTime.now().toMillis
+            )
+        ).addOnCompleteListener(simpleOnCompleteListener(continuation))
     }
 
-    override suspend fun updateEvent(event: CalendarEvent, data: Map<String, Any?>) =
+    override suspend fun updateEvent(eventId: String, data: Map<String, Any?>) =
         suspendCoroutineWithTimeout { continuation ->
-            dbCollections.getEventsCollection().document(event.id).update(data)
-                .addOnCompleteListener(simpleOnCompleteListener(continuation) {
-                    runBlocking { notificationManager.eventUpdated(event, data) }
-                })
+            dbCollections.getEventsCollection().document(eventId).update(data)
+                .addOnCompleteListener(simpleOnCompleteListener(continuation))
         }
 
     override suspend fun getAllEvents(): Flow<List<Event>> = callbackFlow {
@@ -167,12 +175,11 @@ class EventsRepositoryImpl(
                     it.result.toObjects<Event>().forEach { event ->
                         dbCollections.getEventsCollection().document(event.id).delete()
                     }
-                }.addOnCompleteListener{
+                }.addOnCompleteListener {
                     if (it.isSuccessful) {
                         //onSuccess()
                         continuation.resume(Result.success(Unit))
-                    }
-                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
                 }
 
         }

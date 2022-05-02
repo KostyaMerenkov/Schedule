@@ -1,6 +1,7 @@
 package ru.dvfu.appliances.model.repository.entity
 
 import android.os.Parcelable
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.flow.first
 import kotlinx.parcelize.Parcelize
 import ru.dvfu.appliances.R
@@ -47,11 +48,16 @@ data class CalendarEvent(
     val status: BookingStatus = BookingStatus.NONE,
 ) : Parcelable
 
-@Parcelize
-enum class BookingStatus(override val stringRes: Int) : StringOperation, Parcelable {
-    NONE(R.string.new_books),
-    APPROVED(R.string.approved_books),
-    DECLINED(R.string.declined_books),
+enum class BookingStatus(override val stringRes: Int, val color: Color) : StringOperation {
+    NONE(R.string.new_books, Color.Blue),
+    APPROVED(R.string.approved_books, Color.Green),
+    DECLINED(R.string.declined_books, Color.Red), ;
+
+    fun getName() = when (this) {
+        BookingStatus.DECLINED -> "Отклонено"
+        BookingStatus.APPROVED -> "Подтверждено"
+        BookingStatus.NONE -> "На рассмотрении"
+    }
 }
 
 suspend fun Event.toCalendarEvent(

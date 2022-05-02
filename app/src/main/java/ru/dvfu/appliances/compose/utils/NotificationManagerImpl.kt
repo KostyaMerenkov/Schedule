@@ -47,7 +47,6 @@ class NotificationManagerImpl(
 
     override suspend fun eventUpdated(event: CalendarEvent, data: Map<String, Any?>) {
         //if (userDatastore.getCurrentUser.first().userId != event.user.userId)
-        val status = getStatus(event.status)
 
         sendMessage(
             PushNotification(
@@ -56,7 +55,7 @@ class NotificationManagerImpl(
                     title = "Изменено бронирование на прибор \"${event.appliance.name}\"",
                     body = "${formattedDate(event.date)}, ${
                         formattedTime(event.timeStart, event.timeEnd)
-                    }, ${status.uppercase()}"
+                    }, ${event.status.getName().uppercase()}"
                 ),
                 data = NotificationData(event.managerCommentary)
             )
@@ -68,7 +67,7 @@ class NotificationManagerImpl(
             PushNotification(
                 to = event.user.msgToken,
                 notification = Notification(
-                    title = " Отмененобронирование на прибор \"${event.appliance.name}\"",
+                    title = "Отменено бронирование на прибор \"${event.appliance.name}\"",
                     body = "${formattedDate(event.date)} ${
                         formattedTime(
                             event.timeStart,
@@ -116,21 +115,13 @@ class NotificationManagerImpl(
             PushNotification(
                 to = event.user.msgToken,
                 notification = Notification(
-                    title = "Ваше бронирование ${getStatus(event.status)}",
+                    title = "Ваше бронирование ${newStatus.getName().uppercase()}",
                     body = "\"${event.appliance.name}\", ${formattedDate(event.date)}, ${formattedTime(event.timeStart, event.timeEnd)
                     }",
                 ),
                 data = NotificationData(event.managerCommentary)
             )
         )
-    }
-
-    private fun getStatus(status: BookingStatus): String {
-        return when (status) {
-            BookingStatus.DECLINED -> "Отклонено"
-            BookingStatus.APPROVED -> "Подтверждено"
-            BookingStatus.NONE -> "На рассмотрении"
-        }
     }
 
     private suspend fun sendMessage(pushNotification: PushNotification) {

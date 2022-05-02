@@ -121,7 +121,10 @@ fun PendingBookingItemView(
             navController = navController,
             onApproveClick = onApproveClick,
             onDeclineClick = onDeclineClick,
-            onSetDateAndTime = onSetDateAndTime,
+            onSetDateAndTime = {_,_ ->
+                //onSetDateAndTime(booking, it)
+                // TODO:
+            },
             onCommentarySave = onApplyCommentary
         )
     }
@@ -148,7 +151,10 @@ fun MyBookingRequestItemView(
             onDeclineClick = { _, _ ->
 
             },
-            onSetDateAndTime = onSetDateAndTime,
+            onSetDateAndTime = {_,_ ->
+                //onSetDateAndTime(booking, it)
+                // TODO:
+            },
             onCommentarySave = onApplyCommentary
         )
     }
@@ -160,7 +166,7 @@ fun BookingApprovedItemView(
     booking: CalendarEvent,
     onDeclineClick: () -> Unit
 ) {
-    Card(
+    /*Card(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
@@ -216,7 +222,7 @@ fun BookingApprovedItemView(
             DeclineBookingButton(onDeclineClick = onDeclineClick)
         }
 
-    }
+    }*/
 }
 
 @Composable
@@ -224,7 +230,7 @@ fun BookingDeclinedOrPastItemView(
     modifier: Modifier = Modifier,
     booking: CalendarEvent,
 ) {
-    Card(
+    /*Card(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
@@ -284,7 +290,7 @@ fun BookingDeclinedOrPastItemView(
             Spacer(modifier = Modifier.size(32.dp))
         }
 
-    }
+    }*/
 }
 
 
@@ -322,7 +328,10 @@ fun BookingButtons(
         BookingCommentaryDialog(
             commentArg = "",
             onCancel = { approveDialogState = false },
-            onApplyCommentary = onApproveClick,
+            onApplyCommentary = {
+                approveDialogState = false
+                onApproveClick(it)
+            },
             newStatus = BookingStatus.APPROVED
         )
     }
@@ -331,7 +340,10 @@ fun BookingButtons(
         BookingCommentaryDialog(
             commentArg = "",
             onCancel = { declineDialogState = false },
-            onApplyCommentary = onDeclineClick,
+            onApplyCommentary = {
+                approveDialogState = false
+                onDeclineClick(it)
+            },
             newStatus = BookingStatus.DECLINED
         )
     }
@@ -378,12 +390,16 @@ fun BookingCommentaryDialog(
             else -> stringResource(id = R.string.apply)
         },
         positiveButtonColor = when (newStatus) {
-            BookingStatus.DECLINED -> ButtonDefaults.buttonColors(Color.Red, contentColorFor(
-                backgroundColor = Color.Red
-            ))
-            BookingStatus.APPROVED -> ButtonDefaults.buttonColors(Color.Green, contentColorFor(
-                backgroundColor = Color.Green
-            ))
+            BookingStatus.DECLINED -> ButtonDefaults.buttonColors(
+                Color.Red, contentColorFor(
+                    backgroundColor = Color.Red
+                )
+            )
+            BookingStatus.APPROVED -> ButtonDefaults.buttonColors(
+                Color.Green, contentColorFor(
+                    backgroundColor = Color.Green
+                )
+            )
             else -> ButtonDefaults.buttonColors()
         },
         onPositiveClick = {
@@ -441,7 +457,7 @@ fun EventInfo(
     navController: NavController,
     onApproveClick: (CalendarEvent, String) -> Unit,
     onDeclineClick: (CalendarEvent, String) -> Unit,
-    onSetDateAndTime: (CalendarEventDateAndTime) -> Unit,
+    onSetDateAndTime: (CalendarEvent, CalendarEventDateAndTime) -> Unit,
     onCommentarySave: (CalendarEvent, String) -> Unit,
 ) {
     Column(
@@ -450,7 +466,7 @@ fun EventInfo(
             .wrapContentHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HeaderText(
+        /*HeaderText(
             modifier = Modifier.padding(8.dp),
             text = when (event.status) {
                 BookingStatus.NONE -> {
@@ -460,22 +476,24 @@ fun EventInfo(
                 BookingStatus.APPROVED -> stringResource(id = R.string.booking_approved)
                 BookingStatus.DECLINED -> stringResource(id = R.string.book_declined)
             }
-        )
+        )*/
         BookingTime(
             editable = currentUser.canManageEvent(event),
             timeStart = event.timeStart,
             timeEnd = event.timeEnd,
-            onSetNewDateAndTime = onSetDateAndTime
+            onSetNewDateAndTime = {
+                onSetDateAndTime(event, it)
+            }
         )
         Spacer(modifier = Modifier.size(8.dp))
-        event.appliance.let {
-            BookingAppliance(it, onApplianceClick = {
-                navController.navigate(
-                    MainDestinations.APPLIANCE_ROUTE,
-                    Arguments.APPLIANCE to it
-                )
-            })
-        }
+
+        BookingAppliance(event.appliance, onApplianceClick = {
+            navController.navigate(
+                MainDestinations.APPLIANCE_ROUTE,
+                Arguments.APPLIANCE to event.appliance
+            )
+        })
+
         BookingUser(event.user, onUserClick = {
             navController.navigate(
                 MainDestinations.USER_DETAILS_ROUTE,
@@ -485,8 +503,9 @@ fun EventInfo(
 
         BookingCommentary(
             commentary = event.commentary,
+            editable = event.user.userId == currentUser.userId && event.status == BookingStatus.NONE,
             onCommentarySave = { comment ->
-                if (event.user.userId == currentUser.userId) onCommentarySave(event, comment)
+                onCommentarySave(event, comment)
             }
         )
 

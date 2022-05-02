@@ -96,18 +96,11 @@ fun NewAppliance(backPressed: () -> Unit) {
     }
 }
 
-@Composable
-fun SubscribeToProgress(vmuiState: State<BaseViewState>, upPress: () -> Unit) {
-    val errorDialog = rememberSaveable { mutableStateOf(false) }
-
-}
-
 @ExperimentalMaterialApi
 @Composable
 fun NewApplianceFab(
     onFabClicked: () -> Unit
 ) {
-
     FloatingActionButton(
         modifier = Modifier.animateContentSize(), onClick = onFabClicked,
     ) {
@@ -116,7 +109,6 @@ fun NewApplianceFab(
             contentDescription = stringResource(R.string.add_new_appliance),
         )
     }
-
 }
 
 @Composable

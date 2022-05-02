@@ -204,64 +204,57 @@ fun BookingStatus(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         when (book.status) {
-            BookingStatus.APPROVED -> {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    TextButton(
-                        onClick = {}, enabled = false
-                    ) {
-                        Text(text = stringResource(id = R.string.approved), color = Color.Green)
-                    }
+            BookingStatus.APPROVED, BookingStatus.DECLINED -> {
+                BookStatus(book) {
+                    onUserClick(it)
                 }
-                Text(text = book.managedTime?.toDateAndTime ?: "")
-                book.managedUser?.let {
-                    BookingUser(
-                        user = book.managedUser,
-                        shouldShowHeader = false
-                    ) { onUserClick(it) }
-                }
-
+                // TODO: Add current user refuse feature
             }
-            BookingStatus.DECLINED -> {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    TextButton(
-                        onClick = {}, enabled = false
-                    ) {
-                        Text(text = stringResource(id = R.string.declined), color = Color.Red)
-                    }
-                }
-                Text(text = book.managedTime?.toDateAndTime ?: "")
-                book.managedUser?.let {
-                    BookingUser(
-                        user = book.managedUser,
-                        shouldShowHeader = false
-                    ) { onUserClick(it) }
-                }
-            }
-
             BookingStatus.NONE -> {
                 if (currentUser.canManageEvent(book)) {
                     BookingButtons(
                         onDeclineClick = { onDecline(book, it) },
                         onApproveClick = { onApprove(book, it) })
                 } else {
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        TextButton(
-                            onClick = {}, enabled = false
-                        ) {
-                            Text(text = "В рассмотрении", color = Color.Red)
-                        }
+                    BookStatus(book) {
+                        onUserClick(it)
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun BookStatus(book: CalendarEvent, onUserClick: (User) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextButton(
+            onClick = {}, enabled = false
+        ) {
+            Text(
+                text = book.status.getName(),
+                color = book.status.color,
+                style = MaterialTheme.typography.h6
+            )
+        }
+        Text(text = book.managedTime?.toDateAndTime ?: "")
+    }
+
+    if (book.status != BookingStatus.NONE) {
+        book.managedUser?.let {
+            BookingUser(
+                user = book.managedUser,
+                shouldShowHeader = false
+            ) { onUserClick(it) }
+        }
+        if (book.managerCommentary.isNotEmpty()) {
+            BookingCommentary(commentary = book.managerCommentary, header = stringResource(
+                id = R.string.manager_commentary
+            ), editable = false, onCommentarySave = {})
         }
     }
 }
@@ -271,7 +264,8 @@ fun BookingCommentary(
     modifier: Modifier = Modifier,
     header: String = stringResource(id = R.string.commentary),
     commentary: String,
-    onCommentarySave: ((String) -> Unit)? = null,
+    editable: Boolean,
+    onCommentarySave: (String) -> Unit,
 ) {
 
     var commentaryDialog by remember {
@@ -281,7 +275,10 @@ fun BookingCommentary(
     if (commentaryDialog) {
         BookingCommentaryDialog(
             commentArg = commentary,
-            onApplyCommentary = onCommentarySave ?: {},
+            onApplyCommentary = {
+                onCommentarySave(it)
+                commentaryDialog = false
+            },
             onCancel = { commentaryDialog = false }
         )
     }
@@ -294,19 +291,26 @@ fun BookingCommentary(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         TextDivider(text = header)
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+        ) {
             if (commentary.isBlank()) {
-                SecondaryText(text = stringResource(R.string.no_commentary))
+                SecondaryText(
+                    text = stringResource(R.string.no_commentary),
+                    modifier = Modifier.weight(6f)
+                )
             } else {
                 PrimaryText(
                     text = commentary,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .weight(6f)
                         .padding(horizontal = 8.dp)
                 )
             }
-            if (onCommentarySave != null) {
-                IconButton(onClick = { commentaryDialog = true }) {
+            if (editable) {
+                IconButton(modifier = Modifier.weight(1f), onClick = { commentaryDialog = true }) {
                     Icon(Icons.Default.Edit, "")
                 }
             }
@@ -340,19 +344,23 @@ fun BookingTime(
                 .size(24.dp)
         )
 
-        Column(
-            modifier = Modifier.padding(4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        Row(
+            modifier = Modifier
+                .padding(2.dp)
+                .weight(6f),
+            horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.Start),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             PrimaryText(text = timeStart.toLocalDate().format(TimeConstants.FULL_DATE_FORMAT))
-            PrimaryText(
-                text = formattedTime(timeStart, timeEnd)
+            Text(
+                text = formattedTime(timeStart, timeEnd),
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.h6
             )
         }
 
         if (editable) {
-            IconButton(onClick = { dialogState = !dialogState }) {
+            IconButton(onClick = { dialogState = !dialogState }, modifier = Modifier.weight(1f)) {
                 Icon(
                     Icons.Default.Edit,
                     contentDescription = null,
@@ -456,7 +464,7 @@ fun BookingAppliance(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp),
+            .padding(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -516,7 +524,7 @@ fun BookingUser(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp),
+            .padding(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
