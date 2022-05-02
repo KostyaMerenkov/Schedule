@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -75,7 +77,7 @@ fun MonthWeekCalendar(
     Scaffold(
         floatingActionButton = {
             if (!currentUser.isAnonymousOrGuest()) {
-                FloatingActionButton(backgroundColor = Color(0xFFFF8C00),
+                FloatingActionButton(
                     onClick = {
                         navController.navigate(
                             MainDestinations.ADD_EVENT,
@@ -221,7 +223,18 @@ fun EventView(
                             modifier = childModifier
                         )
                     }
-                    Icon(event.status.icon, "status"/*, tint = event.status.color*/)
+                    if (event.status == BookingStatus.NONE) {
+                        Icon(event.status.icon, "status"/*, tint = event.status.color*/)
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colors.surface), contentAlignment = Alignment.Center
+                        ) {
+                            Icon(event.status.icon, "status", tint = event.status.color)
+                        }
+                    }
+
                 }
 
                 if (event.commentary.isNotBlank()) {

@@ -12,7 +12,7 @@ class GetDateEventsUseCase(
     suspend operator fun invoke(
         date: LocalDate
     ) = flow<List<Event>> {
-        eventsRepository.getAllEventsForOneDay(date).collect {
+        eventsRepository.getAllEventsForDay(date).collect {
             emit(it)
         }
     }

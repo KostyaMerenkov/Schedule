@@ -12,6 +12,7 @@ import ru.dvfu.appliances.compose.use_cases.GetDateEventsUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.compose.utils.EventMapper
 import ru.dvfu.appliances.model.datastore.UserDatastore
+import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.*
@@ -23,19 +24,10 @@ import java.time.*
 
 class MainScreenViewModel(
     private val usersRepository: UsersRepository,
-    private val eventsRepository: EventsRepository,
-    private val offlineRepository: OfflineRepository,
     private val userDatastore: UserDatastore,
-    private val getDateEventsUseCase: GetDateEventsUseCase,
-    private val getUserUseCase: GetUserUseCase,
-    private val getApplianceUseCase: GetApplianceUseCase,
-    private val eventMapper: EventMapper,
+    private val appliancesRepository: AppliancesRepository,
 ) : ViewModel() {
 
-    val currentDate = MutableStateFlow(LocalDate.now())
-    val selectedEvent = mutableStateOf<CalendarEvent?>(null)
-
-    private val _reposEvents = MutableStateFlow<List<Event>>(listOf())
 
     private val _currentUser = MutableStateFlow<User>(User())
     val currentUser = _currentUser.asStateFlow()
@@ -49,38 +41,9 @@ class MainScreenViewModel(
     private val appliances = MutableStateFlow<List<Appliance>>(listOf())
 
     init {
-        //getTodayEvents()
-        //getAppliances()
-        //getEvents()
+        getAppliances()
         loadCurrentUser()
         getCurrentUser()
-    }
-
-    fun getTodayEvents(date: LocalDate = LocalDate.now()) {
-        viewModelScope.launch {
-            getDateEventsUseCase(date).collectLatest { resultList ->
-                _dayEvents.value = resultList.map { currentEvent ->
-                    //EventMapper.mapToUiEvent(currentEvent)
-                    with(currentEvent) {
-                        CalendarEvent(
-                            id = id,
-                            date = this.date.toLocalDate(),
-                            timeCreated = timeCreated.toLocalDateTime(),
-                            timeStart = currentEvent.timeStart.toLocalDateTime(),
-                            timeEnd = currentEvent.timeEnd.toLocalDateTime(),
-                            commentary = currentEvent.commentary,
-                            user = getUserUseCase(userId).first().getOrDefault(User()),
-                            appliance = getApplianceUseCase(applianceId).first().getOrDefault(Appliance()),
-                            managedUser = managedById?.let { getUserUseCase(managedById).first().getOrDefault(User()) },
-                            managedTime = managedTime?.toLocalDateTime(),
-                            managerCommentary = managerCommentary,
-                            status = status,
-                        )
-                    }
-
-                }.toMutableList()
-            }
-        }
     }
 
     private fun getCurrentUser() {
@@ -108,7 +71,6 @@ class MainScreenViewModel(
                 usersRepository.setUserListener(user)
             }
         }
-
         mutableStateFlow.value = ViewState.Success(user)
     }
 
@@ -116,59 +78,12 @@ class MainScreenViewModel(
         mutableStateFlow.value = ViewState.Error(error)
     }
 
-    /*private fun getAppliances() {
+    private fun getAppliances() {
         viewModelScope.launch {
-            offlineRepository.getAppliances().collect {
+            appliancesRepository.getAppliances().collect {
                 appliances.value = it
             }
         }
-    }*/
-
-    private fun getEvents() {
-        viewModelScope.launch {
-            eventsRepository.getAllEventsFromDate(LocalDate.now())
-                .collect { result ->
-                    _reposEvents.value = result.toList()
-                    _events.value = result.map { currentEvent ->
-                        with(currentEvent) {
-                            CalendarEvent(
-                                id = id,
-                                date = this.date.toLocalDate(),
-                                timeCreated = timeCreated.toLocalDateTime(),
-                                timeStart = currentEvent.timeStart.toLocalDateTime(),
-                                timeEnd = currentEvent.timeEnd.toLocalDateTime(),
-                                commentary = currentEvent.commentary,
-                                user = getUserUseCase(userId).first().getOrDefault(User()),
-                                appliance = getApplianceUseCase(applianceId).first().getOrDefault(Appliance()),
-                                managedUser = managedById?.let { getUserUseCase(managedById).first().getOrDefault(User()) },
-                                managedTime = managedTime?.toLocalDateTime(),
-                                managerCommentary = managerCommentary,
-                                status = status,
-                            )
-                        }
-                    }.toMutableList()
-                }
-        }
     }
-
-    fun deleteEvent(eventToDelete: CalendarEvent) {
-        viewModelScope.launch {
-            eventsRepository.deleteEvent(eventToDelete).fold(
-                onSuccess = {
-                    val newEventsList =
-                        _events.value.filter { it.id != eventToDelete.id }.toMutableList()
-                    _events.value = newEventsList
-                },
-                onFailure = {
-                    SnackbarManager.showMessage(R.string.event_delete_failed)
-                }
-            )
-        }
-    }
-
-    fun getRepoEvent(calendarEvent: CalendarEvent): Event? {
-        return _reposEvents.value.find { it.id == calendarEvent.id }
-    }
-
 
 }

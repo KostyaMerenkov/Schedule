@@ -36,35 +36,33 @@ import java.time.LocalDate
 @InternalCoroutinesApi
 @Composable
 fun ScheduleApp() {
-    MaterialTheme {
-        val appStateHolder = rememberAppStateHolder()
-        val viewModel: MainScreenViewModel = getViewModel()
-        val scope = rememberCoroutineScope()
+    val appStateHolder = rememberAppStateHolder()
+    val viewModel: MainScreenViewModel = getViewModel()
+    val scope = rememberCoroutineScope()
 
-        Scaffold(
-            isFloatingActionButtonDocked = true,
-            floatingActionButtonPosition = FabPosition.Center,
-            bottomBar = {
-                if (appStateHolder.shouldShowBottomBar) {
-                    ScheduleBottomBar(
-                        tabs = appStateHolder.bottomBarTabs,
-                        currentRoute = appStateHolder.currentRoute!!,
-                        navigateToRoute = appStateHolder::navigateToBottomBarRoute
-                    )
-                }
-            },
-            scaffoldState = appStateHolder.scaffoldState
-        ) { innerPaddingModifier ->
-            NavHost(
-                navController = appStateHolder.navController,
-                startDestination = MainDestinations.HOME_ROUTE,
-                modifier = Modifier.padding(innerPaddingModifier)
-            ) {
-                NavGraph(
-                    navController = appStateHolder.navController,
-                    upPress = appStateHolder::upPress,
+    Scaffold(
+        isFloatingActionButtonDocked = true,
+        floatingActionButtonPosition = FabPosition.Center,
+        bottomBar = {
+            if (appStateHolder.shouldShowBottomBar) {
+                ScheduleBottomBar(
+                    tabs = appStateHolder.bottomBarTabs,
+                    currentRoute = appStateHolder.currentRoute!!,
+                    navigateToRoute = appStateHolder::navigateToBottomBarRoute
                 )
             }
+        },
+        scaffoldState = appStateHolder.scaffoldState
+    ) { innerPaddingModifier ->
+        NavHost(
+            navController = appStateHolder.navController,
+            startDestination = MainDestinations.HOME_ROUTE,
+            modifier = Modifier.padding(innerPaddingModifier)
+        ) {
+            NavGraph(
+                navController = appStateHolder.navController,
+                upPress = appStateHolder::upPress,
+            )
         }
     }
 }
@@ -93,8 +91,9 @@ private fun NavGraphBuilder.NavGraph(
     }
 
     composable(MainDestinations.ADD_EVENT) {
-        val selectedDate = it.arguments?.getParcelable<SelectedDate>(Arguments.DATE)?.value ?: LocalDate.now()
-        AddEvent(selectedDate = selectedDate, upPress,)
+        val selectedDate =
+            it.arguments?.getParcelable<SelectedDate>(Arguments.DATE)?.value ?: LocalDate.now()
+        AddEvent(selectedDate = selectedDate, upPress)
     }
 
     composable(MainDestinations.EVENT_INFO) {
@@ -122,7 +121,13 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(
         route = MainDestinations.ADD_SUPERUSER_TO_APPLIANCE,
-    ) { AddUsersToAppliance(navController, it.requiredArg(Arguments.APPLIANCE), areSuperUsers = true) }
+    ) {
+        AddUsersToAppliance(
+            navController,
+            it.requiredArg(Arguments.APPLIANCE),
+            areSuperUsers = true
+        )
+    }
 
     composable(
         route = MainDestinations.APPLIANCES_ROUTE,

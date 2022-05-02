@@ -3,6 +3,7 @@ package ru.dvfu.appliances.model.repository.entity
 import android.os.Parcelable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.HourglassBottom
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.ui.graphics.Color
@@ -57,7 +58,7 @@ data class CalendarEvent(
 
 enum class BookingStatus(override val stringRes: Int, val color: Color, val icon: ImageVector) : StringOperation {
     NONE(R.string.new_books, Color.Unspecified, Icons.Default.HourglassBottom),
-    APPROVED(R.string.approved_books, Green500, Icons.Default.Verified),
+    APPROVED(R.string.approved_books, Green500, Icons.Default.CheckCircle),
     DECLINED(R.string.declined_books, Red500, Icons.Default.Cancel), ;
 
     fun getName() = when (this) {

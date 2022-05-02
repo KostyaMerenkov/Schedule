@@ -10,7 +10,6 @@ interface EventsRepository {
     suspend fun addNewEvent(event: Event): Result<Unit>
 
     suspend fun getAllEvents(): Flow<List<Event>>
-    suspend fun getAllEventsFromDate(date: LocalDate): Flow<List<Event>>
     suspend fun deleteEvent(eventToDelete: CalendarEvent): Result<Unit>
     suspend fun setNewTimeEnd(eventId: String, timeEnd: Long): Result<Unit>
     suspend fun setNewEventStatus(
@@ -21,7 +20,7 @@ interface EventsRepository {
     ): Result<Unit>
     suspend fun updateEvent(eventId: String, data: Map<String, Any?>): Result<Unit>
 
-    suspend fun getAllEventsForOneDay(date: LocalDate): Flow<List<Event>>
+    suspend fun getAllEventsForDay(date: LocalDate): Flow<List<Event>>
 
     suspend fun getApplianceEventsAfterTime(applianceId: String, time: Long): Result<List<Event>>
     suspend fun getApplianceDateEvents(applianceId: String, date: LocalDate): Result<List<Event>>

@@ -26,7 +26,6 @@ import java.time.YearMonth
 
 class WeekCalendarViewModel(
     private val eventsRepository: EventsRepository,
-    private val offlineRepository: OfflineRepository,
     private val userDatastore: UserDatastore,
     private val getPeriodEventsUseCase: GetPeriodEventsUseCase,
     private val getDateEventsUseCase: GetDateEventsUseCase,

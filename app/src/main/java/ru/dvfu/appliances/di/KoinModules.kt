@@ -51,14 +51,7 @@ val repositoryModule = module {
 val application = module {
     single<UserDatastore> { UserDatastoreImpl(androidContext()) }
     viewModel { MainViewModel() }
-    single {
-        FirebaseMessagingViewModel(
-            getUserUseCase = get(),
-            usersRepository = get(),
-            userDatastore = get(),
-            appliancesRepository = get()
-        )
-    }
+    single { FirebaseMessagingViewModel(usersRepository = get()) }
 
     single { Logger() }
     single { SnackbarManager }
@@ -72,14 +65,12 @@ val application = module {
         )
     }
 
-
     factory { DeleteApplianceUseCase(appliancesRepository = get(), eventsRepository = get()) }
     factory { GetApplianceUseCase(offlineRepository = get(), appliancesRepository = get()) }
     factory { GetAppliancesUseCase(offlineRepository = get(), appliancesRepository = get()) }
     factory { GetUserUseCase(offlineRepository = get(), usersRepository = get()) }
     factory { GetEventTimeAvailabilityUseCase(get()) }
     factory { GetDateEventsUseCase(get()) }
-    factory { GetEventsFromDateUseCase(get()) }
     factory { GetPeriodEventsUseCase(get()) }
     factory {
         UpdateEventStatusUseCase(
@@ -119,19 +110,13 @@ val mainActivity = module {
     viewModel {
         MainScreenViewModel(
             usersRepository = get(),
-            eventsRepository = get(),
-            offlineRepository = get(),
             userDatastore = get(),
-            getDateEventsUseCase = get(),
-            getUserUseCase = get(),
-            getApplianceUseCase = get(),
-            eventMapper = get()
+            appliancesRepository = get()
         )
     }
     viewModel {
         WeekCalendarViewModel(
             eventsRepository = get(),
-            offlineRepository = get(),
             userDatastore = get(),
             getDateEventsUseCase = get(),
             getPeriodEventsUseCase = get(),

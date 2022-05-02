@@ -18,10 +18,7 @@ import ru.dvfu.appliances.ui.ViewState
 import java.time.*
 
 class FirebaseMessagingViewModel(
-    private val getUserUseCase: GetUserUseCase,
     private val usersRepository: UsersRepository,
-    private val userDatastore: UserDatastore,
-    private val appliancesRepository: AppliancesRepository,
 ) {
 
     private val job = SupervisorJob()

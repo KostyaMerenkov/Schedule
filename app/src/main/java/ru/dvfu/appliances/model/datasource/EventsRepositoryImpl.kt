@@ -87,7 +87,7 @@ class EventsRepositoryImpl(
         awaitClose { subscription.remove() }
     }
 
-    override suspend fun getAllEventsForOneDay(date: LocalDate): Flow<List<Event>> = callbackFlow {
+    override suspend fun getAllEventsForDay(date: LocalDate): Flow<List<Event>> = callbackFlow {
         val subscription = dbCollections.getEventsCollection()
             .whereEqualTo("date", date.toMillis)
             .addSnapshotListener { value, _ ->
@@ -95,19 +95,6 @@ class EventsRepositoryImpl(
             }
 
         awaitClose { subscription.remove() }
-    }
-
-    override suspend fun getAllEventsFromDate(date: LocalDate): Flow<List<Event>> = channelFlow {
-        val listeners = mutableListOf<ListenerRegistration>()
-        listeners.add(
-            dbCollections.getEventsCollection()
-                //.orderBy("timeStart")
-                .whereGreaterThan("date", date.toMillis)
-                .addSnapshotListener(getEventsSuccessListener(this))
-        )
-        awaitClose {
-            listeners.forEach { it.remove() }
-        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -172,17 +159,13 @@ class EventsRepositoryImpl(
         suspendCoroutineWithTimeout(Duration.ofMinutes(1).toMillis()) { continuation ->
             dbCollections.getEventsCollection()
                 .whereEqualTo("applianceId", applianceId).get().continueWith {
-
                     it.result.toObjects<Event>().forEach { event ->
                         dbCollections.getEventsCollection().document(event.id).delete()
                     }
                 }.addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        //onSuccess()
-                        continuation.resume(Result.success(Unit))
-                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                    if (it.isSuccessful) { continuation.resume(Result.success(Unit)) }
+                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
                 }
-
         }
 
 }

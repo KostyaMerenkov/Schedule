@@ -37,7 +37,6 @@ fun HomeScreen(
     navController: NavController,
     backPress: () -> Unit,
 ) {
-    //val viewModell: MainScreenViewModel = getViewModel()
     val viewModel: WeekCalendarViewModel = getViewModel()
     val calendarType by viewModel.calendarType.collectAsState()
     val context = LocalContext.current
@@ -125,12 +124,12 @@ fun EventCalendar(
     Scaffold(
         topBar = {
             HomeTopBar(uiState = uiState, onBookingListOpen = {
-                navController.navigate(MainDestinations.BOOKING_LIST)
+                navController.navigate(MainDestinations.BOOKING_LIST,Arguments.DATE to SelectedDate())
             }, onCalendarSelected = viewModel::setCalendarType)
         },
         floatingActionButton = {
             if (!currentUser.isAnonymousOrGuest()) {
-                FloatingActionButton(backgroundColor = Color(0xFFFF8C00),
+                FloatingActionButton(
                     onClick = { navController.navigate(MainDestinations.ADD_EVENT) })
                 { Icon(Icons.Default.Add, "") }
             }
