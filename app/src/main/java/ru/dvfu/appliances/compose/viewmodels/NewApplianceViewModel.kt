@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.R
+import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.ui.theme.pickerColors
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
@@ -20,13 +23,13 @@ import ru.dvfu.appliances.ui.Progress
 class NewApplianceViewModel(
     private val repository: AppliancesRepository,
     private val userDatastore: UserDatastore
-    ) : ViewModel() {
+) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<BaseViewState>(BaseViewState.Success(null))
-    val uiState: StateFlow<BaseViewState>
+    private val _uiState = MutableStateFlow<UiState?>(null)
+    val uiState: StateFlow<UiState?>
         get() = _uiState
 
-    val _currentUser = MutableStateFlow(User())
+    private val _currentUser = MutableStateFlow(User())
 
     init {
         getCurrentUser()
@@ -47,17 +50,19 @@ class NewApplianceViewModel(
     val selectedColor = mutableStateOf(pickerColors[0])
 
     private fun saveNewAppliance(appliance: Appliance) {
-        _uiState.value = BaseViewState.Loading()
+        _uiState.value = UiState.InProgress
 
         viewModelScope.launch {
             repository.addAppliance(appliance).fold(
                 onSuccess = {
-                    _uiState.value = BaseViewState.Success(it)
-
+                    SnackbarManager.showMessage(R.string.new_appliance_success)
+                    _uiState.value = UiState.Success
                 },
                 onFailure = {
-                    _uiState.value = BaseViewState.Error(it)
-                })
+                    SnackbarManager.showMessage(R.string.new_appliance_failed)
+                    _uiState.value = UiState.Error
+                }
+            )
         }
     }
 

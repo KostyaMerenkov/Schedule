@@ -155,16 +155,17 @@ fun DefaultButtonFilled(
     icon: Painter? = null,
     text: String,
     enabled: Boolean = true,
+    buttonColors: ButtonColors = ButtonDefaults.buttonColors(
+        backgroundColor = MaterialTheme.colors.primaryVariant,
+        contentColor = MaterialTheme.colors.onPrimary
+    ),
     onClick: () -> Unit
 ) {
     TextButton(
         modifier = modifier,
         enabled = enabled,
         border = BorderStroke(width = 1.dp, color = MaterialTheme.colors.primaryVariant),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.primaryVariant,
-            contentColor = MaterialTheme.colors.onPrimary
-        ),
+        colors = buttonColors,
         onClick = onClick
     ) {
         icon?.let {

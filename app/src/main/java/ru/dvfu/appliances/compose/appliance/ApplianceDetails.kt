@@ -23,11 +23,13 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ScheduleAppBar
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.home.EventDeleteDialog
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.compose.views.DefaultDialog
+import ru.dvfu.appliances.compose.views.ModalLoadingDialog
 
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
@@ -47,11 +49,19 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
     var applianceDeleteDialog by remember { mutableStateOf(false) }
     if (applianceDeleteDialog) {
         ApplianceDeleteDialog(onDismiss = { applianceDeleteDialog = false }) {
-            viewModel.deleteAppliance(); upPress()
+            viewModel.deleteAppliance()
         }
     }
 
-    val tabs = listOf(TabItem.Users, TabItem.SuperUsers)
+    val uiState = viewModel.uiState.collectAsState()
+
+    if (uiState.value is UiState.InProgress) ModalLoadingDialog()
+
+    LaunchedEffect(uiState.value) {
+        if (uiState.value is UiState.Success) upPress()
+    }
+
+    val tabs = listOf(/*TabItem.Users, */TabItem.SuperUsers)
     val pagerState = rememberPagerState()
 
     Scaffold(topBar = {
@@ -59,13 +69,19 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
             applianceDeleteDialog = true
         })
     },
-        modifier = Modifier.fillMaxSize().background(Color(0XFFE3DAC9))) {
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0XFFE3DAC9))) {
         Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.LightGray)) {
             Surface(
-                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
                 //color = Color.White
             ) {
                 Row(
@@ -73,7 +89,10 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
                         Alignment.CenterHorizontally
                     ),
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().padding(16.dp).wrapContentHeight()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .wrapContentHeight()
                 ) {
                     if (updatedAppliance.description.isNotEmpty()) {
                         IconButton(onClick = { infoDialogState = true }) {
@@ -144,7 +163,9 @@ fun ApplianceTopBar(
 fun ApplianceInfoDialog(appliance: Appliance, onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            modifier = Modifier.padding(horizontal = 24.dp).wrapContentHeight(),
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .wrapContentHeight(),
             shape = RoundedCornerShape(25.dp)
         ) {
             Column(

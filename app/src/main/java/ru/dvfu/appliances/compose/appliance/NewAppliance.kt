@@ -27,26 +27,31 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.SubtitleWithIcon
 import ru.dvfu.appliances.compose.components.ColorPicker
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.ui.theme.pickerColors
 import ru.dvfu.appliances.compose.viewmodels.NewApplianceViewModel
 import ru.dvfu.appliances.compose.views.ModalLoadingDialog
 import ru.dvfu.appliances.ui.BaseViewState
+import ru.dvfu.appliances.ui.ViewState
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalMaterialApi
 @Composable
 fun NewAppliance(backPressed: () -> Unit) {
     val viewModel: NewApplianceViewModel = get()
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val (selectedColor, onColorSelected) = remember { mutableStateOf(pickerColors[0]) }
-
-
     val context = LocalContext.current
-    SubscribeToProgress(uiState, backPressed)
+
+    LaunchedEffect(key1 = uiState) {
+        if (uiState is UiState.Success) { backPressed() }
+    }
+
+    if (uiState is UiState.InProgress) { ModalLoadingDialog() }
 
     Scaffold(
         topBar = { ScheduleAppBar(title = "Новое устройство", backClick = backPressed) },
@@ -95,28 +100,6 @@ fun NewAppliance(backPressed: () -> Unit) {
 fun SubscribeToProgress(vmuiState: State<BaseViewState>, upPress: () -> Unit) {
     val errorDialog = rememberSaveable { mutableStateOf(false) }
 
-    when (vmuiState.value) {
-        is BaseViewState.Success<*> -> {
-            if ((vmuiState.value as BaseViewState.Success<*>).data != null) {
-                Toast.makeText(
-                    LocalContext.current,
-                    "Оборудование добавлено!",
-                    Toast.LENGTH_SHORT
-                ).show()
-                upPress()
-            }
-        }
-        is BaseViewState.Loading -> { ModalLoadingDialog() }
-        is BaseViewState.Error -> {
-            ErrorDialog(errorDialog)
-            errorDialog.value = true
-            Toast.makeText(
-                LocalContext.current,
-                "Error: ${(vmuiState.value as BaseViewState.Error).error.message}",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
 }
 
 @ExperimentalMaterialApi

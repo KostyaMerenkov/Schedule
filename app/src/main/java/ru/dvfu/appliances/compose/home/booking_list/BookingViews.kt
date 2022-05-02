@@ -105,18 +105,18 @@ fun BookingTabsContent(
 
 @Composable
 fun PendingBookingItemView(
-    modifier: Modifier = Modifier,
+    currentUser: User,
     booking: CalendarEvent,
     navController: NavController,
     onApproveClick: (CalendarEvent, String) -> Unit,
     onDeclineClick: (CalendarEvent, String) -> Unit,
     onSetDateAndTime: (CalendarEventDateAndTime) -> Unit,
     onApplyCommentary: (CalendarEvent, String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     BookingItem {
         EventInfo(
-            // TODO: currentUser handle
-            currentUser = User(),
+            currentUser = currentUser,
             event = booking,
             navController = navController,
             onApproveClick = onApproveClick,
@@ -322,15 +322,17 @@ fun BookingButtons(
         BookingCommentaryDialog(
             commentArg = "",
             onCancel = { approveDialogState = false },
-            onApplyCommentary = onApproveClick
+            onApplyCommentary = onApproveClick,
+            newStatus = BookingStatus.APPROVED
         )
     }
 
     if (declineDialogState) {
         BookingCommentaryDialog(
             commentArg = "",
-            onCancel = { approveDialogState = false },
-            onApplyCommentary = onDeclineClick
+            onCancel = { declineDialogState = false },
+            onApplyCommentary = onDeclineClick,
+            newStatus = BookingStatus.DECLINED
         )
     }
 
@@ -358,6 +360,7 @@ fun BookingButtons(
 @Composable
 fun BookingCommentaryDialog(
     commentArg: String,
+    newStatus: BookingStatus? = null,
     onCancel: () -> Unit,
     onApplyCommentary: (String) -> Unit
 ) {
@@ -369,7 +372,20 @@ fun BookingCommentaryDialog(
     DefaultDialog(
         primaryText = stringResource(R.string.leave_a_commentary),
         secondaryText = stringResource(R.string.not_necessary),
-        positiveButtonText = stringResource(id = R.string.apply),
+        positiveButtonText = when (newStatus) {
+            BookingStatus.DECLINED -> stringResource(id = R.string.decline)
+            BookingStatus.APPROVED -> stringResource(id = R.string.approve)
+            else -> stringResource(id = R.string.apply)
+        },
+        positiveButtonColor = when (newStatus) {
+            BookingStatus.DECLINED -> ButtonDefaults.buttonColors(Color.Red, contentColorFor(
+                backgroundColor = Color.Red
+            ))
+            BookingStatus.APPROVED -> ButtonDefaults.buttonColors(Color.Green, contentColorFor(
+                backgroundColor = Color.Green
+            ))
+            else -> ButtonDefaults.buttonColors()
+        },
         onPositiveClick = {
             if (!isError.value) {
                 onApplyCommentary(commentary)

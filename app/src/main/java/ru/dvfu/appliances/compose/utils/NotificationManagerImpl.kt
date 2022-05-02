@@ -7,12 +7,12 @@ import kotlinx.coroutines.flow.single
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.model.datastore.UserDatastore
-import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.Event
+import ru.dvfu.appliances.model.repository.entity.notifications.Notification
 import ru.dvfu.appliances.model.repository.entity.notifications.NotificationData
 import ru.dvfu.appliances.model.repository.entity.notifications.PushNotification
 import ru.dvfu.appliances.model.repository.entity.notifications.RetrofitInstance
@@ -24,7 +24,7 @@ class NotificationManagerImpl(
     private val usersRepository: UsersRepository,
     private val getUserUseCase: GetUserUseCase,
     private val getApplianceUseCase: GetApplianceUseCase,
-): NotificationManager {
+) : NotificationManager {
 
     override suspend fun applianceDeleted(appliance: Appliance) {
         //if (userDatastore.getCurrentUser.first().userId != event.user.userId)
@@ -36,7 +36,7 @@ class NotificationManagerImpl(
             sendMessage(
                 PushNotification(
                     to = it,
-                    notification = NotificationData(
+                    notification = Notification(
                         title = "Прибор \"${appliance.name}\" был удален",
                         body = ""
                     )
@@ -52,12 +52,13 @@ class NotificationManagerImpl(
         sendMessage(
             PushNotification(
                 to = event.user.msgToken,
-                notification = NotificationData(
-                    title = "Ваше бронирование на прибор \"${event.appliance.name}\" было изменено",
-                    body = "${formattedDate(event.date)}, ${formattedTime(event.timeStart, event.timeEnd)
+                notification = Notification(
+                    title = "Изменено бронирование на прибор \"${event.appliance.name}\"",
+                    body = "${formattedDate(event.date)}, ${
+                        formattedTime(event.timeStart, event.timeEnd)
                     }, ${status.uppercase()}"
-                    // TODO: Добавить комментарий суперпользователя при наличии
-                )
+                ),
+                data = NotificationData(event.managerCommentary)
             )
         )
     }
@@ -66,8 +67,8 @@ class NotificationManagerImpl(
         sendMessage(
             PushNotification(
                 to = event.user.msgToken,
-                notification = NotificationData(
-                    title = "Отменено бронирование на прибор \"${event.appliance.name}\"",
+                notification = Notification(
+                    title = " Отмененобронирование на прибор \"${event.appliance.name}\"",
                     body = "${formattedDate(event.date)} ${
                         formattedTime(
                             event.timeStart,
@@ -88,7 +89,7 @@ class NotificationManagerImpl(
                 sendMessage(
                     PushNotification(
                         to = it,
-                        notification = NotificationData(
+                        notification = Notification(
                             title = "Новое бронирование на прибор ${appliance.name}",
                             body = ""
                         )
@@ -111,21 +112,21 @@ class NotificationManagerImpl(
     }
 
     override suspend fun newEventStatus(event: CalendarEvent, newStatus: BookingStatus) {
-
         sendMessage(
             PushNotification(
                 to = event.user.msgToken,
-                notification = NotificationData(
-                    title = "Ваше бронирование на прибор \"${event.appliance.name}\" ${getStatus(event.status)}",
-                    body = "${formattedDate(event.date)}, ${formattedTime(event.timeStart, event.timeEnd)}"
-                    // TODO: Добавить комментарий суперпользователя при наличии
-                )
+                notification = Notification(
+                    title = "Ваше бронирование ${getStatus(event.status)}",
+                    body = "\"${event.appliance.name}\", ${formattedDate(event.date)}, ${formattedTime(event.timeStart, event.timeEnd)
+                    }",
+                ),
+                data = NotificationData(event.managerCommentary)
             )
         )
     }
 
     private fun getStatus(status: BookingStatus): String {
-       return when (status) {
+        return when (status) {
             BookingStatus.DECLINED -> "Отклонено"
             BookingStatus.APPROVED -> "Подтверждено"
             BookingStatus.NONE -> "На рассмотрении"

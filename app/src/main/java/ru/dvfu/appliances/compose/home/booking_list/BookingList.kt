@@ -415,7 +415,7 @@ fun BookingTime(
 
         ) {
             Column(
-                modifier = Modifier.padding(vertical = 32.dp),
+                modifier = Modifier.padding(bottom = 32.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
 

@@ -3,11 +3,13 @@ package ru.dvfu.appliances.compose.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.DeleteApplianceUseCase
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
@@ -17,7 +19,6 @@ import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 
 class ApplianceDetailsViewModel(
-    private val usersRepository: UsersRepository,
     private val repository: AppliancesRepository,
     private val deleteApplianceUseCase: DeleteApplianceUseCase,
     private val userDatastore: UserDatastore,
@@ -26,6 +27,9 @@ class ApplianceDetailsViewModel(
     companion object {
         val defAppliance = Appliance()
     }
+
+    private val _uiState = MutableStateFlow<UiState?>(null)
+    val uiState = _uiState.asStateFlow()
 
     var appliance: MutableStateFlow<Appliance> = MutableStateFlow(defAppliance)
 
@@ -63,19 +67,22 @@ class ApplianceDetailsViewModel(
 
     fun deleteAppliance() {
         viewModelScope.launch {
+            _uiState.value = UiState.InProgress
             appliance.value.let {
                 deleteApplianceUseCase(it.id).single().fold(
                     onSuccess = {
                         SnackbarManager.showMessage(R.string.appliance_deleted)
+                        _uiState.value = UiState.Success
                     }, onFailure = {
                         SnackbarManager.showMessage(R.string.appliance_delete_failed)
+                        _uiState.value = UiState.Error
                     }
                 )
             }
         }
     }
 
-    fun loadAllUsers(ids: List<String>) {
+    private fun loadAllUsers(ids: List<String>) {
         viewModelScope.launch {
             repository.getApplianceUsers(ids).collect { users ->
                 currentUsers.value = users
@@ -83,7 +90,7 @@ class ApplianceDetailsViewModel(
         }
     }
 
-    fun loadAllSuperUsers(ids: List<String>) {
+    private fun loadAllSuperUsers(ids: List<String>) {
         viewModelScope.launch {
             repository.getApplianceUsers(ids).collect { users ->
                 currentSuperUsers.value = users

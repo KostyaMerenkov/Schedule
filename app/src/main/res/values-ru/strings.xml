@@ -118,4 +118,6 @@
     <string name="appliance_deleted">Прибор удален</string>
     <string name="appliance_delete_failed">Не удалось удалить прибор</string>
     <string name="change_status_failed">Не удалось изменить статус события</string>
+    <string name="new_appliance_failed">Не удалось добавить новый прибор</string>
+    <string name="new_appliance_success">Новый прибор успешно добавлен</string>
 </resources>

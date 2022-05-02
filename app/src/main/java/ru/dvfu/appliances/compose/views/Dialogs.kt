@@ -2,10 +2,11 @@ package ru.dvfu.appliances.compose.views
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.ButtonColors
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -29,6 +30,7 @@ fun DefaultDialog(
     negativeButtonText: String = "",
     onNegativeClick: () -> Unit = { },
     positiveButtonText: String = "",
+    positiveButtonColor: ButtonColors = ButtonDefaults.buttonColors(),
     onPositiveClick: () -> Unit = { },
     onDismiss: () -> Unit = { },
     content: @Composable() (() -> Unit)? = null
@@ -111,6 +113,7 @@ fun DefaultDialog(
                             absoluteRight.linkTo(parent.absoluteRight)
                         },
                         text = positiveButtonText,
+                        buttonColors = positiveButtonColor,
                         onClick = onPositiveClick,
                     )
                 } else {

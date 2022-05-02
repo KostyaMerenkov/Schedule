@@ -136,9 +136,8 @@ val mainActivity = module {
     viewModel { ProfileViewModel(get(), get()) }
 
     //Appliances
-    viewModel { ApplianceDetailsViewModel(get(), get(), get(), get()) }
+    viewModel { ApplianceDetailsViewModel(get(), get(), get()) }
     viewModel { NewApplianceViewModel(get(), get()) }
-    //viewModel { ApplianceUsersViewModel(get()) }
     viewModel { AppliancesViewModel(get(), get(), get()) }
     viewModel { AddUserViewModel(it.get(), it.get(), get(), get()) }
     viewModel {
@@ -151,14 +150,6 @@ val mainActivity = module {
             notificationManager = get()
         )
     }
-    /*viewModel {
-        AddBookingViewModel(
-            selectedDate = it[0],
-            bookingRepository = get(),
-            getAppliancesUseCase = get(),
-            userDatastore = get()
-        )
-    }*/
     viewModel {
         EventInfoViewModel(
             eventArg = it.get(),
