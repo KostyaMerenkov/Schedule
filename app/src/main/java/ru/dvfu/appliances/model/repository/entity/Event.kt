@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.coroutines.flow.first
 import kotlinx.parcelize.Parcelize
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.ui.theme.Green500
+import ru.dvfu.appliances.compose.ui.theme.Red500
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.model.utils.StringOperation
@@ -54,9 +56,9 @@ data class CalendarEvent(
 ) : Parcelable
 
 enum class BookingStatus(override val stringRes: Int, val color: Color, val icon: ImageVector) : StringOperation {
-    NONE(R.string.new_books, Color.Blue, Icons.Default.HourglassBottom),
-    APPROVED(R.string.approved_books, Color.Green, Icons.Default.Verified),
-    DECLINED(R.string.declined_books, Color.Red, Icons.Default.Cancel), ;
+    NONE(R.string.new_books, Color.Unspecified, Icons.Default.HourglassBottom),
+    APPROVED(R.string.approved_books, Green500, Icons.Default.Verified),
+    DECLINED(R.string.declined_books, Red500, Icons.Default.Cancel), ;
 
     fun getName() = when (this) {
         DECLINED -> "Отклонено"

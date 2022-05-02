@@ -240,6 +240,9 @@ fun BookStatus(book: CalendarEvent, onUserClick: (User) -> Unit) {
                 color = book.status.color,
                 style = MaterialTheme.typography.h6
             )
+            Spacer(modifier = Modifier.size(8.dp))
+            Icon(book.status.icon, "status", tint = book.status.color)
+
         }
         Text(text = book.managedTime?.toDateAndTime ?: "")
     }

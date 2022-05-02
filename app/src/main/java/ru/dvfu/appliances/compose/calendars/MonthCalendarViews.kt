@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastAny
 import io.github.boguszpawlowski.composecalendar.day.DayState
 import io.github.boguszpawlowski.composecalendar.header.MonthState
 import io.github.boguszpawlowski.composecalendar.selection.SelectionState
@@ -40,7 +41,7 @@ fun <T : SelectionState> ScheduleCalendarDate(
     onClick: (LocalDate) -> Unit = {},
     modifier: Modifier = Modifier,
     todayDate: LocalDate = LocalDate.now(),
-    selectionColor: Color = MaterialTheme.colors.secondaryVariant,
+    selectionColor: Color = MaterialTheme.colors.primaryVariant,
 ) {
     val date = state.date
     val selectionState = state.selectionState
@@ -55,7 +56,8 @@ fun <T : SelectionState> ScheduleCalendarDate(
         border =
         if (currentDayEvents.isNotEmpty()) BorderStroke(
             2.dp,
-            MaterialTheme.colors.primary
+            if (currentDayEvents.any { it.user.userId == currentUser.userId && it.status == BookingStatus.APPROVED })
+                MaterialTheme.colors.secondary else MaterialTheme.colors.primary
         ) else null,
         backgroundColor = if (isSelected) selectionColor else MaterialTheme.colors.surface
     ) {
@@ -72,9 +74,10 @@ fun <T : SelectionState> ScheduleCalendarDate(
                 fontSize = if (date == todayDate) 16.sp else 14.sp,
             )
         }
+
         if (currentDayEvents.any { it.status == BookingStatus.NONE }) {
-            val color = if (currentDayEvents.any { it.user.userId == currentUser.userId })
-            { MaterialTheme.colors.primary } else Color.LightGray
+
+            val color = Color.LightGray
             Box(
                 contentAlignment = Alignment.BottomCenter,
                 modifier = Modifier.padding(bottom = 6.dp)
