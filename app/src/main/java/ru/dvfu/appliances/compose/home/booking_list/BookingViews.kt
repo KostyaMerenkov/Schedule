@@ -464,6 +464,7 @@ fun EventInfo(
             .wrapContentHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        TextDivider(text = "Дата и время")
         /*HeaderText(
             modifier = Modifier.padding(8.dp),
             text = when (event.status) {
@@ -507,7 +508,7 @@ fun EventInfo(
             }
         )
 
-        Spacer(modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.size(8.dp))
 
         BookingStatus(
             book = event,
@@ -521,6 +522,7 @@ fun EventInfo(
             onApprove = onApproveClick,
             onDecline = onDeclineClick,
         )
+        Spacer(modifier = Modifier.size(8.dp))
     }
 
 }

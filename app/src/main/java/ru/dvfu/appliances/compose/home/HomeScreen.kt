@@ -39,6 +39,7 @@ fun HomeScreen(
     backPress: () -> Unit,
 ) {
     val viewModel: WeekCalendarViewModel = getViewModel()
+    val currentUser by viewModel.currentUser.collectAsState()
     val calendarType by viewModel.calendarType.collectAsState()
     val context = LocalContext.current
 
@@ -62,18 +63,23 @@ fun HomeScreen(
                             MainDestinations.EVENT_INFO,
                             Arguments.EVENT to it
                         )
-                    }) {
-                    viewModel.selectedEvent.value = it
-                    eventOptionDialogOpened = true
-                }
+                    },
+                    onEventLongClick = {
+                        if (currentUser.isAdmin() || currentUser.canManageEvent(it)) {
+                            viewModel.selectedEvent.value = it
+                            eventOptionDialogOpened = true
+                        }
+                    })
             }
             CalendarType.THREE_DAYS -> {
                 EventCalendar(
                     viewModel = viewModel,
                     navController = navController,
                     onEventLongClick = {
-                        viewModel.selectedEvent.value = it
-                        eventOptionDialogOpened = true
+                        if (currentUser.isAdmin() || currentUser.canManageEvent(it)) {
+                            viewModel.selectedEvent.value = it
+                            eventOptionDialogOpened = true
+                        }
                     }
                 )
             }
