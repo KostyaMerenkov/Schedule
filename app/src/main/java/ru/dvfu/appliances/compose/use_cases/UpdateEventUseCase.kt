@@ -10,5 +10,4 @@ class UpdateEventUseCase(
     val updateUserCommentUseCase: UpdateEventUserCommentUseCase,
     val updateEventStatusUseCase: UpdateEventStatusUseCase,
     val updateTimeUseCase: UpdateTimeUseCase,
-
 )

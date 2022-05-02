@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.flow
 import ru.dvfu.appliances.compose.utils.AvailabilityState
 import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
 import ru.dvfu.appliances.model.repository.EventsRepository
+import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.utils.isNetworkAvailable
@@ -24,7 +25,7 @@ class GetEventTimeAvailabilityUseCase(
         if (isNetworkAvailable(Firebase.app.applicationContext)) {
             eventsRepository.getApplianceDateEvents(applianceId, eventDateAndTime.date).fold(
                 onSuccess = { result ->
-                    val events = result.filter { it.id != event?.id }
+                    val events = result.filter { it.id != event?.id }.filter { it.status != BookingStatus.DECLINED }
                     if (events.isEmpty()) emit(AvailabilityState.Available)
                     else {
                         if (isTimeFree(list = events, eventDateAndTime))

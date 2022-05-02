@@ -125,6 +125,7 @@ class WeekCalendarViewModel(
     }
 
     fun getWeekEvents() {
+        _uiState.value = UiState.InProgress
         viewModelScope.launch {
             _threeDaysEvents.value = eventMapper.mapEvents(
                 getPeriodEventsUseCase.invoke(
@@ -132,6 +133,7 @@ class WeekCalendarViewModel(
                     dateEnd = LocalDate.now().plusDays(7)
                 ).first()
             )
+            _uiState.value = UiState.Success
         }
     }
 

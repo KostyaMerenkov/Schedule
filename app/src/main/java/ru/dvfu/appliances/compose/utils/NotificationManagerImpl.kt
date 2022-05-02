@@ -17,6 +17,7 @@ import ru.dvfu.appliances.model.repository.entity.notifications.NotificationData
 import ru.dvfu.appliances.model.repository.entity.notifications.PushNotification
 import ru.dvfu.appliances.model.repository.entity.notifications.RetrofitInstance
 import ru.dvfu.appliances.model.utils.formattedDate
+import ru.dvfu.appliances.model.utils.formattedDateTime
 import ru.dvfu.appliances.model.utils.formattedTime
 
 class NotificationManagerImpl(
@@ -53,11 +54,10 @@ class NotificationManagerImpl(
                 to = event.user.msgToken,
                 notification = Notification(
                     title = "Изменено бронирование на прибор \"${event.appliance.name}\"",
-                    body = "${formattedDate(event.date)}, ${
-                        formattedTime(event.timeStart, event.timeEnd)
-                    }, ${event.status.getName().uppercase()}"
+                    body = formattedDateTime(event.date, event.timeStart, event.timeEnd)
+                            + ", ${event.status.getName().uppercase()}"
                 ),
-                data = NotificationData(event.managerCommentary)
+                //data = NotificationData(event.managerCommentary)
             )
         )
     }
@@ -68,12 +68,7 @@ class NotificationManagerImpl(
                 to = event.user.msgToken,
                 notification = Notification(
                     title = "Отменено бронирование на прибор \"${event.appliance.name}\"",
-                    body = "${formattedDate(event.date)} ${
-                        formattedTime(
-                            event.timeStart,
-                            event.timeEnd
-                        )
-                    }"
+                    body = formattedDateTime(event.date, event.timeStart, event.timeEnd)
                 )
             )
         )
@@ -116,10 +111,9 @@ class NotificationManagerImpl(
                 to = event.user.msgToken,
                 notification = Notification(
                     title = "Ваше бронирование ${newStatus.getName().uppercase()}",
-                    body = "\"${event.appliance.name}\", ${formattedDate(event.date)}, ${formattedTime(event.timeStart, event.timeEnd)
-                    }",
+                    body = "\"${event.appliance.name}\", " + formattedDateTime(event.date, event.timeStart, event.timeEnd),
                 ),
-                data = NotificationData(event.managerCommentary)
+                //data = NotificationData(event.managerCommentary)
             )
         )
     }

@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
@@ -34,6 +35,7 @@ import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.utils.Constants
+import ru.dvfu.appliances.model.utils.formattedTime
 import ru.dvfu.appliances.model.utils.loadingModifier
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -69,7 +71,6 @@ fun MonthWeekCalendar(
     LaunchedEffect(calendarState.monthState.currentMonth) {
         viewModel.onMonthChanged(calendarState.monthState.currentMonth)
     }
-
 
     Scaffold(
         floatingActionButton = {
@@ -107,6 +108,7 @@ fun MonthWeekCalendar(
                             currentUser = currentUser,
                             state = dayState,
                             currentDayEvents = (dayEvents[dayState.date] as? EventsState.Loaded)?.events.orEmpty()
+                                .filter { it.status != BookingStatus.DECLINED }
                         )
                     },
                     monthHeader = { SchedulerMonthHeader(it) }
@@ -170,13 +172,12 @@ fun EventView(
     event: CalendarEvent
 ) {
     val contentAlpha = when (event.status) {
-        BookingStatus.NONE -> {
+        BookingStatus.DECLINED -> {
             ContentAlpha.disabled
         }
         else -> ContentAlpha.high
     }
     CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
-
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -184,12 +185,10 @@ fun EventView(
                 .clipToBounds()
                 .background(
                     when (event.status) {
-                        BookingStatus.NONE -> {
-                            event.appliance.color?.let { Color(it).copy(alpha = 0.5f) }
-                                ?: Constants.DEFAULT_EVENT_COLOR.copy(alpha = 0.5f)
+                        BookingStatus.DECLINED -> {
+                            Color(event.appliance.color).copy(alpha = 0.5f)
                         }
-                        else -> event.appliance?.color?.let { Color(it) }
-                            ?: Constants.DEFAULT_EVENT_COLOR
+                        else -> Color(event.appliance.color)
                     },
                     shape = RoundedCornerShape(4.dp)
                 )
@@ -200,31 +199,35 @@ fun EventView(
                 .then(childModifier)
         ) {
             Column(Modifier.padding(4.dp)) {
-                Text(
-                    text = "${event.timeStart.format(EventTimeFormatter)} - ${
-                        event.timeEnd.format(EventTimeFormatter)
-                    }",
-                    style = MaterialTheme.typography.caption,
-                    maxLines = 2,
-                    overflow = TextOverflow.Clip,
-                    modifier = childModifier
-                )
-
-                Text(
-                    text = event.appliance?.name
-                        ?: stringResource(id = R.string.appliance_name_failed),
-                    style = MaterialTheme.typography.body1,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = childModifier
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column {
+                        Text(
+                            text = formattedTime(event.timeStart, event.timeEnd),
+                            style = MaterialTheme.typography.caption,
+                            maxLines = 2,
+                            overflow = TextOverflow.Clip,
+                            modifier = childModifier
+                        )
+                        Text(
+                            text = event.appliance.name,
+                            style = MaterialTheme.typography.body1,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = childModifier
+                        )
+                    }
+                    Icon(event.status.icon, "status"/*, tint = event.status.color*/)
+                }
 
                 if (event.commentary.isNotBlank()) {
                     Text(
                         text = event.commentary,
                         style = MaterialTheme.typography.body2,
-
                         overflow = TextOverflow.Ellipsis,
                         modifier = childModifier
                     )

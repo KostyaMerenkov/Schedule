@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.FirebaseMessagingService
 import org.koin.android.ext.android.get
@@ -32,8 +33,9 @@ class MyFirebaseMessagingService() : FirebaseMessagingService() {
         val notificationBuilder: Notification.Builder =
             Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
         notificationBuilder.setAutoCancel(true)
-            .setDefaults(Notification.DEFAULT_ALL)
+            //.setDefaults(Notification.DEFAULT_ALL)
             .setWhen(System.currentTimeMillis())
+            .setStyle(Notification.BigTextStyle())
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(notification.title ?: "")
             .setContentText(notification.body ?: "")

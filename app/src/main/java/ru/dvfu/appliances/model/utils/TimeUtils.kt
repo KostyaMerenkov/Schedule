@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.model.utils
 
+import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.utils.TimeConstants.ZONE
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -61,5 +62,15 @@ fun formattedDate(date: LocalDate): String {
     return date.format(DateTimeFormatter.ofPattern("d MMMM"))
 }
 
+fun formattedDateTime(date: LocalDate, timeStart: LocalDateTime, timeEnd: LocalDateTime) =
+    "${formattedDate(date)}, ${formattedTime(timeStart, timeEnd)}"
+
+fun formattedDateTimeStatus(
+    date: LocalDate,
+    timeStart: LocalDateTime,
+    timeEnd: LocalDateTime,
+    status: BookingStatus
+) = "${formattedDate(date)}, ${formattedTime(timeStart, timeEnd)}, ${status.getName()}"
+
 val LocalDateTime.toDateAndTime: String
-get() = this.format(DateTimeFormatter.ofPattern("d MMMM, HH:mm"))
+    get() = this.format(DateTimeFormatter.ofPattern("d MMMM, HH:mm"))
