@@ -11,6 +11,7 @@ import androidx.navigation.NavController
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import java.time.LocalDateTime
 
 @Composable
 fun PendingBookingsList(
@@ -62,14 +63,15 @@ fun PendingBookingsList(
 }
 
 @Composable
-fun MyBookingRequestsList(
+fun MyBookingsList(
     bookings: List<CalendarEvent>,
-    viewModel: BookingListViewModel
+    viewModel: BookingListViewModel,
+    navController: NavController
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        bookings.filter { it.status == BookingStatus.NONE }.let { events ->
+        bookings.let { events ->
             if (events.isEmpty()) {
                 item { NoBookingsView() }
             } else {
@@ -102,13 +104,13 @@ fun MyBookingRequestsList(
 @Composable
 fun PastBookingsList(
     bookings: List<CalendarEvent>,
-    viewModel: BookingListViewModel
+    viewModel: BookingListViewModel,
+    navController: NavController
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        bookings
-            .sortedByDescending { it.date }
+        bookings.sortedByDescending { it.date }
             .let {
                 if (it.isEmpty()) {
                     item { NoBookingsView() }

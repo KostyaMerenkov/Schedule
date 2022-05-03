@@ -39,20 +39,28 @@ sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Uni
         navController: NavController
     ) :
         BookingTabItem(
-            titleRes = R.string.pending,
+            titleRes = R.string.booking_requests,
             screen = { PendingBookingsList(bookings, viewModel, navController) }
         )
 
-    class BookingRequestsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
+    class MyBookingsTabItem(
+        bookings: List<CalendarEvent>,
+        viewModel: BookingListViewModel,
+        navController: NavController
+    ) :
         BookingTabItem(
-            titleRes = R.string.my_requests,
-            screen = { MyBookingRequestsList(bookings, viewModel) }
+            titleRes = R.string.my_bookings,
+            screen = { MyBookingsList(bookings, viewModel, navController) }
         )
 
-    class PastBookingsTabItem(bookings: List<CalendarEvent>, viewModel: BookingListViewModel) :
+    class PastBookingsTabItem(
+        bookings: List<CalendarEvent>,
+        viewModel: BookingListViewModel,
+        navController: NavController
+    ) :
         BookingTabItem(
             titleRes = R.string.past_bookings,
-            screen = { PastBookingsList(bookings, viewModel) }
+            screen = { PastBookingsList(bookings, viewModel, navController) }
         )
 }
 

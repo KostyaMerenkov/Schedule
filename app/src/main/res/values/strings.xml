@@ -128,4 +128,6 @@
     <string name="new_appliance_success">Новый прибор успешно добавлен</string>
     <string name="booking">Бронирование</string>
     <string name="add_users_failed">Не удалось добавить пользователей</string>
+    <string name="my_bookings">My bookings</string>
+    <string name="booking_requests">Booking requests</string>
 </resources>

@@ -122,17 +122,13 @@ private fun initTabs(
 
     val result = mutableListOf<BookingTabItem>()
 
-    if (currentUser.isAdmin() || bookings.find {
-            it.appliance?.isUserSuperuserOrAdmin(currentUser) == true
-        } != null) {
+    if (currentUser.isAdmin() || bookings.find { it.appliance.isUserSuperuserOrAdmin(currentUser) } != null) {
         result.add(
             BookingTabItem.PendingBookingsTabItem(
                 bookings = if (currentUser.isAdmin()) {
                     bookings
                 } else {
-                    bookings.filter {
-                        it.appliance?.isUserSuperuserOrAdmin(currentUser) == true
-                    }
+                    bookings.filter { it.appliance.isUserSuperuserOrAdmin(currentUser) }
                 },
                 viewModel = viewModel,
                 navController = navController
@@ -143,20 +139,18 @@ private fun initTabs(
     val myBookings = bookings.filter { it.user.userId == currentUser.userId }
 
     result.add(
-        BookingTabItem.BookingRequestsTabItem(
-            bookings = myBookings.filter { it.status == BookingStatus.NONE },
-            viewModel = viewModel
+        BookingTabItem.MyBookingsTabItem(
+            bookings = myBookings.filter { it.timeEnd.isAfter(LocalDateTime.now()) },
+            viewModel = viewModel,
+            navController = navController
         )
     )
 
     result.add(
         BookingTabItem.PastBookingsTabItem(
-            bookings = myBookings
-                .filter {
-                    (it.status == BookingStatus.APPROVED || it.status == BookingStatus.DECLINED)
-                            && it.timeEnd.toMillis < LocalDateTime.now().toMillis
-                },
-            viewModel = viewModel
+            bookings = myBookings.filter { it.timeEnd.isBefore(LocalDateTime.now()) },
+            viewModel = viewModel,
+            navController = navController
         )
     )
     return result
