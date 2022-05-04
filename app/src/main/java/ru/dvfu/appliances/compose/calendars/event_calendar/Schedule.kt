@@ -1,9 +1,8 @@
-package ru.dvfu.appliances.compose.event_calendar
+package ru.dvfu.appliances.compose.calendars.event_calendar
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*

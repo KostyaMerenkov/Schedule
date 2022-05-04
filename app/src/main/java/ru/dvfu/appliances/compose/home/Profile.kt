@@ -44,7 +44,7 @@ import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
-import ru.dvfu.appliances.compose.views.DefaultDialog
+import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.activity.LoginActivity

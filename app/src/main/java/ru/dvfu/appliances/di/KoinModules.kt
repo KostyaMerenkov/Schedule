@@ -7,6 +7,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ru.dvfu.appliances.Logger
+import ru.dvfu.appliances.MyFirebaseMessagingService
 import ru.dvfu.appliances.compose.utils.EventMapper
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
@@ -26,7 +27,7 @@ import ru.dvfu.appliances.model.datasource.*
 import ru.dvfu.appliances.model.datasource.deprecated.CloudFirestoreDatabaseImpl
 import ru.dvfu.appliances.model.datastore.UserDatastoreImpl
 import ru.dvfu.appliances.model.repository.*
-import ru.dvfu.appliances.model.repository_offline.OfflineRepository
+import ru.dvfu.appliances.model.repository.OfflineRepository
 import ru.dvfu.appliances.model.utils.RepositoryCollections
 
 val repositoryModule = module {
@@ -51,7 +52,12 @@ val repositoryModule = module {
 val application = module {
     single<UserDatastore> { UserDatastoreImpl(androidContext()) }
     viewModel { MainViewModel() }
+
+    single { MyFirebaseMessagingService() }
     single { FirebaseMessagingViewModel(usersRepository = get()) }
+    /*scope<MyFirebaseMessagingService> {
+        scoped { FirebaseMessagingViewModel(usersRepository = get()) }
+    }*/
 
     single { Logger() }
     single { SnackbarManager }
@@ -85,7 +91,8 @@ val application = module {
             updateEventStatusUseCase = get(),
             updateTimeUseCase = UpdateTimeUseCase(
                 eventsRepository = get(),
-                getEventTimeAvailabilityUseCase = get()
+                getEventTimeAvailabilityUseCase = get(),
+                notificationManager = get()
             )
         )
     }

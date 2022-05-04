@@ -70,9 +70,6 @@ enum class HomeSections(
     val route: String
 ) {
     CALENDAR(R.string.calendar, Icons.Outlined.Home, "home/calendar"),
-
-    //NOTES(R.string.notes, Icons.Outlined.Menu, "home/notes"),
-    //WEATHER(R.string.weather, Icons.Outlined.WbSunny, "home/weather"),
     APPLIANCES(R.string.appliances, Icons.Outlined.Apartment, "home/appliances"),
     USERS(R.string.users, Icons.Outlined.SupervisedUserCircle, "home/users"),
     PROFILE(R.string.profile, Icons.Outlined.VerifiedUser, "home/profile")
@@ -117,22 +114,4 @@ fun ScheduleBottomBar(
             }
         }
     )
-}
-
-private val TextIconSpacing = 2.dp
-private val BottomNavHeight = 56.dp
-private val BottomNavLabelTransformOrigin = TransformOrigin(0f, 0.5f)
-private val BottomNavIndicatorShape = RoundedCornerShape(percent = 50)
-private val BottomNavigationItemPadding = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-
-@Preview
-@Composable
-private fun FishingNotesBottomNavPreview() {
-    MaterialTheme {
-//        ScheduleBottomBar(
-//            tabs = HomeSections.values(),
-//            currentRoute = "home/map",
-//            navigateToRoute = { }
-//        )
-    }
 }

@@ -30,7 +30,7 @@ import ru.dvfu.appliances.compose.components.ColorPicker
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.ui.theme.pickerColors
 import ru.dvfu.appliances.compose.viewmodels.NewApplianceViewModel
-import ru.dvfu.appliances.compose.views.ModalLoadingDialog
+import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.ViewState
 

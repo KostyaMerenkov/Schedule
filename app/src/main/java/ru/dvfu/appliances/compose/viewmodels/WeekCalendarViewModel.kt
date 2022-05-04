@@ -14,12 +14,10 @@ import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.*
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
-import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Event
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository_offline.OfflineRepository
 import java.time.LocalDate
 import java.time.YearMonth
 

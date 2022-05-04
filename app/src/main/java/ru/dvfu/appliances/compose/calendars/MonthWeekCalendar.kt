@@ -27,7 +27,6 @@ import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.appliance.NoElementsView
-import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
 import ru.dvfu.appliances.compose.home.HomeTopBar
 import ru.dvfu.appliances.compose.home.SelectedDate
 import ru.dvfu.appliances.compose.navigate

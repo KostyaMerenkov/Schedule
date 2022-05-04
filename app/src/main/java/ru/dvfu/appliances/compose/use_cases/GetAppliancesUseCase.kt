@@ -3,7 +3,7 @@ package ru.dvfu.appliances.compose.use_cases
 import kotlinx.coroutines.flow.*
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository_offline.OfflineRepository
+import ru.dvfu.appliances.model.repository.OfflineRepository
 
 class GetAppliancesUseCase(
     private val offlineRepository: OfflineRepository,

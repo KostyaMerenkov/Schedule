@@ -2,7 +2,6 @@ package ru.dvfu.appliances.compose.home
 
 import android.os.Parcelable
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,7 +11,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -24,10 +22,10 @@ import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
 import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.compose.event_calendar.EventTimeFormatter
-import ru.dvfu.appliances.compose.event_calendar.Schedule
+import ru.dvfu.appliances.compose.calendars.event_calendar.EventTimeFormatter
+import ru.dvfu.appliances.compose.calendars.event_calendar.Schedule
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
-import ru.dvfu.appliances.compose.views.DefaultDialog
+import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.utils.Constants.TIME_TO_EXIT
 import ru.dvfu.appliances.model.utils.showToast

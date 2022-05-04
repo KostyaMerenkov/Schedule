@@ -33,8 +33,8 @@ import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.appliance.FabWithLoading
 import ru.dvfu.appliances.compose.components.*
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
-import ru.dvfu.appliances.compose.views.ModalLoadingDialog
-import ru.dvfu.appliances.compose.views.PrimaryText
+import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
+import ru.dvfu.appliances.compose.components.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.utils.TimeConstants.FULL_DATE_FORMAT
 import ru.dvfu.appliances.model.utils.toHoursAndMinutes

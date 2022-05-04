@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.compose.profile
+package ru.dvfu.appliances.compose.home.profile
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
@@ -38,9 +38,9 @@ import ru.dvfu.appliances.compose.components.GrayText
 import ru.dvfu.appliances.compose.components.toDate
 import ru.dvfu.appliances.compose.ui.theme.customColors
 import ru.dvfu.appliances.compose.viewmodels.EditProfileViewModel
-import ru.dvfu.appliances.compose.views.DefaultButton
-import ru.dvfu.appliances.compose.views.DefaultDialog
-import ru.dvfu.appliances.compose.views.ModalLoadingDialog
+import ru.dvfu.appliances.compose.components.views.DefaultButton
+import ru.dvfu.appliances.compose.components.views.DefaultDialog
+import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.showError
 import ru.dvfu.appliances.model.utils.toLocalDate

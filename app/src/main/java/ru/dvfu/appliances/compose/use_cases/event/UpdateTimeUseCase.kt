@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.single
 import ru.dvfu.appliances.compose.use_cases.GetEventTimeAvailabilityUseCase
 import ru.dvfu.appliances.compose.utils.AvailabilityState
+import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
@@ -12,6 +13,7 @@ import ru.dvfu.appliances.model.utils.toMillis
 class UpdateTimeUseCase(
     private val eventsRepository: EventsRepository,
     private val getEventTimeAvailabilityUseCase: GetEventTimeAvailabilityUseCase,
+    private val notificationManager: NotificationManager,
 ) {
     suspend operator fun invoke(
         event: CalendarEvent,
@@ -27,7 +29,7 @@ class UpdateTimeUseCase(
         ).single()
         when(availabilityState) {
             AvailabilityState.Available -> {
-                val result = eventsRepository.updateEvent(
+                eventsRepository.updateEvent(
                     event.id, mapOf(
                         "date" to eventDateAndTime.date.toMillis,
                         "timeStart" to eventDateAndTime.timeStart.atDate(eventDateAndTime.date).toMillis,
@@ -35,13 +37,13 @@ class UpdateTimeUseCase(
                     )
                 ).fold(
                     onSuccess = {
+                        notificationManager.eventTimeChanged(event, eventDateAndTime)
                         emit(EventTimeUpdateResult.Success)
                     },
                     onFailure = {
                         emit(EventTimeUpdateResult.Error)
                     }
                 )
-
             }
             AvailabilityState.Error -> emit(EventTimeUpdateResult.Error)
             AvailabilityState.NotAvailable -> emit(EventTimeUpdateResult.TimeNotFree)

@@ -28,8 +28,8 @@ import ru.dvfu.appliances.compose.home.EventDeleteDialog
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
-import ru.dvfu.appliances.compose.views.DefaultDialog
-import ru.dvfu.appliances.compose.views.ModalLoadingDialog
+import ru.dvfu.appliances.compose.components.views.DefaultDialog
+import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 
 @ExperimentalMaterialApi
 @ExperimentalPagerApi

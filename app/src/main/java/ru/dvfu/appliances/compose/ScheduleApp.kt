@@ -25,7 +25,7 @@ import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.NewAppliance
 import ru.dvfu.appliances.compose.home.*
 import ru.dvfu.appliances.compose.home.booking_list.BookingList
-import ru.dvfu.appliances.compose.profile.EditProfile
+import ru.dvfu.appliances.compose.home.profile.EditProfile
 import java.time.LocalDate
 
 @OptIn(ExperimentalComposeUiApi::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)

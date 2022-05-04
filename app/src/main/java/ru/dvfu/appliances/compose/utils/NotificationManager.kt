@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose.utils
 
+import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
@@ -12,4 +13,5 @@ interface NotificationManager {
     suspend fun eventDeleted(event: CalendarEvent)
     suspend fun newEvent(newEvent: Event)
     suspend fun newEventStatus(event: CalendarEvent, newStatus: BookingStatus)
+    suspend fun eventTimeChanged(event: CalendarEvent, eventDateAndTime: EventDateAndTime)
 }

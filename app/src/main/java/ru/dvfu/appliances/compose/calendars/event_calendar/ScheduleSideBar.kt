@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.compose.event_calendar
+package ru.dvfu.appliances.compose.calendars.event_calendar
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

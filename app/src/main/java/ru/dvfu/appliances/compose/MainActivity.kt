@@ -26,7 +26,6 @@ import ru.dvfu.appliances.R
  * Main activity for the app.
  */
 
-
 class MainActivity : ComponentActivity() {
 
     @OptIn(

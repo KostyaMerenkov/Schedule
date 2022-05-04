@@ -1,24 +1,15 @@
 package ru.dvfu.appliances.model.datasource
 
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.tasks.asDeferred
-import kotlinx.coroutines.tasks.asTask
 import kotlinx.coroutines.tasks.await
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository_offline.OfflineRepository
+import ru.dvfu.appliances.model.repository.OfflineRepository
 import ru.dvfu.appliances.model.utils.RepositoryCollections
-import kotlin.Exception
 
 class OfflineRepositoryImpl(private val dbCollections: RepositoryCollections) : OfflineRepository {
 

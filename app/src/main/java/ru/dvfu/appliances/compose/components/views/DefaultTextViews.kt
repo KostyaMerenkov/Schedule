@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.compose.views
+package ru.dvfu.appliances.compose.components.views
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*

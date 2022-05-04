@@ -3,10 +3,9 @@ package ru.dvfu.appliances.compose.use_cases
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.fold
 import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository_offline.OfflineRepository
+import ru.dvfu.appliances.model.repository.OfflineRepository
 
 class GetUserUseCase(
     private val offlineRepository: OfflineRepository,

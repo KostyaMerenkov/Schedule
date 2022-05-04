@@ -26,10 +26,13 @@ import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.appliance.UserImage
+import ru.dvfu.appliances.compose.components.views.DefaultDialog
+import ru.dvfu.appliances.compose.components.views.PrimaryText
+import ru.dvfu.appliances.compose.components.views.SecondaryText
+import ru.dvfu.appliances.compose.components.views.TextDivider
 import ru.dvfu.appliances.compose.home.DateAndTime
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
-import ru.dvfu.appliances.compose.views.*
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.User
@@ -44,7 +47,6 @@ import java.util.*
 @OptIn(
     ExperimentalCoilApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class,
     androidx.compose.animation.ExperimentalAnimationApi::class,
-    androidx.compose.material.ExperimentalMaterialApi::class,
     com.google.accompanist.pager.ExperimentalPagerApi::class
 )
 @Composable
@@ -326,7 +328,6 @@ fun BookingTime(
     timeEnd: LocalDateTime,
     onSetNewDateAndTime: ((EventDateAndTime) -> Unit)? = null
 ) {
-
     var dialogState by remember { mutableStateOf(false) }
 
     Row(
@@ -342,12 +343,12 @@ fun BookingTime(
                 .size(24.dp)
         )
 
-        Row(
+        Column(
             modifier = Modifier
                 .padding(2.dp)
                 .weight(7f),
-            horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.Start),
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             PrimaryText(
                 text = timeStart.toLocalDate().format(TimeConstants.FULL_DATE_FORMAT),
@@ -361,21 +362,15 @@ fun BookingTime(
                     modifier = Modifier.padding(10.dp)
                 )
             }
-
         }
 
-        if (editable) {
-            IconButton(onClick = { dialogState = !dialogState }, modifier = Modifier.weight(1f)) {
-                Icon(
-                    Icons.Default.Edit,
-                    contentDescription = null,
-                )
-            }
-        } else {
-            Spacer(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(24.dp)
+        IconButton(
+            onClick = { dialogState = !dialogState }, modifier = Modifier.weight(1f),
+            enabled = editable
+        ) {
+            Icon(
+                Icons.Default.Edit,
+                contentDescription = null,
             )
         }
 

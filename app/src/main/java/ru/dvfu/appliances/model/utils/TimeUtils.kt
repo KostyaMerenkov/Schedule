@@ -70,7 +70,23 @@ fun formattedDateTimeStatus(
     timeStart: LocalDateTime,
     timeEnd: LocalDateTime,
     status: BookingStatus
-) = "${formattedDate(date)}, ${formattedTime(timeStart, timeEnd)}, ${status.getName()}"
+) = "${formattedDate(date)}, ${formattedTime(timeStart, timeEnd)}, ${status.getName().uppercase()}"
+
+fun formattedAppliance(name: String) = "\"${name}\""
+
+fun formattedApplianceDateTime(
+    name: String,
+    date: LocalDate,
+    timeStart: LocalDateTime,
+    timeEnd: LocalDateTime,
+) = "${formattedAppliance(name)}, ${formattedDate(date)}, ${formattedTime(timeStart, timeEnd)}"
+
+fun formattedApplianceDateTimeStatus(
+    date: LocalDate,
+    timeStart: LocalDateTime,
+    timeEnd: LocalDateTime,
+    name: String, status: BookingStatus
+) = "${formattedAppliance(name)}, ${formattedDateTimeStatus(date, timeStart, timeEnd, status)}"
 
 val LocalDateTime.toDateAndTime: String
     get() = this.format(DateTimeFormatter.ofPattern("d MMMM, HH:mm"))

@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.model.repository_offline
+package ru.dvfu.appliances.model.repository
 
 import kotlinx.coroutines.flow.Flow
 import ru.dvfu.appliances.model.repository.entity.Appliance

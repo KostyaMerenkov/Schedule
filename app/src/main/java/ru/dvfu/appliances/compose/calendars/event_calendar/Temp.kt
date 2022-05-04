@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.compose.event_calendar
+package ru.dvfu.appliances.compose.calendars.event_calendar
 
 import androidx.compose.ui.unit.Dp
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent

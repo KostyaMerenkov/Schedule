@@ -29,7 +29,7 @@ import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.components.ItemsSelection
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
-import ru.dvfu.appliances.compose.views.HeaderText
+import ru.dvfu.appliances.compose.components.views.HeaderText
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User

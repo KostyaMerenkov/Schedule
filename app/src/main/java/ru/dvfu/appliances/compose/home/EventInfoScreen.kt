@@ -19,8 +19,8 @@ import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.home.booking_list.EventInfo
 import ru.dvfu.appliances.compose.viewmodels.EventInfoViewModel
-import ru.dvfu.appliances.compose.views.DefaultDialog
-import ru.dvfu.appliances.compose.views.ModalLoadingDialog
+import ru.dvfu.appliances.compose.components.views.DefaultDialog
+import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 
 @Composable
