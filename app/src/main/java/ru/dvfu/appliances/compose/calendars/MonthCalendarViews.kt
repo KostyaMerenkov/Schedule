@@ -54,7 +54,7 @@ fun <T : SelectionState> ScheduleCalendarDate(
         shape = CircleShape,
         elevation = if (state.isFromCurrentMonth) 4.dp else 0.dp,
         border =
-        if (currentDayEvents.isNotEmpty()) BorderStroke(
+        if (currentDayEvents.any { it.status == BookingStatus.APPROVED }) BorderStroke(
             2.dp,
             if (currentDayEvents.any { it.user.userId == currentUser.userId && it.status == BookingStatus.APPROVED })
                 MaterialTheme.colors.secondary else MaterialTheme.colors.primary
