@@ -2,8 +2,8 @@ package ru.dvfu.appliances.compose
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.tween
+import android.net.Uri
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,10 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -31,20 +28,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
-
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
+import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.activity.LoginActivity
@@ -97,7 +90,7 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
 @ExperimentalMaterialApi
 @Composable
 fun UserButtons(navController: NavController) {
-
+    val context = LocalContext.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -109,7 +102,19 @@ fun UserButtons(navController: NavController) {
         ColumnButton(Icons.Default.Edit, "Редактировать профиль")
         { navController.navigate(MainDestinations.EDIT_PROFILE) }
 
+        ColumnButton(image = Icons.Default.Notifications, name = "Настройка уведомлений") {
+            goToNotificationsSettings(context)
+        }
+
     }
+}
+
+fun goToNotificationsSettings(context: Context) {
+    val intent = Intent()
+    intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+    intent.addCategory(Intent.CATEGORY_DEFAULT)
+    intent.data = Uri.parse("package:" + context.packageName)
+    context.startActivity(intent)
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

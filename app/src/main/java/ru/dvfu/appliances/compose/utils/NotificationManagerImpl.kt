@@ -4,8 +4,6 @@ import androidx.lifecycle.*
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.single
 import ru.dvfu.appliances.BuildConfig
@@ -50,8 +48,10 @@ class NotificationManagerImpl(
         val currentUser = userDatastore.getCurrentUser.first()
         val users = (appliance.userIds + appliance.superuserIds)
             .mapNotNull { getUserUseCase(it).first().getOrNull() }
-            .apply { if (BuildConfig.DEBUG.not())
-                filter { it.userId !=  currentUser.userId} }
+            .apply {
+                if (BuildConfig.DEBUG.not())
+                    filter { it.userId != currentUser.userId }
+            }
             .map { it.msgToken }
 
         users.forEach {
@@ -61,27 +61,27 @@ class NotificationManagerImpl(
                     notification = Notification(
                         title = "Прибор \"${appliance.name}\" был удален",
                         body = "Также были отменены все бронирования на нем"
-                    )
+                    ),
+                    data = NotificationData(NotificationType.APPLIANCE)
                 )
             )
         }
     }
 
     override suspend fun eventUpdated(event: CalendarEvent, data: Map<String, Any?>) {
-        val currentUser = userDatastore.getCurrentUser.first()
-
         if (userDatastore.getCurrentUser.first().userId != event.user.userId)
 
-        sendMessage(
-            PushNotification(
-                to = event.user.msgToken,
-                notification = Notification(
-                    title = "Изменено бронирование на прибор \"${event.appliance.name}\"",
-                    body = formattedDateTime(event.date, event.timeStart, event.timeEnd)
-                            + ", ${event.status.getName().uppercase()}"
-                ),
+            sendMessage(
+                PushNotification(
+                    to = event.user.msgToken,
+                    notification = Notification(
+                        title = "Изменено бронирование на прибор \"${event.appliance.name}\"",
+                        body = formattedDateTime(event.date, event.timeStart, event.timeEnd)
+                                + ", ${event.status.getName().uppercase()}"
+                    ),
+                    data = NotificationData(NotificationType.MY_EVENT)
+                )
             )
-        )
     }
 
     override suspend fun eventDeleted(event: CalendarEvent) {
@@ -94,7 +94,8 @@ class NotificationManagerImpl(
                     notification = Notification(
                         title = "Отменено бронирование на прибор \"${event.appliance.name}\"",
                         body = formattedDateTime(event.date, event.timeStart, event.timeEnd)
-                    )
+                    ),
+                    data = NotificationData(NotificationType.MY_EVENT)
                 )
             )
         }
@@ -119,7 +120,8 @@ class NotificationManagerImpl(
                                     newEvent.timeStart.toLocalDateTime(),
                                     newEvent.timeEnd.toLocalDateTime()
                                 )
-                            )
+                            ),
+                            data = NotificationData(NotificationType.NEW_EVENT)
                         )
                     )
 
@@ -152,7 +154,7 @@ class NotificationManagerImpl(
                         status = event.status
                     ),
                 ),
-                //data = NotificationData(event.managerCommentary)
+                data = NotificationData(NotificationType.MY_EVENT)
             )
         )
     }
@@ -192,6 +194,12 @@ class NotificationManagerImpl(
                                     event.status
                                 )
                     ),
+                    data = NotificationData(
+                        when (it) {
+                            event.user.msgToken -> NotificationType.MY_EVENT
+                            else -> NotificationType.EVENT
+                        }
+                    )
                 )
             )
         }
@@ -232,4 +240,12 @@ class NotificationManagerImpl(
             Lifecycle.Event.ON_ANY -> TODO()
         }*/
     }
+}
+
+enum class NotificationType() {
+    APPLIANCE,
+    EVENT,
+    NEW_EVENT,
+    MY_EVENT,
+
 }

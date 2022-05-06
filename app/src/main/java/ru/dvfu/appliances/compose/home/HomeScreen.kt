@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
@@ -187,11 +188,13 @@ fun HomeTopBar(uiState: UiState, onBookingListOpen: () -> Unit, onCalendarSelect
                         }
                     }
                 }
-
             }
         },
         actions = {
-            IconButton(onClick = onBookingListOpen) {
+            IconButton(onClick = {
+                // TODO:
+                SnackbarManager.showMessage(R.string.not_ready_yet)
+            }) {
                 Icon(Icons.Default.Book, Icons.Default.Book.name)
             }
             IconButton(onClick = { onCalendarSelected() }) {
@@ -209,8 +212,8 @@ fun EventOptionDialog(
     onDismiss: () -> Unit
 ) {
     calendarEvent?.let {
-        DefaultDialog(primaryText = calendarEvent.appliance?.name
-            ?: stringResource(id = R.string.appliance_name_failed),
+        DefaultDialog(
+            primaryText = calendarEvent.appliance.name,
             secondaryText = "${calendarEvent.timeStart.format(EventTimeFormatter)} - ${
                 calendarEvent.timeEnd.format(
                     EventTimeFormatter
