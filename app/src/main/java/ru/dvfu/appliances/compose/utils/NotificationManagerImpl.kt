@@ -2,6 +2,7 @@ package ru.dvfu.appliances.compose.utils
 
 import androidx.lifecycle.*
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.ktx.app
 import com.google.firebase.messaging.ktx.messaging
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
@@ -205,6 +206,18 @@ class NotificationManagerImpl(
         }
     }
 
+    override suspend fun newUserRole(user: User, role: Roles) {
+        sendMessage(
+            PushNotification(
+                to = user.msgToken,
+                notification = Notification(
+                    title = "Ваша роль изменена",
+                    body = "Теперь вы \"${Firebase.app.applicationContext.getString(role.stringRes)}\""
+                ),
+                data = NotificationData(NotificationType.DEFAULT)
+            )
+        )
+    }
 
     private suspend fun sendMessage(pushNotification: PushNotification) {
         RetrofitInstance.api.postNotification(pushNotification)
@@ -247,5 +260,6 @@ enum class NotificationType() {
     EVENT,
     NEW_EVENT,
     MY_EVENT,
+    DEFAULT;
 
 }

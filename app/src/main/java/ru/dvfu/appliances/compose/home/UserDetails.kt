@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
+import ru.dvfu.appliances.BuildConfig
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.components.ItemsSelection
@@ -58,7 +59,7 @@ fun UserDetails(navController: NavController, upPress: () -> Unit, user: User) {
 
         if (isChangeRoleDialogOpen) RolesWithSelectionDialog(currentUser = detailsUser,
             onDismiss = { isChangeRoleDialogOpen = false }) { newRole ->
-            viewModel.updateUserRole(detailsUser, newRole.ordinal)
+            viewModel.updateUserRole(detailsUser, newRole)
             isChangeRoleDialogOpen = false
         }
 
@@ -119,7 +120,7 @@ fun ProfileUserInfo(user: User, currentUser: User, userRoleState: UiState, onRol
             readOnly = true,
             label = { Text(stringResource(R.string.role)) },
             trailingIcon = {
-                if (getRole(currentUser.role).isAdmin() && user.userId != currentUser.userId) {
+                if (currentUser.isAdmin() && (user.userId != currentUser.userId || BuildConfig.DEBUG)) {
                     if (userRoleState is UiState.InProgress) {
                         CircularProgressIndicator()
                     } else {

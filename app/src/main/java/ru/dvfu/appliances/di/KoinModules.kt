@@ -136,7 +136,8 @@ val mainActivity = module {
             detUser = it[0],
             usersRepository = get(),
             repository = get(),
-            userDatastore = get()
+            userDatastore = get(),
+            notificationManager = get()
         )
     }
 
