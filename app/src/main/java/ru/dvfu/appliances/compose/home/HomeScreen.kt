@@ -191,10 +191,7 @@ fun HomeTopBar(uiState: UiState, onBookingListOpen: () -> Unit, onCalendarSelect
             }
         },
         actions = {
-            IconButton(onClick = {
-                // TODO:
-                SnackbarManager.showMessage(R.string.not_ready_yet)
-            }) {
+            IconButton(onClick = { onBookingListOpen() }) {
                 Icon(Icons.Default.Book, Icons.Default.Book.name)
             }
             IconButton(onClick = { onCalendarSelected() }) {

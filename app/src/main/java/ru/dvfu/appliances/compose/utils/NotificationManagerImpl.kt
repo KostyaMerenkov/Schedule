@@ -19,6 +19,7 @@ import ru.dvfu.appliances.model.repository.entity.notifications.NotificationData
 import ru.dvfu.appliances.model.repository.entity.notifications.PushNotification
 import ru.dvfu.appliances.model.repository.entity.notifications.RetrofitInstance
 import ru.dvfu.appliances.model.utils.*
+import ru.dvfu.appliances.model.utils.Constants.NotificationType
 
 class NotificationManagerImpl(
     private val userDatastore: UserDatastore,
@@ -255,11 +256,3 @@ class NotificationManagerImpl(
     }
 }
 
-enum class NotificationType() {
-    APPLIANCE,
-    EVENT,
-    NEW_EVENT,
-    MY_EVENT,
-    DEFAULT;
-
-}

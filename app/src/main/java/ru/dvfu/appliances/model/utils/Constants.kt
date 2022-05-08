@@ -7,11 +7,13 @@ object Constants {
 
     const val TIME_TO_EXIT = 2000L
 
-    const val APPLIANCE_CHANNEL_ID = "channel_appliance"
-    const val EVENT_CHANNEL_ID = "channel_event"
-    const val NEW_EVENT_CHANNEL_ID = "channel_new_event"
-    const val MY_EVENT_CHANNEL_ID = "channel_my_event"
-
+    enum class NotificationType(val channelId: String = NOTIFICATION_CHANNEL_ID, val title: String, val description: String) {
+        APPLIANCE("channel_appliance", "Приборы", "Изменения приборов"),
+        EVENT("channel_event", "События", "Изменения событий"),
+        NEW_EVENT("channel_new_event", "Новые события", "Для суперпользователей и администраторов"),
+        MY_EVENT("channel_my_event", "Мои события", "Изменения моих событий"),
+        DEFAULT(title = "Основные", description = "Основные оповещения приложения");
+    }
 
     const val NOTIFICATION_CHANNEL_ID = "com.dvfu.appliances" //your app package name
 

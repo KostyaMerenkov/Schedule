@@ -3,16 +3,17 @@ package ru.dvfu.appliances
 import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
+import android.graphics.Bitmap
 import android.util.Log
-import androidx.core.app.NotificationCompat
+import com.bumptech.glide.Glide
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.FirebaseMessagingService
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.get
-import ru.dvfu.appliances.compose.utils.NotificationType
 import ru.dvfu.appliances.model.FirebaseMessagingViewModel
 import ru.dvfu.appliances.model.utils.Constants
 import ru.dvfu.appliances.model.utils.Constants.NOTIFICATION_CHANNEL_ID
-import java.lang.Error
 import java.util.*
 
 
@@ -27,28 +28,31 @@ class MyFirebaseMessagingService() : FirebaseMessagingService() {
 
         remoteMessage.notification?.let {
             val channelId = getNotificationTypeChannel(data = remoteMessage.data)
-            showNotification(notification = it, channelId = channelId)
+            showNotification(this, notification = it, channelId = channelId)
         }
     }
 
     private fun getNotificationTypeChannel(data: Map<String, String>): String =
-        try {
-            data.get("notificationType")?.let {
-                return when (NotificationType.valueOf(it)) {
-                    NotificationType.APPLIANCE -> Constants.APPLIANCE_CHANNEL_ID
-                    NotificationType.EVENT -> Constants.EVENT_CHANNEL_ID
-                    NotificationType.MY_EVENT -> Constants.MY_EVENT_CHANNEL_ID
-                    NotificationType.NEW_EVENT -> Constants.NEW_EVENT_CHANNEL_ID
-                    else -> NOTIFICATION_CHANNEL_ID
-                }
-            } ?: NOTIFICATION_CHANNEL_ID
-        } catch (e: Error) { NOTIFICATION_CHANNEL_ID }
+        data["notificationType"]?.let { Constants.NotificationType.valueOf(it).channelId } ?: NOTIFICATION_CHANNEL_ID
 
     private fun showNotification(
+        context: Context,
         notification: RemoteMessage.Notification,
         channelId: String
     ) {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        runBlocking { delay(12000L) }
+        var bitmap: Bitmap? = null
+        notification.imageUrl?.let {
+            val futureTarget = Glide.with(context)
+                .asBitmap()
+                .load(it)
+                .submit()
+
+            bitmap = futureTarget.get()
+            Glide.with(context).clear(futureTarget)
+        }
 
         val notificationBuilder: Notification.Builder = Notification.Builder(this, channelId)
         notificationBuilder.setAutoCancel(true)
@@ -57,6 +61,7 @@ class MyFirebaseMessagingService() : FirebaseMessagingService() {
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(notification.title ?: "")
             .setContentText(notification.body ?: "")
+            .apply { if (notification.imageUrl != null) setLargeIcon(bitmap) }
         notificationManager.notify(Random().nextInt(), notificationBuilder.build())
     }
 

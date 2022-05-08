@@ -38,76 +38,19 @@ class Schedule : Application() {
     }
 
     private fun createNotificationChannels() {
-        createMainNotificationChannel()
-        createApplianceNotificationChannel()
-        createEventNotificationChannel()
-        createMyEventNotificationChannel()
-        createNewEventNotificationChannel()
-    }
-
-    private fun createMyEventNotificationChannel() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val notificationChannel = NotificationChannel(
-            Constants.MY_EVENT_CHANNEL_ID, "Мои события",
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        notificationChannel.description = "Изменения моих событий"
-        notificationChannel.enableLights(true)
-        notificationChannel.lightColor = Color.BLUE
-        notificationManager.createNotificationChannel(notificationChannel)
+        Constants.NotificationType.values().forEach { notificationType ->
+
+            val notificationChannel = NotificationChannel(
+                notificationType.channelId, notificationType.title,
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            notificationChannel.description = notificationType.description
+            notificationChannel.enableLights(true)
+            notificationChannel.lightColor = Color.BLUE
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
     }
 
-    private fun createNewEventNotificationChannel() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        val notificationChannel = NotificationChannel(
-            Constants.NEW_EVENT_CHANNEL_ID, "Новые события",
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        notificationChannel.description = ""
-        notificationChannel.enableLights(true)
-        notificationChannel.lightColor = Color.BLUE
-        notificationManager.createNotificationChannel(notificationChannel)
-    }
-
-    private fun createEventNotificationChannel() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        val notificationChannel = NotificationChannel(
-            Constants.EVENT_CHANNEL_ID, "События",
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        notificationChannel.description = "Изменения событий"
-        notificationChannel.enableLights(true)
-        notificationChannel.lightColor = Color.BLUE
-        notificationManager.createNotificationChannel(notificationChannel)
-    }
-
-    private fun createApplianceNotificationChannel() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        val notificationChannel = NotificationChannel(
-            Constants.APPLIANCE_CHANNEL_ID, "Приборы",
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        notificationChannel.description = "Изменения приборов"
-        notificationChannel.enableLights(true)
-        notificationChannel.lightColor = Color.BLUE
-        notificationManager.createNotificationChannel(notificationChannel)
-    }
-
-    private fun createMainNotificationChannel() {
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        val notificationChannel = NotificationChannel(
-            Constants.NOTIFICATION_CHANNEL_ID, "Основные",
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        notificationChannel.description = "Основные оповещения приложения"
-        notificationChannel.enableLights(true)
-        notificationChannel.lightColor = Color.BLUE
-        notificationManager.createNotificationChannel(notificationChannel)
-    }
 }
