@@ -130,7 +130,10 @@ private fun initTabs(
                 bookings = if (currentUser.isAdmin()) {
                     bookings
                 } else {
-                    bookings.filter { it.appliance.isUserSuperuserOrAdmin(currentUser) }
+                    bookings.filter {
+                        it.appliance.isUserSuperuserOrAdmin(currentUser)
+                                && it.timeEnd.isBefore(LocalDateTime.now())
+                    }
                 },
                 viewModel = viewModel,
                 navController = navController

@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import coil.annotation.ExperimentalCoilApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.dvfu.appliances.R
@@ -33,7 +32,6 @@ import ru.dvfu.appliances.compose.home.HomeScreen
 @ExperimentalFoundationApi
 @ExperimentalCoroutinesApi
 @ExperimentalAnimationApi
-@ExperimentalCoilApi
 @ExperimentalMaterialApi
 @InternalCoroutinesApi
 fun NavGraphBuilder.addHomeGraph(

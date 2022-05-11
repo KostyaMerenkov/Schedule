@@ -166,137 +166,35 @@ fun MyBookingRequestItemView(
     }
 }
 
-@Composable
-fun BookingApprovedItemView(
-    modifier: Modifier = Modifier,
-    booking: CalendarEvent,
-    onDeclineClick: () -> Unit
-) {
-    /*Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(8.dp),
-        elevation = 8.dp,
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            HeaderText(
-                modifier = Modifier.padding(8.dp),
-                text = stringResource(R.string.booking_approved),
-                textColor = MaterialTheme.colors.primaryVariant
-            )
-            BookingTime(
-                editable = true,
-                timeStart = booking.timeStart,
-                timeEnd = booking.timeEnd,
-                onSetNewDateAndTime = {
-
-                }
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            booking.appliance?.let {
-                BookingAppliance(booking.appliance!!, onApplianceClick = {
-//                    navController.navigate(
-//                        MainDestinations.APPLIANCE_ROUTE,
-//                        Arguments.APPLIANCE to book.appliance!!
-//                    )
-                })
-            }
-            booking.managedUser?.let {
-                BookingUser(
-                    user = booking.managedUser,
-                    header = stringResource(id = R.string.managed_by),
-                    onUserClick = {
-//                    navController.navigate(
-//                        MainDestinations.USER_DETAILS_ROUTE,
-//                        Arguments.USER to book.user
-//                    )
-                    })
-            }
-
-            BookingCommentary(
-                header = stringResource(R.string.manager_commentary),
-                commentary = booking.managerCommentary
-            )
-
-            DeclineBookingButton(onDeclineClick = onDeclineClick)
-        }
-
-    }*/
-}
 
 @Composable
 fun BookingDeclinedOrPastItemView(
     modifier: Modifier = Modifier,
     booking: CalendarEvent,
 ) {
-    /*Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(8.dp),
-        elevation = 8.dp,
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            HeaderText(
-                modifier = Modifier.padding(8.dp),
-                text = if (booking.status == BookingStatus.DECLINED) {
-                    stringResource(R.string.declined_booking)
-                } else {
-                    stringResource(id = R.string.book_approved)
-                },
-                textColor = if (booking.timeEnd.toMillis > LocalDateTime.now().toMillis) {
-                    Color.Red
-                } else {
-                    MaterialTheme.customColors.secondaryTextColor
-                }
-            )
-            BookingTime(
-                timeStart = booking.timeStart,
-                timeEnd = booking.timeEnd
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            booking.appliance?.let {
-                BookingAppliance(booking.appliance!!, onApplianceClick = {
-//                    navController.navigate(
-//                        MainDestinations.APPLIANCE_ROUTE,
-//                        Arguments.APPLIANCE to book.appliance!!
-//                    )
-                })
+    BookingItem {
+
+        EventInfo(
+            // TODO: currentUser handle
+            currentUser = User(),
+            event = booking,
+            navController = rememberNavController(),
+            // TODO: give navController for real
+            onApproveClick = { _, _ ->
+
+            },
+            onDeclineClick = { _, _ ->
+
+            },
+            onSetDateAndTime = {_,_ ->
+                //onSetDateAndTime(booking, it)
+                // TODO:
+            },
+            onCommentarySave = { _,_->
+
             }
-            booking.managedUser?.let {
-                BookingUser(
-                    user = booking.managedUser,
-                    header = stringResource(R.string.managed_by),
-                    onUserClick = {
-//                    navController.navigate(
-//                        MainDestinations.USER_DETAILS_ROUTE,
-//                        Arguments.USER to book.user
-//                    )
-                    })
-            }
-
-            BookingCommentary(
-                header = stringResource(id = R.string.manager_commentary),
-                commentary = booking.managerCommentary
-            )
-
-            Spacer(modifier = Modifier.size(32.dp))
-        }
-
-    }*/
+        )
+    }
 }
 
 
