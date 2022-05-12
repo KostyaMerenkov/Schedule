@@ -41,6 +41,7 @@
         </activity>
         <activity
             android:exported="true"
+            android:screenOrientation="portrait"
             android:name="ru.dvfu.appliances.compose.MainActivity"
             android:theme="@style/Theme.Schedule.NoActionBar" />
 

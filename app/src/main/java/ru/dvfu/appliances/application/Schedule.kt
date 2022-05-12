@@ -41,7 +41,6 @@ class Schedule : Application() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         Constants.NotificationType.values().forEach { notificationType ->
-
             val notificationChannel = NotificationChannel(
                 notificationType.channelId, notificationType.title,
                 NotificationManager.IMPORTANCE_DEFAULT

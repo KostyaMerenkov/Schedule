@@ -11,6 +11,7 @@ import java.util.*
 object TimeConstants {
     val FULL_DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
     val MIN_EVENT_DURATION: Duration = Duration.ofMinutes(30)
+    val DEFAULT_EVENT_DURATION: Duration = Duration.ofHours(1)
 
     val ZONE: ZoneId = ZoneId.of("Asia/Vladivostok")
 

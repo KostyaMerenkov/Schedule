@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.BuildConfig
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
@@ -15,6 +16,7 @@ import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.*
+import ru.dvfu.appliances.model.utils.TimeConstants.DEFAULT_EVENT_DURATION
 import ru.dvfu.appliances.model.utils.TimeConstants.MIN_EVENT_DURATION
 import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
@@ -29,7 +31,7 @@ class AddEventViewModel(
     private val getEventTimeAvailabilityUseCase: GetEventTimeAvailabilityUseCase,
     private val userDatastore: UserDatastore,
     private val notificationManager: NotificationManager,
-    ) : ViewModel() {
+) : ViewModel() {
 
     private val _selectedAppliance = MutableStateFlow<Appliance?>(null)
     val selectedAppliance = _selectedAppliance.asStateFlow()
@@ -43,8 +45,13 @@ class AddEventViewModel(
     private val currentUser = MutableStateFlow(User())
 
     val date = mutableStateOf(selectedDate)
-    val timeStart = mutableStateOf<LocalDateTime>(LocalTime.now().atDate(selectedDate))
-    val timeEnd = mutableStateOf<LocalDateTime>(LocalTime.now().plusHours(1).atDate(selectedDate))
+    val timeStart = mutableStateOf<LocalDateTime>(
+        if (selectedDate.isAfter(LocalDate.now())) selectedDate.atTime(8, 0)
+        else LocalTime.now().atDate(selectedDate)
+    )
+    val timeEnd = mutableStateOf<LocalDateTime>(
+        LocalTime.now().plus(DEFAULT_EVENT_DURATION).atDate(selectedDate)
+    )
     val commentary = mutableStateOf("")
 
     val isDurationError: MutableStateFlow<Boolean>
@@ -56,7 +63,8 @@ class AddEventViewModel(
     val duration: MutableStateFlow<String>
         get() {
             val dur = Duration.between(timeStart.value, timeEnd.value)
-            val period = String.format(Locale.getDefault(), "%02d:%02d", dur.toHours(),
+            val period = String.format(
+                Locale.getDefault(), "%02d:%02d", dur.toHours(),
                 dur.minusHours(dur.toHours()).toMinutes(),
             )
             return MutableStateFlow(period)
@@ -86,7 +94,6 @@ class AddEventViewModel(
     fun addEvent() {
         _uiState.value = UiState.InProgress
         viewModelScope.launch {
-
             val selectedAppliance = selectedAppliance.value
             if (isDurationError.value || selectedAppliance == null) {
                 showError()
@@ -187,9 +194,18 @@ class AddEventViewModel(
     }
 
     fun onDateSet(date: LocalDate) {
+        if (BuildConfig.DEBUG && date.isBefore(LocalDate.now())) {
+            SnackbarManager.showMessage(R.string.past_day_error)
+            return
+        }
         this.date.value = LocalDate.of(date.year, date.month, date.dayOfMonth)
-        timeStart.value = date.atTime(timeStart.value.hour, timeStart.value.minute)
-        timeEnd.value = date.atTime(timeEnd.value.hour, timeEnd.value.minute)
+        if (date.isAfter(LocalDate.now())) {
+            timeStart.value = date.atTime(8, 0)
+            timeEnd.value = timeStart.value.plus(DEFAULT_EVENT_DURATION)
+        } else {
+            timeStart.value = date.atTime(LocalTime.now())
+            timeEnd.value = timeStart.value.plus(DEFAULT_EVENT_DURATION)
+        }
     }
 
     fun onTimeStartSet(time: LocalTime) {

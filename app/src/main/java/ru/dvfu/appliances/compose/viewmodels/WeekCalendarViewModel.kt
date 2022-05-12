@@ -117,16 +117,12 @@ class WeekCalendarViewModel(
         }
     }
 
-    fun getRepoEvent(calendarEvent: CalendarEvent): Event? {
-        return _reposEvents.value.find { it.id == calendarEvent.id }
-    }
-
     fun getWeekEvents() {
         _uiState.value = UiState.InProgress
         viewModelScope.launch {
             _threeDaysEvents.value = eventMapper.mapEvents(
                 getPeriodEventsUseCase.invoke(
-                    dateStart = LocalDate.now(),
+                    dateStart = LocalDate.now().minusDays(1),
                     dateEnd = LocalDate.now().plusDays(7)
                 ).first()
             )

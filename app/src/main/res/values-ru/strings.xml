@@ -44,7 +44,7 @@
     <string name="unknown_duration">неизвестно</string>
     <string name="choose_appliance">Выберите прибор</string>
     <string name="commentary">Комментарий</string>
-    <string name="duration_error">Продолжительность события не может быть меньше 10 минут</string>
+    <string name="duration_error">Продолжительность события не может быть меньше 30 минут</string>
     <string name="appliance_not_chosen">Вы не выбрали прибор!</string>
     <string name="error_occured">Произошла ошибка</string>
     <string name="event_delete_failed">Не удалось удалить событие</string>
@@ -124,4 +124,5 @@
     <string name="not_ready_yet">В процессе разработки</string>
     <string name="my_bookings">Мои</string>
     <string name="booking_requests">Запросы</string>
+    <string name="past_day_error">Невозможно создать событие на прошедший день</string>
 </resources>
