@@ -152,7 +152,7 @@ class NotificationManagerImpl(
                         date = event.date,
                         event.timeStart,
                         event.timeEnd,
-                        event.appliance.name,
+                        newStatus.getName(),
                         status = event.status
                     ),
                 ),
