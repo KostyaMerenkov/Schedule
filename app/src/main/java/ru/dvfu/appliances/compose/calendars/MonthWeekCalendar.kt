@@ -8,14 +8,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -23,7 +25,6 @@ import androidx.navigation.NavController
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.appliance.NoElementsView
@@ -35,7 +36,7 @@ import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
-import ru.dvfu.appliances.model.utils.Constants
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.formattedTime
 import ru.dvfu.appliances.model.utils.loadingModifier
 import java.time.LocalDate
@@ -134,7 +135,8 @@ fun MonthWeekCalendar(
                                         EventView(
                                             onEventClick = onEventClick,
                                             onEventLongClick = onEventLongClick,
-                                            event = event
+                                            event = event,
+                                            currentUser = currentUser
                                         )
                                     }
                                 }
@@ -152,7 +154,10 @@ fun MonthWeekCalendar(
                                                 timeStart = LocalDateTime.now(),
                                                 timeEnd = LocalDateTime.now(),
                                                 status = BookingStatus.APPROVED
-                                            ), onEventClick = {}, onEventLongClick = {})
+                                            ),
+                                            currentUser = User(),
+                                            onEventClick = {},
+                                            onEventLongClick = {})
                                     }
                                 }
                             }
@@ -171,7 +176,8 @@ fun EventView(
     childModifier: Modifier = Modifier,
     onEventClick: (CalendarEvent) -> Unit,
     onEventLongClick: (CalendarEvent) -> Unit,
-    event: CalendarEvent
+    event: CalendarEvent,
+    currentUser: User
 ) {
     val contentAlpha = when (event.status) {
         BookingStatus.DECLINED -> {
@@ -222,14 +228,40 @@ fun EventView(
                             overflow = TextOverflow.Ellipsis,
                             modifier = childModifier
                         )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Icon(Icons.Default.AccountCircle, "")
+                            Text(
+                                text = event.user.userName,
+                                style = MaterialTheme.typography.body1,
+                                //fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = childModifier
+                            )
+                        }
                     }
                     if (event.status == BookingStatus.NONE) {
+//                        if (currentUser.canManageEvent(event)) {
+//                            Row {
+//                                IconButton(onClick = {  }) {
+//                                    Icon(Icons.Default.Close, "")
+//                                }
+//                                IconButton(onClick = {  }) {
+//                                    Icon(Icons.Default.Done, "")
+//                                }
+//                            }
+//                        } else {
                         Icon(event.status.icon, "status"/*, tint = event.status.color*/)
+//                        }
                     } else {
                         Box(
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colors.surface), contentAlignment = Alignment.Center
+                                .background(MaterialTheme.colors.surface),
+                            contentAlignment = Alignment.Center
                         ) {
                             Icon(event.status.icon, "status", tint = event.status.color)
                         }
