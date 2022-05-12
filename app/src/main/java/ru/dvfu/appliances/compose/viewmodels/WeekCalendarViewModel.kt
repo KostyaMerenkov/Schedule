@@ -14,10 +14,7 @@ import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.*
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
-import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.Event
-import ru.dvfu.appliances.model.repository.entity.CalendarEvent
-import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.*
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -39,8 +36,8 @@ class WeekCalendarViewModel(
     private val _currentDate = MutableStateFlow<LocalDate>(LocalDate.now())
     val currentDate = _currentDate.asStateFlow()
 
-    private val _threeDaysEvents = MutableStateFlow<List<CalendarEvent>>(listOf())
-    val threeDaysEvents = _threeDaysEvents.asStateFlow()
+    private val _weekEvents = MutableStateFlow<List<CalendarEvent>>(listOf())
+    val weekEvents = _weekEvents.asStateFlow()
 
     private val _reposEvents = MutableStateFlow<Set<Event>>(setOf())
     val selectedEvent = mutableStateOf<CalendarEvent?>(null)
@@ -120,12 +117,12 @@ class WeekCalendarViewModel(
     fun getWeekEvents() {
         _uiState.value = UiState.InProgress
         viewModelScope.launch {
-            _threeDaysEvents.value = eventMapper.mapEvents(
+            _weekEvents.value = eventMapper.mapEvents(
                 getPeriodEventsUseCase.invoke(
-                    dateStart = LocalDate.now().minusDays(1),
+                    dateStart = LocalDate.now().minusDays(2),
                     dateEnd = LocalDate.now().plusDays(7)
                 ).first()
-            )
+            ).filter { it.status == BookingStatus.APPROVED }
             _uiState.value = UiState.Success
         }
     }
@@ -159,7 +156,9 @@ class WeekCalendarViewModel(
             val dates = currentMonth.getDates()
             _dayEvents = _dayEvents.apply {
                 dates.forEach { date ->
-                    if (get(date) !is EventsState.Loaded) { put(date, EventsState.Loading) }
+                    if (get(date) !is EventsState.Loaded) {
+                        put(date, EventsState.Loading)
+                    }
                 }
             }
             getPeriodEventsUseCase(dates.first(), dates.last()).collectLatest { result ->

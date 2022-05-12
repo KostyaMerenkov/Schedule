@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.*
+import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.dvfu.appliances.compose.ui.theme.ScheduleTheme
@@ -42,7 +43,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ScheduleTheme {
-                ScheduleApp()
+                ProvideWindowInsets {
+                    ScheduleApp()
+                }
             }
         }
     }

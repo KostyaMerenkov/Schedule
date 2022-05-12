@@ -78,7 +78,7 @@ fun BasicEvent(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            Icon(event.status.icon, "status")
+            //Icon(event.status.icon, "status")
         }
 
 

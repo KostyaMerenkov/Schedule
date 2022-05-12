@@ -131,18 +131,22 @@ fun AppliancesFab(navController: NavController) {
 @ExperimentalAnimationApi
 @Composable
 fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
-    MyCard(
-        onClick = { applianceClicked(appliance) }) {
-        Column(
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.aspectRatio(0.9f)
-                .height(150.dp)
-                .padding(10.dp)
+    val contentAlpha = if (appliance.active) ContentAlpha.high else ContentAlpha.disabled
+    CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
+        MyCard(
+            onClick = { applianceClicked(appliance) }) {
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .aspectRatio(0.9f)
+                    .height(150.dp)
+                    .padding(10.dp)
 
-        ) {
-            ApplianceImage(appliance, modifier = Modifier.requiredSize(100.dp))
-            ApplianceName(appliance)
+            ) {
+                ApplianceImage(appliance, modifier = Modifier.requiredSize(100.dp))
+                ApplianceName(appliance)
+            }
         }
     }
 }

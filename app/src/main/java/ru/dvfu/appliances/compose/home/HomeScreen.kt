@@ -18,7 +18,6 @@ import androidx.navigation.NavController
 import kotlinx.parcelize.Parcelize
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.calendars.CalendarType
 import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
@@ -121,7 +120,7 @@ fun EventCalendar(
         viewModel.getWeekEvents()
     }
     val uiState by viewModel.uiState.collectAsState()
-    val events by viewModel.threeDaysEvents.collectAsState()
+    val events by viewModel.weekEvents.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val verticalScrollState = rememberScrollState()

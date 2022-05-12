@@ -58,6 +58,17 @@ class AppliancesRepositoryImpl(
 
     }
 
+    override suspend fun changeApplianceStatus(applianceId: String, isActive: Boolean) =
+        suspendCoroutine<Result<Unit>> { continuation ->
+            dbCollections.getAppliancesCollection().document(applianceId)
+                .update("active", isActive)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        continuation.resume(Result.success(Unit))
+                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+        }
+
     @ExperimentalCoroutinesApi
     private suspend fun getUserAppliancesListener(producerScope: ProducerScope<List<Appliance>>): EventListener<QuerySnapshot> =
         EventListener<QuerySnapshot> { snapshots, error ->

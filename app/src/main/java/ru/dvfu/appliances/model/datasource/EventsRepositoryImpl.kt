@@ -163,8 +163,19 @@ class EventsRepositoryImpl(
                         dbCollections.getEventsCollection().document(event.id).delete()
                     }
                 }.addOnCompleteListener {
-                    if (it.isSuccessful) { continuation.resume(Result.success(Unit)) }
-                    else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                    if (it.isSuccessful) {
+                        continuation.resume(Result.success(Unit))
+                    } else continuation.resume(Result.failure(it.exception ?: Throwable()))
+                }
+        }
+
+    override suspend fun hasAtLeastOneEvent(applianceId: String) =
+        suspendCoroutine<Boolean> { continuation ->
+            dbCollections.getEventsCollection().limit(1).whereEqualTo("applianceId", applianceId)
+                .get().addOnCompleteListener {
+                    val result = it.result.toObjects<Event>()
+                    if (result.isNotEmpty()) continuation.resume(true)
+                    else continuation.resume(false)
                 }
         }
 

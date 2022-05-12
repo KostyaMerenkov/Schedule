@@ -4,17 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
+import ru.dvfu.appliances.compose.use_cases.ChangeApplianceStatusUseCase
 import ru.dvfu.appliances.compose.use_cases.DeleteApplianceUseCase
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
-import ru.dvfu.appliances.model.repository.Repository
-import ru.dvfu.appliances.model.repository.UsersRepository
+import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
 
@@ -22,12 +21,15 @@ class ApplianceDetailsViewModel(
     private val repository: AppliancesRepository,
     private val deleteApplianceUseCase: DeleteApplianceUseCase,
     private val userDatastore: UserDatastore,
+    private val eventsRepository: EventsRepository,
+    private val changeApplianceStatusUseCase: ChangeApplianceStatusUseCase,
 ) : ViewModel() {
 
     companion object {
         val defAppliance = Appliance()
     }
 
+    val noApplianceEvents = MutableStateFlow(false)
     private val _uiState = MutableStateFlow<UiState?>(null)
     val uiState = _uiState.asStateFlow()
 
@@ -39,10 +41,18 @@ class ApplianceDetailsViewModel(
 
     fun setAppliance(applianceFromArg: Appliance) {
         if (appliance.value == defAppliance) {
+            checkEvents(applianceFromArg.id)
             loadAllUsers(applianceFromArg.userIds)
             loadAllSuperUsers(applianceFromArg.superuserIds)
             appliance.value = applianceFromArg
             updateAppliance()
+        }
+    }
+
+    private fun checkEvents(applianceId: String) {
+        viewModelScope.launch {
+            noApplianceEvents.value =
+                eventsRepository.hasAtLeastOneEvent(applianceId = applianceId).not()
         }
     }
 
@@ -79,6 +89,23 @@ class ApplianceDetailsViewModel(
                     }
                 )
             }
+        }
+    }
+
+    fun disableEnable(newActiveStatus: Boolean) {
+        viewModelScope.launch {
+            _uiState.value = UiState.InProgress
+            changeApplianceStatusUseCase(appliance.value.id, newActiveStatus).single().fold(
+                onSuccess = {
+                    if (newActiveStatus)
+                        SnackbarManager.showMessage(R.string.appliance_enabled)
+                    else SnackbarManager.showMessage(R.string.appliance_disabled)
+                    _uiState.value = UiState.Success
+                }, onFailure = {
+                    SnackbarManager.showMessage(R.string.error_occured)
+                    _uiState.value = UiState.Error
+                }
+            )
         }
     }
 

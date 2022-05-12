@@ -3,19 +3,23 @@ package ru.dvfu.appliances.compose
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FabPosition
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.google.accompanist.insets.navigationBarsWithImePadding
+import com.google.accompanist.insets.systemBarsPadding
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -41,8 +45,6 @@ fun ScheduleApp() {
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        isFloatingActionButtonDocked = true,
-        floatingActionButtonPosition = FabPosition.Center,
         bottomBar = {
             if (appStateHolder.shouldShowBottomBar) {
                 ScheduleBottomBar(
@@ -52,7 +54,15 @@ fun ScheduleApp() {
                 )
             }
         },
-        scaffoldState = appStateHolder.scaffoldState
+        snackbarHost = {
+            SnackbarHost(
+                hostState = it,
+                modifier = Modifier.navigationBarsWithImePadding(),
+                snackbar = { snackbarData -> AppSnackbar(snackbarData) }
+            )
+        },
+        scaffoldState = appStateHolder.scaffoldState,
+        modifier = Modifier.navigationBarsWithImePadding()
     ) { innerPaddingModifier ->
         NavHost(
             navController = appStateHolder.navController,
@@ -157,4 +167,25 @@ private fun NavGraphBuilder.NavGraph(
 
 }
 
-
+@Composable
+fun AppSnackbar(
+    snackbarData: SnackbarData,
+    modifier: Modifier = Modifier,
+    actionOnNewLine: Boolean = false,
+    shape: Shape = CircleShape,
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    contentColor: Color = MaterialTheme.colors.onSurface,
+    //actionColor: Color = JetsnackTheme.colors.brand,
+    elevation: Dp = 6.dp
+) {
+    Snackbar(
+        snackbarData = snackbarData,
+        modifier = modifier,
+        actionOnNewLine = actionOnNewLine,
+        shape = shape,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        //actionColor = actionColor,
+        elevation = elevation
+    )
+}

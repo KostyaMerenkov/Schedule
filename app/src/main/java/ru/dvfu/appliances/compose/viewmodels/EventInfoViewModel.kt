@@ -47,6 +47,7 @@ class EventInfoViewModel(
 
     fun deleteEvent() {
         viewModelScope.launch {
+            _eventDeleteState.value = UiState.InProgress
             eventsRepository.deleteEvent(eventArg).fold(
                 onSuccess = {
                     _eventDeleteState.value = UiState.Success

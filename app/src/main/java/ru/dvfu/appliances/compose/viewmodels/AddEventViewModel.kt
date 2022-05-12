@@ -49,9 +49,7 @@ class AddEventViewModel(
         if (selectedDate.isAfter(LocalDate.now())) selectedDate.atTime(8, 0)
         else LocalTime.now().atDate(selectedDate)
     )
-    val timeEnd = mutableStateOf<LocalDateTime>(
-        LocalTime.now().plus(DEFAULT_EVENT_DURATION).atDate(selectedDate)
-    )
+    val timeEnd = mutableStateOf<LocalDateTime>(timeStart.value.plus(DEFAULT_EVENT_DURATION))
     val commentary = mutableStateOf("")
 
     val isDurationError: MutableStateFlow<Boolean>
@@ -86,7 +84,8 @@ class AddEventViewModel(
     private fun loadAppliances() {
         viewModelScope.launch {
             getAppliancesUseCase.invoke().collect { result ->
-                _appliancesState.value = ViewState.Success(result.getOrDefault(listOf()))
+                val appliances = result.getOrDefault(listOf()).filter { it.active }
+                _appliancesState.value = ViewState.Success(appliances)
             }
         }
     }

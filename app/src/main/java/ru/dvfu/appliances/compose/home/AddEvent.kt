@@ -24,6 +24,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.accompanist.insets.LocalWindowInsets
+import com.google.accompanist.insets.navigationBarsWithImePadding
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
@@ -77,7 +79,7 @@ fun AddEvent(selectedDate: LocalDate, upPress: () -> Unit) {
         )
     },
         floatingActionButton = {
-            FloatingActionButton(onClick = { if (uiState != UiState.Success) viewModel.addEvent() }) {
+            FloatingActionButton(modifier = Modifier.padding(bottom = 70.dp), onClick = { if (uiState != UiState.Success) viewModel.addEvent() }) {
                 Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
             }
         }) {

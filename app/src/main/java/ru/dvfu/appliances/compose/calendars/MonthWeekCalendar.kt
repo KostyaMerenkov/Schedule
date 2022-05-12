@@ -74,6 +74,7 @@ fun MonthWeekCalendar(
     }
 
     Scaffold(
+        floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
             if (!currentUser.isAnonymousOrGuest()) {
                 FloatingActionButton(

@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Autorenew
+import androidx.compose.material.icons.filled.DisabledByDefault
+import androidx.compose.material.icons.filled.DoNotDisturb
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +24,7 @@ import androidx.navigation.NavController
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.viewModel
+import ru.dvfu.appliances.BuildConfig
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.UiState
@@ -37,8 +41,9 @@ import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 @Composable
 fun ApplianceDetails(navController: NavController, upPress: () -> Unit, appliance: Appliance) {
     val viewModel: ApplianceDetailsViewModel by viewModel()
-
     viewModel.setAppliance(appliance)
+
+    val noApplianceEvents by viewModel.noApplianceEvents.collectAsState()
     val updatedAppliance by viewModel.appliance.collectAsState()
 
     var infoDialogState by remember { mutableStateOf(false) }
@@ -53,6 +58,14 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
         }
     }
 
+    /*var applianceDisableEnableDialog by remember { mutableStateOf(false) }
+    if (applianceDisableEnableDialog) {
+        ApplianceDisableEnableDialog(onDismiss = { applianceDisableEnableDialog = false }) {
+            viewModel.change
+        }
+    }*/
+
+
     val uiState = viewModel.uiState.collectAsState()
 
     if (uiState.value is UiState.InProgress) ModalLoadingDialog()
@@ -64,20 +77,27 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
     val tabs = listOf(/*TabItem.Users, */TabItem.SuperUsers)
     val pagerState = rememberPagerState()
 
-    Scaffold(topBar = {
-        ApplianceTopBar(user, updatedAppliance, upPress, deleteClick = {
-            applianceDeleteDialog = true
-        })
-    },
+    Scaffold(
+        topBar = {
+            ApplianceTopBar(
+                user,
+                updatedAppliance,
+                noApplianceEvents = noApplianceEvents,
+                upPress,
+                deleteClick = { applianceDeleteDialog = true },
+            disableEnableClick = viewModel::disableEnable)
+        },
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0XFFE3DAC9))) {
+            .background(Color(0XFFE3DAC9))
+    ) {
         Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.LightGray)) {
+                .background(Color.LightGray)
+        ) {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -85,7 +105,8 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
                 //color = Color.White
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp,
+                    horizontalArrangement = Arrangement.spacedBy(
+                        8.dp,
                         Alignment.CenterHorizontally
                     ),
                     verticalAlignment = Alignment.CenterVertically,
@@ -112,7 +133,12 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
                 Tabs(tabs = tabs, pagerState = pagerState)
                 Box(modifier = Modifier.fillMaxSize()) {
                     //BackgroundImage()
-                    TabsContent(tabs = tabs, pagerState = pagerState, navController, updatedAppliance)
+                    TabsContent(
+                        tabs = tabs,
+                        pagerState = pagerState,
+                        navController,
+                        updatedAppliance
+                    )
                 }
             }
         }
@@ -137,25 +163,28 @@ fun ApplianceDeleteDialog(onDismiss: () -> Unit, function: () -> Unit) {
 fun ApplianceTopBar(
     user: User,
     appliance: Appliance,
+    noApplianceEvents: Boolean,
     upPress: () -> Unit,
     deleteClick: () -> Unit,
+    disableEnableClick: (Boolean) -> Unit,
 ) {
 
-    if (user.isAdmin()) {
         ScheduleAppBar(
             stringResource(R.string.appliance),
             backClick = upPress,
-            actionDelete = true,
+            actionDelete = user.isAdmin() && noApplianceEvents,
             deleteClick = deleteClick,
-            elevation = 0.dp
+            elevation = 0.dp,
+            actions = {
+                if (appliance.isUserSuperuserOrAdmin(user))
+                IconButton(onClick = { disableEnableClick(!appliance.active) }) {
+                    when (appliance.active) {
+                        true -> Icon(Icons.Default.DoNotDisturb, "")
+                        else -> Icon(Icons.Default.Autorenew, "")
+                    }
+                }
+            }
         )
-    } else {
-        ScheduleAppBar(
-            stringResource(R.string.appliance),
-            backClick = upPress,
-            elevation = 0.dp
-        )
-    }
 
 }
 
@@ -202,9 +231,18 @@ fun Tabs(tabs: List<TabItem>, pagerState: PagerState) {
         tabs.forEachIndexed { index, tab ->
             // OR Tab()
             LeadingIconTab(
-                icon = { Icon(imageVector = tab.icon, contentDescription = "",
-                    /*tint = MaterialTheme.colors.primaryVariant*/ ) },
-                text = { Text(stringResource(tab.titleRes), color = MaterialTheme.colors.onSurface) },
+                icon = {
+                    Icon(
+                        imageVector = tab.icon, contentDescription = "",
+                        /*tint = MaterialTheme.colors.primaryVariant*/
+                    )
+                },
+                text = {
+                    Text(
+                        stringResource(tab.titleRes),
+                        color = MaterialTheme.colors.onSurface
+                    )
+                },
                 selected = pagerState.currentPage == index,
                 onClick = {
                     scope.launch {

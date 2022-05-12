@@ -26,8 +26,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
+import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.home.HomeScreen
+import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 
 @ExperimentalFoundationApi
 @ExperimentalCoroutinesApi

@@ -71,6 +71,7 @@ val application = module {
         )
     }
 
+    factory { ChangeApplianceStatusUseCase(appliancesRepository = get(), eventsRepository = get()) }
     factory { DeleteApplianceUseCase(appliancesRepository = get(), eventsRepository = get()) }
     factory { GetApplianceUseCase(offlineRepository = get(), appliancesRepository = get()) }
     factory { GetAppliancesUseCase(offlineRepository = get(), appliancesRepository = get()) }
@@ -144,7 +145,7 @@ val mainActivity = module {
     viewModel { ProfileViewModel(get(), get()) }
 
     //Appliances
-    viewModel { ApplianceDetailsViewModel(get(), get(), get()) }
+    viewModel { ApplianceDetailsViewModel(get(), get(), get(), get(), get()) }
     viewModel { NewApplianceViewModel(get(), get()) }
     viewModel { AppliancesViewModel(get(), get(), get()) }
     viewModel { AddUserViewModel(it.get(), it.get(), get(), get()) }

@@ -132,4 +132,6 @@
     <string name="my_bookings">My bookings</string>
     <string name="booking_requests">Booking requests</string>
     <string name="past_day_error">Невозможно создать событие на прошедший день</string>
+    <string name="appliance_enabled">Прибор включен</string>
+    <string name="appliance_disabled">Прибор выключен</string>
 </resources>

@@ -21,4 +21,5 @@ interface AppliancesRepository {
     suspend fun deleteSuperUserFromAppliance(userIdToDelete: String, from: Appliance): Result<Unit>
     suspend fun getSuperUserAppliances(userId: String): Flow<List<Appliance>>
     suspend fun getUserAppliances(userId: String): Flow<List<Appliance>>
+    suspend fun changeApplianceStatus(applianceId: String, isActive: Boolean): Result<Unit>
 }

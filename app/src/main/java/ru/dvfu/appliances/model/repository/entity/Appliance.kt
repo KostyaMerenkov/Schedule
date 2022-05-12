@@ -2,8 +2,8 @@ package ru.dvfu.appliances.model.repository.entity
 
 import android.graphics.Color
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.parcelize.Parcelize
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.utils.Constants
 import ru.dvfu.appliances.model.utils.randomUUID
@@ -17,7 +17,8 @@ data class Appliance(
     val color: Int = Constants.DEFAULT_EVENT_COLOR.hashCode(),
     val createdById: String = "",
     val superuserIds: List<String> = listOf(),
-    val userIds: List<String> = listOf()
+    val userIds: List<String> = listOf(),
+    val active: Boolean = true,
 ): Parcelable {
     fun isUserSuperuserOrAdmin(user: User): Boolean {
         return superuserIds.contains(user.userId) ||  user.isAdmin()

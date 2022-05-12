@@ -26,6 +26,7 @@ interface EventsRepository {
     suspend fun getApplianceDateEvents(applianceId: String, date: LocalDate): Result<List<Event>>
     suspend fun getAllEventsWithPeriod(dateStart: LocalDate, dateEnd: LocalDate): Result<List<Event>>
     suspend fun deleteAllApplianceEvents(id: String): Result<Unit>
+    suspend fun hasAtLeastOneEvent(applianceId: String): Boolean
     /*suspend fun getUsers(): Flow<List<User>>
 
     suspend fun addUsersToAppliance(appliance: Appliance, userIds: List<String>): StateFlow<Progress>
