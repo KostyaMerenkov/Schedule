@@ -116,7 +116,7 @@ fun PendingBookingItemView(
     navController: NavController,
     onApproveClick: (CalendarEvent, String) -> Unit,
     onDeclineClick: (CalendarEvent, String) -> Unit,
-    onSetDateAndTime: (EventDateAndTime) -> Unit,
+    onSetDateAndTime: (CalendarEvent, EventDateAndTime) -> Unit,
     onApplyCommentary: (CalendarEvent, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -128,10 +128,7 @@ fun PendingBookingItemView(
             onApproveClick = onApproveClick,
             onDeclineClick = onDeclineClick,
             onUserRefuseClick =  {_, _ ->  },
-            onSetDateAndTime = {_,_ ->
-                //onSetDateAndTime(booking, it)
-                // TODO:
-            },
+            onSetDateAndTime = onSetDateAndTime,
             onCommentarySave = onApplyCommentary
         )
     }
@@ -140,9 +137,10 @@ fun PendingBookingItemView(
 @Composable
 fun MyBookingRequestItemView(
     modifier: Modifier = Modifier,
+    navController: NavController,
     booking: CalendarEvent,
     onDeclineClick: (CalendarEvent, String) -> Unit,
-    onSetDateAndTime: (EventDateAndTime) -> Unit,
+    onSetDateAndTime: (CalendarEvent, EventDateAndTime) -> Unit,
     onApplyCommentary: (CalendarEvent, String) -> Unit,
 ) {
     BookingItem {
@@ -150,8 +148,7 @@ fun MyBookingRequestItemView(
             // TODO: currentUser handle
             currentUser = User(),
             event = booking,
-            navController = rememberNavController(),
-            // TODO: give navController for real
+            navController = navController,
             onApproveClick = { _, _ ->
 
             },
@@ -159,10 +156,7 @@ fun MyBookingRequestItemView(
 
             },
             onUserRefuseClick = onDeclineClick,
-            onSetDateAndTime = {_,_ ->
-                //onSetDateAndTime(booking, it)
-                // TODO:
-            },
+            onSetDateAndTime = onSetDateAndTime,
             onCommentarySave = onApplyCommentary
         )
     }
@@ -172,6 +166,7 @@ fun MyBookingRequestItemView(
 @Composable
 fun BookingDeclinedOrPastItemView(
     modifier: Modifier = Modifier,
+    navController: NavController,
     booking: CalendarEvent,
 ) {
     BookingItem {
@@ -180,8 +175,7 @@ fun BookingDeclinedOrPastItemView(
             // TODO: currentUser handle
             currentUser = User(),
             event = booking,
-            navController = rememberNavController(),
-            // TODO: give navController for real
+            navController = navController,
             onApproveClick = { _, _ ->
 
             },
@@ -192,8 +186,7 @@ fun BookingDeclinedOrPastItemView(
 
             },
             onSetDateAndTime = {_,_ ->
-                //onSetDateAndTime(booking, it)
-                // TODO:
+
             },
             onCommentarySave = { _,_->
 
@@ -377,18 +370,8 @@ fun EventInfo(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextDivider(text = "Дата и время")
-        /*HeaderText(
-            modifier = Modifier.padding(8.dp),
-            text = when (event.status) {
-                BookingStatus.NONE -> {
-                    if (event.timeEnd.isBefore(LocalDateTime.now())) stringResource(R.string.event_finished)
-                    else stringResource(R.string.booking_request)
-                }
-                BookingStatus.APPROVED -> stringResource(id = R.string.booking_approved)
-                BookingStatus.DECLINED -> stringResource(id = R.string.book_declined)
-            }
-        )*/
         BookingTime(
+            // TODO need manage by user?
             editable = currentUser.canManageEvent(event),
             timeStart = event.timeStart,
             timeEnd = event.timeEnd,

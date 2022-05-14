@@ -46,10 +46,10 @@ fun PendingBookingsList(
                                 status = BookingStatus.DECLINED
                             )
                         },
-                        onSetDateAndTime = {
+                        onSetDateAndTime = { event, newTime ->
                             viewModel.updateEventDateAndTime(
-                                event = events[index],
-                                eventDateAndTime = it
+                                event = event,
+                                eventDateAndTime = newTime
                             )
                         },
                         onApplyCommentary = { event, userComment ->
@@ -81,16 +81,17 @@ fun MyBookingsList(
                 items(count = events.size) { index ->
                     MyBookingRequestItemView(
                         booking = events[index],
+                        navController = navController,
                         onDeclineClick = {event, commentary ->
                             viewModel.onUserRefuse(
                                 event = event,
                                 managerCommentary = commentary
                             )
                         },
-                        onSetDateAndTime = {
+                        onSetDateAndTime = { event, newTime ->
                             viewModel.updateEventDateAndTime(
-                                event = events[index],
-                                eventDateAndTime = it
+                                event = event,
+                                eventDateAndTime = newTime
                             )
                         },
                         onApplyCommentary = { event, newCommentary ->
@@ -122,7 +123,8 @@ fun PastBookingsList(
                 } else {
                     items(count = bookings.size) { index ->
                         BookingDeclinedOrPastItemView(
-                            booking = bookings[index]
+                            booking = bookings[index],
+                            navController = navController
                         )
                     }
                 }
