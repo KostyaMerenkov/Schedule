@@ -96,6 +96,36 @@ class BookingListViewModel(
         }
     }
 
+    fun onUserRefuse(
+        event: CalendarEvent,
+        managerCommentary: String = event.managerCommentary,
+    ) {
+        viewModelScope.launch {
+            updateEvent.updateEventStatusUseCase(
+                event = event,
+                newStatus = BookingStatus.DECLINED,
+                managerCommentary = managerCommentary
+            ).single().fold(
+                onSuccess = {
+                    SnackbarManager.showMessage(R.string.status_changed)
+                },
+                onFailure = {
+                    SnackbarManager.showMessage(R.string.book_decline_failed)
+                }
+            )
+        }
+    }
+
+    fun updateEventComment(event: CalendarEvent,  userCommentary: String) {
+        viewModelScope.launch {
+            updateEvent.updateUserCommentUseCase(
+                event = event,
+                newComment = userCommentary
+            )
+        }
+
+    }
+
     fun updateEventDateAndTime(
         event: CalendarEvent,
         eventDateAndTime: EventDateAndTime

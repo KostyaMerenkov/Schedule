@@ -128,11 +128,11 @@ private fun initTabs(
         result.add(
             BookingTabItem.PendingBookingsTabItem(
                 bookings = if (currentUser.isAdmin()) {
-                    bookings
+                    bookings.filter { it.timeEnd.isAfter(LocalDateTime.now()) }
                 } else {
                     bookings.filter {
                         it.appliance.isUserSuperuserOrAdmin(currentUser)
-                                && it.timeEnd.isBefore(LocalDateTime.now())
+                                && it.timeEnd.isAfter(LocalDateTime.now())
                     }
                 },
                 viewModel = viewModel,
@@ -195,6 +195,7 @@ fun BookingStatus(
     onUserClick: (User) -> Unit,
     onDecline: ((CalendarEvent, String) -> Unit),
     onApprove: ((CalendarEvent, String) -> Unit),
+    onUserRefuse: ((CalendarEvent, String) -> Unit)
 ) {
     Divider()
     Spacer(modifier = Modifier.size(12.dp))
@@ -204,11 +205,28 @@ fun BookingStatus(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         when (book.status) {
-            BookingStatus.APPROVED, BookingStatus.DECLINED -> {
+            BookingStatus.APPROVED -> {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    BookStatus(book) {
+                        onUserClick(it)
+                    }
+                    if (book.timeEnd.isAfter(LocalDateTime.now())) {
+                        val declineComment = stringResource(id = R.string.declined_by_user)
+                        DeclineBookingButton(
+                            onDeclineClick = { onUserRefuse(book, declineComment) }
+                        )
+                    }
+                }
+
+            }
+            BookingStatus.DECLINED -> {
                 BookStatus(book) {
                     onUserClick(it)
                 }
-                // TODO: Add current user refuse feature
             }
             BookingStatus.NONE -> {
                 if (currentUser.canManageEvent(book)) {
@@ -255,9 +273,11 @@ fun BookStatus(book: CalendarEvent, onUserClick: (User) -> Unit) {
             ) { onUserClick(it) }
         }
         if (book.managerCommentary.isNotEmpty()) {
-            BookingCommentary(commentary = book.managerCommentary, header = stringResource(
-                id = R.string.manager_commentary
-            ), editable = false, onCommentarySave = {})
+            BookingCommentary(
+                commentary = book.managerCommentary,
+                header = stringResource(id = R.string.manager_commentary),
+                editable = false,
+                onCommentarySave = {})
         }
     }
 }

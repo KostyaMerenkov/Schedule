@@ -53,7 +53,10 @@ fun PendingBookingsList(
                             )
                         },
                         onApplyCommentary = { event, userComment ->
-                            // TODO: change user comment
+                            viewModel.updateEventComment(
+                                event = event,
+                                userCommentary = userComment
+                            )
                         }
                     )
                 }
@@ -78,11 +81,10 @@ fun MyBookingsList(
                 items(count = events.size) { index ->
                     MyBookingRequestItemView(
                         booking = events[index],
-                        onDeclineClick = {
-                            viewModel.manageBookStatus(
-                                event = events[index],
-                                status = BookingStatus.DECLINED,
-                                userCommentary = "Отклонено пользователем"
+                        onDeclineClick = {event, commentary ->
+                            viewModel.onUserRefuse(
+                                event = event,
+                                managerCommentary = commentary
                             )
                         },
                         onSetDateAndTime = {
@@ -91,8 +93,11 @@ fun MyBookingsList(
                                 eventDateAndTime = it
                             )
                         },
-                        onApplyCommentary = { _, _ ->
-                            // TODO:
+                        onApplyCommentary = { event, newCommentary ->
+                            viewModel.updateEventComment(
+                                event = event,
+                                userCommentary = newCommentary
+                            )
                         }
                     )
                 }

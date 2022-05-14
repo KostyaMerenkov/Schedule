@@ -127,6 +127,7 @@ fun PendingBookingItemView(
             navController = navController,
             onApproveClick = onApproveClick,
             onDeclineClick = onDeclineClick,
+            onUserRefuseClick =  {_, _ ->  },
             onSetDateAndTime = {_,_ ->
                 //onSetDateAndTime(booking, it)
                 // TODO:
@@ -140,7 +141,7 @@ fun PendingBookingItemView(
 fun MyBookingRequestItemView(
     modifier: Modifier = Modifier,
     booking: CalendarEvent,
-    onDeclineClick: () -> Unit,
+    onDeclineClick: (CalendarEvent, String) -> Unit,
     onSetDateAndTime: (EventDateAndTime) -> Unit,
     onApplyCommentary: (CalendarEvent, String) -> Unit,
 ) {
@@ -157,6 +158,7 @@ fun MyBookingRequestItemView(
             onDeclineClick = { _, _ ->
 
             },
+            onUserRefuseClick = onDeclineClick,
             onSetDateAndTime = {_,_ ->
                 //onSetDateAndTime(booking, it)
                 // TODO:
@@ -184,6 +186,9 @@ fun BookingDeclinedOrPastItemView(
 
             },
             onDeclineClick = { _, _ ->
+
+            },
+            onUserRefuseClick = { _, _ ->
 
             },
             onSetDateAndTime = {_,_ ->
@@ -361,6 +366,7 @@ fun EventInfo(
     navController: NavController,
     onApproveClick: (CalendarEvent, String) -> Unit,
     onDeclineClick: (CalendarEvent, String) -> Unit,
+    onUserRefuseClick: (CalendarEvent, String) -> Unit,
     onSetDateAndTime: (CalendarEvent, EventDateAndTime) -> Unit,
     onCommentarySave: (CalendarEvent, String) -> Unit,
 ) {
@@ -427,6 +433,7 @@ fun EventInfo(
             },
             onApprove = onApproveClick,
             onDecline = onDeclineClick,
+            onUserRefuse = onUserRefuseClick
         )
         Spacer(modifier = Modifier.size(8.dp))
     }
