@@ -194,12 +194,20 @@ fun BasicSchedule(
                 drawLine(
                     Color.Blue,
                     start = Offset(
-                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset
+                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + hourHeight.toPx() / currentTime.minute
                     ),
                     end = Offset(
-                        (currentDay.dayOfMonth - minDate.dayOfMonth + 1) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset
+                        (currentDay.dayOfMonth - minDate.dayOfMonth + 1) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + hourHeight.toPx() / currentTime.minute
                     ),
                     strokeWidth = 2.dp.toPx()
+                )
+
+                drawCircle(
+                    Color.Blue,
+                    center = Offset(
+                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + hourHeight.toPx() / currentTime.minute
+                    ),
+                    radius = 12f
                 )
             }
     ) { measureables, constraints ->
