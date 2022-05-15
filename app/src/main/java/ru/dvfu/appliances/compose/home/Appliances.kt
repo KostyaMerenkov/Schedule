@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.compose
+package ru.dvfu.appliances.compose.home
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -28,12 +28,11 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.compose.appliance.ApplianceNameSet
+import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.components.FullscreenLoading
 import ru.dvfu.appliances.compose.viewmodels.AppliancesViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.Roles
-import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.isAdmin
 import ru.dvfu.appliances.ui.ViewState
 
 @ExperimentalFoundationApi
@@ -45,17 +44,18 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
 
     val viewModel: AppliancesViewModel = getViewModel()
     val appliancesState by viewModel.appliancesState.collectAsState()
-
-    val user: User by viewModel.user.collectAsState(User())
+    val currentUser by viewModel.currentUser.collectAsState()
 
 
     Scaffold(
         backgroundColor = Color(0XFFE3DAC9),
         topBar = {
-            if (user.role >= Roles.ADMIN.ordinal) ScheduleAppBar(stringResource(R.string.appliances),
-                backClick = backPress,
-                actionAdd = true,
-                addClick = { navController.navigate(MainDestinations.NEW_APPLIANCE_ROUTE) })
+            if (currentUser.isAdmin) {
+                ScheduleAppBar(stringResource(R.string.appliances),
+                    backClick = backPress,
+                    actionAdd = true,
+                    addClick = { navController.navigate(MainDestinations.NEW_APPLIANCE_ROUTE) })
+            }
             else ScheduleAppBar(stringResource(R.string.appliances), backClick = backPress)
         },
     ) {
@@ -73,16 +73,21 @@ fun Appliances(navController: NavController, backPress: () -> Unit, modifier: Mo
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        items(it.data) { appliance ->
-                            ItemAppliance(
-                                appliance = appliance,
-                                applianceClicked = {
-                                    navController.navigate(
-                                        MainDestinations.APPLIANCE_ROUTE,
-                                        Arguments.APPLIANCE to appliance
-                                    )
-                                }
-                            )
+                        it.data.forEach { (active, list) ->
+                            /*header { Header(
+                                if (active) stringResource(R.string.isactive)
+                            else stringResource(id = R.string.unactive)) }*/
+                            items(list) { appliance ->
+                                ItemAppliance(
+                                    appliance = appliance,
+                                    applianceClicked = {
+                                        navController.navigate(
+                                            MainDestinations.APPLIANCE_ROUTE,
+                                            Arguments.APPLIANCE to appliance
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -127,14 +132,14 @@ fun AppliancesFab(navController: NavController) {
     }
 }
 
-@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
 fun ItemAppliance(appliance: Appliance, applianceClicked: (Appliance) -> Unit) {
     val contentAlpha = if (appliance.active) ContentAlpha.high else ContentAlpha.disabled
     CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
         MyCard(
-            onClick = { applianceClicked(appliance) }) {
+            onClick = { applianceClicked(appliance) },
+            backgroundColor = if (appliance.active)  MaterialTheme.colors.surface else Color.LightGray) {
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,

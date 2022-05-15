@@ -22,6 +22,7 @@ import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.isUserSuperuserOrAdmin
 
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi

@@ -226,7 +226,7 @@ class NotificationManagerImpl(
 
     suspend fun subscribeCurrentUser() {
         val currentUser = userDatastore.getCurrentUser.single()
-        if (currentUser.isAnonymousOrGuest()) return
+        if (currentUser.isAnonymousOrGuest) return
 
         Firebase.messaging.subscribeToTopic("weather")
             .addOnCompleteListener { task ->

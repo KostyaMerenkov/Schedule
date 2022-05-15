@@ -3,33 +3,26 @@ package ru.dvfu.appliances.compose
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Apartment
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.SupervisedUserCircle
 import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
-import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.home.Appliances
 import ru.dvfu.appliances.compose.home.HomeScreen
-import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 
 @ExperimentalFoundationApi
 @ExperimentalCoroutinesApi
@@ -53,11 +46,11 @@ fun NavGraphBuilder.addHomeGraph(
     ) { from ->
         Appliances(navController, backPress)
     }
-    composable(
+/*    composable(
         HomeSections.USERS.route
     ) { from ->
         Users(navController, backPress)
-    }
+    }*/
 
     composable(HomeSections.PROFILE.route) {
         Profile(navController, modifier, backPress)
@@ -71,7 +64,7 @@ enum class HomeSections(
 ) {
     CALENDAR(R.string.calendar, Icons.Outlined.Home, "home/calendar"),
     APPLIANCES(R.string.appliances, Icons.Outlined.Apartment, "home/appliances"),
-    USERS(R.string.users, Icons.Outlined.SupervisedUserCircle, "home/users"),
+    /*USERS(R.string.users, Icons.Outlined.SupervisedUserCircle, "home/users"),*/
     PROFILE(R.string.profile, Icons.Outlined.VerifiedUser, "home/profile")
 }
 

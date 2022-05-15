@@ -30,13 +30,12 @@ import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.compose.components.views.PrimaryText
 import ru.dvfu.appliances.compose.components.views.SecondaryText
 import ru.dvfu.appliances.compose.components.views.TextDivider
+import ru.dvfu.appliances.compose.home.ApplianceImage
+import ru.dvfu.appliances.compose.home.ApplianceName
 import ru.dvfu.appliances.compose.home.DateAndTime
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
-import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.CalendarEvent
-import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository.entity.BookingStatus
+import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.model.utils.*
 import ru.dvfu.appliances.ui.ViewState
 import java.time.Duration
@@ -124,10 +123,10 @@ private fun initTabs(
 
     val result = mutableListOf<BookingTabItem>()
 
-    if (currentUser.isAdmin() || bookings.find { it.appliance.isUserSuperuserOrAdmin(currentUser) } != null) {
+    if (currentUser.isAdmin || bookings.find { it.appliance.isUserSuperuserOrAdmin(currentUser) } != null) {
         result.add(
             BookingTabItem.PendingBookingsTabItem(
-                bookings = if (currentUser.isAdmin()) {
+                bookings = if (currentUser.isAdmin) {
                     bookings.filter { it.timeEnd.isAfter(LocalDateTime.now()) }
                 } else {
                     bookings.filter {

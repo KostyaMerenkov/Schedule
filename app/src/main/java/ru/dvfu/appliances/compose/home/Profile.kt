@@ -3,7 +3,6 @@ package ru.dvfu.appliances.compose
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -35,11 +34,13 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
+import ru.dvfu.appliances.BuildConfig
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.isAdmin
 import ru.dvfu.appliances.ui.activity.LoginActivity
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -77,7 +78,10 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
                     }
 
                 }
-                if (currentUser.anonymous.not()) UserButtons(navController)
+                if (currentUser.anonymous.not()) UserButtons(
+                    navController,
+                    currentUser = currentUser
+                )
 
 /*                ColumnButton(Icons.Default.Error, "Выдать ошибку")
                 { throw RuntimeException("Test Crash")  }// Force a crash*/
@@ -89,14 +93,14 @@ fun Profile(navController: NavController, modifier: Modifier = Modifier, backPre
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
 @Composable
-fun UserButtons(navController: NavController) {
+fun UserButtons(navController: NavController, currentUser: User) {
     val context = LocalContext.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 80.dp),
-        verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.Bottom)
+        verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically)
     ) {
 
         ColumnButton(Icons.Default.Edit, "Редактировать профиль")
@@ -104,6 +108,11 @@ fun UserButtons(navController: NavController) {
 
         ColumnButton(image = Icons.Default.Notifications, name = "Настройка уведомлений") {
             goToNotificationsSettings(context)
+        }
+
+        if (currentUser.isAdmin) {
+            ColumnButton(image = Icons.Default.PersonSearch, name = "Список пользователей")
+            { navController.navigate(MainDestinations.USERS_ROUTE) }
         }
 
     }

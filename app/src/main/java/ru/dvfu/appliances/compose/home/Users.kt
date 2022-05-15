@@ -3,7 +3,6 @@ package ru.dvfu.appliances.compose
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -54,15 +53,11 @@ fun Users(navController: NavController, backPress: () -> Unit) {
                     ) {
                         item { Spacer(Modifier.size(4.dp)) }
                         it.data.groupBy { it.role }.forEach { (role, users) ->
-                            stickyHeader { Header(stringResource(Roles.values()[role].stringRess)) }
+                            stickyHeader { Header(text = stringResource(Roles.values()[role].stringRess)) }
                             items(users) { user ->
-                                ItemUser(
-                                    user = user,
+                                ItemUser(user = user,
                                     userClicked = {
-                                        navController.navigate(
-                                            MainDestinations.USER_DETAILS_ROUTE,
-                                            Arguments.USER to user
-                                        )
+                                        navController.navigate(MainDestinations.USER_DETAILS_ROUTE, Arguments.USER to user)
                                     },
                                 )
                             }
@@ -87,9 +82,9 @@ fun Users(navController: NavController, backPress: () -> Unit) {
 }
 
 @Composable
-fun Header(role: String) {
+fun Header(text: String, modifier: Modifier = Modifier) {
         Text(
-            role, modifier = Modifier
+            text, modifier = modifier
                 .padding(2.dp)
                 .padding(horizontal = 10.dp), style = MaterialTheme.typography.h6
         )

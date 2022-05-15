@@ -19,7 +19,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.google.accompanist.insets.navigationBarsWithImePadding
-import com.google.accompanist.insets.systemBarsPadding
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi

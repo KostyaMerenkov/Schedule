@@ -33,10 +33,7 @@ import ru.dvfu.appliances.compose.home.SelectedDate
 import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.EventsState
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
-import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.BookingStatus
-import ru.dvfu.appliances.model.repository.entity.CalendarEvent
-import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.model.utils.formattedTime
 import ru.dvfu.appliances.model.utils.loadingModifier
 import java.time.LocalDate
@@ -77,7 +74,7 @@ fun MonthWeekCalendar(
     Scaffold(
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            if (!currentUser.isAnonymousOrGuest()) {
+            if (!currentUser.isAnonymousOrGuest) {
                 FloatingActionButton(
                     onClick = {
                         navController.navigate(

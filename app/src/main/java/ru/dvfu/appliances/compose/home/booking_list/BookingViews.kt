@@ -29,6 +29,7 @@ import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.repository.entity.BookingStatus
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.canManageEvent
 
 
 sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Unit) {

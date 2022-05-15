@@ -22,6 +22,7 @@ import ru.dvfu.appliances.compose.viewmodels.EventInfoViewModel
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import ru.dvfu.appliances.model.repository.entity.canManageEvent
 
 @Composable
 fun EventInfoScreen(navController: NavController, eventArg: CalendarEvent, backPress: () -> Unit) {

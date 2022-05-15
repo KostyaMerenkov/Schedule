@@ -19,8 +19,7 @@ data class Appliance(
     val superuserIds: List<String> = listOf(),
     val userIds: List<String> = listOf(),
     val active: Boolean = true,
-): Parcelable {
-    fun isUserSuperuserOrAdmin(user: User): Boolean {
-        return superuserIds.contains(user.userId) ||  user.isAdmin()
-    }
-}
+): Parcelable
+
+fun Appliance.isUserSuperuserOrAdmin(user: User): Boolean = superuserIds.contains(user.userId)
+        || user.isAdmin

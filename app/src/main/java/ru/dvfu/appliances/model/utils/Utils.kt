@@ -4,7 +4,12 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.GridItemSpan
+import androidx.compose.foundation.lazy.LazyGridItemSpanScope
+import androidx.compose.foundation.lazy.LazyGridScope
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
@@ -27,10 +32,7 @@ import org.koin.core.context.GlobalContext.loadKoinModules
 import org.koin.core.context.unloadKoinModules
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.di.repositoryModule
-import ru.dvfu.appliances.model.repository.entity.BookingStatus
-import ru.dvfu.appliances.model.repository.entity.CalendarEvent
-import ru.dvfu.appliances.model.repository.entity.Roles
-import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.*
 import java.time.Duration
 import java.util.*
 

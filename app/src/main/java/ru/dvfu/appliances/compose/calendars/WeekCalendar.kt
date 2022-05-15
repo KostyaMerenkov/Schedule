@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose.calendars
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.FloatingActionButton
@@ -18,6 +19,7 @@ import ru.dvfu.appliances.compose.home.SelectedDate
 import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import ru.dvfu.appliances.model.repository.entity.isAnonymousOrGuest
 import java.time.LocalDate
 import java.time.temporal.WeekFields
 import java.util.*
@@ -27,6 +29,8 @@ fun EventCalendar(
     viewModel: WeekCalendarViewModel,
     navController: NavController,
     onEventLongClick: (CalendarEvent) -> Unit,
+    horizontalScrollState: ScrollState,
+    verticalScrollState: ScrollState,
 ) {
     val currentDate = remember { LocalDate.now() }
     val minDate = remember { currentDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 1L) }
@@ -40,8 +44,7 @@ fun EventCalendar(
     val events by viewModel.weekEvents.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-    val verticalScrollState = rememberScrollState()
-    val horizontalScrollState = rememberScrollState()
+
 
     Scaffold(
         topBar = {
@@ -53,7 +56,7 @@ fun EventCalendar(
             }, onCalendarSelected = viewModel::setCalendarType)
         },
         floatingActionButton = {
-            if (!currentUser.isAnonymousOrGuest()) {
+            if (!currentUser.isAnonymousOrGuest) {
                 FloatingActionButton(
                     onClick = { navController.navigate(MainDestinations.ADD_EVENT) })
                 { Icon(Icons.Default.Add, "") }

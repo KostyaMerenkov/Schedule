@@ -13,7 +13,7 @@ val Red500 = Color(0xFFF44336)
 
 val pickerColors = listOf(
     null,
-    Color(0xFF000000),
+    //Color(0xFF000000),
     Color(0xFFFFFFFF),
     Color(0xFFFAFAFA),
     Color(0x80FF4444),

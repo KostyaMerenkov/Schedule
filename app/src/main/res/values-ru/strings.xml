@@ -127,4 +127,6 @@
     <string name="past_day_error">Невозможно создать событие на прошедший день</string>
     <string name="appliance_enabled">Прибор включен</string>
     <string name="appliance_disabled">Прибор выключен</string>
+    <string name="isactive">Активные</string>
+    <string name="isunactive">Неактивные</string>
 </resources>

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.model.repository.entity.Roles
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.isAdmin
 
 @Composable
 fun FabWithMenu(
@@ -51,7 +52,7 @@ fun FabWithMenu(
         horizontalAlignment = Alignment.End
     ) {
 
-        if (currentUser.isAdmin()) {
+        if (currentUser.isAdmin) {
             FabMenu(item = FabMenuItem(
                 icon = Icons.Default.AddTask,
                 text = stringResource(id = R.string.new_event),

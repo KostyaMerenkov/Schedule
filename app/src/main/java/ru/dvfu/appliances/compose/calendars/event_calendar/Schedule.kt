@@ -195,10 +195,10 @@ fun BasicSchedule(
                 drawLine(
                     Color.Blue,
                     start = Offset(
-                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + (hourHeight.toPx() - (hourHeight.toPx() * (numMinutes / 60f)) / currentTime.minute)
+                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
                     ),
                     end = Offset(
-                        (currentDay.dayOfMonth - minDate.dayOfMonth + 1) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + (hourHeight.toPx() - (hourHeight.toPx() * (numMinutes / 60f)) / currentTime.minute)
+                        (currentDay.dayOfMonth - minDate.dayOfMonth + 1) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
                     ),
                     strokeWidth = 2.dp.toPx()
                 )
@@ -208,7 +208,7 @@ fun BasicSchedule(
                 drawCircle(
                     Color.Blue,
                     center = Offset(
-                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + (hourHeight.toPx() - (hourHeight.toPx() * (numMinutes / 60f)) / currentTime.minute)
+                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
                     ),
                     radius = 14f
                 )
@@ -217,7 +217,7 @@ fun BasicSchedule(
         val height = (hourHeight.toPx() * (numMinutes / 60f)).roundToInt()
         val width = dayWidth.roundToPx() * numDays
         dayWidthForScroll = dayWidth.roundToPx()
-        hourHeightForScroll = dayWidth.roundToPx()
+        hourHeightForScroll = hourHeight.roundToPx()
         val placeablesWithEvents = measureables.map { measurable ->
             val splitEvent = measurable.parentData as PositionedEvent
             val eventDurationMinutes =

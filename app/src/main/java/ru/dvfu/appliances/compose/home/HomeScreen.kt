@@ -24,15 +24,13 @@ import ru.dvfu.appliances.compose.calendars.EventCalendar
 import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.calendars.event_calendar.EventTimeFormatter
-import ru.dvfu.appliances.compose.calendars.event_calendar.Schedule
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import ru.dvfu.appliances.model.repository.entity.canManageEvent
 import ru.dvfu.appliances.model.utils.Constants.TIME_TO_EXIT
 import ru.dvfu.appliances.model.utils.showToast
 import java.time.LocalDate
-import java.time.temporal.WeekFields
-import java.util.*
 
 @Composable
 fun HomeScreen(
@@ -43,6 +41,9 @@ fun HomeScreen(
     val currentUser by viewModel.currentUser.collectAsState()
     val calendarType by viewModel.calendarType.collectAsState()
     val context = LocalContext.current
+
+    val verticalScrollState = rememberScrollState()
+    val horizontalScrollState = rememberScrollState()
 
     var eventOptionDialogOpened by remember { mutableStateOf(false) }
     if (eventOptionDialogOpened) EventOptionDialog(
@@ -81,7 +82,9 @@ fun HomeScreen(
                             viewModel.selectedEvent.value = it
                             eventOptionDialogOpened = true
                         }
-                    }
+                    },
+                    verticalScrollState = verticalScrollState,
+                    horizontalScrollState = horizontalScrollState
                 )
             }
         }

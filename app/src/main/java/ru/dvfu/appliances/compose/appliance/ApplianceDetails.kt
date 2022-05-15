@@ -34,6 +34,8 @@ import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
+import ru.dvfu.appliances.model.repository.entity.isAdmin
+import ru.dvfu.appliances.model.repository.entity.isUserSuperuserOrAdmin
 
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
@@ -172,7 +174,7 @@ fun ApplianceTopBar(
         ScheduleAppBar(
             stringResource(R.string.appliance),
             backClick = upPress,
-            actionDelete = user.isAdmin() && noApplianceEvents,
+            actionDelete = user.isAdmin && noApplianceEvents,
             deleteClick = deleteClick,
             elevation = 0.dp,
             actions = {

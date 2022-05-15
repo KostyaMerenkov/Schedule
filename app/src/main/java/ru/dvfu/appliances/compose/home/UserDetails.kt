@@ -10,9 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -31,10 +29,8 @@ import ru.dvfu.appliances.compose.components.ItemsSelection
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.viewmodels.UserDetailsViewModel
 import ru.dvfu.appliances.compose.components.views.HeaderText
-import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.Roles
-import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository.entity.getRole
+import ru.dvfu.appliances.compose.home.ItemAppliance
+import ru.dvfu.appliances.model.repository.entity.*
 
 @OptIn(InternalCoroutinesApi::class)
 @ExperimentalComposeUiApi
@@ -120,7 +116,7 @@ fun ProfileUserInfo(user: User, currentUser: User, userRoleState: UiState, onRol
             readOnly = true,
             label = { Text(stringResource(R.string.role)) },
             trailingIcon = {
-                if (currentUser.isAdmin() && (user.userId != currentUser.userId || BuildConfig.DEBUG)) {
+                if (currentUser.isAdmin && (user.userId != currentUser.userId || BuildConfig.DEBUG)) {
                     if (userRoleState is UiState.InProgress) {
                         CircularProgressIndicator()
                     } else {

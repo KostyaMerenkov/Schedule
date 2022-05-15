@@ -2,6 +2,7 @@ package ru.dvfu.appliances.model.repository.entity
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import ru.dvfu.appliances.BuildConfig
 import java.time.LocalDateTime
 
 @Parcelize
@@ -14,23 +15,15 @@ data class User(
     val role: Int = Roles.GUEST.ordinal,
     val anonymous: Boolean = false,
     val userPic: String = "",
-) : Parcelable {
+) : Parcelable
 
-    fun isAdmin(): Boolean {
-        return role == Roles.ADMIN.ordinal
-    }
+val User.isAdmin: Boolean
+    get() = role == Roles.ADMIN.ordinal
 
-    fun isUser(): Boolean {
-        return role == Roles.USER.ordinal
-    }
-
-    fun isAnonymousOrGuest(): Boolean {
-        return role == Roles.GUEST.ordinal || anonymous
-    }
-
-    fun canManageEvent(event: CalendarEvent): Boolean {
-        return (event.appliance.superuserIds.contains(userId) || isAdmin())
-                && event.timeEnd.isAfter(LocalDateTime.now())
-    }
-
+fun User.canManageEvent(event: CalendarEvent): Boolean {
+    return ((isAdmin || event.appliance.superuserIds.contains(userId) )
+            && event.timeEnd.isAfter(LocalDateTime.now()))
 }
+
+val User.isAnonymousOrGuest: Boolean
+    get() = role == Roles.GUEST.ordinal || anonymous
