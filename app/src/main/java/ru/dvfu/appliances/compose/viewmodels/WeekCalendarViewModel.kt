@@ -114,13 +114,13 @@ class WeekCalendarViewModel(
         }
     }
 
-    fun getWeekEvents() {
+    fun getWeekEvents(minDate: LocalDate, maxDate: LocalDate) {
         _uiState.value = UiState.InProgress
         viewModelScope.launch {
             _weekEvents.value = eventMapper.mapEvents(
                 getPeriodEventsUseCase.invoke(
-                    dateStart = LocalDate.now().minusDays(2),
-                    dateEnd = LocalDate.now().plusDays(7)
+                    dateStart = minDate,
+                    dateEnd = maxDate
                 ).first()
             ).filter { it.status == BookingStatus.APPROVED }
             _uiState.value = UiState.Success
@@ -129,8 +129,8 @@ class WeekCalendarViewModel(
 
     fun setCalendarType() {
         viewModelScope.launch {
-            val newCalendarType = when (userDatastore.getCalendarType.first()) {
-                CalendarType.MONTH -> CalendarType.THREE_DAYS
+            val newCalendarType = when (calendarType.value) {
+                CalendarType.MONTH -> CalendarType.WEEK
                 else -> CalendarType.MONTH
             }
             userDatastore.saveCalendarType(newCalendarType)

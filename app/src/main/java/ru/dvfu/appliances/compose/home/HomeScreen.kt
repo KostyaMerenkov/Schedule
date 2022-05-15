@@ -20,6 +20,7 @@ import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.calendars.CalendarType
+import ru.dvfu.appliances.compose.calendars.EventCalendar
 import ru.dvfu.appliances.compose.calendars.MonthWeekCalendar
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.calendars.event_calendar.EventTimeFormatter
@@ -30,6 +31,8 @@ import ru.dvfu.appliances.model.repository.entity.CalendarEvent
 import ru.dvfu.appliances.model.utils.Constants.TIME_TO_EXIT
 import ru.dvfu.appliances.model.utils.showToast
 import java.time.LocalDate
+import java.time.temporal.WeekFields
+import java.util.*
 
 @Composable
 fun HomeScreen(
@@ -69,7 +72,7 @@ fun HomeScreen(
                         }
                     })
             }
-            CalendarType.THREE_DAYS -> {
+            CalendarType.WEEK -> {
                 EventCalendar(
                     viewModel = viewModel,
                     navController = navController,
@@ -108,57 +111,6 @@ fun BackPressHandler(
         }
         lastPressed = currentMillis
     }
-}
-
-@Composable
-fun EventCalendar(
-    viewModel: WeekCalendarViewModel,
-    navController: NavController,
-    onEventLongClick: (CalendarEvent) -> Unit,
-) {
-    SideEffect {
-        viewModel.getWeekEvents()
-    }
-    val uiState by viewModel.uiState.collectAsState()
-    val events by viewModel.weekEvents.collectAsState()
-    val currentUser by viewModel.currentUser.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
-    val verticalScrollState = rememberScrollState()
-    val horizontalScrollState = rememberScrollState()
-
-    Scaffold(
-        topBar = {
-            HomeTopBar(uiState = uiState, onBookingListOpen = {
-                navController.navigate(
-                    MainDestinations.BOOKING_LIST,
-                    Arguments.DATE to SelectedDate()
-                )
-            }, onCalendarSelected = viewModel::setCalendarType)
-        },
-        floatingActionButton = {
-            if (!currentUser.isAnonymousOrGuest()) {
-                FloatingActionButton(
-                    onClick = { navController.navigate(MainDestinations.ADD_EVENT) })
-                { Icon(Icons.Default.Add, "") }
-            }
-        },
-    ) {
-        Schedule(
-            modifier = Modifier.padding(it),
-            calendarEvents = events, minDate = LocalDate.now().minusDays(1),
-            maxDate = LocalDate.now().plusDays(6),
-            onEventClick = {
-                navController.navigate(
-                    MainDestinations.EVENT_INFO,
-                    Arguments.EVENT to it
-                )
-            },
-            onEventLongClick = onEventLongClick,
-            verticalScrollState = verticalScrollState,
-            horizontalScrollState = horizontalScrollState
-        )
-    }
-
 }
 
 @Composable

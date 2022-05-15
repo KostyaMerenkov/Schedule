@@ -145,8 +145,8 @@ class EventsRepositoryImpl(
     ): Result<List<Event>> =
         suspendCoroutine<Result<List<Event>>> { continuation ->
             dbCollections.getEventsCollection()
-                .whereGreaterThan("date", dateStart.toMillis)
-                .whereLessThan("date", dateEnd.toMillis)
+                .whereGreaterThanOrEqualTo("date", dateStart.toMillis)
+                .whereLessThanOrEqualTo("date", dateEnd.toMillis)
                 .get().addOnCompleteListener {
                     if (it.isSuccessful) {
                         val events = it.result.toObjects<Event>()
