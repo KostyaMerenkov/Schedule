@@ -27,6 +27,10 @@ import org.koin.core.context.GlobalContext.loadKoinModules
 import org.koin.core.context.unloadKoinModules
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.di.repositoryModule
+import ru.dvfu.appliances.model.repository.entity.BookingStatus
+import ru.dvfu.appliances.model.repository.entity.CalendarEvent
+import ru.dvfu.appliances.model.repository.entity.Roles
+import ru.dvfu.appliances.model.repository.entity.User
 import java.time.Duration
 import java.util.*
 
@@ -91,3 +95,29 @@ fun isNetworkAvailable(context: Context): Boolean {
         } ?: false
     }
 }
+
+fun List<CalendarEvent>.filterForUser(currentUser: User): List<CalendarEvent> =
+    when (currentUser.role) {
+        Roles.USER.ordinal -> {
+            filter { currentUser.canManageEvent(it) || it.user.userId == currentUser.userId }
+        }
+        Roles.ADMIN.ordinal -> {
+            this
+        }
+        else -> {
+            filter { it.status == BookingStatus.APPROVED }
+        }
+    }
+
+fun List<CalendarEvent>.filterWeekEventsForUser(currentUser: User): List<CalendarEvent> =
+    when (currentUser.role) {
+        Roles.USER.ordinal -> {
+            filter { it.status != BookingStatus.DECLINED && (currentUser.canManageEvent(it) || it.user.userId == currentUser.userId) }
+        }
+        Roles.ADMIN.ordinal -> {
+            filter { it.status != BookingStatus.DECLINED }
+        }
+        else -> {
+            filter { it.status == BookingStatus.APPROVED }
+        }
+    }

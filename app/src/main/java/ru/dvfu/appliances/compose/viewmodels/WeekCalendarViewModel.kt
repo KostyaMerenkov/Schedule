@@ -2,6 +2,7 @@ package ru.dvfu.appliances.compose.viewmodels
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.semantics.Role
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
@@ -15,6 +16,8 @@ import ru.dvfu.appliances.compose.use_cases.*
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.EventsRepository
 import ru.dvfu.appliances.model.repository.entity.*
+import ru.dvfu.appliances.model.utils.filterForUser
+import ru.dvfu.appliances.model.utils.filterWeekEventsForUser
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -83,7 +86,7 @@ class WeekCalendarViewModel(
             }
             getDateEventsUseCase(date).collectLatest {
                 _reposEvents.value = (_reposEvents.value.plus(it))
-                val dayEvents = eventMapper.mapEvents(it)
+                val dayEvents = eventMapper.mapEvents(it).filterForUser(currentUser.value)
                 _dayEvents = _dayEvents.apply {
                     replace(date, EventsState.Loaded(dayEvents))?.let {
                         put(date, EventsState.Loaded(dayEvents))
@@ -122,7 +125,7 @@ class WeekCalendarViewModel(
                     dateStart = minDate,
                     dateEnd = maxDate
                 ).first()
-            ).filter { it.status == BookingStatus.APPROVED }
+            ).filterWeekEventsForUser(currentUser.value)
             _uiState.value = UiState.Success
         }
     }
@@ -163,7 +166,7 @@ class WeekCalendarViewModel(
             }
             getPeriodEventsUseCase(dates.first(), dates.last()).collectLatest { result ->
                 _reposEvents.value = (_reposEvents.value.plus(result))
-                val dayEvents = eventMapper.mapEvents(result).groupBy { it.date }
+                val dayEvents = eventMapper.mapEvents(result).filterForUser(currentUser.value).groupBy { it.date }
                 _dayEvents = _dayEvents.apply {
                     dayEvents.forEach { (date, events) ->
                         replace(date, EventsState.Loaded(events))?.let {

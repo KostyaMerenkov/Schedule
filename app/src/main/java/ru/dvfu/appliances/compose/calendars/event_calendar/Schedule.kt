@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
@@ -194,20 +195,22 @@ fun BasicSchedule(
                 drawLine(
                     Color.Blue,
                     start = Offset(
-                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + hourHeight.toPx() / currentTime.minute
+                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + (hourHeight.toPx() - (hourHeight.toPx() * (numMinutes / 60f)) / currentTime.minute)
                     ),
                     end = Offset(
-                        (currentDay.dayOfMonth - minDate.dayOfMonth + 1) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + hourHeight.toPx() / currentTime.minute
+                        (currentDay.dayOfMonth - minDate.dayOfMonth + 1) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + (hourHeight.toPx() - (hourHeight.toPx() * (numMinutes / 60f)) / currentTime.minute)
                     ),
                     strokeWidth = 2.dp.toPx()
                 )
 
+            }.drawWithContent {
+                this.drawContent()
                 drawCircle(
                     Color.Blue,
                     center = Offset(
-                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + hourHeight.toPx() / currentTime.minute
+                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + (hourHeight.toPx() - (hourHeight.toPx() * (numMinutes / 60f)) / currentTime.minute)
                     ),
-                    radius = 12f
+                    radius = 14f
                 )
             }
     ) { measureables, constraints ->
