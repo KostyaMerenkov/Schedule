@@ -30,7 +30,7 @@ class CloudFirestoreDatabaseImpl(
 
     //    fun isUserInDatabase(UID: String): Boolean {
 //        return false
-//        TODO("Not yet implemented")
+
 //        return if (cloudFirestore.collection("users").document(UID).get().addOnCompleteListener {
 //            return it.isSuccessful
 //            }

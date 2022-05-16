@@ -54,6 +54,9 @@ fun BookingList(navController: NavController) {
     val currentUser = viewModel.currentUser.collectAsState()
     val uiState by viewModel.viewState.collectAsState()
 
+    val bookingTabs = remember { mutableStateListOf<BookingTabItem>() }
+    val pagerState = rememberPagerState()
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -75,8 +78,6 @@ fun BookingList(navController: NavController) {
                         NoBookingsView(Modifier.fillMaxSize())
                     }
 
-                    val bookingTabs = remember { mutableStateListOf<BookingTabItem>() }
-
                     LaunchedEffect(key1 = state.data) {
                         bookingTabs.clear()
                         bookingTabs.addAll(
@@ -89,7 +90,6 @@ fun BookingList(navController: NavController) {
                         )
                     }
 
-                    val pagerState = rememberPagerState()
 
                     Column(
                         modifier = Modifier.fillMaxSize(),

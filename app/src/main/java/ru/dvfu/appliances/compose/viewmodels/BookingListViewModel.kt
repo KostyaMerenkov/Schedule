@@ -70,8 +70,6 @@ class BookingListViewModel(
         }
     }
 
-
-    // FIXME: separate user refuse and superuser status changing
     fun manageBookStatus(
         event: CalendarEvent,
         status: BookingStatus,
@@ -79,8 +77,6 @@ class BookingListViewModel(
         userCommentary: String = event.commentary
     ) {
         viewModelScope.launch {
-
-            val dateAndTime = LocalDateTime.now()
 
             updateEvent.updateEventStatusUseCase(
                 event,
@@ -107,7 +103,7 @@ class BookingListViewModel(
                 managerCommentary = managerCommentary
             ).single().fold(
                 onSuccess = {
-                    SnackbarManager.showMessage(R.string.status_changed)
+                    SnackbarManager.showMessage(R.string.refuse_successfull)
                 },
                 onFailure = {
                     SnackbarManager.showMessage(R.string.book_decline_failed)

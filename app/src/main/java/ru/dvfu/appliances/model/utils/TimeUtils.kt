@@ -14,7 +14,6 @@ object TimeConstants {
     val DEFAULT_EVENT_DURATION: Duration = Duration.ofHours(1)
 
     val ZONE: ZoneId = ZoneId.of("Asia/Vladivostok")
-
 }
 
 fun Long.toLocalDateTime(): LocalDateTime {

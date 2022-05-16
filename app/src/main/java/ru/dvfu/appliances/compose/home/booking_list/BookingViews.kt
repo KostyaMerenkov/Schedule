@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -125,12 +124,13 @@ fun PendingBookingItemView(
         EventInfo(
             currentUser = currentUser,
             event = booking,
-            navController = navController,
+            showDateTimeTitle = false,
             onApproveClick = onApproveClick,
             onDeclineClick = onDeclineClick,
             onUserRefuseClick =  {_, _ ->  },
             onSetDateAndTime = onSetDateAndTime,
-            onCommentarySave = onApplyCommentary
+            onCommentarySave = onApplyCommentary,
+            navController = navController
         )
     }
 }
@@ -149,7 +149,7 @@ fun MyBookingRequestItemView(
             // TODO: currentUser handle
             currentUser = User(),
             event = booking,
-            navController = navController,
+            showDateTimeTitle = false,
             onApproveClick = { _, _ ->
 
             },
@@ -158,7 +158,8 @@ fun MyBookingRequestItemView(
             },
             onUserRefuseClick = onDeclineClick,
             onSetDateAndTime = onSetDateAndTime,
-            onCommentarySave = onApplyCommentary
+            onCommentarySave = onApplyCommentary,
+            navController = navController
         )
     }
 }
@@ -176,7 +177,7 @@ fun BookingDeclinedOrPastItemView(
             // TODO: currentUser handle
             currentUser = User(),
             event = booking,
-            navController = navController,
+            showDateTimeTitle = false,
             onApproveClick = { _, _ ->
 
             },
@@ -191,7 +192,8 @@ fun BookingDeclinedOrPastItemView(
             },
             onCommentarySave = { _,_->
 
-            }
+            },
+            navController = navController
         )
     }
 }
@@ -357,12 +359,13 @@ fun EventInfo(
     currentUser: User,
     modifier: Modifier = Modifier,
     event: CalendarEvent,
-    navController: NavController,
+    showDateTimeTitle: Boolean = true,
     onApproveClick: (CalendarEvent, String) -> Unit,
     onDeclineClick: (CalendarEvent, String) -> Unit,
     onUserRefuseClick: (CalendarEvent, String) -> Unit,
     onSetDateAndTime: (CalendarEvent, EventDateAndTime) -> Unit,
     onCommentarySave: (CalendarEvent, String) -> Unit,
+    navController: NavController,
 ) {
     Column(
         modifier = Modifier
@@ -370,9 +373,11 @@ fun EventInfo(
             .wrapContentHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TextDivider(text = "Дата и время")
+        if (showDateTimeTitle) {
+            TextDivider(text = "Дата и время")
+        }
         BookingTime(
-            // TODO need manage by user?
+            // TODO need manage by user:  || canUserManage()
             editable = currentUser.canManageEvent(event),
             timeStart = event.timeStart,
             timeEnd = event.timeEnd,

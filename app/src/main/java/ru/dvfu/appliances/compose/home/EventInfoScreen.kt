@@ -71,12 +71,13 @@ fun EventInfoScreen(navController: NavController, eventArg: CalendarEvent, backP
             EventInfo(
                 currentUser = currentUser,
                 navController = navController,
+                showDateTimeTitle = false,
                 event = event,
                 onApproveClick = viewModel::onApproveClick,
                 onDeclineClick = viewModel::onDeclineClick,
                 onSetDateAndTime = viewModel::onSetDateAndTime,
                 onCommentarySave = viewModel::onCommentarySave,
-                onUserRefuseClick = {_, _ -> }
+                onUserRefuseClick = viewModel::onUserRefuse
             )
         }
     }

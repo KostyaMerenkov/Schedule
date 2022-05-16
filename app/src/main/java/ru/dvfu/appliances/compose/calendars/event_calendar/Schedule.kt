@@ -195,20 +195,33 @@ fun BasicSchedule(
                 drawLine(
                     Color.Blue,
                     start = Offset(
-                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
+                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(),
+                        (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
                     ),
                     end = Offset(
-                        (currentDay.dayOfMonth - minDate.dayOfMonth + 1) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
+                        (currentDay.dayOfMonth - minDate.dayOfMonth + 1) * dayWidth.toPx(),
+                        (currentTime.hour - minTime.hour) * hourHeight.toPx() + firstHourOffset + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
                     ),
                     strokeWidth = 2.dp.toPx()
                 )
 
-            }.drawWithContent {
+            }
+            .drawWithContent {
                 this.drawContent()
                 drawCircle(
                     Color.Blue,
                     center = Offset(
-                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(), (currentTime.hour - minTime.hour) * hourHeight.toPx() + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
+                        (currentDay.dayOfMonth - minDate.dayOfMonth) * dayWidth.toPx(),
+                        (currentTime.hour - minTime.hour) * hourHeight.toPx() + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
+                    ),
+                    radius = 14f
+                )
+
+                drawCircle(
+                    Color.Blue,
+                    center = Offset(
+                        (currentDay.dayOfMonth - minDate.dayOfMonth + 1) * dayWidth.toPx(),
+                        (currentTime.hour - minTime.hour) * hourHeight.toPx() + (hourHeight.toPx() / 60f * currentTime.minute.toFloat())
                     ),
                     radius = 14f
                 )
@@ -251,8 +264,10 @@ fun BasicSchedule(
     }
 
     LaunchedEffect(Unit) {
-        verticalScrollState.animateScrollTo(((currentTime.hour - minTime.hour) * hourHeightForScroll))
-        horizontalScrollState.animateScrollTo((((currentDay.dayOfMonth - minDate.dayOfMonth)) * dayWidthForScroll))
+        if (verticalScrollState.value == 0) {
+            verticalScrollState.animateScrollTo(((currentTime.hour - minTime.hour) * hourHeightForScroll))
+            horizontalScrollState.animateScrollTo((((currentDay.dayOfMonth - minDate.dayOfMonth)) * dayWidthForScroll))
+        }
     }
 }
 

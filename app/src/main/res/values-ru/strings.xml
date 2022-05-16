@@ -129,4 +129,5 @@
     <string name="appliance_disabled">Прибор выключен</string>
     <string name="isactive">Активные</string>
     <string name="isunactive">Неактивные</string>
+    <string name="refuse_successfull">Вы отказались от бронирования</string>
 </resources>

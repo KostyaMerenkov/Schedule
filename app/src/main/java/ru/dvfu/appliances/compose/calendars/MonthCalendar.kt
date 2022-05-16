@@ -12,12 +12,15 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -166,7 +169,7 @@ fun MonthWeekCalendar(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun EventView(
     modifier: Modifier = Modifier,
@@ -183,12 +186,34 @@ fun EventView(
         else -> ContentAlpha.high
     }
     CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(4.dp)
-                .clipToBounds()
-                .background(
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+
+            Box(
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .width(12.dp)
+                    .fillMaxHeight()
+                    .clip(CircleShape)
+                    .background(
+                        color = Color(event.appliance.color).copy(alpha = LocalContentAlpha.current),
+                        CircleShape
+                    )
+                    .then(childModifier)
+            )
+            Card(
+                elevation = 0.dp,
+                shape = RoundedCornerShape(8.dp),
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(4.dp)
+                    .clipToBounds()
+                    /*.background(
                     when (event.status) {
                         BookingStatus.DECLINED -> {
                             Color(event.appliance.color).copy(alpha = 0.5f)
@@ -196,87 +221,91 @@ fun EventView(
                         else -> Color(event.appliance.color)
                     },
                     shape = RoundedCornerShape(4.dp)
-                )
-                .combinedClickable(
-                    onClick = { onEventClick(event) },
-                    onLongClick = { onEventLongClick(event) }
-                )
-                .then(childModifier)
-        ) {
-            Column(Modifier.padding(4.dp)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column {
-                        Text(
-                            text = formattedTime(event.timeStart, event.timeEnd),
-                            style = MaterialTheme.typography.caption,
-                            maxLines = 2,
-                            overflow = TextOverflow.Clip,
-                            modifier = childModifier
-                        )
-                        Text(
-                            text = event.appliance.name,
-                            style = MaterialTheme.typography.body1,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = childModifier
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                )*/
+                    .then(childModifier),
+                onClick = { onEventClick(event) }
+            ) {
+
+                Column(Modifier.padding(6.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                            modifier = Modifier.weight(1f, false)
                         ) {
-                            Icon(Icons.Default.AccountCircle, "")
                             Text(
-                                text = event.user.userName,
+                                text = formattedTime(event.timeStart, event.timeEnd),
+                                style = MaterialTheme.typography.caption,
+                                maxLines = 2,
+                                overflow = TextOverflow.Clip,
+                                modifier = childModifier
+                            )
+                            Text(
+                                text = event.appliance.name,
                                 style = MaterialTheme.typography.body1,
-                                //fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Bold,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = childModifier
                             )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                Icon(Icons.Default.AccountCircle, "")
+                                Text(
+                                    text = event.user.userName,
+                                    style = MaterialTheme.typography.body1,
+                                    //fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = childModifier
+                                )
+                            }
                         }
-                    }
-                    if (event.status == BookingStatus.NONE) {
-//                        if (currentUser.canManageEvent(event)) {
-//                            Row {
-//                                IconButton(onClick = {  }) {
-//                                    Icon(Icons.Default.Close, "")
-//                                }
-//                                IconButton(onClick = {  }) {
-//                                    Icon(Icons.Default.Done, "")
-//                                }
-//                            }
-//                        } else {
-                        Icon(event.status.icon, "status"/*, tint = event.status.color*/)
-//                        }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colors.surface),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(event.status.icon, "status", tint = event.status.color)
+                        if (event.status == BookingStatus.NONE && currentUser.canManageEvent(event)) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.weight(1f, false)) {
+                                OutlinedButton(onClick = { }, shape = CircleShape) {
+                                    Icon(Icons.Default.Close, "")
+                                }
+                                OutlinedButton(onClick = { }, shape = CircleShape) {
+                                    Icon(Icons.Default.Done, "")
+                                }
+                            }
+                        } else {
+                            IconButtonWithoutOnClick(modifier = Modifier.weight(1f)) {
+                                Icon(event.status.icon, "status", tint = event.status.color)
+                            }
                         }
+
                     }
 
+                    if (event.commentary.isNotBlank()) {
+                        Text(
+                            text = event.commentary,
+                            style = MaterialTheme.typography.body2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = childModifier
+                        )
+                    }
                 }
 
-                if (event.commentary.isNotBlank()) {
-                    Text(
-                        text = event.commentary,
-                        style = MaterialTheme.typography.body2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = childModifier
-                    )
-                }
             }
-
         }
+    }
+}
+
+@Composable
+fun IconButtonWithoutOnClick(modifier: Modifier = Modifier, function: @Composable () -> Unit) {
+    Box(
+        modifier = Modifier.size(LocalViewConfiguration.current.minimumTouchTargetSize),
+        contentAlignment = Alignment.Center
+    ) {
+        function()
     }
 }
 

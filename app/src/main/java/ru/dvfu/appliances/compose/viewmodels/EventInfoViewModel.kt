@@ -149,4 +149,24 @@ class EventInfoViewModel(
         }
     }
 
+    fun onUserRefuse(
+        event: CalendarEvent,
+        managerCommentary: String = event.managerCommentary,
+    ) {
+        viewModelScope.launch {
+            updateEventUseCase.updateEventStatusUseCase(
+                event = event,
+                newStatus = BookingStatus.DECLINED,
+                managerCommentary = managerCommentary
+            ).single().fold(
+                onSuccess = {
+                    SnackbarManager.showMessage(R.string.refuse_successfull)
+                },
+                onFailure = {
+                    SnackbarManager.showMessage(R.string.book_decline_failed)
+                }
+            )
+        }
+    }
+
 }

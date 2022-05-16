@@ -27,7 +27,7 @@ class UpdateTimeUseCase(
         eventDateAndTime: EventDateAndTime,
     ) = flow<EventTimeUpdateResult> {
 
-        //TODO("Use it properly")
+        //TODO("Check for properly working")
         val isTimeFree = checkNewEventTime(eventDateAndTime).single()
 
         val availabilityState = getEventTimeAvailabilityUseCase(

@@ -222,7 +222,6 @@ class FirebaseUsersRepositoryImpl(
                 userPic = photoUrl?.toString() ?: "",
             )
         }
-        //TODO("change name")
     }
 
 }

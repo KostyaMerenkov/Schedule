@@ -31,7 +31,7 @@ import ru.dvfu.appliances.compose.home.booking_list.BookingList
 import ru.dvfu.appliances.compose.home.profile.EditProfile
 import java.time.LocalDate
 
-@OptIn(ExperimentalComposeUiApi::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalCoroutinesApi::class)
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
