@@ -25,6 +25,6 @@ val User.isAnonymousOrGuest: Boolean
 
 fun User.canManageEvent(event: CalendarEvent): Boolean {
     return ((isAdmin || event.appliance.superuserIds.contains(userId) )
-            && event.timeEnd.isAfter(LocalDateTime.now()) || BuildConfig.DEBUG)
+            && event.timeEnd.isAfter(LocalDateTime.now())/* || BuildConfig.DEBUG*/)
 }
 

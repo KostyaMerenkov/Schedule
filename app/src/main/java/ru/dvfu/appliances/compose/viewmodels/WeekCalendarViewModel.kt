@@ -19,6 +19,7 @@ import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.model.utils.filterForUser
 import ru.dvfu.appliances.model.utils.filterWeekEventsForUser
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 
 
@@ -28,6 +29,7 @@ class WeekCalendarViewModel(
     private val getPeriodEventsUseCase: GetPeriodEventsUseCase,
     private val getDateEventsUseCase: GetDateEventsUseCase,
     private val eventMapper: EventMapper,
+    private val updateEventUseCase: UpdateEventUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState>(UiState.InProgress)
@@ -178,6 +180,40 @@ class WeekCalendarViewModel(
             }
         }
     }
+
+
+    fun onApproveClick(event: CalendarEvent, commentary: String) {
+        updateEventStatus(BookingStatus.APPROVED, event, commentary)
+    }
+
+    fun onDeclineClick(event: CalendarEvent, commentary: String) {
+        updateEventStatus(BookingStatus.DECLINED, event, commentary)
+    }
+
+    private fun updateEventStatus(
+        bookingStatus: BookingStatus,
+        event: CalendarEvent,
+        managerCommentary: String,
+    ) {
+        _uiState.value = UiState.InProgress
+        viewModelScope.launch {
+            updateEventUseCase.updateEventStatusUseCase.invoke(
+                event,
+                bookingStatus,
+                managerCommentary,
+            ).first().fold(
+                onSuccess = {
+                    SnackbarManager.showMessage(R.string.status_changed)
+                    _uiState.value = UiState.Success
+                },
+                onFailure = {
+                    SnackbarManager.showMessage(R.string.change_status_failed)
+                    _uiState.value = UiState.Error
+                }
+            )
+        }
+    }
+
 }
 
 private fun YearMonth.getDates(): List<LocalDate> = (1..lengthOfMonth()).map { atDay(it) }

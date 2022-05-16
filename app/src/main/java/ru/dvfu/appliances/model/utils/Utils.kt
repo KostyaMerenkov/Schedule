@@ -114,10 +114,10 @@ fun List<CalendarEvent>.filterForUser(currentUser: User): List<CalendarEvent> =
 fun List<CalendarEvent>.filterWeekEventsForUser(currentUser: User): List<CalendarEvent> =
     when (currentUser.role) {
         Roles.USER.ordinal -> {
-            filter { it.status != BookingStatus.DECLINED && (currentUser.canManageEvent(it) || it.user.userId == currentUser.userId) }
+            filter { it.status == BookingStatus.APPROVED && (currentUser.canManageEvent(it) || it.user.userId == currentUser.userId) }
         }
         Roles.ADMIN.ordinal -> {
-            filter { it.status != BookingStatus.DECLINED }
+            filter { it.status == BookingStatus.APPROVED }
         }
         else -> {
             filter { it.status == BookingStatus.APPROVED }

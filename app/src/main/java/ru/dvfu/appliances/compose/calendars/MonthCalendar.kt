@@ -33,6 +33,7 @@ import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.appliance.NoElementsView
 import ru.dvfu.appliances.compose.home.HomeTopBar
 import ru.dvfu.appliances.compose.home.SelectedDate
+import ru.dvfu.appliances.compose.home.booking_list.BookingCommentaryDialog
 import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.viewmodels.EventsState
 import ru.dvfu.appliances.compose.viewmodels.WeekCalendarViewModel
@@ -48,7 +49,6 @@ fun MonthWeekCalendar(
     viewModel: WeekCalendarViewModel,
     navController: NavController,
     onEventClick: (CalendarEvent) -> Unit,
-    onEventLongClick: (CalendarEvent) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -134,9 +134,10 @@ fun MonthWeekCalendar(
                                     eventsState.events.forEach { event ->
                                         EventView(
                                             onEventClick = onEventClick,
-                                            onEventLongClick = onEventLongClick,
                                             event = event,
-                                            currentUser = currentUser
+                                            currentUser = currentUser,
+                                            onApproveClick = viewModel::onApproveClick,
+                                            onDeclineClick = viewModel::onDeclineClick
                                         )
                                     }
                                 }
@@ -157,7 +158,8 @@ fun MonthWeekCalendar(
                                             ),
                                             currentUser = User(),
                                             onEventClick = {},
-                                            onEventLongClick = {})
+                                        onApproveClick = {_,_, ->},
+                                        onDeclineClick = {_,_, ->})
                                     }
                                 }
                             }
@@ -175,16 +177,43 @@ fun EventView(
     modifier: Modifier = Modifier,
     childModifier: Modifier = Modifier,
     onEventClick: (CalendarEvent) -> Unit,
-    onEventLongClick: (CalendarEvent) -> Unit,
+    onApproveClick: (CalendarEvent, String) -> Unit,
+    onDeclineClick: (CalendarEvent, String) -> Unit,
     event: CalendarEvent,
     currentUser: User
 ) {
     val contentAlpha = when (event.status) {
-        BookingStatus.DECLINED -> {
-            ContentAlpha.disabled
-        }
+        BookingStatus.DECLINED -> ContentAlpha.disabled
         else -> ContentAlpha.high
     }
+
+    var approveDialogState by remember { mutableStateOf(false) }
+    var declineDialogState by remember { mutableStateOf(false) }
+
+    if (approveDialogState) {
+        BookingCommentaryDialog(
+            commentArg = "",
+            onCancel = { approveDialogState = false },
+            onApplyCommentary = {
+                approveDialogState = false
+                onApproveClick(event, it)
+            },
+            newStatus = BookingStatus.APPROVED
+        )
+    }
+
+    if (declineDialogState) {
+        BookingCommentaryDialog(
+            commentArg = "",
+            onCancel = { declineDialogState = false },
+            onApplyCommentary = {
+                approveDialogState = false
+                onDeclineClick(event, it)
+            },
+            newStatus = BookingStatus.DECLINED
+        )
+    }
+
     CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
 
         Row(
@@ -213,15 +242,6 @@ fun EventView(
                     .fillMaxSize()
                     .padding(4.dp)
                     .clipToBounds()
-                    /*.background(
-                    when (event.status) {
-                        BookingStatus.DECLINED -> {
-                            Color(event.appliance.color).copy(alpha = 0.5f)
-                        }
-                        else -> Color(event.appliance.color)
-                    },
-                    shape = RoundedCornerShape(4.dp)
-                )*/
                     .then(childModifier),
                 onClick = { onEventClick(event) }
             ) {
@@ -268,16 +288,16 @@ fun EventView(
                         }
                         if (event.status == BookingStatus.NONE && currentUser.canManageEvent(event)) {
                             Row(horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.weight(1f, false)) {
-                                OutlinedButton(onClick = { }, shape = CircleShape) {
+                            modifier = Modifier.padding(start = 4.dp)) {
+                                OutlinedButton(onClick = { declineDialogState = true }, shape = CircleShape) {
                                     Icon(Icons.Default.Close, "")
                                 }
-                                OutlinedButton(onClick = { }, shape = CircleShape) {
+                                OutlinedButton(onClick = { approveDialogState = true }, shape = CircleShape) {
                                     Icon(Icons.Default.Done, "")
                                 }
                             }
                         } else {
-                            IconButtonWithoutOnClick(modifier = Modifier.weight(1f)) {
+                            IconButtonWithoutOnClick(modifier = Modifier.padding(start = 4.dp)) {
                                 Icon(event.status.icon, "status", tint = event.status.color)
                             }
                         }

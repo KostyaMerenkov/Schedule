@@ -128,7 +128,8 @@ val mainActivity = module {
             userDatastore = get(),
             getDateEventsUseCase = get(),
             getPeriodEventsUseCase = get(),
-            eventMapper = get()
+            eventMapper = get(),
+            updateEventUseCase = get()
         )
     }
 

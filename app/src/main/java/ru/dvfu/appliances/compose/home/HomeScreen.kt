@@ -65,13 +65,8 @@ fun HomeScreen(
                             MainDestinations.EVENT_INFO,
                             Arguments.EVENT to it
                         )
-                    },
-                    onEventLongClick = {
-                        if (currentUser.canManageEvent(it)) {
-                            viewModel.selectedEvent.value = it
-                            eventOptionDialogOpened = true
-                        }
-                    })
+                    }
+                )
             }
             CalendarType.WEEK -> {
                 EventCalendar(

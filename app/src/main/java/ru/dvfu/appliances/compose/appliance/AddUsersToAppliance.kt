@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -182,9 +183,10 @@ fun ItemUserWithSelection(user: User, isSelected: Boolean, userClicked: () -> Un
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxHeight()
+                modifier = Modifier.fillMaxHeight().padding(horizontal = 8.dp)
             ) {
-                Text(user.userName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(user.userName, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1,
+                    overflow = TextOverflow.Ellipsis)
                 Text(user.email)
             }
             Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {

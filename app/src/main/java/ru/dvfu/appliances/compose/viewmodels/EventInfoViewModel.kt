@@ -59,14 +59,6 @@ class EventInfoViewModel(
         }
     }
 
-    fun onApproveClick(event: CalendarEvent, commentary: String) {
-        updateEventStatus(BookingStatus.APPROVED, event, commentary)
-    }
-
-    fun onDeclineClick(event: CalendarEvent, commentary: String) {
-        updateEventStatus(BookingStatus.DECLINED, event, commentary)
-    }
-
     fun onCommentarySave(event: CalendarEvent, comment: String) {
         _uiState.value = UiState.InProgress
         viewModelScope.launch {
@@ -117,6 +109,14 @@ class EventInfoViewModel(
             )*/
             _uiState.value = UiState.Success
         }
+    }
+
+    fun onApproveClick(event: CalendarEvent, commentary: String) {
+        updateEventStatus(BookingStatus.APPROVED, event, commentary)
+    }
+
+    fun onDeclineClick(event: CalendarEvent, commentary: String) {
+        updateEventStatus(BookingStatus.DECLINED, event, commentary)
     }
 
     private fun updateEventStatus(
