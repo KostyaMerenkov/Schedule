@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -574,7 +575,13 @@ fun BookingUser(
                     modifier = Modifier
                         .fillMaxWidth(0.80f)
                 ) {
-                    Text(user.userName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(
+                        user.userName,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                     Text(user.email)
                 }
             }

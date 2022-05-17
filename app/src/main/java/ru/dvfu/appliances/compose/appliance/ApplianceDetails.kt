@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.viewModel
 import ru.dvfu.appliances.BuildConfig
 import ru.dvfu.appliances.R
-import ru.dvfu.appliances.compose.ScheduleAppBar
+import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.home.EventDeleteDialog
 import ru.dvfu.appliances.model.repository.entity.Appliance
@@ -34,6 +34,8 @@ import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
+import ru.dvfu.appliances.compose.components.views.TextDivider
+import ru.dvfu.appliances.compose.home.booking_list.BookingUser
 import ru.dvfu.appliances.model.repository.entity.isAdmin
 import ru.dvfu.appliances.model.repository.entity.isUserSuperuserOrAdmin
 
@@ -45,6 +47,7 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
     val viewModel: ApplianceDetailsViewModel by viewModel()
     viewModel.setAppliance(appliance)
 
+    val createdUser by viewModel.createdUser.collectAsState()
     val noApplianceEvents by viewModel.noApplianceEvents.collectAsState()
     val updatedAppliance by viewModel.appliance.collectAsState()
 
@@ -59,14 +62,6 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
             viewModel.deleteAppliance()
         }
     }
-
-    /*var applianceDisableEnableDialog by remember { mutableStateOf(false) }
-    if (applianceDisableEnableDialog) {
-        ApplianceDisableEnableDialog(onDismiss = { applianceDisableEnableDialog = false }) {
-            viewModel.change
-        }
-    }*/
-
 
     val uiState = viewModel.uiState.collectAsState()
 
@@ -87,7 +82,8 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
                 noApplianceEvents = noApplianceEvents,
                 upPress,
                 deleteClick = { applianceDeleteDialog = true },
-            disableEnableClick = viewModel::disableEnable)
+                disableEnableClick = viewModel::disableEnable
+            )
         },
         modifier = Modifier
             .fillMaxSize()
@@ -98,43 +94,42 @@ fun ApplianceDetails(navController: NavController, upPress: () -> Unit, applianc
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.LightGray)
         ) {
-            Surface(
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(
+                    8.dp,
+                    Alignment.CenterHorizontally
+                ),
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight(),
-                //color = Color.White
+                    .padding(16.dp)
+                    .wrapContentHeight()
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(
-                        8.dp,
-                        Alignment.CenterHorizontally
-                    ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .wrapContentHeight()
-                ) {
-                    if (updatedAppliance.description.isNotEmpty()) {
-                        IconButton(onClick = { infoDialogState = true }) {
-                            Icon(Icons.Default.Info, "")
-                        }
+                if (updatedAppliance.description.isNotEmpty()) {
+                    IconButton(onClick = { infoDialogState = true }) {
+                        Icon(Icons.Default.Info, "")
                     }
-                    Text(
-                        updatedAppliance.name,
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.h4,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                    )
                 }
+                Text(
+                    updatedAppliance.name,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.h4,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                )
             }
+            createdUser?.let {
+                BookingUser(it, header = "Владелец прибора") { navController.navigate(MainDestinations.USER_DETAILS_ROUTE, Arguments.USER to it) }
+                //Divider(modifier = Modifier.fillMaxWidth(), color = Color.LightGray)
+                Spacer(modifier = Modifier.size(8.dp))
+            }
+
             Column() {
+                Divider(modifier = Modifier.fillMaxWidth(), color = Color.LightGray)
                 Tabs(tabs = tabs, pagerState = pagerState)
                 Box(modifier = Modifier.fillMaxSize()) {
-                    //BackgroundImage()
                     TabsContent(
                         tabs = tabs,
                         pagerState = pagerState,
@@ -171,22 +166,22 @@ fun ApplianceTopBar(
     disableEnableClick: (Boolean) -> Unit,
 ) {
 
-        ScheduleAppBar(
-            stringResource(R.string.appliance),
-            backClick = upPress,
-            actionDelete = user.isAdmin && noApplianceEvents,
-            deleteClick = deleteClick,
-            elevation = 0.dp,
-            actions = {
-                if (appliance.isUserSuperuserOrAdmin(user))
+    ScheduleAppBar(
+        stringResource(R.string.appliance),
+        backClick = upPress,
+        actionDelete = user.isAdmin && noApplianceEvents,
+        deleteClick = deleteClick,
+        elevation = 0.dp,
+        actions = {
+            if (appliance.isUserSuperuserOrAdmin(user))
                 IconButton(onClick = { disableEnableClick(!appliance.active) }) {
                     when (appliance.active) {
                         true -> Icon(Icons.Default.DoNotDisturb, "")
                         else -> Icon(Icons.Default.Autorenew, "")
                     }
                 }
-            }
-        )
+        }
+    )
 
 }
 

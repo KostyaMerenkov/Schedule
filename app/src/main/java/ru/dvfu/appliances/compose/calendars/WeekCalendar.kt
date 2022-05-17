@@ -2,7 +2,6 @@ package ru.dvfu.appliances.compose.calendars
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
@@ -48,12 +47,17 @@ fun EventCalendar(
 
     Scaffold(
         topBar = {
-            HomeTopBar(uiState = uiState, onBookingListOpen = {
-                navController.navigate(
-                    MainDestinations.BOOKING_LIST,
-                    Arguments.DATE to SelectedDate()
-                )
-            }, onCalendarSelected = viewModel::setCalendarType)
+            HomeTopBar(
+                uiState = uiState,
+                onBookingListOpen = {
+                    navController.navigate(
+                        MainDestinations.BOOKING_LIST,
+                        Arguments.DATE to SelectedDate()
+                    )
+                },
+                onCalendarSelected = viewModel::setCalendarType,
+                onRetry = { viewModel.getWeekEvents(minDate, maxDate) }
+            )
         },
         floatingActionButton = {
             if (!currentUser.isAnonymousOrGuest) {

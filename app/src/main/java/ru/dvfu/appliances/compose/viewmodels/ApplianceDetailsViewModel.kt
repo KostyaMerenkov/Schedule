@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
@@ -11,6 +12,7 @@ import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.ChangeApplianceStatusUseCase
 import ru.dvfu.appliances.compose.use_cases.DeleteApplianceUseCase
+import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.AppliancesRepository
 import ru.dvfu.appliances.model.repository.EventsRepository
@@ -23,17 +25,35 @@ class ApplianceDetailsViewModel(
     private val userDatastore: UserDatastore,
     private val eventsRepository: EventsRepository,
     private val changeApplianceStatusUseCase: ChangeApplianceStatusUseCase,
+private val getUserUseCase: GetUserUseCase,
 ) : ViewModel() {
+
+
 
     companion object {
         val defAppliance = Appliance()
     }
+
+    val createdUser = MutableStateFlow(User())
 
     val noApplianceEvents = MutableStateFlow(false)
     private val _uiState = MutableStateFlow<UiState?>(null)
     val uiState = _uiState.asStateFlow()
 
     var appliance: MutableStateFlow<Appliance> = MutableStateFlow(defAppliance)
+
+    init {
+        getCreatedUser()
+    }
+
+    private fun getCreatedUser() {
+        viewModelScope.launch {
+            appliance.collectLatest {
+                if (it.createdById.isNotBlank())
+                createdUser.value = getUserUseCase(it.createdById).single().getOrNull() ?: User()
+            }
+        }
+    }
 
     val currentUsers = MutableStateFlow<List<User>?>(null)
     val currentSuperUsers = MutableStateFlow<List<User>?>(null)

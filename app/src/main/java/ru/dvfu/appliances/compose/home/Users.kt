@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package ru.dvfu.appliances.compose
 
 import androidx.compose.animation.Crossfade
@@ -90,9 +92,7 @@ fun Header(text: String, modifier: Modifier = Modifier) {
         )
 }
 
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ItemUser(user: User, userClicked: () -> Unit) {
     ItemUserWithSelection(user, false, userClicked)

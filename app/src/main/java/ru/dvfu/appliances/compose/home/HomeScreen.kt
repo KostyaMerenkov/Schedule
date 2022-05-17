@@ -112,14 +112,19 @@ fun BackPressHandler(
 }
 
 @Composable
-fun HomeTopBar(uiState: UiState, onBookingListOpen: () -> Unit, onCalendarSelected: () -> Unit) {
+fun HomeTopBar(
+    uiState: UiState,
+    onBookingListOpen: () -> Unit,
+    onCalendarSelected: () -> Unit,
+    onRetry: () -> Unit
+) {
     ScheduleAppBar(
         title = stringResource(id = R.string.schedule),
         navigationIcon = {
             Crossfade(targetState = uiState) {
                 when (it) {
                     UiState.Error -> {
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = onRetry) {
                             Icon(Icons.Default.ErrorOutline, "")
                         }
                     }
@@ -132,7 +137,7 @@ fun HomeTopBar(uiState: UiState, onBookingListOpen: () -> Unit, onCalendarSelect
                         }
                     }
                     UiState.Success -> {
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = onRetry) {
                             Icon(Icons.Default.CloudDone, "")
                         }
                     }

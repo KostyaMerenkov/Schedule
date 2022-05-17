@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalViewConfiguration
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -31,6 +29,8 @@ import kotlinx.coroutines.launch
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.appliance.NoElementsView
+import ru.dvfu.appliances.compose.components.UiState
+import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.compose.home.HomeTopBar
 import ru.dvfu.appliances.compose.home.SelectedDate
 import ru.dvfu.appliances.compose.home.booking_list.BookingCommentaryDialog
@@ -54,6 +54,7 @@ fun MonthWeekCalendar(
     val coroutineScope = rememberCoroutineScope()
     val currentDate by viewModel.currentDate.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
+    val managingUiState by viewModel.managingUiState.collectAsState()
     val dayEvents = viewModel.dayEvents
     val scrollState = rememberScrollState()
 
@@ -74,6 +75,8 @@ fun MonthWeekCalendar(
         viewModel.onMonthChanged(calendarState.monthState.currentMonth)
     }
 
+    if (managingUiState is UiState.InProgress) { ModalLoadingDialog() }
+
     Scaffold(
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
@@ -90,9 +93,14 @@ fun MonthWeekCalendar(
     ) { it ->
         BackdropScaffold(
             appBar = {
-                HomeTopBar(uiState = uiState, onBookingListOpen = {
-                    navController.navigate(MainDestinations.BOOKING_LIST)
-                }, onCalendarSelected = viewModel::setCalendarType)
+                HomeTopBar(
+                    uiState = uiState,
+                    onBookingListOpen = {
+                        navController.navigate(MainDestinations.BOOKING_LIST)
+                    },
+                    onCalendarSelected = viewModel::setCalendarType,
+                    onRetry = { viewModel.onMonthChanged(calendarState.monthState.currentMonth) }
+                )
             },
             modifier = Modifier
                 .fillMaxSize()

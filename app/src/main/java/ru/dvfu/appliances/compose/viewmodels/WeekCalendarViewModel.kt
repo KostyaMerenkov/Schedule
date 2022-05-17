@@ -35,6 +35,9 @@ class WeekCalendarViewModel(
     private val _uiState = MutableStateFlow<UiState>(UiState.InProgress)
     val uiState = _uiState.asStateFlow()
 
+    private val _managingUiState = MutableStateFlow<UiState>(UiState.Success)
+    val managingUiState = _managingUiState.asStateFlow()
+
     private val _calendarType = MutableStateFlow<CalendarType>(CalendarType.MONTH)
     val calendarType = _calendarType.asStateFlow()
 
@@ -195,7 +198,7 @@ class WeekCalendarViewModel(
         event: CalendarEvent,
         managerCommentary: String,
     ) {
-        _uiState.value = UiState.InProgress
+        _managingUiState.value = UiState.InProgress
         viewModelScope.launch {
             updateEventUseCase.updateEventStatusUseCase.invoke(
                 event,
@@ -204,11 +207,11 @@ class WeekCalendarViewModel(
             ).first().fold(
                 onSuccess = {
                     SnackbarManager.showMessage(R.string.status_changed)
-                    _uiState.value = UiState.Success
+                    _managingUiState.value = UiState.Success
                 },
                 onFailure = {
                     SnackbarManager.showMessage(R.string.change_status_failed)
-                    _uiState.value = UiState.Error
+                    _managingUiState.value = UiState.Error
                 }
             )
         }
