@@ -16,12 +16,17 @@ import ru.dvfu.appliances.compose.ui.theme.Red500
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.model.utils.StringOperation
+import ru.dvfu.appliances.model.utils.TimeConstants.MINUTES_BEFORE_END
 import ru.dvfu.appliances.model.utils.toLocalDate
 import ru.dvfu.appliances.model.utils.toLocalDateTime
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @Parcelize
 data class Event(
@@ -56,7 +61,13 @@ data class CalendarEvent(
     val status: BookingStatus = BookingStatus.NONE,
 ) : Parcelable
 
-enum class BookingStatus(override val stringRes: Int, val color: Color, val icon: ImageVector) : StringOperation {
+fun CalendarEvent.canBeRefused(currentUser: User): Boolean {
+    val timeMins = LocalDateTime.now().until(timeEnd, ChronoUnit.MINUTES)
+    return user.userId == currentUser.userId && timeMins > MINUTES_BEFORE_END
+}
+
+enum class BookingStatus(override val stringRes: Int, val color: Color, val icon: ImageVector) :
+    StringOperation {
     NONE(R.string.new_books, Color.Unspecified, Icons.Default.HourglassBottom),
     APPROVED(R.string.approved_books, Green500, Icons.Default.CheckCircle),
     DECLINED(R.string.declined_books, Red500, Icons.Default.Cancel), ;
@@ -82,9 +93,7 @@ suspend fun Event.toCalendarEvent(
         user = getUserUseCase(userId).first().getOrDefault(User()),
         appliance = getApplianceUseCase(applianceId).first().getOrDefault(Appliance()),
         managedUser = managedById?.let {
-            getUserUseCase(managedById).first().getOrDefault(
-                User()
-            )
+            getUserUseCase(managedById).first().getOrDefault(User())
         },
         managedTime = managedTime?.toLocalDateTime(),
         managerCommentary = managerCommentary,

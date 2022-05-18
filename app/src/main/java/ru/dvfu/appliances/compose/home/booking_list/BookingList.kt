@@ -214,7 +214,7 @@ fun BookingStatus(
                     BookStatus(book) {
                         onUserClick(it)
                     }
-                    if (book.timeEnd.isAfter(LocalDateTime.now())) {
+                    if (book.canBeRefused(currentUser)) {
                         val declineComment = stringResource(id = R.string.declined_by_user)
                         DeclineBookingButton(
                             onDeclineClick = { onUserRefuse(book, declineComment) }

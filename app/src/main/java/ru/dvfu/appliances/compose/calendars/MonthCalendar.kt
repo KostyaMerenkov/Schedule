@@ -19,13 +19,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
+import io.github.boguszpawlowski.composecalendar.selection.DynamicSelectionState
+import io.github.boguszpawlowski.composecalendar.selection.SelectionMode
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.Arguments
 import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.appliance.NoElementsView
@@ -68,7 +72,7 @@ fun MonthWeekCalendar(
 
     val calendarState = rememberSelectableCalendarState(
         initialSelection = listOf(currentDate),
-        onSelectionChanged = viewModel::onDateSelectionChanged,
+        onSelectionChanged = viewModel::onDateSelectionChanged
     )
 
     LaunchedEffect(calendarState.monthState.currentMonth) {
@@ -81,13 +85,16 @@ fun MonthWeekCalendar(
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
             if (!currentUser.isAnonymousOrGuest) {
-                FloatingActionButton(
+                ExtendedFloatingActionButton(
                     onClick = {
                         navController.navigate(
                             MainDestinations.ADD_EVENT,
                             Arguments.DATE to SelectedDate(currentDate)
                         )
-                    }) { Icon(Icons.Default.Add, "") }
+                    },
+                    text = {
+                        Text(text = stringResource(id = R.string.new_event))
+                    })
             }
         },
     ) { it ->
@@ -142,6 +149,7 @@ fun MonthWeekCalendar(
                                     eventsState.events.forEach { event ->
                                         EventView(
                                             onEventClick = onEventClick,
+                                            uiState = uiState,
                                             event = event,
                                             currentUser = currentUser,
                                             onApproveClick = viewModel::onApproveClick,
@@ -153,6 +161,7 @@ fun MonthWeekCalendar(
                                     (0..2).forEach {
                                         EventView(
                                             childModifier = Modifier.loadingModifier(),
+                                            uiState = uiState,
                                             event = CalendarEvent(
                                                 appliance = Appliance(
                                                     name = "Appliance",
@@ -166,8 +175,8 @@ fun MonthWeekCalendar(
                                             ),
                                             currentUser = User(),
                                             onEventClick = {},
-                                        onApproveClick = {_,_, ->},
-                                        onDeclineClick = {_,_, ->})
+                                            onApproveClick = { _, _ -> },
+                                            onDeclineClick = { _, _ -> })
                                     }
                                 }
                             }
@@ -184,6 +193,7 @@ fun MonthWeekCalendar(
 fun EventView(
     modifier: Modifier = Modifier,
     childModifier: Modifier = Modifier,
+    uiState: UiState,
     onEventClick: (CalendarEvent) -> Unit,
     onApproveClick: (CalendarEvent, String) -> Unit,
     onDeclineClick: (CalendarEvent, String) -> Unit,
@@ -253,7 +263,6 @@ fun EventView(
                     .then(childModifier),
                 onClick = { onEventClick(event) }
             ) {
-
                 Column(Modifier.padding(6.dp)) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -261,7 +270,7 @@ fun EventView(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                            verticalArrangement = Arrangement.spacedBy(1.dp),
                             modifier = Modifier.weight(1f, false)
                         ) {
                             Text(
@@ -279,28 +288,25 @@ fun EventView(
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = childModifier
                             )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-                                Icon(Icons.Default.AccountCircle, "")
-                                Text(
-                                    text = event.user.userName,
-                                    style = MaterialTheme.typography.body1,
-                                    //fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = childModifier
-                                )
-                            }
+
                         }
                         if (event.status == BookingStatus.NONE && currentUser.canManageEvent(event)) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.padding(start = 4.dp)) {
-                                OutlinedButton(onClick = { declineDialogState = true }, shape = CircleShape) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.padding(start = 4.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = { declineDialogState = true },
+                                    shape = CircleShape,
+                                    enabled = uiState !is UiState.InProgress
+                                ) {
                                     Icon(Icons.Default.Close, "")
                                 }
-                                OutlinedButton(onClick = { approveDialogState = true }, shape = CircleShape) {
+                                OutlinedButton(
+                                    onClick = { approveDialogState = true },
+                                    shape = CircleShape,
+                                    enabled = uiState !is UiState.InProgress
+                                ) {
                                     Icon(Icons.Default.Done, "")
                                 }
                             }
@@ -309,7 +315,21 @@ fun EventView(
                                 Icon(event.status.icon, "status", tint = event.status.color)
                             }
                         }
+                    }
 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Icon(Icons.Default.AccountCircle, "")
+                        Text(
+                            text = event.user.userName,
+                            style = MaterialTheme.typography.body1,
+                            //fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = childModifier
+                        )
                     }
 
                     if (event.commentary.isNotBlank()) {
