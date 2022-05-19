@@ -39,6 +39,12 @@ class AddEventViewModel(
     private val _uiState = MutableStateFlow<UiState?>(null)
     val uiState = _uiState.asStateFlow()
 
+    private val _autoApproveToggleEnabled = MutableStateFlow<Boolean>(false)
+    val autoApproveToggleEnabled = _autoApproveToggleEnabled.asStateFlow()
+
+    private val _autoApproveToggle = MutableStateFlow<Boolean>(false)
+    val autoApproveToggle = _autoApproveToggle.asStateFlow()
+
     private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading)
     val appliancesState = _appliancesState.asStateFlow()
 
@@ -108,7 +114,7 @@ class AddEventViewModel(
 
                 when (availabilityResult) {
                     AvailabilityState.Available -> addNewEvent(
-                        if (selectedAppliance.isUserSuperuserOrAdmin(currentUser.value))
+                        if (autoApproveToggle.value && autoApproveToggleEnabled.value)
                             prepareApprovedEvent(selectedAppliance)
                         else prepareEvent(selectedAppliance)
 
@@ -186,6 +192,19 @@ class AddEventViewModel(
 
     fun onApplianceSelected(appliance: Appliance) {
         _selectedAppliance.value = appliance.takeIf { it != _selectedAppliance.value }
+        if (selectedAppliance.value == null) {
+            _autoApproveToggleEnabled.value = false
+            _autoApproveToggle.value = false
+        } else {
+            appliance.isUserSuperuserOrAdmin(currentUser.value).let {
+                _autoApproveToggleEnabled.value = it
+                _autoApproveToggle.value = it
+            }
+        }
+    }
+
+    fun onAutoApproveToggleChanged(newBoolean: Boolean) {
+        _autoApproveToggle.value = newBoolean
     }
 
     fun onCommentarySet(commentary: String) {

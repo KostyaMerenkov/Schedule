@@ -1,12 +1,9 @@
 package ru.dvfu.appliances.compose.home
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -19,21 +16,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.navigationBarsWithImePadding
-import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 import ru.dvfu.appliances.BuildConfig
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
-import ru.dvfu.appliances.compose.appliance.FabWithLoading
 import ru.dvfu.appliances.compose.components.*
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
 import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
@@ -41,13 +32,9 @@ import ru.dvfu.appliances.compose.components.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.utils.TimeConstants.FULL_DATE_FORMAT
 import ru.dvfu.appliances.model.utils.toHoursAndMinutes
-import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.ViewState
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
 
 @Composable
@@ -79,7 +66,9 @@ fun AddEvent(selectedDate: LocalDate, upPress: () -> Unit) {
         )
     },
         floatingActionButton = {
-            FloatingActionButton(modifier = Modifier.padding(bottom = 70.dp), onClick = { if (uiState != UiState.Success) viewModel.addEvent() }) {
+            FloatingActionButton(
+                modifier = Modifier.padding(bottom = 70.dp),
+                onClick = { if (uiState != UiState.Success) viewModel.addEvent() }) {
                 Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
             }
         }) {
@@ -105,11 +94,36 @@ fun AddEvent(selectedDate: LocalDate, upPress: () -> Unit) {
                 commentary = viewModel.commentary.value,
                 onCommentarySet = viewModel::onCommentarySet
             )
+
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
                 selectedAppliance = viewModel.selectedAppliance.collectAsState(),
                 onApplianceSelected = viewModel::onApplianceSelected
             )
+            AutoApproveToggle(
+                viewModel.autoApproveToggleEnabled.collectAsState().value,
+                viewModel.autoApproveToggle.collectAsState().value,
+                viewModel::onAutoApproveToggleChanged
+            )
+            Spacer(modifier = Modifier.size(150.dp))
+        }
+    }
+}
+
+@Composable
+fun AutoApproveToggle(shouldBeShown: Boolean, value: Boolean, onValueChange: (Boolean) -> Unit) {
+    AnimatedVisibility(visible = shouldBeShown,
+    enter = fadeIn(),
+    exit = fadeOut()) {
+        Row(
+            modifier = Modifier
+                .padding(4.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "Автоматически одобрить событие")
+            Checkbox(checked = value, onCheckedChange = onValueChange)
         }
     }
 }
