@@ -14,6 +14,7 @@ import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.home.MainScreenViewModel
 import ru.dvfu.appliances.compose.use_cases.*
 import ru.dvfu.appliances.compose.use_cases.event.UpdateEventUserCommentUseCase
+import ru.dvfu.appliances.compose.use_cases.event.UpdateManagerCommentUseCase
 import ru.dvfu.appliances.compose.use_cases.event.UpdateTimeUseCase
 import ru.dvfu.appliances.compose.utils.NotificationManager
 import ru.dvfu.appliances.compose.utils.NotificationManagerImpl
@@ -89,6 +90,7 @@ val application = module {
     factory {
         UpdateEventUseCase(
             updateUserCommentUseCase = UpdateEventUserCommentUseCase(eventsRepository = get()),
+            updateManagerCommentUseCase = UpdateManagerCommentUseCase(get()),
             updateEventStatusUseCase = get(),
             updateTimeUseCase = UpdateTimeUseCase(
                 eventsRepository = get(),

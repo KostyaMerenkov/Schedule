@@ -28,6 +28,8 @@ class UpdateTimeUseCase(
     ) = flow<EventTimeUpdateResult> {
 
         //TODO("Check for properly working")
+
+        // FIXME: При изменении даты смог установить сегодняшний день со старым временем, которое уже прошло!
         val isTimeFree = checkNewEventTime(eventDateAndTime).single()
 
         val availabilityState = getEventTimeAvailabilityUseCase(
