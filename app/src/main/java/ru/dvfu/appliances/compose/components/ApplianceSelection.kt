@@ -38,14 +38,9 @@ fun ApplianceSelection(
     currentOption: State<Appliance?>,
     onSelectedItem: (Appliance) -> Unit,
 ) {
-
-    // val selected = (currentOption.value == selectedOption)
-    //val borderModifier = if (selected) Modifier.border(2.dp, MaterialTheme.colors.primary) else Modifier
-
     LazyRow(modifier = modifier,
     contentPadding = PaddingValues(4.dp)) {
         items(radioOptions) { item ->
-
             ItemApplianceSelectable(appliance = item, isSelected = currentOption.value?.id == item.id) {
                 onSelectedItem(item)
             }

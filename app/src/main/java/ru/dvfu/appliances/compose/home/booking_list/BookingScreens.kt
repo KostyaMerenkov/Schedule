@@ -46,6 +46,7 @@ fun PendingBookingsList(
                                 status = BookingStatus.DECLINED
                             )
                         },
+                        onRefuseClick = viewModel::onUserRefuse,
                         onSetDateAndTime = { event, newTime ->
                             viewModel.updateEventDateAndTime(
                                 event = event,
@@ -56,6 +57,12 @@ fun PendingBookingsList(
                             viewModel.updateEventComment(
                                 event = event,
                                 userCommentary = userComment
+                            )
+                        },
+                        onApplyManagerCommentary = { event, managerComment ->
+                            viewModel.updateEventManagerComment(
+                                event = event,
+                                managerCommentary = managerComment
                             )
                         }
                     )

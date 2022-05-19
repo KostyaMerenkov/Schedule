@@ -1,17 +1,23 @@
 package ru.dvfu.appliances.compose.home.booking_list
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -19,18 +25,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.appliance.LoadingItem
 import ru.dvfu.appliances.compose.appliance.UserImage
-import ru.dvfu.appliances.compose.components.views.DefaultDialog
-import ru.dvfu.appliances.compose.components.views.PrimaryText
-import ru.dvfu.appliances.compose.components.views.SecondaryText
-import ru.dvfu.appliances.compose.components.views.TextDivider
+import ru.dvfu.appliances.compose.components.UiState
+import ru.dvfu.appliances.compose.components.views.*
 import ru.dvfu.appliances.compose.home.ApplianceImage
 import ru.dvfu.appliances.compose.home.ApplianceName
 import ru.dvfu.appliances.compose.home.DateAndTime
@@ -45,7 +49,7 @@ import java.util.*
 
 
 @OptIn(
-    ExperimentalCoilApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class,
+    androidx.compose.foundation.ExperimentalFoundationApi::class,
     androidx.compose.animation.ExperimentalAnimationApi::class,
     com.google.accompanist.pager.ExperimentalPagerApi::class
 )
@@ -53,7 +57,10 @@ import java.util.*
 fun BookingList(navController: NavController) {
     val viewModel: BookingListViewModel = getViewModel()
     val currentUser = viewModel.currentUser.collectAsState()
-    val uiState by viewModel.viewState.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+
+    if (uiState is UiState.InProgress) ModalLoadingDialog()
 
     val bookingTabs = remember { mutableStateListOf<BookingTabItem>() }
     val pagerState = rememberPagerState()
@@ -65,7 +72,7 @@ fun BookingList(navController: NavController) {
                 title = stringResource(R.string.bookings),
                 backClick = { navController.popBackStack() })
         }) {
-        Crossfade(targetState = uiState) { state ->
+        Crossfade(targetState = viewState) { state ->
             when (state) {
                 is ViewState.Error -> {
                     Text(text = "Error")
@@ -195,7 +202,8 @@ fun BookingStatus(
     onUserClick: (User) -> Unit,
     onDecline: ((CalendarEvent, String) -> Unit),
     onApprove: ((CalendarEvent, String) -> Unit),
-    onUserRefuse: ((CalendarEvent, String) -> Unit)
+    onUserRefuse: ((CalendarEvent, String) -> Unit),
+    onManagerCommentarySave: (CalendarEvent, String) -> Unit
 ) {
     Divider()
     Spacer(modifier = Modifier.size(12.dp))
@@ -211,7 +219,7 @@ fun BookingStatus(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    BookStatus(book) {
+                    BookStatus(book, currentUser, onCommentarySave = onManagerCommentarySave) {
                         onUserClick(it)
                     }
                     if (book.canBeRefused(currentUser)) {
@@ -224,7 +232,7 @@ fun BookingStatus(
 
             }
             BookingStatus.DECLINED -> {
-                BookStatus(book) {
+                BookStatus(book, currentUser, onCommentarySave = onManagerCommentarySave) {
                     onUserClick(it)
                 }
             }
@@ -234,7 +242,7 @@ fun BookingStatus(
                         onDeclineClick = { onDecline(book, it) },
                         onApproveClick = { onApprove(book, it) })
                 } else {
-                    BookStatus(book) {
+                    BookStatus(book, currentUser, onCommentarySave = onManagerCommentarySave) {
                         onUserClick(it)
                     }
                 }
@@ -244,7 +252,12 @@ fun BookingStatus(
 }
 
 @Composable
-fun BookStatus(book: CalendarEvent, onUserClick: (User) -> Unit) {
+fun BookStatus(
+    book: CalendarEvent,
+    currentUser: User,
+    onCommentarySave: (CalendarEvent, String) -> Unit,
+    onUserClick: (User) -> Unit
+) {
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
@@ -276,8 +289,11 @@ fun BookStatus(book: CalendarEvent, onUserClick: (User) -> Unit) {
             BookingCommentary(
                 commentary = book.managerCommentary,
                 header = stringResource(id = R.string.manager_commentary),
-                editable = false,
-                onCommentarySave = {})
+                editable = currentUser.canManageEvent(book),
+                onCommentarySave = {
+                    onCommentarySave(book, it)
+                }
+            )
         }
     }
 }
@@ -313,32 +329,40 @@ fun BookingCommentary(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        TextDivider(text = header)
+        //TextDivider(text = header)
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
         ) {
-            if (commentary.isBlank()) {
-                SecondaryText(
-                    text = stringResource(R.string.no_commentary),
-                    modifier = Modifier.weight(6f)
-                )
-            } else {
-                PrimaryText(
+            if (commentary.isNotBlank()) {
+                CommentaryTextField(
                     text = commentary,
+                    onTextChanged = {},
+                    readOnly = true,
                     modifier = Modifier
-                        .weight(6f)
+                        .weight(1f, false)
                         .padding(horizontal = 8.dp)
                 )
             }
             if (editable) {
-                IconButton(modifier = Modifier.weight(1f), onClick = { commentaryDialog = true }) {
-                    Icon(Icons.Default.Edit, "")
+                if (commentary.isNotBlank()) {
+                    IconButton(
+                        onClick = { commentaryDialog = true },
+                    ) {
+                        Icon(Icons.Default.Edit, "")
+                    }
+                } else {
+                    Button(
+                        shape = CircleShape,
+                        onClick = { commentaryDialog = true }) {
+                        Text(text = "Добавить комментарий")
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Icon(Icons.Default.Edit, "")
+                    }
                 }
             }
         }
-
     }
 }
 
@@ -587,4 +611,41 @@ fun BookingUser(
             }
         }
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun CommentaryTextField(
+    modifier: Modifier = Modifier,
+    text: String,
+    labelText: String = "",
+    readOnly: Boolean = false,
+    onTextChanged: (String) -> Unit,
+) {
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
+
+    OutlinedTextField(
+        label = { if (labelText.isNotEmpty()) Text(text = labelText) },
+        value = text, onValueChange = onTextChanged,
+        modifier = Modifier
+            .bringIntoViewRequester(bringIntoViewRequester)
+            .onFocusEvent { focusState ->
+                if (focusState.isFocused) {
+                    coroutineScope.launch {
+                        bringIntoViewRequester.bringIntoView()
+                    }
+                }
+            }
+            .then(modifier),
+        readOnly = readOnly,
+        trailingIcon = {
+            AnimatedVisibility(visible = text.isNotEmpty() && readOnly.not()) {
+                IconButton(onClick = { onTextChanged("") }) {
+                    Icon(Icons.Default.Close, Icons.Default.Close.name)
+                }
+            }
+        }
+    )
+
 }

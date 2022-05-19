@@ -46,6 +46,7 @@ import ru.dvfu.appliances.model.utils.formattedTime
 import ru.dvfu.appliances.model.utils.loadingModifier
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -64,16 +65,18 @@ fun MonthWeekCalendar(
 
     val backdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
 
-    BackHandler(backdropScaffoldState.isConcealed) {
-        coroutineScope.launch {
-            backdropScaffoldState.animateTo(BackdropValue.Revealed)
-        }
-    }
-
     val calendarState = rememberSelectableCalendarState(
         initialSelection = listOf(currentDate),
         onSelectionChanged = viewModel::onDateSelectionChanged
     )
+
+    BackHandler(backdropScaffoldState.isConcealed || calendarState.monthState.currentMonth != YearMonth.now()) {
+        if (backdropScaffoldState.isConcealed) {
+            coroutineScope.launch {
+                backdropScaffoldState.animateTo(BackdropValue.Revealed)
+            }
+        } else { calendarState.monthState.currentMonth = YearMonth.now() }
+    }
 
     LaunchedEffect(calendarState.monthState.currentMonth) {
         viewModel.onMonthChanged(calendarState.monthState.currentMonth)
@@ -188,7 +191,7 @@ fun MonthWeekCalendar(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun EventView(
     modifier: Modifier = Modifier,
@@ -233,7 +236,6 @@ fun EventView(
     }
 
     CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()

@@ -25,10 +25,7 @@ import ru.dvfu.appliances.compose.navigate
 import ru.dvfu.appliances.compose.ui.theme.customColors
 import ru.dvfu.appliances.compose.viewmodels.BookingListViewModel
 import ru.dvfu.appliances.compose.viewmodels.EventDateAndTime
-import ru.dvfu.appliances.model.repository.entity.CalendarEvent
-import ru.dvfu.appliances.model.repository.entity.BookingStatus
-import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository.entity.canManageEvent
+import ru.dvfu.appliances.model.repository.entity.*
 
 
 sealed class BookingTabItem(var titleRes: Int, var screen: @Composable () -> Unit) {
@@ -116,8 +113,10 @@ fun PendingBookingItemView(
     navController: NavController,
     onApproveClick: (CalendarEvent, String) -> Unit,
     onDeclineClick: (CalendarEvent, String) -> Unit,
+    onRefuseClick: (CalendarEvent, String) -> Unit,
     onSetDateAndTime: (CalendarEvent, EventDateAndTime) -> Unit,
     onApplyCommentary: (CalendarEvent, String) -> Unit,
+    onApplyManagerCommentary: (CalendarEvent, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     BookingItem {
@@ -127,9 +126,10 @@ fun PendingBookingItemView(
             showDateTimeTitle = false,
             onApproveClick = onApproveClick,
             onDeclineClick = onDeclineClick,
-            onUserRefuseClick =  {_, _ ->  },
+            onUserRefuseClick = onRefuseClick,
             onSetDateAndTime = onSetDateAndTime,
             onCommentarySave = onApplyCommentary,
+            onManagerCommentarySave = onApplyManagerCommentary,
             navController = navController
         )
     }
@@ -154,6 +154,9 @@ fun MyBookingRequestItemView(
 
             },
             onDeclineClick = { _, _ ->
+
+            },
+            onManagerCommentarySave = { _, _ ->
 
             },
             onUserRefuseClick = onDeclineClick,
@@ -187,10 +190,13 @@ fun BookingDeclinedOrPastItemView(
             onUserRefuseClick = { _, _ ->
 
             },
-            onSetDateAndTime = {_,_ ->
+            onSetDateAndTime = { _, _ ->
 
             },
-            onCommentarySave = { _,_->
+            onCommentarySave = { _, _ ->
+
+            },
+            onManagerCommentarySave = { _, _ ->
 
             },
             navController = navController
@@ -365,6 +371,7 @@ fun EventInfo(
     onUserRefuseClick: (CalendarEvent, String) -> Unit,
     onSetDateAndTime: (CalendarEvent, EventDateAndTime) -> Unit,
     onCommentarySave: (CalendarEvent, String) -> Unit,
+    onManagerCommentarySave: (CalendarEvent, String) -> Unit,
     navController: NavController,
 ) {
     Column(
@@ -377,8 +384,8 @@ fun EventInfo(
             TextDivider(text = "Дата и время")
         }
         BookingTime(
-            // TODO need manage by user:  || canUserManage()
-            editable = currentUser.canManageEvent(event),
+            // TODO need manage by user:  || canUserManage() (canBeRefused)
+            editable = currentUser.canManageEvent(event) || event.canBeRefused(currentUser),
             timeStart = event.timeStart,
             timeEnd = event.timeEnd,
             onSetNewDateAndTime = {
@@ -422,7 +429,8 @@ fun EventInfo(
             },
             onApprove = onApproveClick,
             onDecline = onDeclineClick,
-            onUserRefuse = onUserRefuseClick
+            onUserRefuse = onUserRefuseClick,
+            onManagerCommentarySave = onManagerCommentarySave
         )
         Spacer(modifier = Modifier.size(8.dp))
     }

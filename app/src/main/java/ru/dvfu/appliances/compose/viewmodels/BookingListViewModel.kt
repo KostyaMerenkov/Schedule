@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.use_cases.GetApplianceUseCase
 import ru.dvfu.appliances.compose.use_cases.GetUserUseCase
 import ru.dvfu.appliances.compose.use_cases.UpdateEventUseCase
@@ -31,8 +32,8 @@ class BookingListViewModel(
     private val _viewState = MutableStateFlow<ViewState<List<CalendarEvent>>>(ViewState.Loading)
     val viewState = _viewState.asStateFlow()
 
-//    private val _uiState = MutableStateFlow<ViewState<MutableList<CalendarEvent>>>(ViewState.Loading())
-//    val uiState: StateFlow<ViewState<List<CalendarEvent>>> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<UiState>(UiState.Success)
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private val _eventsList = MutableStateFlow<MutableList<CalendarEvent>>(mutableListOf())
     val eventsList: StateFlow<List<CalendarEvent>> = _eventsList.asStateFlow()
@@ -74,7 +75,6 @@ class BookingListViewModel(
         event: CalendarEvent,
         status: BookingStatus,
         managerCommentary: String = event.managerCommentary,
-        userCommentary: String = event.commentary
     ) {
         viewModelScope.launch {
 
@@ -113,13 +113,35 @@ class BookingListViewModel(
     }
 
     fun updateEventComment(event: CalendarEvent,  userCommentary: String) {
+        _uiState.value = UiState.InProgress
         viewModelScope.launch {
             updateEvent.updateUserCommentUseCase(
                 event = event,
                 newComment = userCommentary
+            ).single().fold(
+                onSuccess = {
+                    // TODO:  /*_eventsList.value = _eventsList.value.copy(managerCommentary = comment)*/
+                },
+                onFailure = { SnackbarManager.showMessage(R.string.error_occured) }
             )
+            _uiState.value = UiState.Success
         }
+    }
 
+    fun updateEventManagerComment(event: CalendarEvent, managerCommentary: String) {
+        _uiState.value = UiState.InProgress
+        viewModelScope.launch {
+            updateEvent.updateManagerCommentUseCase(
+                event = event,
+                newComment = managerCommentary
+            ).single().fold(
+                onSuccess = {
+                    // TODO:  /*_eventsList.value = _eventsList.value.copy(managerCommentary = comment)*/
+                    },
+                onFailure = { SnackbarManager.showMessage(R.string.error_occured) }
+            )
+            _uiState.value = UiState.Success
+        }
     }
 
     fun updateEventDateAndTime(

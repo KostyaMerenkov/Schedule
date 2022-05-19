@@ -63,17 +63,25 @@ class EventInfoViewModel(
         _uiState.value = UiState.InProgress
         viewModelScope.launch {
             updateEventUseCase.updateUserCommentUseCase(event, comment).single().fold(
-                onSuccess = {
-                    _event.value = _event.value.copy(commentary = comment)
-                    //SnackbarManager.showMessage(comment_update_success)
-                },
-                onFailure = {
-                    SnackbarManager.showMessage(R.string.error_occured)
-                }
+                onSuccess = { _event.value = _event.value.copy(commentary = comment) },
+                onFailure = { SnackbarManager.showMessage(R.string.error_occured) }
             )
             _uiState.value = UiState.Success
         }
     }
+
+    fun onManagerCommentarySave(event: CalendarEvent, comment: String) {
+        _uiState.value = UiState.InProgress
+        viewModelScope.launch {
+            updateEventUseCase.updateManagerCommentUseCase(event, comment).single().fold(
+                onSuccess = { _event.value = _event.value.copy(managerCommentary = comment) },
+                onFailure = { SnackbarManager.showMessage(R.string.error_occured) }
+            )
+            _uiState.value = UiState.Success
+        }
+    }
+
+
 
     fun onSetDateAndTime(event: CalendarEvent, dateAndTime: EventDateAndTime) {
         _uiState.value = UiState.InProgress

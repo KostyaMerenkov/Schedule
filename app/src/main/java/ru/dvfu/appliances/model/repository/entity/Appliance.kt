@@ -21,5 +21,4 @@ data class Appliance(
     val active: Boolean = true,
 ): Parcelable
 
-fun Appliance.isUserSuperuserOrAdmin(user: User): Boolean = superuserIds.contains(user.userId)
-        || user.isAdmin
+fun Appliance.isUserSuperuserOrAdmin(user: User): Boolean = user.isAdmin || superuserIds.contains(user.userId)
