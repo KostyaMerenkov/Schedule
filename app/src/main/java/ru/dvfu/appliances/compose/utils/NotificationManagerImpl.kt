@@ -149,11 +149,11 @@ class NotificationManagerImpl(
                 notification = Notification(
                     title = "Ваше бронирование ${newStatus.getName().uppercase()}",
                     body = formattedApplianceDateTimeStatus(
+                        event.appliance.name,
                         date = event.date,
                         event.timeStart,
                         event.timeEnd,
-                        newStatus.getName(),
-                        status = event.status
+                        status = newStatus
                     ),
                 ),
                 data = NotificationData(NotificationType.MY_EVENT)

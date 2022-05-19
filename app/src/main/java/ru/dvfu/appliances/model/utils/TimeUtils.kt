@@ -84,10 +84,11 @@ fun formattedApplianceDateTime(
 ) = "${formattedAppliance(name)}, ${formattedDate(date)}, ${formattedTime(timeStart, timeEnd)}"
 
 fun formattedApplianceDateTimeStatus(
+    name: String,
     date: LocalDate,
     timeStart: LocalDateTime,
     timeEnd: LocalDateTime,
-    name: String, status: BookingStatus
+    status: BookingStatus,
 ) = "${formattedAppliance(name)}, ${formattedDateTimeStatus(date, timeStart, timeEnd, status)}"
 
 val LocalDateTime.toDateAndTime: String

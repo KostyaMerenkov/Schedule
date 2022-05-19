@@ -166,9 +166,7 @@ fun EventOptionDialog(
         DefaultDialog(
             primaryText = calendarEvent.appliance.name,
             secondaryText = "${calendarEvent.timeStart.format(EventTimeFormatter)} - ${
-                calendarEvent.timeEnd.format(
-                    EventTimeFormatter
-                )
+                calendarEvent.timeEnd.format(EventTimeFormatter)
             }\n${calendarEvent.commentary}",
             onDismiss = onDismiss,
             neutralButtonText = stringResource(id = R.string.delete),
