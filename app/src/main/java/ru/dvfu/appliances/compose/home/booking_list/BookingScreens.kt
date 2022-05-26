@@ -89,6 +89,7 @@ fun MyBookingsList(
                     MyBookingRequestItemView(
                         booking = events[index],
                         navController = navController,
+                        currentUser = viewModel.currentUser.collectAsState().value,
                         onDeclineClick = {event, commentary ->
                             viewModel.onUserRefuse(
                                 event = event,
@@ -131,6 +132,7 @@ fun PastBookingsList(
                     items(count = bookings.size) { index ->
                         BookingDeclinedOrPastItemView(
                             booking = bookings[index],
+                            currentUser = viewModel.currentUser.collectAsState().value,
                             navController = navController
                         )
                     }

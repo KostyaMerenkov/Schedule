@@ -140,14 +140,14 @@ fun MyBookingRequestItemView(
     modifier: Modifier = Modifier,
     navController: NavController,
     booking: CalendarEvent,
+    currentUser: User,
     onDeclineClick: (CalendarEvent, String) -> Unit,
     onSetDateAndTime: (CalendarEvent, EventDateAndTime) -> Unit,
     onApplyCommentary: (CalendarEvent, String) -> Unit,
 ) {
     BookingItem {
         EventInfo(
-            // TODO: currentUser handle
-            currentUser = User(),
+            currentUser = currentUser,
             event = booking,
             showDateTimeTitle = false,
             onApproveClick = { _, _ ->
@@ -171,14 +171,14 @@ fun MyBookingRequestItemView(
 @Composable
 fun BookingDeclinedOrPastItemView(
     modifier: Modifier = Modifier,
+    currentUser: User,
     navController: NavController,
     booking: CalendarEvent,
 ) {
     BookingItem {
 
         EventInfo(
-            // TODO: currentUser handle
-            currentUser = User(),
+            currentUser = currentUser,
             event = booking,
             showDateTimeTitle = false,
             onApproveClick = { _, _ ->
