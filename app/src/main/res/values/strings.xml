@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Schedule</string>
-    <string name="info">О приложении</string>
+    <string name="info" translatable="false">О приложении</string>
     <string name="login_to_continue">Авторизуйтесь</string>
     <string name="logout">Logout</string>
     <string name="Yes">Yes</string>

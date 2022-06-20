@@ -23,6 +23,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.home.Appliances
 import ru.dvfu.appliances.compose.home.HomeScreen
+import ru.dvfu.appliances.compose.home.profile.Profile
 
 @ExperimentalFoundationApi
 @ExperimentalCoroutinesApi

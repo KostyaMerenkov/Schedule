@@ -130,4 +130,7 @@
     <string name="isactive">Активные</string>
     <string name="isunactive">Неактивные</string>
     <string name="refuse_successfull">Вы отказались от бронирования</string>
+    <string name="info">О приложении</string>
+    <string name="login_to_continue">Авторизуйтесь</string>
+    <string name="app_name">Расписание оборудования</string>
 </resources>

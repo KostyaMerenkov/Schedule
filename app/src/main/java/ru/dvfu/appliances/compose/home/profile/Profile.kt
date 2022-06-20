@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.compose
+package ru.dvfu.appliances.compose.home.profile
 
 import android.content.Context
 import android.content.Intent
@@ -34,8 +34,9 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
-import ru.dvfu.appliances.BuildConfig
 import ru.dvfu.appliances.R
+import ru.dvfu.appliances.compose.MainDestinations
+import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
 import ru.dvfu.appliances.model.datastore.UserDatastore
@@ -49,12 +50,10 @@ import ru.dvfu.appliances.ui.activity.LoginActivity
 @ExperimentalCoilApi
 @Composable
 fun Profile(navController: NavController, modifier: Modifier = Modifier, backPress: () -> Unit) {
-    val userDatastore: UserDatastore = get()
 
     val viewModel = getViewModel<ProfileViewModel>()
     val currentUser by viewModel.currentUser.collectAsState()
 
-    val uiState = viewModel.uiState
     Scaffold(
         topBar = { ProfileTopBar(upPress = backPress) },
         backgroundColor = Color(0XFFE3DAC9),
