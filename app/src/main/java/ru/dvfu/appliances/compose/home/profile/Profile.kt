@@ -44,7 +44,6 @@ import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.isAdmin
 import ru.dvfu.appliances.ui.activity.LoginActivity
 
-@OptIn(ExperimentalComposeUiApi::class)
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
 @ExperimentalCoilApi
