@@ -6,8 +6,9 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
     id 'com.google.gms.google-services'
-    id 'com.google.firebase.crashlytics'
     id 'com.google.firebase.firebase-perf'
+    id 'com.google.firebase.crashlytics'
+
 }
 
 android {
@@ -19,7 +20,7 @@ android {
         applicationId "ru.dvfu.appliances"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 2
+        versionCode 3
         versionName "1.0.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
