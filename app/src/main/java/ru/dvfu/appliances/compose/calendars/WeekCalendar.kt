@@ -32,8 +32,12 @@ fun EventCalendar(
     verticalScrollState: ScrollState,
 ) {
     val currentDate = remember { LocalDate.now() }
+    //val debugDate = remember { LocalDate.of(2022, 5, 3) }
     val minDate = remember { currentDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 1L) }
     val maxDate = remember { currentDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 7L) }
+
+    //val debugMinDate = remember { debugDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 1L) }
+    //val debugMaxDate = remember { debugDate.with(WeekFields.of(Locale("ru-RU")).dayOfWeek(), 7L) }
 
     SideEffect {
         viewModel.getWeekEvents(minDate, maxDate)

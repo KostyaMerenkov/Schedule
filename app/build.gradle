@@ -13,6 +13,14 @@ plugins {
 
 android {
 
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\Konst\\Keys\\schedule.jks')
+            storePassword 'android'
+            keyPassword 'android'
+            keyAlias 'key0'
+        }
+    }
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
@@ -20,8 +28,8 @@ android {
         applicationId "ru.dvfu.appliances"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 3
-        versionName "1.0.6"
+        versionCode 4
+        versionName "1.0.7"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -29,10 +37,11 @@ android {
     buildTypes {
         release {
             release {
-                minifyEnabled   true
-                shrinkResources true
-                proguardFiles 'proguard-rules.pro', getDefaultProguardFile('proguard-android-optimize.txt')
+                //minifyEnabled   true
+                //shrinkResources true
+                //proguardFiles 'proguard-rules.pro', getDefaultProguardFile('proguard-android-optimize.txt')
             }
+            signingConfig signingConfigs.release
         }
         debug {
             ext.enableCrashlytics = false
@@ -71,7 +80,7 @@ dependencies {
     //Calendar
     implementation "io.github.boguszpawlowski.composecalendar:composecalendar:0.4.2"
 
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.6.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
