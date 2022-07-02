@@ -32,17 +32,15 @@ import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.MainDestinations
 import ru.dvfu.appliances.compose.ScheduleAppBar
 import ru.dvfu.appliances.compose.components.views.DefaultDialog
 import ru.dvfu.appliances.compose.viewmodels.ProfileViewModel
-import ru.dvfu.appliances.model.datastore.UserDatastore
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.model.repository.entity.isAdmin
-import ru.dvfu.appliances.ui.activity.LoginActivity
+import ru.dvfu.appliances.ui.LoginActivity
 
 @InternalCoroutinesApi
 @ExperimentalMaterialApi

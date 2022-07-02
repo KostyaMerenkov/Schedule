@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.ui.activity
+package ru.dvfu.appliances.ui
 
 import android.content.Intent
 import android.os.Bundle

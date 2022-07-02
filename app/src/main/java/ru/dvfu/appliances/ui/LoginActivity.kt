@@ -1,4 +1,4 @@
-package ru.dvfu.appliances.ui.activity
+package ru.dvfu.appliances.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,11 +12,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import ru.dvfu.appliances.R
@@ -26,7 +23,6 @@ import ru.dvfu.appliances.Logger
 import ru.dvfu.appliances.compose.MainActivity
 import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.compose.viewmodels.LoginViewModel
-import ru.dvfu.appliances.ui.BaseViewState
 import kotlin.collections.ArrayList
 
 class LoginActivity() : AppCompatActivity() {
@@ -215,7 +211,7 @@ class LoginActivity() : AppCompatActivity() {
                 } else {
                     // If sign in fails, display a message to the user.
                     handleError(task.exception!!)
-                    TODO("Guest Login Failed")
+                    //TODO("Guest Login Failed")
                 }
             }
     }
@@ -224,7 +220,7 @@ class LoginActivity() : AppCompatActivity() {
 
     private fun successfulSignIn(user: FirebaseUser) {
         if (user.isAnonymous) {
-            showSuccessToast("Guest")
+            showSuccessToast(null)
 //        } else if (firebaseUsersRepo.isUserInDatabase(user.uid)) {
 //            showSuccessToast(user.email!!)
         } else {

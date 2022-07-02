@@ -27,7 +27,9 @@ class LoginViewModel(
         viewModelScope.launch {
             usersRepository.currentUser
                 .catch { error -> handleError(error) }
-                .collectLatest { user -> user?.let { onSuccess(it) } }
+                .collectLatest { user ->
+                    user?.let { onSuccess(it) }
+                }
         }
     }
 

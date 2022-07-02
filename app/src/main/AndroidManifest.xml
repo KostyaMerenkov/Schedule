@@ -28,7 +28,7 @@
 
         <activity
             android:exported="true"
-            android:name="ru.dvfu.appliances.ui.activity.SplashScreen"
+            android:name="ru.dvfu.appliances.ui.SplashScreen"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,7 +37,7 @@
         </activity>
         <activity
             android:exported="true"
-            android:name="ru.dvfu.appliances.ui.activity.LoginActivity">
+            android:name="ru.dvfu.appliances.ui.LoginActivity">
         </activity>
         <activity
             android:exported="true"
