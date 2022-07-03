@@ -28,4 +28,7 @@
 
 # Also, for faster builds with proguard, you can exclude crashlytics by adding the following code -
 -keep class com.crashlytics.** { *; }
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }
+
 -dontwarn com.crashlytics.**
