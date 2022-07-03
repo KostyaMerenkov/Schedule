@@ -44,7 +44,7 @@ class AppliancesViewModel(
         _appliancesState.value = ViewState.Loading
         viewModelScope.launch {
             repository.getAppliances().collect { appliances ->
-                _appliancesState.value = ViewState.Success(appliances.groupBy{it.active})
+                _appliancesState.value = ViewState.Success(appliances.groupBy{it.active}.toSortedMap())
             }
         }
     }

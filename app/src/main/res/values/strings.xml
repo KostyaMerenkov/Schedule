@@ -137,4 +137,7 @@
     <string name="isactive">Активные</string>
     <string name="isunactive">Неактивные</string>
     <string name="refuse_successfull">Вы отказались от бронирования</string>
+    <string name="sign_in_with_google">Продолжить с Google</string>
+    <string name="sign_in_with_microsoft">Продолжить с Microsoft</string>
+    <string name="continue_as_a_guest">Войти как гость</string>
 </resources>

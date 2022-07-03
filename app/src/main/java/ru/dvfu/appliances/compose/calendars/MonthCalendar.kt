@@ -129,7 +129,7 @@ fun MonthWeekCalendar(
                             currentUser = currentUser,
                             state = dayState,
                             currentDayEvents = (dayEvents[dayState.date] as? EventsState.Loaded)?.events.orEmpty()
-                                .filter { it.status != BookingStatus.DECLINED }
+                                .filter { it.status != BookingStatus.DECLINED && it.appliance.active }
                         )
                     },
                     monthHeader = { SchedulerMonthHeader(it) }

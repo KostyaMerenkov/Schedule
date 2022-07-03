@@ -1,5 +1,6 @@
 package ru.dvfu.appliances.compose.home.profile
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -220,6 +221,7 @@ fun UserNameAndImage(user: User) {
 private fun startLoginActivity(context: Context) {
     val intent = Intent(context, LoginActivity::class.java)
     context.startActivity(intent)
+    (context as Activity).finish()
 }
 
 @ExperimentalCoilApi

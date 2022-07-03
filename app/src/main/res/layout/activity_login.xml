@@ -86,7 +86,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Sign in with Google"
+                        android:text="@string/sign_in_with_google"
                         android:textAlignment="center"
                         android:textColor="@android:color/black"
                         android:textSize="16sp" />
@@ -122,7 +122,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Sign in with Microsoft"
+                        android:text="@string/sign_in_with_microsoft"
                         android:textAlignment="center"
                         android:textColor="@android:color/white"
                         android:textSize="16sp" />
@@ -166,7 +166,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Continue as a guest"
+                android:text="@string/continue_as_a_guest"
                 android:textAlignment="center"
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
