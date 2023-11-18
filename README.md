@@ -11,7 +11,5 @@ You can:
 - Receive notifications of new bookings as well as changes to existing ones
 
 ## Screenshots
-<img src="screenshots/calendar.png" width="200" />
-<img src="screenshots/schedule.png" width="200" />
-<img src="screenshots/new.png" width="200" />
-<img src="screenshots/appliances.png" width="200" />
+<img src="screenshots/calendar.png" width="200" /> <img src="screenshots/schedule.png" width="200" />
+<img src="screenshots/new.png" width="200" /> <img src="screenshots/appliances.png" width="200" />
