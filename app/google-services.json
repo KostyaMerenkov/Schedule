@@ -15,7 +15,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "106372275715-koeuhmhvig26so13nmor4j2i854g8f2v.apps.googleusercontent.com",
+          "client_id": "106372275715-0o82ap5mb0802sgkp7g8kbhoc5hvbpgh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "ru.dvfu.appliances",
@@ -23,15 +23,39 @@
           }
         },
         {
-          "client_id": "106372275715-r9elkha68mkjc85lvbqgehnqprpqvf9q.apps.googleusercontent.com",
+          "client_id": "106372275715-39h89tf277cvh6socdsvsn7d3hnpb061.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "ru.dvfu.appliances",
-            "certificate_hash": "c1e2b37768b8c21bc2dc7313edb62e0438b4bcf3"
+            "certificate_hash": "0a370734987bdf8cd13bd3a476af07aa20dbd441"
           }
         },
         {
-          "client_id": "106372275715-u29tknt5jjc1g4ceoj1mhu6kfh3iathu.apps.googleusercontent.com",
+          "client_id": "106372275715-3vm77dedoc1ls40qbtjnpjd38q5bjdbs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "40a2189d1c48ac28379dec76ea16a80c52f2aaaa"
+          }
+        },
+        {
+          "client_id": "106372275715-9n2qnjk6id16l6ipv3aba0vr26tetvpk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "9f7563dbca81ae4eb8c59c802407adeb984bd3fd"
+          }
+        },
+        {
+          "client_id": "106372275715-mq9bop5fl09t51n5bgd6mpluf6sl4l99.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.dvfu.appliances",
+            "certificate_hash": "b5b0153f6b2f7151d8048417aa1542c270f9b3c6"
+          }
+        },
+        {
+          "client_id": "106372275715-nll18vujg7asaafs0s55m78r3mhiprvd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "ru.dvfu.appliances",

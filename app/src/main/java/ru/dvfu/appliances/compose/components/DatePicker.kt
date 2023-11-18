@@ -6,13 +6,17 @@ import android.app.TimePickerDialog
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import java.time.*
 import java.util.*
+import kotlin.math.min
 
 @Composable
 fun DatePicker(
-    date: MutableState<Long>,
-    dateSetState: MutableState<Boolean>,
-    context: Context
+    context: Context,
+    date: LocalDate,
+    minDate: LocalDate = LocalDate.now(),
+    onDateSet: (LocalDate) -> Unit,
+    onDismiss: () -> Unit
 ) {
     val calendar = Calendar.getInstance()
 
@@ -20,36 +24,34 @@ fun DatePicker(
         context,
         android.R.style.Theme_Material_Dialog_Alert,
         { _, year, monthOfYear, dayOfMonth ->
-            calendar.set(Calendar.YEAR, year)
-            calendar.set(Calendar.MONTH, monthOfYear)
-            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-            date.value = calendar.timeInMillis
+            onDateSet(LocalDate.of(year, monthOfYear.inc(), dayOfMonth))
         },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
-    ).apply { show() }
-    dateSetState.value = false
+        date.year,
+        date.monthValue.dec(),
+        date.dayOfMonth
+    ).apply {
+        datePicker.minDate = minDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        show()
+    }
+    onDismiss()
 }
 
 @Composable
 fun TimePicker(
-    date: MutableState<Long>,
-    timeSetState: MutableState<Boolean>,
-    context: Context
+    context: Context,
+    time: LocalTime,
+    onTimeSet: (LocalTime) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val calendar = Calendar.getInstance()
 
     TimePickerDialog(
         context,
         R.style.Theme_Material_Dialog_Alert,
         TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
-            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-            calendar.set(Calendar.MINUTE, minute)
-            date.value = calendar.timeInMillis
+            onTimeSet(LocalTime.of(hourOfDay, minute))
         },
-        calendar.get(Calendar.HOUR_OF_DAY),
-        calendar.get(Calendar.MINUTE), true
+        time.hour,
+        time.minute, true
     ).show()
-    timeSetState.value = false
+    onDismiss.invoke()
 }

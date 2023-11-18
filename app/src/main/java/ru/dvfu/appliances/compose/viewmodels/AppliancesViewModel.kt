@@ -6,41 +6,45 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
-import ru.dvfu.appliances.model.repository.Repository
-import ru.dvfu.appliances.model.repository.UserRepository
+import ru.dvfu.appliances.model.datastore.UserDatastore
+import ru.dvfu.appliances.model.repository.AppliancesRepository
+import ru.dvfu.appliances.model.repository.UsersRepository
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.ui.BaseViewState
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.ViewState
 
 class AppliancesViewModel(
-    private val repository: Repository,
-    private val userRepository: UserRepository
+    private val repository: AppliancesRepository,
+    private val usersRepository: UsersRepository,
+    private val userDatastore: UserDatastore,
 ) : ViewModel() {
 
-    val appliancesList = MutableStateFlow(listOf<Appliance>())
+    val currentUser = MutableStateFlow(User())
 
-    val isRefreshing = mutableStateOf<Boolean>(false)
+    private val _appliancesState = MutableStateFlow<ViewState<Map<Boolean, List<Appliance>>>>(ViewState.Loading)
+    val appliancesState = _appliancesState.asStateFlow()
 
     init {
+        setCurrentUserListener()
         loadAppliances()
     }
 
-    private val _uiState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
-    val uiState: StateFlow<ViewState<List<Appliance>>>
-        get() = _uiState
+    private fun setCurrentUserListener() {
+        viewModelScope.launch {
+            userDatastore.getCurrentUser.collect {
+                currentUser.value = it
+            }
+        }
+    }
 
-    fun refresh() = loadAppliances()
-
-    val user = userRepository.currentUserFromDB
 
     private fun loadAppliances() {
-        isRefreshing.value = true
+        _appliancesState.value = ViewState.Loading
         viewModelScope.launch {
             repository.getAppliances().collect { appliances ->
-                delay(1000)
-                _uiState.value = ViewState.Success(appliances)
-                isRefreshing.value = false
+                _appliancesState.value = ViewState.Success(appliances.groupBy{it.active}.toSortedMap())
             }
         }
     }

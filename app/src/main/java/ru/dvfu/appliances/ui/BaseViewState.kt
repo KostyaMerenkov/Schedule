@@ -9,5 +9,5 @@ sealed class BaseViewState {
 sealed class ViewState<out T> {
     class Success<T>(val data: T) : ViewState<T>()
     class Error(val error: Throwable) : ViewState<Nothing>()
-    class Loading(val progress: Int? = null) : ViewState<Nothing>()
+    object Loading : ViewState<Nothing>()
 }

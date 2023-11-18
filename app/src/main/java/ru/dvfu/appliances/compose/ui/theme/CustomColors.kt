@@ -9,7 +9,6 @@ import androidx.compose.ui.graphics.Color
 data class CustomColors(
     val secondaryTextColor: Color,
     val secondaryIconColor: Color,
-
     )
 
 fun darkCustomColors(

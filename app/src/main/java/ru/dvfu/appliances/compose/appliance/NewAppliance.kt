@@ -1,6 +1,7 @@
 package ru.dvfu.appliances.compose.appliance
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.dvfu.appliances.R
@@ -28,52 +30,41 @@ import ru.dvfu.appliances.compose.components.ColorPicker
 import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.ui.theme.pickerColors
 import ru.dvfu.appliances.compose.viewmodels.NewApplianceViewModel
+import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
 import ru.dvfu.appliances.ui.BaseViewState
+import ru.dvfu.appliances.ui.ViewState
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalMaterialApi
 @Composable
 fun NewAppliance(backPressed: () -> Unit) {
     val viewModel: NewApplianceViewModel = get()
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val (selectedColor, onColorSelected) = remember { mutableStateOf(pickerColors[0]) }
-    val scaffoldState = rememberBottomSheetScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-    SubscribeToProgress(uiState, backPressed)
 
-    BottomSheetScaffold(
+    LaunchedEffect(key1 = uiState) {
+        if (uiState is UiState.Success) { backPressed() }
+    }
 
+    if (uiState is UiState.InProgress) { ModalLoadingDialog() }
+
+    Scaffold(
         topBar = { ScheduleAppBar(title = "Новое устройство", backClick = backPressed) },
         floatingActionButton = {
-            NewApplianceFab(scaffoldState, uiState = uiState) {
+            NewApplianceFab {
                 if (!viewModel.createNewAppliance())
-                    Toast.makeText(context, "Название не заполнено!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context.applicationContext,
+                        "Название не заполнено!",
+                        Toast.LENGTH_SHORT
+                    ).show()
             }
         },
-        sheetContent = {
-            Column {
-                Text(
-                    "Select color",
-                    style = MaterialTheme.typography.h6,
-                    modifier = Modifier.padding(12.dp)
-                )
-                Divider(thickness = 1.dp, color = MaterialTheme.colors.onPrimary)
-                ColorPicker(
-                    pickerColors,
-                    selectedColor,
-                    onColorSelected.apply {
-                        viewModel.selectedColor.value = selectedColor
-                    },
-                    modifier = Modifier.padding(12.dp)
-                )
-            }
-        },
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = 0.dp,
     ) {
         val scrollState = rememberScrollState()
         Column(
@@ -84,45 +75,23 @@ fun NewAppliance(backPressed: () -> Unit) {
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .verticalScroll(state = scrollState, enabled = true),
         ) {
-            ApplianceName(viewModel.title, viewModel.description)
-            OutlinedButton(onClick = {
-                coroutineScope.launch {
-                    keyboardController?.hide()
-                    scaffoldState.bottomSheetState.expand()
-                }
-            }, colors = ButtonDefaults.buttonColors(backgroundColor = selectedColor ?: Color.White))
-            { Text(stringResource(R.string.choose_color)) }
-            //ApplianceDescription()
-        }
-    }
-}
+            ApplianceNameSet(viewModel.title, viewModel.description)
 
-@Composable
-fun SubscribeToProgress(vmuiState: State<BaseViewState>, upPress: () -> Unit) {
-    val errorDialog = rememberSaveable { mutableStateOf(false) }
-
-    when (vmuiState.value) {
-        is BaseViewState.Success<*> -> {
-            if ((vmuiState.value as BaseViewState.Success<*>).data != null) {
-                Toast.makeText(
-                    LocalContext.current,
-                    "Оборудование добавлено!",
-                    Toast.LENGTH_SHORT
-                ).show()
-                upPress()
+            Column {
+                Text(
+                    stringResource(id = R.string.pick_color),
+                    style = MaterialTheme.typography.h6,
+                    modifier = Modifier.padding(12.dp)
+                )
+                Divider(thickness = 1.dp, color = MaterialTheme.colors.onPrimary)
+                ColorPicker(
+                    pickerColors, selectedColor,
+                    onColorSelected.apply {
+                        viewModel.selectedColor.value = selectedColor
+                    },
+                    modifier = Modifier.padding(12.dp)
+                )
             }
-        }
-        is BaseViewState.Loading -> {
-
-        }
-        is BaseViewState.Error -> {
-            ErrorDialog(errorDialog)
-            errorDialog.value = true
-            Toast.makeText(
-                LocalContext.current,
-                "Error: ${(vmuiState.value as BaseViewState.Error).error.message}",
-                Toast.LENGTH_SHORT
-            ).show()
         }
     }
 }
@@ -130,59 +99,20 @@ fun SubscribeToProgress(vmuiState: State<BaseViewState>, upPress: () -> Unit) {
 @ExperimentalMaterialApi
 @Composable
 fun NewApplianceFab(
-    scaffoldState: BottomSheetScaffoldState,
-    uiState: State<BaseViewState>,
     onFabClicked: () -> Unit
 ) {
-
-    val defaultBottomPadding: Dp = 128.dp //194
-    val paddingBottom = remember { mutableStateOf(defaultBottomPadding) } //128
-    val paddingTop = remember { mutableStateOf(0.dp) }
-
-
-    when (scaffoldState.bottomSheetState.currentValue) {
-        BottomSheetValue.Collapsed -> {
-            paddingBottom.value = defaultBottomPadding
-            paddingTop.value = 0.dp
-        }
-        BottomSheetValue.Expanded -> {
-            paddingBottom.value = 24.dp
-            paddingTop.value = 24.dp
-        }
+    FloatingActionButton(
+        modifier = Modifier.animateContentSize(), onClick = onFabClicked,
+    ) {
+        Icon(
+            Icons.Default.Check,
+            contentDescription = stringResource(R.string.add_new_appliance),
+        )
     }
-
-    when (uiState.value) {
-        is BaseViewState.Success<*> -> {
-
-            FloatingActionButton(
-                modifier = Modifier
-                    .animateContentSize()
-                    .padding(bottom = paddingBottom.value, top = paddingTop.value),
-                onClick = onFabClicked,
-//                backgroundColor = Color(0xFFFF8C00)
-            ) {
-                Icon(
-                    Icons.Default.Check,
-                    contentDescription = stringResource(R.string.add_new_appliance),
-                )
-            }
-
-
-        }
-        is BaseViewState.Loading -> {
-            FloatingActionButton(
-                onClick = onFabClicked,
-                /*backgroundColor = Color(0xFFFF8C00),*/
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-    }
-
 }
 
 @Composable
-fun ApplianceName(titleState: MutableState<String>, descriptionState: MutableState<String>) {
+fun ApplianceNameSet(titleState: MutableState<String>, descriptionState: MutableState<String>) {
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         SubtitleWithIcon(Modifier, Icons.Default.Menu, "Устройство")
@@ -195,7 +125,7 @@ fun ApplianceName(titleState: MutableState<String>, descriptionState: MutableSta
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged {},
-            label = { Text(text = "Название") },
+            label = { Text(text = stringResource(id = R.string.main_name)) },
             isError = titleState.value.isEmpty()
         )
         OutlinedTextField(

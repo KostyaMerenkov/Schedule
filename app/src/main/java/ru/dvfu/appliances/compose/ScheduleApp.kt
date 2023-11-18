@@ -1,33 +1,37 @@
 package ru.dvfu.appliances.compose
 
-import Drawer
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.padding
-
-import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.google.accompanist.insets.navigationBarsWithImePadding
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.launch
-import ru.dvfu.appliances.compose.appliance.AddUser
+import org.koin.androidx.compose.getViewModel
+import ru.dvfu.appliances.compose.appliance.AddUsersToAppliance
 import ru.dvfu.appliances.compose.appliance.ApplianceDetails
 import ru.dvfu.appliances.compose.appliance.NewAppliance
-import ru.dvfu.appliances.compose.home.AddEvent
+import ru.dvfu.appliances.compose.home.*
+import ru.dvfu.appliances.compose.home.booking_list.BookingList
+import ru.dvfu.appliances.compose.home.profile.EditProfile
+import java.time.LocalDate
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalCoroutinesApi::class)
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -35,60 +39,39 @@ import ru.dvfu.appliances.compose.home.AddEvent
 @InternalCoroutinesApi
 @Composable
 fun ScheduleApp() {
-    //ProvideWindowInsets {
-    MaterialTheme {
-        val appStateHolder = rememberAppStateHolder()
-        //var visible by remember { mutableStateOf(false) }
-        val scope = rememberCoroutineScope()
+    val appStateHolder = rememberAppStateHolder()
+    val viewModel: MainScreenViewModel = getViewModel()
+    val scope = rememberCoroutineScope()
 
-        val result = remember { mutableStateOf("") }
-        val selectedItem = remember { mutableStateOf("upload") }
-
-        Scaffold(
-            /*floatingActionButton = {
-                if (appStateHolder.shouldShowFab) {
-                    FloatingActionButton(
-                        onClick = { result.value = "FAB clicked" },
-                        backgroundColor = Color(0xFFFF8C00),
-
-                    ) {
-                        Icon(Icons.Filled.Add, "")
-                    }
-                }
-            },*/
-            isFloatingActionButtonDocked = true,
-            floatingActionButtonPosition = FabPosition.Center,
-            drawerContent = {
-                Drawer(
-                    scope = scope,
-                    scaffoldState = appStateHolder.scaffoldState,
-                    navController = appStateHolder.navController
-                )
-            },
-            bottomBar = {
-                if (appStateHolder.shouldShowBottomBar) {
-                    ScheduleBottomBar(
-                        tabs = appStateHolder.bottomBarTabs,
-                        currentRoute = appStateHolder.currentRoute!!,
-                        navigateToRoute = appStateHolder::navigateToBottomBarRoute
-                    )
-                }
-                //ScheduleBottomBar(result, selectedItem, fabShape)
-            },
-            scaffoldState = appStateHolder.scaffoldState
-        ) { innerPaddingModifier ->
-            //Spacer(modifier = Modifier.statusBarsHeight())
-            NavHost(
-                navController = appStateHolder.navController,
-                startDestination = MainDestinations.HOME_ROUTE,
-                modifier = Modifier.padding(innerPaddingModifier)
-            ) {
-                NavGraph(
-                    navController = appStateHolder.navController,
-                    upPress = appStateHolder::upPress,
-                    openDrawer = { scope.launch { appStateHolder.scaffoldState.drawerState.open() } }
+    Scaffold(
+        bottomBar = {
+            if (appStateHolder.shouldShowBottomBar) {
+                ScheduleBottomBar(
+                    tabs = appStateHolder.bottomBarTabs,
+                    currentRoute = appStateHolder.currentRoute!!,
+                    navigateToRoute = appStateHolder::navigateToBottomBarRoute
                 )
             }
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = it,
+                modifier = Modifier.navigationBarsWithImePadding(),
+                snackbar = { snackbarData -> AppSnackbar(snackbarData) }
+            )
+        },
+        scaffoldState = appStateHolder.scaffoldState,
+        modifier = Modifier.navigationBarsWithImePadding()
+    ) { innerPaddingModifier ->
+        NavHost(
+            navController = appStateHolder.navController,
+            startDestination = MainDestinations.HOME_ROUTE,
+            modifier = Modifier.padding(innerPaddingModifier)
+        ) {
+            NavGraph(
+                navController = appStateHolder.navController,
+                upPress = appStateHolder::upPress,
+            )
         }
     }
 }
@@ -102,21 +85,36 @@ fun ScheduleApp() {
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
 private fun NavGraphBuilder.NavGraph(
-    upPress: () -> Unit,
-    openDrawer: () -> Unit,
     navController: NavController,
-    backPress: () -> Unit = { navController.popBackStack() }
+    backPress: () -> Unit = { navController.popBackStack() },
+    upPress: () -> Unit
 ) {
     navigation(
         route = MainDestinations.HOME_ROUTE,
         startDestination = HomeSections.CALENDAR.route
     ) {
-        addHomeGraph(navController, openDrawer = openDrawer, upPress)
+        addHomeGraph(
+            navController = navController,
+            backPress = upPress
+        )
     }
 
     composable(MainDestinations.ADD_EVENT) {
-        AddEvent(navController = navController)
+        val selectedDate =
+            it.arguments?.getParcelable<SelectedDate>(Arguments.DATE)?.value ?: LocalDate.now()
+        AddEvent(selectedDate = selectedDate, upPress)
     }
+
+    composable(MainDestinations.EVENT_INFO) {
+        EventInfoScreen(navController, eventArg = it.requiredArg(Arguments.EVENT), backPress)
+    }
+
+    composable(MainDestinations.EDIT_PROFILE) {
+        EditProfile() {
+            navController.popBackStack()
+        }
+    }
+
 
     /*composable(MainDestinations.LOGIN_ROUTE) {
         LoginScreen(navController = navController)
@@ -128,11 +126,17 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(
         route = MainDestinations.ADD_USER_TO_APPLIANCE,
-    ) { AddUser(navController, it.requiredArg(Arguments.APPLIANCE)) }
+    ) { AddUsersToAppliance(navController, it.requiredArg(Arguments.APPLIANCE)) }
 
     composable(
         route = MainDestinations.ADD_SUPERUSER_TO_APPLIANCE,
-    ) { AddUser(navController, it.requiredArg(Arguments.APPLIANCE), areSuperUsers = true) }
+    ) {
+        AddUsersToAppliance(
+            navController,
+            it.requiredArg(Arguments.APPLIANCE),
+            areSuperUsers = true
+        )
+    }
 
     composable(
         route = MainDestinations.APPLIANCES_ROUTE,
@@ -151,6 +155,36 @@ private fun NavGraphBuilder.NavGraph(
     ) { Users(navController, upPress) }
 
     composable(
+        route = MainDestinations.BOOKING_LIST
+    ) {
+        BookingList(navController = navController)
+    }
+
+    composable(
         route = MainDestinations.SETTINGS_ROUTE,
     ) { Settings(navController, upPress) }
+
+}
+
+@Composable
+fun AppSnackbar(
+    snackbarData: SnackbarData,
+    modifier: Modifier = Modifier,
+    actionOnNewLine: Boolean = false,
+    shape: Shape = CircleShape,
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    contentColor: Color = MaterialTheme.colors.onSurface,
+    //actionColor: Color = JetsnackTheme.colors.brand,
+    elevation: Dp = 6.dp
+) {
+    Snackbar(
+        snackbarData = snackbarData,
+        modifier = modifier,
+        actionOnNewLine = actionOnNewLine,
+        shape = shape,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        //actionColor = actionColor,
+        elevation = elevation
+    )
 }

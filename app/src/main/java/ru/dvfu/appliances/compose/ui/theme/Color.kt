@@ -7,9 +7,13 @@ val Purple500 = Color(0xFF6200EE)
 val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
 
+val Green500 = Color(0xFF4CAF50)
+val Red500 = Color(0xFFF44336)
+
+
 val pickerColors = listOf(
     null,
-    Color(0xFF000000),
+    //Color(0xFF000000),
     Color(0xFFFFFFFF),
     Color(0xFFFAFAFA),
     Color(0x80FF4444),
@@ -44,3 +48,5 @@ val supportFigmaTextColor = Color(0x42000000)
 val primaryFigmaBackgroundTint = Color(0xFFFFF7E6)
 val backgroundWhiteColor = Color(0xFFFFFFFF)
 val backgroundGreenColor = Color(0x2043A047)
+
+val Blue500 = Color(0xFF42A5F5)

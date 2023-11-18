@@ -7,18 +7,41 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import ru.dvfu.appliances.R
+import ru.dvfu.appliances.application.SnackbarManager
+import ru.dvfu.appliances.compose.components.UiState
 import ru.dvfu.appliances.compose.ui.theme.pickerColors
+import ru.dvfu.appliances.model.datastore.UserDatastore
+import ru.dvfu.appliances.model.repository.AppliancesRepository
 
 import ru.dvfu.appliances.model.repository.Repository
 import ru.dvfu.appliances.model.repository.entity.Appliance
+import ru.dvfu.appliances.model.repository.entity.User
 import ru.dvfu.appliances.ui.BaseViewState
 import ru.dvfu.appliances.ui.Progress
 
-class NewApplianceViewModel(private val repository: Repository): ViewModel() {
+class NewApplianceViewModel(
+    private val repository: AppliancesRepository,
+    private val userDatastore: UserDatastore
+) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<BaseViewState>(BaseViewState.Success(null))
-    val uiState: StateFlow<BaseViewState>
+    private val _uiState = MutableStateFlow<UiState?>(null)
+    val uiState: StateFlow<UiState?>
         get() = _uiState
+
+    private val _currentUser = MutableStateFlow(User())
+
+    init {
+        getCurrentUser()
+    }
+
+    private fun getCurrentUser() {
+        viewModelScope.launch {
+            userDatastore.getCurrentUser.collect {
+                _currentUser.value = it
+            }
+        }
+    }
 
     val noErrors = mutableStateOf<Boolean>(true)
 
@@ -27,26 +50,23 @@ class NewApplianceViewModel(private val repository: Repository): ViewModel() {
     val selectedColor = mutableStateOf(pickerColors[0])
 
     private fun saveNewAppliance(appliance: Appliance) {
-        _uiState.value = BaseViewState.Loading()
+        _uiState.value = UiState.InProgress
 
         viewModelScope.launch {
-                repository.addAppliance(appliance).collect { progress ->
-                    when (progress) {
-                        is Progress.Complete -> {
-                            _uiState.value = BaseViewState.Success(progress)
-                        }
-                        is Progress.Loading -> {
-                            _uiState.value = BaseViewState.Loading(progress.percents)
-                        }
-                        is Progress.Error -> {
-                            _uiState.value = BaseViewState.Error(progress.error)
-                        }
-                    }
-            }
+            repository.addAppliance(appliance).fold(
+                onSuccess = {
+                    SnackbarManager.showMessage(R.string.new_appliance_success)
+                    _uiState.value = UiState.Success
+                },
+                onFailure = {
+                    SnackbarManager.showMessage(R.string.new_appliance_failed)
+                    _uiState.value = UiState.Error
+                }
+            )
         }
     }
 
-    fun isInputCorrect() = title.value.isNotBlank()
+    private fun isInputCorrect() = title.value.isNotBlank()
 
     fun createNewAppliance(): Boolean {
         return if (isInputCorrect()) {
@@ -55,6 +75,7 @@ class NewApplianceViewModel(private val repository: Repository): ViewModel() {
                     name = title.value,
                     description = description.value,
                     color = selectedColor.value.hashCode(),
+                    createdById = _currentUser.value.userId
                 )
             )
             true

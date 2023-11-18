@@ -3,115 +3,235 @@ package ru.dvfu.appliances.compose.viewmodels
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.viewModel
+import ru.dvfu.appliances.BuildConfig
+import ru.dvfu.appliances.R
+import ru.dvfu.appliances.application.SnackbarManager
 import ru.dvfu.appliances.compose.components.UiState
-import ru.dvfu.appliances.model.repository.Repository
-import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.Event
-import ru.dvfu.appliances.model.utils.randomUUID
-import ru.dvfu.appliances.ui.BaseViewState
-import ru.dvfu.appliances.ui.Progress
+import ru.dvfu.appliances.compose.use_cases.GetAppliancesUseCase
+import ru.dvfu.appliances.compose.use_cases.GetEventTimeAvailabilityUseCase
+import ru.dvfu.appliances.compose.utils.AvailabilityState
+import ru.dvfu.appliances.compose.utils.NotificationManager
+import ru.dvfu.appliances.model.datastore.UserDatastore
+import ru.dvfu.appliances.model.repository.EventsRepository
+import ru.dvfu.appliances.model.repository.entity.*
+import ru.dvfu.appliances.model.utils.TimeConstants.DEFAULT_EVENT_DURATION
+import ru.dvfu.appliances.model.utils.TimeConstants.MIN_EVENT_DURATION
+import ru.dvfu.appliances.model.utils.toMillis
 import ru.dvfu.appliances.ui.ViewState
+import java.time.*
 import java.util.*
-import java.util.concurrent.TimeUnit
+
 
 class AddEventViewModel(
-    private val repository: Repository,
+    private val selectedDate: LocalDate,
+    private val eventsRepository: EventsRepository,
+    private val getAppliancesUseCase: GetAppliancesUseCase,
+    private val getEventTimeAvailabilityUseCase: GetEventTimeAvailabilityUseCase,
+    private val userDatastore: UserDatastore,
+    private val notificationManager: NotificationManager,
 ) : ViewModel() {
 
     private val _selectedAppliance = MutableStateFlow<Appliance?>(null)
     val selectedAppliance = _selectedAppliance.asStateFlow()
 
-    val isRefreshing = mutableStateOf<Boolean>(false)
-
     private val _uiState = MutableStateFlow<UiState?>(null)
     val uiState = _uiState.asStateFlow()
 
-    private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading())
+    private val _autoApproveToggleEnabled = MutableStateFlow<Boolean>(false)
+    val autoApproveToggleEnabled = _autoApproveToggleEnabled.asStateFlow()
+
+    private val _autoApproveToggle = MutableStateFlow<Boolean>(false)
+    val autoApproveToggle = _autoApproveToggle.asStateFlow()
+
+    private val _appliancesState = MutableStateFlow<ViewState<List<Appliance>>>(ViewState.Loading)
     val appliancesState = _appliancesState.asStateFlow()
 
-    val date = mutableStateOf(0L)
-    val timeStart = mutableStateOf(0L)
-    val timeEnd = mutableStateOf(0L)
+    private val currentUser = MutableStateFlow(User())
 
+    val date = mutableStateOf(selectedDate)
+    val timeStart = mutableStateOf<LocalDateTime>(
+        if (selectedDate.isAfter(LocalDate.now())) selectedDate.atTime(8, 0)
+        else LocalTime.now().atDate(selectedDate)
+    )
+    val timeEnd = mutableStateOf<LocalDateTime>(timeStart.value.plus(DEFAULT_EVENT_DURATION))
+    val commentary = mutableStateOf("")
+
+    val isDurationError: MutableStateFlow<Boolean>
+        get() = MutableStateFlow(
+            timeEnd.value.isBefore(timeStart.value) || Duration.between(
+                timeStart.value, timeEnd.value,
+            ) < MIN_EVENT_DURATION
+        )
     val duration: MutableStateFlow<String>
         get() {
-            /*       LocalDateTime
-                   ChronoUnit.MINUTES.between(event.start, event.end)*/
-            val mills = timeEnd.value - timeStart.value
+            val dur = Duration.between(timeStart.value, timeEnd.value)
             val period = String.format(
-                Locale.getDefault(),
-                "%02d:%02d",
-                TimeUnit.MILLISECONDS.toHours(mills),
-                TimeUnit.MILLISECONDS.toMinutes(mills) % TimeUnit.HOURS.toMinutes(1)
+                Locale.getDefault(), "%02d:%02d", dur.toHours(),
+                dur.minusHours(dur.toHours()).toMinutes(),
             )
             return MutableStateFlow(period)
         }
 
     init {
+        getCurrentUser()
         loadAppliances()
     }
 
-    private fun loadAppliances() {
-        isRefreshing.value = true
+    private fun getCurrentUser() {
         viewModelScope.launch {
-            repository.getAppliances().collect { appliances ->
-                delay(1000)
-                _appliancesState.value = ViewState.Success(appliances)
-                isRefreshing.value = false
+            userDatastore.getCurrentUser.collect {
+                currentUser.value = it
             }
         }
     }
 
-    fun getDuration() {
-        val start = timeStart.value
-        val end = timeEnd.value
-
-        if (start != 0L && end != 0L) {
-            val mills = end - start
-            val period = String.format(
-                Locale.getDefault(),
-                "%02d:%02d",
-                TimeUnit.MILLISECONDS.toHours(mills),
-                TimeUnit.MILLISECONDS.toMinutes(mills) % TimeUnit.HOURS.toMinutes(1)
-            )
-            duration.value = period
-        } else duration.value = ""
+    private fun loadAppliances() {
+        viewModelScope.launch {
+            getAppliancesUseCase.invoke().collect { result ->
+                val appliances = result.getOrDefault(listOf()).filter { it.active }
+                _appliancesState.value = ViewState.Success(appliances)
+            }
+        }
     }
 
     fun addEvent() {
+        _uiState.value = UiState.InProgress
         viewModelScope.launch {
-            repository.addNewEvent(
-                Event(
-                    randomUUID(),
-                    timeStart.value,
-                    timeEnd.value,
-                    _selectedAppliance.value!!.id,
-                )
-            ).collect { progress ->
-                when (progress) {
-                    is Progress.Complete -> {
-                        _uiState.value = UiState.Success
-                    }
-                    is Progress.Loading -> {
-                        _uiState.value = UiState.InProgress
-                    }
-                    is Progress.Error -> {
+            val selectedAppliance = selectedAppliance.value
+            if (isDurationError.value || selectedAppliance == null) {
+                showError()
+            } else {
+                val availabilityResult = getEventTimeAvailabilityUseCase.invoke(
+                    selectedAppliance.id,
+                    eventDateAndTime = EventDateAndTime(
+                        timeStart = timeStart.value.toLocalTime(),
+                        timeEnd = timeEnd.value.toLocalTime(),
+                        date = date.value
+                    )
+                ).single()
+
+                when (availabilityResult) {
+                    AvailabilityState.Available -> addNewEvent(
+                        if (autoApproveToggle.value && autoApproveToggleEnabled.value)
+                            prepareApprovedEvent(selectedAppliance)
+                        else prepareEvent(selectedAppliance)
+
+                    )
+                    AvailabilityState.Error -> {
                         _uiState.value = UiState.Error
+                        SnackbarManager.showMessage(R.string.new_event_failed)
+                    }
+                    AvailabilityState.NotAvailable -> {
+                        _uiState.value = UiState.Error
+                        SnackbarManager.showMessage(R.string.time_not_free)
                     }
                 }
-
             }
         }
+    }
+
+    private fun prepareEvent(selectedAppliance: Appliance): Event {
+        return Event(
+            date = date.value.toMillis,
+            timeCreated = LocalDateTime.now().toMillis,
+            timeStart = timeStart.value.toMillis,
+            timeEnd = timeEnd.value.toMillis,
+            commentary = commentary.value,
+            applianceId = selectedAppliance.id,
+            userId = currentUser.value.userId,
+            status = BookingStatus.NONE,
+        )
+    }
+
+    private fun prepareApprovedEvent(selectedAppliance: Appliance): Event {
+        return Event(
+            date = date.value.toMillis,
+            timeCreated = LocalDateTime.now().toMillis,
+            timeStart = timeStart.value.toMillis,
+            timeEnd = timeEnd.value.toMillis,
+            commentary = commentary.value,
+            applianceId = selectedAppliance.id,
+            userId = currentUser.value.userId,
+            managedTime = LocalDateTime.now().toMillis,
+            managerCommentary = "",
+            managedById = currentUser.value.userId,
+            status = BookingStatus.APPROVED,
+        )
+    }
+
+    private fun addNewEvent(event: Event) {
+        viewModelScope.launch {
+            eventsRepository.addNewEvent(event).fold(
+                onSuccess = {
+                    notificationManager.newEvent(event)
+                    SnackbarManager.showMessage(R.string.add_event_success)
+                    _uiState.value = UiState.Success
+                },
+                onFailure = {
+                    SnackbarManager.showMessage(R.string.add_event_failed)
+                    _uiState.value = UiState.Error
+                }
+            )
+        }
+    }
+
+    private fun showError() {
+        when {
+            Duration.between(timeStart.value, timeEnd.value) < MIN_EVENT_DURATION -> {
+                SnackbarManager.showMessage(R.string.duration_error)
+            }
+            selectedAppliance.value == null -> {
+                SnackbarManager.showMessage(R.string.appliance_not_chosen)
+            }
+            else -> SnackbarManager.showMessage(R.string.error_occured)
+        }
+        _uiState.value = UiState.Error
     }
 
     fun onApplianceSelected(appliance: Appliance) {
         _selectedAppliance.value = appliance.takeIf { it != _selectedAppliance.value }
+        if (selectedAppliance.value == null) {
+            _autoApproveToggleEnabled.value = false
+            _autoApproveToggle.value = false
+        } else {
+            appliance.isUserSuperuserOrAdmin(currentUser.value).let {
+                _autoApproveToggleEnabled.value = it
+                _autoApproveToggle.value = it
+            }
+        }
+    }
+
+    fun onAutoApproveToggleChanged(newBoolean: Boolean) {
+        _autoApproveToggle.value = newBoolean
+    }
+
+    fun onCommentarySet(commentary: String) {
+        this.commentary.value = commentary
+    }
+
+    fun onDateSet(date: LocalDate) {
+        if (BuildConfig.DEBUG && date.isBefore(LocalDate.now())) {
+            SnackbarManager.showMessage(R.string.past_day_error)
+            return
+        }
+        this.date.value = LocalDate.of(date.year, date.month, date.dayOfMonth)
+        if (date.isAfter(LocalDate.now())) {
+            timeStart.value = date.atTime(8, 0)
+            timeEnd.value = timeStart.value.plus(DEFAULT_EVENT_DURATION)
+        } else {
+            timeStart.value = date.atTime(LocalTime.now())
+            timeEnd.value = timeStart.value.plus(DEFAULT_EVENT_DURATION)
+        }
+    }
+
+    fun onTimeStartSet(time: LocalTime) {
+        timeStart.value = date.value.atTime(time.hour, time.minute)
+    }
+
+    fun onTimeEndSet(time: LocalTime) {
+        timeEnd.value = date.value.atTime(time.hour, time.minute)
     }
 
 }

@@ -1,48 +1,77 @@
 package ru.dvfu.appliances.compose.home
 
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.boguszpawlowski.composecalendar.Calendar
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.dvfu.appliances.model.repository.EventsRepository
-import ru.dvfu.appliances.model.repository.entity.Event
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
+import ru.dvfu.appliances.model.datastore.UserDatastore
+import ru.dvfu.appliances.model.repository.AppliancesRepository
+import ru.dvfu.appliances.model.repository.UsersRepository
+import ru.dvfu.appliances.model.repository.entity.*
+import ru.dvfu.appliances.ui.ViewState
 
 class MainScreenViewModel(
-    val eventsRepository: EventsRepository
+    private val usersRepository: UsersRepository,
+    private val userDatastore: UserDatastore,
+    private val appliancesRepository: AppliancesRepository,
 ) : ViewModel() {
 
-    var events = MutableStateFlow<List<ru.dvfu.appliances.compose.event_calendar.Event>>(listOf())
+
+    private val _currentUser = MutableStateFlow<User>(User())
+    val currentUser = _currentUser.asStateFlow()
+
+    private val _events = MutableStateFlow<MutableList<CalendarEvent>>(mutableListOf())
+    val events: StateFlow<List<CalendarEvent>> = _events.asStateFlow()
+
+    private val _dayEvents = MutableStateFlow<MutableList<CalendarEvent>>(mutableListOf())
+    val dayEvents: StateFlow<List<CalendarEvent>> = _dayEvents.asStateFlow()
+
+    private val appliances = MutableStateFlow<List<Appliance>>(listOf())
 
     init {
-        getEvents()
+        getAppliances()
+        loadCurrentUser()
+        getCurrentUser()
     }
 
-    private fun getEvents() {
+    private fun getCurrentUser() {
         viewModelScope.launch {
-            eventsRepository.getAllEventsFromDate(java.util.Calendar.getInstance().apply {
-                add(java.util.Calendar.DATE, -1)
-            }.timeInMillis).collect {
-                events.value = it.map {
-                    ru.dvfu.appliances.compose.event_calendar.Event(
-                        name = it.applianceId,
-                        start = Instant.ofEpochMilli(it.timeStart)
-                            .atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                        end = Instant.ofEpochMilli(it.timeEnd)
-                            .atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                        color = Color(0xFFF4BFDB)
-                    )
-                }
-
+            userDatastore.getCurrentUser.collect{
+                _currentUser.value = it
             }
         }
     }
 
+    val mutableStateFlow: MutableStateFlow<ViewState<User>> =
+        MutableStateFlow(ViewState.Loading)
+
+    private fun loadCurrentUser() {
+        viewModelScope.launch {
+            usersRepository.currentUser
+                .catch { error -> handleError(error) }
+                .collectLatest { user -> user?.let { onSuccess(user) } }
+        }
+    }
+
+    private fun onSuccess(user: User) {
+        if (user.anonymous.not()) {
+            viewModelScope.launch {
+                usersRepository.setUserListener(user)
+            }
+        }
+        mutableStateFlow.value = ViewState.Success(user)
+    }
+
+    private fun handleError(error: Throwable) {
+        mutableStateFlow.value = ViewState.Error(error)
+    }
+
+    private fun getAppliances() {
+        viewModelScope.launch {
+            appliancesRepository.getAppliances().collect {
+                appliances.value = it
+            }
+        }
+    }
 
 }

@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ru.dvfu.appliances">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name="ru.dvfu.appliances.application.Schedule"
         android:allowBackup="true"
@@ -19,9 +22,13 @@
             </intent-filter>
         </service>
 
+        <meta-data
+            android:name="firebase_performance_logcat_enabled"
+            android:value="true" />
+
         <activity
             android:exported="true"
-            android:name="ru.dvfu.appliances.ui.activity.SplashScreen"
+            android:name="ru.dvfu.appliances.ui.SplashScreen"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,13 +37,13 @@
         </activity>
         <activity
             android:exported="true"
-            android:name="ru.dvfu.appliances.ui.activity.LoginActivity"
-            android:label="@string/app_name">
+            android:name="ru.dvfu.appliances.ui.LoginActivity">
         </activity>
         <activity
             android:exported="true"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
             android:name="ru.dvfu.appliances.compose.MainActivity"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Schedule.NoActionBar" />
 
     </application>

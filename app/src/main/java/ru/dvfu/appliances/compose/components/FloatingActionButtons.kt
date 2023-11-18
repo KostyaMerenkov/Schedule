@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddTask
+import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
@@ -19,15 +21,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import ru.dvfu.appliances.R
+import ru.dvfu.appliances.model.repository.entity.Roles
+import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.isAdmin
 
 @Composable
 fun FabWithMenu(
     modifier: Modifier = Modifier,
-    items: List<FabMenuItem>,
     fabState: MutableState<MultiFabState>,
+    currentUser: User,
+    onAddEventClick: () -> Unit,
 ) {
     //val toState = remember { mutableStateOf(MultiFabState.COLLAPSED) }
     val transition = updateTransition(targetState = fabState, label = "")
@@ -45,10 +52,14 @@ fun FabWithMenu(
         horizontalAlignment = Alignment.End
     ) {
 
-
-        items.forEach {
-            FabMenuItem(item = it, size = size.value)
+        if (currentUser.isAdmin) {
+            FabMenu(item = FabMenuItem(
+                icon = Icons.Default.AddTask,
+                text = stringResource(id = R.string.new_event),
+                onClick = onAddEventClick
+            ), size = size.value)
         }
+
 
         FloatingActionButton(backgroundColor = Color(0xFFFF8C00),
             onClick = {
@@ -67,7 +78,7 @@ fun FabWithMenu(
 }
 
 @Composable
-fun FabMenuItem(item: FabMenuItem, modifier: Modifier = Modifier, size: Dp) {
+fun FabMenu(item: FabMenuItem, modifier: Modifier = Modifier, size: Dp) {
     AnimatedVisibility(
         size != 0.dp,
         enter = fadeIn(),

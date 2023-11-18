@@ -27,6 +27,8 @@ import ru.dvfu.appliances.compose.*
 import ru.dvfu.appliances.compose.viewmodels.ApplianceDetailsViewModel
 import ru.dvfu.appliances.model.repository.entity.Appliance
 import ru.dvfu.appliances.model.repository.entity.User
+import ru.dvfu.appliances.model.repository.entity.isUserSuperuserOrAdmin
+
 
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
@@ -89,8 +91,10 @@ fun SwipableUsers(
                             userClicked = { userClicked(user) },
                             userDeleted = { deleteClicked(user) })
                     } else {
-                        ItemUser(user,
-                            userClicked = { userClicked(user) },)
+                        ItemUser(
+                            user,
+                            userClicked = { userClicked(user) },
+                        )
                     }
                 }
             } else
@@ -102,59 +106,20 @@ fun SwipableUsers(
                     )
                 }
         } ?: item {
-            LoadingItem()
+            LoadingItem(Modifier.fillMaxSize())
         }
     }
 }
 
 @Composable
-fun LoadingItem() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
+fun LoadingItem(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator()
     }
 }
-
-/*@ExperimentalMaterialApi
-@OptIn(ExperimentalFoundationApi::class)
-@ExperimentalAnimationApi
-@Composable
-fun Users(
-    users: List<User>?,
-    userClicked: (User) -> Unit,
-    addClicked: () -> Unit,
-    deleteClicked: (User) -> Unit
-) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        item { ItemAdd(addClicked) }
-        users?.let {
-            if (users.isNotEmpty()) {
-                items(users) { user ->
-                    ItemUser(user,
-                        userClicked = { userClicked(user) },
-                        userDeleted = { deleteClicked(user) })
-                }
-            } else
-                item {
-                    NoElementsView(
-                        mainText = stringResource(R.string.no_users_in_appliance),
-                        //secondaryText = stringResource(R.string.new_place_text),
-                        onClickAction = { }
-                    )
-                }
-        } ?: item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-    }
-}*/
-
 
 @Composable
 fun NoElementsView(

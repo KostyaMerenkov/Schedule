@@ -1,11 +1,12 @@
-package com.joesemper.fishing.ui.theme
+package ru.dvfu.appliances.compose.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
-import ru.dvfu.appliances.compose.ui.theme.*
+import com.joesemper.fishing.ui.theme.Shapes
+import com.joesemper.fishing.ui.theme.Typography
 
 private val DarkColorPalette = darkColors(
         primary = Purple200,
@@ -28,37 +29,18 @@ private val LightColorPalette = lightColors(
     */
 )
 
-private val FigmaColorPalette = lightColors(
-    primary = primaryFigmaColor,
-    primaryVariant = primaryFigmaDarkColor,
-    secondary = secondaryFigmaColor,
-    secondaryVariant = secondaryFigmaDarkColor,
-)
-
 @Composable
-fun ComposePracticeTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
-    val colors = if (darkTheme) {
+fun ScheduleTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
+    val colors = LightColorPalette/*if (darkTheme) {
         DarkColorPalette
     } else {
         LightColorPalette
-    }
+    }*/
 
     MaterialTheme(
             colors = colors,
             typography = Typography,
             shapes = Shapes,
             content = content
-    )
-}
-
-
-@Composable
-fun FigmaTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
-    val colors = FigmaColorPalette
-    MaterialTheme(
-        colors = colors,
-        typography = Typography,
-        shapes = Shapes,
-        content = content
     )
 }

@@ -2,15 +2,31 @@ package ru.dvfu.appliances.model.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import ru.dvfu.appliances.model.repository.entity.User
-import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.model.repository.entity.Event
+import ru.dvfu.appliances.model.repository.entity.*
 import ru.dvfu.appliances.ui.Progress
+import java.time.LocalDate
 
 interface EventsRepository {
-    suspend fun addNewEvent(event: Event): StateFlow<Progress>
+    suspend fun addNewEvent(event: Event): Result<Unit>
 
-    suspend fun getAllEventsFromDate(date: Long): Flow<List<Event>>
+    suspend fun getAllEvents(): Flow<List<Event>>
+    suspend fun deleteEvent(eventToDelete: CalendarEvent): Result<Unit>
+    suspend fun setNewTimeEnd(eventId: String, timeEnd: Long): Result<Unit>
+    suspend fun setNewEventStatus(
+        eventId: String,
+        newStatus: BookingStatus,
+        managerCommentary: String,
+        managerId: String
+    ): Result<Unit>
+    suspend fun updateEvent(eventId: String, data: Map<String, Any?>): Result<Unit>
+
+    suspend fun getAllEventsForDay(date: LocalDate): Flow<List<Event>>
+
+    suspend fun getApplianceEventsAfterTime(applianceId: String, time: Long): Result<List<Event>>
+    suspend fun getApplianceDateEvents(applianceId: String, date: LocalDate): Result<List<Event>>
+    suspend fun getAllEventsWithPeriod(dateStart: LocalDate, dateEnd: LocalDate): Result<List<Event>>
+    suspend fun deleteAllApplianceEvents(id: String): Result<Unit>
+    suspend fun hasAtLeastOneEvent(applianceId: String): Boolean
     /*suspend fun getUsers(): Flow<List<User>>
 
     suspend fun addUsersToAppliance(appliance: Appliance, userIds: List<String>): StateFlow<Progress>

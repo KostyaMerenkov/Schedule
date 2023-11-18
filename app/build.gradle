@@ -6,9 +6,22 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
     id 'com.google.gms.google-services'
+    id 'com.google.firebase.firebase-perf'
+    id 'com.google.firebase.crashlytics'
+
 }
 
 android {
+
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\Konst\\Keys\\schedule.jks')
+            storePassword 'android'
+            keyPassword 'android'
+            keyAlias 'key0'
+        }
+    }
+
 
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
@@ -17,16 +30,25 @@ android {
         applicationId "ru.dvfu.appliances"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 1
-        versionName "1.0"
+        versionCode 6
+        versionName "1.0.9"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles 'proguard-rules.pro', getDefaultProguardFile('proguard-android-optimize.txt')
+            signingConfig signingConfigs.release
+        }
+
+        debug {
+            //minifyEnabled true
+            //proguardFiles 'proguard-rules.pro', getDefaultProguardFile('proguard-android-optimize.txt')
+            ext.enableCrashlytics = false
         }
     }
     composeOptions {
@@ -47,26 +69,38 @@ android {
 
 dependencies {
 
+    /*implementation('com.google.api-client:google-api-client-android:1.23.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+    implementation('com.google.apis:google-api-services-calendar:v3-rev119-1.19.1') {
+        exclude group: 'org.apache.httpcomponents'
+    }*/
+
+    implementation 'com.google.code.gson:gson:2.9.0'
     //Settings
     implementation 'com.github.alorma:compose-settings-ui:0.7.2'
 
     implementation 'de.charlex.compose:revealswipe:1.0.0'
-    implementation "io.github.boguszpawlowski.composecalendar:composecalendar:0.3.0"
+    //Calendar
+    implementation "io.github.boguszpawlowski.composecalendar:composecalendar:0.4.2"
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-    implementation 'com.google.android.material:material:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
-    implementation 'androidx.preference:preference-ktx:1.1.1'
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.6.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.2'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.4.2'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.2'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.4.2'
+    implementation 'androidx.preference:preference-ktx:1.2.0'
 
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
 
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.1"
+
     implementation Libs.Kotlin.stdlib
     implementation Libs.Coroutines.android
+    implementation Libs.Coroutines.firebaseCoroutines
 
     implementation Libs.AndroidX.coreKtx
     implementation Libs.AndroidX.splashScreen
@@ -99,8 +133,7 @@ dependencies {
     implementation Libs.Accompanist.pager
     implementation Libs.Accompanist.pagerindicators
     implementation Libs.Accompanist.permissions
-    implementation 'com.google.firebase:firebase-inappmessaging-display-ktx:20.1.1'
-    implementation 'com.google.firebase:firebase-messaging-ktx:23.0.0'
+    implementation Libs.Accompanist.placeholder
 
     debugImplementation Libs.AndroidX.Compose.uiTestManifest
 
@@ -110,61 +143,54 @@ dependencies {
     androidTestImplementation Libs.AndroidX.Test.Ext.junit
     androidTestImplementation Libs.AndroidX.Compose.uiTest
 
-   //implementation 'devs.mulham.horizontalcalendar:horizontalcalendar:1.3.4'
-    implementation 'androidx.annotation:annotation:1.3.0'
-
     //Glide
     implementation 'com.github.bumptech.glide:glide:4.12.0'
-
-    //Compressor
-    implementation 'id.zelory:compressor:3.0.1'
 
     //Coil
     implementation("io.coil-kt:coil-compose:1.3.2")
 
-    //Shimmer
-    implementation "me.vponomarenko:compose-shimmer:1.0.0"
-
-    //SwipeRefreshLayout
-    implementation "com.google.accompanist:accompanist-swiperefresh:0.19.0"
-
-    //Calendar
-    //implementation 'com.michalsvec:single-row-calednar:1.0.0'
-
-    implementation "com.google.accompanist:accompanist-flowlayout:0.21.3-beta"
-
-    //ConstraintLayout
-    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-rc02"
+    implementation "com.google.accompanist:accompanist-flowlayout:0.24.1-alpha"
 
     //RX java
     implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
     // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:26.8.0')
+    implementation platform('com.google.firebase:firebase-bom:30.0.0')
     // When using the BoM, you don't specify versions in Firebase library dependencies
-    // Declare the dependency for the Firebase SDK for Google Analytics
+    // Declare the dependencies for the Firebase Cloud Messaging and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-messaging-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-perf-ktx'
     // Declare the dependencies for any other desired Firebase products
     // For example, declare the dependencies for Firebase Authentication and Cloud Firestore
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-firestore-ktx'
     // Also declare the dependency for the Google Play services library and specify its version
-    implementation 'com.google.android.gms:play-services-auth:20.0.1'
+    implementation 'com.google.android.gms:play-services-auth:20.2.0'
     // Realtime Database library
     implementation 'com.google.firebase:firebase-database'
     // Cloud Firestore library
     implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-inappmessaging-display-ktx:20.1.2'
 
 
-    implementation 'com.firebaseui:firebase-ui-auth:7.1.1'
+    implementation 'com.firebaseui:firebase-ui-auth:8.0.0'
     implementation 'com.google.firebase:firebase-storage-ktx'
 
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
 }

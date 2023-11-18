@@ -1,7 +1,6 @@
 package ru.dvfu.appliances.compose.home
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -15,52 +14,61 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
+import ru.dvfu.appliances.BuildConfig
 import ru.dvfu.appliances.R
 import ru.dvfu.appliances.compose.MyCard
 import ru.dvfu.appliances.compose.ScheduleAppBar
-import ru.dvfu.appliances.compose.appliance.FabWithLoading
 import ru.dvfu.appliances.compose.components.*
 import ru.dvfu.appliances.compose.viewmodels.AddEventViewModel
-import ru.dvfu.appliances.compose.views.PrimaryText
+import ru.dvfu.appliances.compose.components.views.ModalLoadingDialog
+import ru.dvfu.appliances.compose.components.views.PrimaryText
 import ru.dvfu.appliances.model.repository.entity.Appliance
-import ru.dvfu.appliances.ui.BaseViewState
+import ru.dvfu.appliances.model.utils.TimeConstants.FULL_DATE_FORMAT
+import ru.dvfu.appliances.model.utils.toHoursAndMinutes
 import ru.dvfu.appliances.ui.ViewState
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
 
 @Composable
-fun AddEvent(navController: NavController) {
-    val viewModel: AddEventViewModel = get()
+fun AddEvent(selectedDate: LocalDate, upPress: () -> Unit) {
+    val today = remember { LocalDate.now() }
+    val viewModel: AddEventViewModel = getViewModel(parameters = {
+        parametersOf(if (BuildConfig.DEBUG) selectedDate else {
+            selectedDate.takeIf { it.isAfter(today) } ?: today
+        })
+    })
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState) {
         when (uiState) {
-            is UiState.Success -> navController.popBackStack()
+            is UiState.Success -> {
+                upPress()
+            }
+            else -> {}
         }
     }
 
-    val calendar = remember { Calendar.getInstance() }
-
-    LaunchedEffect(key1 = null) {
-        viewModel.date.value = calendar.timeInMillis
-        viewModel.timeStart.value = calendar.timeInMillis
-        viewModel.timeEnd.value = calendar.timeInMillis
-    }
+    if (uiState is UiState.InProgress) ModalLoadingDialog()
 
     Scaffold(topBar = {
-        ScheduleAppBar(title = "Добавление события", backClick = navController::popBackStack)
+        ScheduleAppBar(
+            title = stringResource(id = R.string.new_event),
+            backClick = upPress
+        )
     },
         floatingActionButton = {
-            FabWithLoading(showLoading = uiState is UiState.InProgress,
-                onClick = { viewModel.addEvent() }) {
+            FloatingActionButton(
+                modifier = Modifier.padding(bottom = 70.dp),
+                onClick = { if (uiState != UiState.Success) viewModel.addEvent() }) {
                 Icon(Icons.Default.Check, contentDescription = Icons.Default.Check.name)
             }
         }) {
@@ -72,16 +80,71 @@ fun AddEvent(navController: NavController) {
                 .verticalScroll(state = scrollState, enabled = true)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            DateAndTime(viewModel)
+            DateAndTime(
+                date = viewModel.date.value,
+                timeStart = viewModel.timeStart.value.toLocalTime(),
+                timeEnd = viewModel.timeEnd.value.toLocalTime(),
+                onDateSet = viewModel::onDateSet,
+                onTimeStartSet = viewModel::onTimeStartSet,
+                onTimeEndSet = viewModel::onTimeEndSet,
+                duration = viewModel.duration.collectAsState().value,
+                isDurationError = viewModel.isDurationError.collectAsState().value,
+            )
+            Commentary(
+                commentary = viewModel.commentary.value,
+                onCommentarySet = viewModel::onCommentarySet
+            )
+
             ChooseAppliance(
                 appliancesState = viewModel.appliancesState.collectAsState().value,
                 selectedAppliance = viewModel.selectedAppliance.collectAsState(),
-            ) {
-                viewModel.onApplianceSelected(it)
-            }
+                onApplianceSelected = viewModel::onApplianceSelected
+            )
+            AutoApproveToggle(
+                viewModel.autoApproveToggleEnabled.collectAsState().value,
+                viewModel.autoApproveToggle.collectAsState().value,
+                viewModel::onAutoApproveToggleChanged
+            )
+            Spacer(modifier = Modifier.size(150.dp))
         }
     }
+}
 
+@Composable
+fun AutoApproveToggle(shouldBeShown: Boolean, value: Boolean, onValueChange: (Boolean) -> Unit) {
+    AnimatedVisibility(visible = shouldBeShown,
+    enter = fadeIn(),
+    exit = fadeOut()) {
+        Row(
+            modifier = Modifier
+                .padding(4.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "Автоматически одобрить событие")
+            Checkbox(checked = value, onCheckedChange = onValueChange)
+        }
+    }
+}
+
+@Composable
+fun Commentary(
+    modifier: Modifier = Modifier,
+    commentary: String,
+    onCommentarySet: (String) -> Unit
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        PrimaryText(
+            text = stringResource(id = R.string.commentary),
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = commentary, onValueChange = onCommentarySet,
+            textStyle = TextStyle(color = MaterialTheme.colors.onSurface, fontSize = 16.sp),
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
@@ -177,97 +240,120 @@ fun ItemApplianceSelectable(
                 fontSize = 20.sp,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
-            /*Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
-                if (isSelected) {
-                    Icon(
-                        Icons.Default.CheckCircleOutline,
-                        "",
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }*/
         }
     }
 }
 
 @Composable
-fun DateAndTime(viewModel: AddEventViewModel) {
+fun DateAndTime(
+    date: LocalDate,
+    timeStart: LocalTime,
+    timeEnd: LocalTime,
+    onDateSet: ((LocalDate) -> Unit)? = null,
+    onTimeStartSet: ((LocalTime) -> Unit)? = null,
+    onTimeEndSet: ((LocalTime) -> Unit)? = null,
+    duration: String? = null,
+    isDurationError: Boolean = false,
+) {
     val context = LocalContext.current
-    val duration by viewModel.duration.collectAsState()
 
     val dateSetState = remember { mutableStateOf(false) }
     val timeSetStartState = remember { mutableStateOf(false) }
     val timeSetEndState = remember { mutableStateOf(false) }
 
-    if (dateSetState.value) DatePicker(viewModel.date, dateSetState, context)
-    if (timeSetStartState.value) TimePicker(viewModel.timeStart, timeSetStartState, context)
-    if (timeSetEndState.value) TimePicker(viewModel.timeEnd, timeSetEndState, context)
-
-    LaunchedEffect(timeSetEndState.value, timeSetStartState.value) {
-        viewModel.getDuration()
+    onDateSet?.let {
+        if (dateSetState.value) DatePicker(context, date, onDateSet = onDateSet) {
+            dateSetState.value = false
+        }
+    }
+    onTimeStartSet?.let {
+        if (timeSetStartState.value) TimePicker(
+            context, timeStart,
+            onTimeSet = onTimeStartSet
+        ) { timeSetStartState.value = false }
+    }
+    onTimeEndSet?.let {
+        if (timeSetEndState.value) TimePicker(
+            context, timeEnd,
+            onTimeSet = onTimeEndSet,
+        ) { timeSetEndState.value = false }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        PrimaryText(
+            text = stringResource(id = R.string.date_and_time),
+            modifier = Modifier.fillMaxWidth()
+        )
 
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
-        OutlinedTextField(
-            value = viewModel.date.value.toDate(),
-            onValueChange = {},
-            label = { Text(text = stringResource(R.string.date)) },
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth(),
-            trailingIcon = {
-                IconButton(onClick = {
-                    dateSetState.value = true
-                }) {
-                    Icon(
-                        Icons.Default.Today,
-                        tint = MaterialTheme.colors.primary,
-                        contentDescription = stringResource(R.string.date)
-                    )
-                }
-
-            })
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
             OutlinedTextField(
-                value = viewModel.timeStart.value.toTime(),
+                value = date.format(FULL_DATE_FORMAT),
                 onValueChange = {},
-                label = { Text(text = stringResource(R.string.time_start)) },
+                label = { Text(text = stringResource(R.string.date)) },
                 readOnly = true,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 trailingIcon = {
-                    IconButton(onClick = {
-                        timeSetStartState.value = true
-                    }) {
-                        Icon(
-                            Icons.Default.AccessTime,
-                            tint = MaterialTheme.colors.primary,
-                            contentDescription = stringResource(R.string.time)
-                        )
+                    onDateSet?.let {
+                        IconButton(onClick = {
+                            dateSetState.value = true
+                        }) {
+                            Icon(
+                                Icons.Default.Today,
+                                tint = MaterialTheme.colors.primary,
+                                contentDescription = stringResource(R.string.date)
+                            )
+                        }
                     }
-
                 })
-            OutlinedTextField(
-                value = viewModel.timeEnd.value.toTime(),
-                onValueChange = {},
-                label = { Text(text = stringResource(R.string.time_end)) },
-                readOnly = true,
-                modifier = Modifier.weight(1f),
-                trailingIcon = {
-                    IconButton(onClick = {
-                        timeSetEndState.value = true
-                    }) {
-                        Icon(
-                            Icons.Default.AccessTime,
-                            tint = MaterialTheme.colors.primary,
-                            contentDescription = stringResource(R.string.time)
-                        )
-                    }
-
-                })
-
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
+                OutlinedTextField(
+                    value = timeStart.toHoursAndMinutes(),
+                    onValueChange = {},
+                    label = { Text(text = stringResource(R.string.time_start)) },
+                    readOnly = true,
+                    modifier = Modifier.weight(1f),
+                    trailingIcon = {
+                        onTimeStartSet?.let {
+                            IconButton(onClick = {
+                                timeSetStartState.value = true
+                            }) {
+                                Icon(
+                                    Icons.Default.AccessTime,
+                                    tint = MaterialTheme.colors.primary,
+                                    contentDescription = stringResource(R.string.time)
+                                )
+                            }
+                        }
+                    })
+                OutlinedTextField(
+                    value = timeEnd.toHoursAndMinutes(),
+                    onValueChange = {},
+                    label = { Text(text = stringResource(R.string.time_end)) },
+                    readOnly = true,
+                    modifier = Modifier.weight(1f),
+                    trailingIcon = {
+                        onTimeEndSet?.let {
+                            IconButton(onClick = {
+                                timeSetEndState.value = true
+                            }) {
+                                Icon(
+                                    Icons.Default.AccessTime,
+                                    tint = MaterialTheme.colors.primary,
+                                    contentDescription = stringResource(R.string.time)
+                                )
+                            }
+                        }
+                    })
+            }
+            val textTint by animateColorAsState(
+                if (isDurationError) Color.Red
+                else MaterialTheme.colors.onSurface
+            )
+            duration?.let {
+                Text(text = "Продолжительность: $duration", color = textTint)
+            }
         }
-        Text(text = "Продолжительность: $duration")
     }
 }

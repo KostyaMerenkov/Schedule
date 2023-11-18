@@ -26,8 +26,17 @@ import ru.dvfu.appliances.application.SnackbarManager
  */
 object MainDestinations {
 
+    const val EDIT_PROFILE = "edit_profile"
+    const val EVENT_CALENDAR = "event_calendar"
+    const val WEEK_CALENDAR = "week_calendar"
+    const val TEMP = "temp"
 
     const val ADD_EVENT = "add_event"
+    const val ADD_BOOKING = "add_booking"
+
+
+    const val EVENT_INFO = "event_info"
+
 
     const val LOGIN_ROUTE = "login"
     const val HOME_ROUTE = "home"
@@ -38,6 +47,8 @@ object MainDestinations {
     const val ADD_SUPERUSER_TO_APPLIANCE = "add_superuser_to_appliance"
     const val APPLIANCES_ROUTE = "appliances"
     const val NEW_APPLIANCE_ROUTE = "new_appliance"
+
+    const val BOOKING_LIST = "booking_list_screen"
 
     const val USERS_ROUTE = "users"
     const val USER_DETAILS_ROUTE = "user_details"
@@ -50,11 +61,11 @@ object MainDestinations {
 }
 
 object Arguments {
+    const val DATE = "date_arg"
+    const val EVENT = "event_arg"
     const val USER = "user_arg"
     const val APPLIANCE = "appliance_arg"
-    const val PLACE = "place_arg"
-    const val CATCH = "catch_arg"
-    const val MAP_NEW_PLACE = "map_new_place_arg"
+
 }
 
 /**
@@ -108,7 +119,11 @@ class AppStateHolder(
     // ----------------------------------------------------------
 
     val bottomBarTabs = HomeSections.values()
-    private val bottomBarRoutes = bottomBarTabs.map { it.route }
+    private val innerScreensRoutes = listOf<String>(
+        HomeSections.CALENDAR.route + "/" + MainDestinations.WEEK_CALENDAR,
+        HomeSections.CALENDAR.route + "/" + MainDestinations.HOME_ROUTE,
+    )
+    private val bottomBarRoutes = bottomBarTabs.map { it.route } + innerScreensRoutes
 
     // Reading this attribute will cause recompositions when the bottom bar needs shown, or not.
     // Not all routes need to show the bottom bar.
@@ -145,7 +160,17 @@ class AppStateHolder(
 }
 
 fun NavController.navigate(route: String, vararg args: Pair<String, Parcelable>) {
-    navigate(route)
+    navigate(route) {
+        if (HomeSections.values().map { it.route }.contains(route)) {
+            launchSingleTop = true
+            restoreState = true
+            // Pop up backstack to the first destination and save state. This makes going back
+            // to the start destination when pressing back in any other bottom tab.
+            popUpTo(findStartDestination(this@navigate.graph).id) {
+                saveState = true
+            }
+        }
+    }
 
     requireNotNull(currentBackStackEntry?.arguments).apply {
         args.forEach { (key: String, arg: Parcelable) ->
@@ -160,8 +185,12 @@ inline fun <reified T : Parcelable> NavBackStackEntry.requiredArg(key: String): 
     }
 }
 
+fun NavController.navigateSingleTop(route: String) {
+    navigate(route, navOptions { launchSingleTop = true })
+}
+
 /**
- * If the lifecycle is not resumed it means this NavBackStackEntry already processed a nav event.
+ * If the lifecycle is not resumed it means this NavBackStackEntry already processed a nav calendarEvent.
  *
  * This is used to de-duplicate navigation events.
  */

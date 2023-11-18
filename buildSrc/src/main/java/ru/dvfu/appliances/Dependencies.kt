@@ -47,6 +47,9 @@ object Libs {
         const val core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
         const val android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
         const val test = "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version"
+
+        //Firebase Coroutine dependency:
+        const val firebaseCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0"
     }
 
     object AndroidX {
@@ -92,7 +95,7 @@ object Libs {
         }
 
         object DependencyInjection {
-            private const val koin_version = "3.1.4"
+            private const val koin_version = "3.1.6"
 
             const val koinMain = "io.insert-koin:koin-android:$koin_version"
             const val koinJava = "io.insert-koin:koin-android-compat:$koin_version"
@@ -101,7 +104,7 @@ object Libs {
         }
 
         object Navigation {
-            private const val version = "2.4.0-alpha07"
+            private const val version = "2.4.2"
             const val navigationCompose = "androidx.navigation:navigation-compose:${version}"
         }
 
@@ -130,7 +133,7 @@ object Libs {
 
 
     object Coil {
-        const val coilCompose = "io.coil-kt:coil-compose:2.0.0-alpha06"
+        const val coilCompose = "io.coil-kt:coil-compose:2.0.0-rc01"
     }
 
     object Shimmer {
